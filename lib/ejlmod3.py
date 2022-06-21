@@ -335,6 +335,7 @@ refcc = re.compile('Comput')
 refca = re.compile('Astro')
 #refck = re.compile('[qQ]uantum.(Phys|phys|Infor|infor|Comp|comp|Tec|Com|Corr|Theor|Mech|Dynam|Opti|Elec)')
 refck = re.compile('[qQ]uantum.(Infor|infor|Comp|comp)')
+rerfc = re.compile('^([a-z][a-z])\W[A-Z].*')
 def writeXML(recs,dokfile,publisher):
     dokfile.write('<collection>\n')
     i = 0
@@ -370,7 +371,10 @@ def writeXML(recs,dokfile,publisher):
             xmlstring += marcxml('242',[('a',kapitalisiere(rec['transtit'])), ('9',publisher)])
         #LANGUAGE
         if 'language' in rec:
-            #print rec
+            #combined language/country codes like RFC 1766
+            if rerfc.search(rec['language']):
+                rec['language'] = rerfc.sub(r'\1', rec['language'])
+            #try ISO 639, then the other ISOs
             if len(rec['language']) == 2:
                 try:
                     lang = languages.get(part1=rec['language']).name
