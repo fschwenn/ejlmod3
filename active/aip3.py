@@ -66,17 +66,14 @@ elif (jnl == 'pto'): #authors messy
     jnlname = 'Phys.Today'
     typecode = ''
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
+
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/opt/google/chrome/google-chrome'
+options.add_argument('--headless')
+#driver = uc.Chrome(version_main=102, options=options)
+driver = uc.Chrome(options=options)
+
 
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
 if jnl in ['aqs']:
@@ -331,4 +328,4 @@ print('%i records for %s' % (len(recs), jnlfilename))
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-ejlmod3.writeretrival(jnlfilename)
+
