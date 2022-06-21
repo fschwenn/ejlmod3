@@ -53,4 +53,4 @@ for rec in recs:
     ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-ejlmod3.writeretrival(jnlfilename)
+

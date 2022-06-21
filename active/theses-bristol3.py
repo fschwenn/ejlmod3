@@ -148,4 +148,4 @@ for rec in prerecs:
         ejlmod3.adduninterestingDOI(rec['doi'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-ejlmod3.writeretrival(jnlfilename)
+

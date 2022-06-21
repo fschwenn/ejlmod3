@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 #harvest theses from Universities of Leeds, Sheffield, and York
 #FS: 2020-03-25
@@ -219,4 +220,4 @@ for rec in prerecs:
         recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-ejlmod3.writeretrival(jnlfilename)
+

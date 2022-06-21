@@ -74,4 +74,4 @@ for fachgruppe in ['130000', '110000']:
         ejlmod3.printrecsummary(rec)  
 
 ejlmod3.writenewXML(recs.values(), publisher, jnlfilename)
-ejlmod3.writeretrival(jnlfilename)
+
