@@ -36,7 +36,7 @@ tmpdir = '/afs/desy.de/user/l/library/tmp'
 
 #
 journalskb = '/opt/invenio/etc/docextract/journal-titles-inspire.kb'
-journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.2022-06-17.kb'
+journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'
 
 retfiles_path = '/afs/desy.de/user/l/library/proc/retinspire'
 now = datetime.datetime.now()
@@ -1061,6 +1061,8 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 for pbnkey in ['jnl', 'vol', 'issue', 'year', 'p1', 'p2', 'cnum']:
                     if pbnkey in rec:
                         pseudodoi += '/' + re.sub('\W', '', rec[pbnkey])
+            elif 'link' in rec:
+                pseudodoi = '20.2000/LINK/' + re.sub('\W', '', link[4:])        
             elif 'tit' in rec:
                 pseudodoi = '30.3000/AUT_TIT'
                 if 'auts' in rec and rec['auts']:
