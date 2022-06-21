@@ -36,7 +36,7 @@ tmpdir = '/afs/desy.de/user/l/library/tmp'
 
 #
 journalskb = '/opt/invenio/etc/docextract/journal-titles-inspire.kb'
-#journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'
+journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.2022-06-17.kb'
 
 retfiles_path = '/afs/desy.de/user/l/library/proc/retinspire'
 now = datetime.datetime.now()
@@ -72,7 +72,10 @@ rekeywsplit2 =  re.compile('; .*; ')
 
 #valid arXiv numbers
 rearxivold = re.compile('^[a-z\-]+\/\d{7}$')
+rearxivnewshort = re.compile('^\d{4}\.\d{4,5}')
 rearxivnew = re.compile('^ar[xX]iv:\d{4}\.\d{4,5}')
+rearxivhttpold = re.compile('https?:.*arxiv.org.*?([a-z\-]+\/\d{7}).*')
+rearxivhttpnew = re.compile('https?:.*arxiv.org.*(\d{4}\.\d{4,5}).*')
 #valid ORCID
 reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 
@@ -535,7 +538,7 @@ def writeXML(recs,dokfile,publisher):
             for isbn in rec['isbns']:
                 xmlstring += marcxml('020', isbn)
         elif 'isbn' in rec:
-            xmlstring += marcxml('020',[('a', re.sub('\-', '', rec['isbn']))])
+            xmlstring += marcxml('020',[('a', re.sub('\D', '', rec['isbn']))])
         #DOI
         if 'doi' in rec:
             xmlstring += marcxml('0247',[('a',rec['doi']), ('2','DOI'), ('9',publisher)])
@@ -608,6 +611,14 @@ def writeXML(recs,dokfile,publisher):
                 rec['arxiv'] = 'arXiv:'+rec['arxiv']
             if rearxivnew.search(rec['arxiv']) or rearxivold.search(rec['arxiv']):
                 xmlstring += marcxml('037',[('a',rec['arxiv']),('9','arXiv')])
+            elif rearxivnewshort.search(rec['arxiv']):
+                xmlstring += marcxml('037',[('a', 'arxiv:' + rec['arxiv']),('9','arXiv')])
+            elif rearxivhttpnew.search(rec['arxiv']):
+                bull = rearxivhttpnew.sub(r'\arxiv:\1', rec['arxiv'])
+                xmlstring += marcxml('037',[('a',bull),('9','arXiv')])
+            elif rearxivhttpold.search(rec['arxiv']):
+                bull = rearxivhttpold.sub(r'\1', rec['arxiv'])
+                xmlstring += marcxml('037',[('a',bull),('9','arXiv')])
             else:
                 xmlstring += marcxml('037',[('a',rec['arxiv'])])
         #REPORT NUMBER
@@ -898,6 +909,19 @@ def writeXML(recs,dokfile,publisher):
                             print('real UTF8 Problem in Referenzen')
                             xmlstring += marcxml('595', [('a', 'real UTF8 Problem in Referenzen')])
                 else:
+                    cleanref = []
+                    for part in ref:
+                        if part[0] == 'r':
+                            if rearxivhttpold.search(part[1]):
+                                cleanref.append(('r', rearxivhttpold.sub(r'\1', part[1])))
+                            elif rearxivhttpnew.search(part[1]):
+                                cleanref.append(('r', rearxivhttpnew.sub(r'arxiv:\1', part[1])))
+                            elif rearxivnewshort.search(part[1]):
+                                cleanref.append(('r', 'arxiv:' + part[1]))
+                            else:
+                                cleanref.append(part)
+                        else:
+                            cleanref.append(part)
                     xmlstring += marcxml('999C5',ref)
         xmlstring += marcxml('980',[('a','HEP')])
         #COMMENTS
@@ -1005,7 +1029,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('[iI]nformation for [aA]authors'), re.compile('[pP]ublication [iI]nofrmation'),
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker')]
-def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl'):
+def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
     doi1s = []
@@ -1116,13 +1140,21 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 doi1s.append(doi1)
             else:
                 print('--', doi1)
-    xmlf = os.path.join(xmldir, jnlfilename+'.xml')
-    xmlfile = codecs.open(xmlf, mode='wb', encoding='utf8')
-    writeXML(uniqrecs, xmlfile, publisher)
-    xmlfile.close()
-    if checkedmetatags:
-        print ('METATAGS: ' + ' | '.join(['%s %i/%i' % (k, checkedmetatags[k], len(recs)) for k in checkedmetatags]))
-    print('FINISHED writenewXML(%s)' % (jnlfilename))
+    if uniqrecs:
+        xmlf = os.path.join(xmldir, jnlfilename+'.xml')
+        xmlfile = codecs.open(xmlf, mode='wb', encoding='utf8')
+        writeXML(uniqrecs, xmlfile, publisher)
+        xmlfile.close()
+        if checkedmetatags:
+            print ('METATAGS: ' + ' | '.join(['%s %i/%i' % (k, checkedmetatags[k], len(recs)) for k in checkedmetatags]))
+        print('FINISHED writenewXML(%s)' % (jnlfilename))
+        #write retrival
+        retfiles_text = open(os.path.join(retfiles_path, retfilename), "r").read()
+        line = jnlfilename+'.xml'+ "\n"
+        if not line in retfiles_text:
+            retfiles = open(os.path.join(retfiles_path, retfilename), "a")
+            retfiles.write(line)
+            retfiles.close()
     return
 
 #prints a progress line with some information
@@ -1136,12 +1168,18 @@ def printprogress(character, information):
 
 #prints summary of record or full record
 def printrecsummary(rec):
-    print('  ', ', '.join(['%s[%i]' % (k, len(rec[k])) for k in rec.keys()]))
+    output = []
+    for k in rec.keys():
+        try:
+            output.append('%s[%i]' % (k, len(rec[k])))
+        except:
+            output.append('%s' % (k))
+    print('  ', ', '.join(output))
     return
 def printrec(rec):
-    print('  ', ', '.join(['%s[%i]' % (k, len(rec[k])) for k in rec.keys()]))
-    for k in rec:
-        print (k, rec[k])
+    for k in rec:        
+        print ('%-10s:: ' % (k), rec[k])
+    printrecsummary(rec)
     return
 
 #gives the date
