@@ -70,8 +70,9 @@ elif (jnl == 'pto'): #authors messy
 options = uc.ChromeOptions()
 options.headless=True
 options.binary_location='/opt/google/chrome/google-chrome'
+#options.binary_location='/opt/google/chrome/chrome'
 options.add_argument('--headless')
-#driver = uc.Chrome(version_main=102, options=options)
+#driver = uc.Chrome(version_main=103, options=options)
 driver = uc.Chrome(options=options)
 
 
