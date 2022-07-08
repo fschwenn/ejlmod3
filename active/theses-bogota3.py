@@ -54,7 +54,7 @@ for rec in recs:
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DC.title', 'citation_language',
                                         'DCTERMS.issued', 'DC.subject', 'DCTERMS.abstract',
                                         'citation_pdf_url'])
-    rec['autaff'][1].append(publisher)
+    rec['autaff'][-1].append(publisher)
     ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
