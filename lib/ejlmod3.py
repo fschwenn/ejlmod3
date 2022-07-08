@@ -69,6 +69,8 @@ repreprint = re.compile('^[A-Z0-9\-\/ ]+$')
 #split keywords
 rekeywsplit1 =  re.compile(', .*, ')
 rekeywsplit2 =  re.compile('; .*; ')
+rekeywsplit1plus =  re.compile(', .*, .*, ')
+rekeywsplit2plus =  re.compile('; .*; .*; ')
 
 #valid arXiv numbers
 rearxivold = re.compile('^[a-z\-]+\/\d{7}$')
@@ -450,10 +452,22 @@ def writeXML(recs,dokfile,publisher):
                     keywords = rec['keyw']
             else:
                 keywords = rec['keyw']
-            #for kw in rec['keyw']:
+            keywordsfinal = []
             for kw in keywords:
-                #xmlstring += marcxml('6531',[('a',kw), ('9','publisher')])
-                if kw.strip():
+                if rekeywsplit1plus.search(kw):
+                    for kwt in re.split(', ', kw):
+                        if not kwt in rec['keyw']:
+                            keywordsfinal.append(kwt)
+                        xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kwt))])
+                elif rekeywsplit2plus.search(kw):
+                    for kwt in re.split('; ', kw):
+                        if not kwt in rec['keyw']:
+                            keywordsfinal.append(kwt)
+                        xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kwt))])
+                else:
+                    keywordsfinal.append(kw)
+            for kw in keywordsfinal:
+                if kw.strip():                    
                     try:
                         xmlstring += marcxml('6531',[('a',kw), ('9','author')])
                     except:
@@ -1153,7 +1167,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
         xmlfile.close()
         if checkedmetatags:
             print ('METATAGS: ' + ' | '.join(['%s %i/%i' % (k, checkedmetatags[k], len(recs)) for k in checkedmetatags]))
-        print('FINISHED writenewXML(%s)' % (jnlfilename))
+        print('FINISHED writenewXML(%s;%i)' % (jnlfilename, len(uniqrecs)))
         #write retrival
         retfiles_text = open(os.path.join(retfiles_path, retfilename), "r").read()
         line = jnlfilename+'.xml'+ "\n"
@@ -1183,9 +1197,12 @@ def printrecsummary(rec):
     print('  ', ', '.join(output))
     return
 def printrec(rec):
-    for k in rec:        
-        print ('%-10s:: ' % (k), rec[k])
-    printrecsummary(rec)
+    if rec:
+        for k in rec:        
+            print ('%-10s:: ' % (k), rec[k])
+        printrecsummary(rec)
+    else:
+        print('-empty-record-')
     return
 
 #gives the date
@@ -1201,10 +1218,22 @@ def stampofnow():
 
 #check whole page for CC license
 def globallicensesearch(rec, artpage):
+    #try check for simple a-tags
     if not 'license' in rec:
         for a in artpage.body.find_all('a'):
             if a.has_attr('href') and re.search('creativecommons.org', a['href']):
                 rec['license'] = {'url' : a['href']}
+                if 'pdf_url' in rec:
+                    rec['FFT'] = rec['pdf_url']
+                elif 'hidden' in rec:
+                    rec['FFT'] = rec['hidden']
+                    del rec['hidden']
+    #look for javascript hidden links
+    if not 'license' in rec:
+        for script in artpage.find_all('script', attrs = {'type' : 'text/javascript'}):
+            sstring = re.sub('[\n\t\r]', '', script.text)
+            if re.search('license.*http.*creativecommons.org\/licen', sstring):
+                rec['license'] = {'url' : re.sub('.*license.*(http.*?creativecommons.org\/licen.*?)["\'].*', r'\1', sstring)}
                 if 'pdf_url' in rec:
                     rec['FFT'] = rec['pdf_url']
                 elif 'hidden' in rec:
@@ -1232,7 +1261,8 @@ def metatagcheck(rec, artpage, listoftags):
             if tag:
                 #abstract
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
-                           'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract']:
+                           'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
+                           'description']:
                     rec['abs'] = meta['content']
                     done.append(tag)
                 #persistant identifiers
@@ -1243,7 +1273,10 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['arxiv'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_isbn']:
-                    rec['isbn'] = meta['content']
+                    if 'isbns' in rec:
+                        rec['isbns'].append([('a', re.sub('\D', '', meta['content']))])
+                    else:
+                        rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
                     done.append(tag)
                 elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier']:
                     if re.search('^(urn|URN):', meta['content']):
@@ -1262,20 +1295,29 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['doi'] = meta['content']
                         done.append(tag)
                     elif re.search('^978', meta['content']):
-                        rec['isbn'] = meta['content']
+                        if 'isbns' in rec:
+                            rec['isbns'].append([('a', re.sub('\D', '', meta['content']))])
+                        else:
+                            rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
                         done.append(tag)
                 #language
                 elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language']:
                     rec['language'] = meta['content']
                     done.append(tag)
                 #author
-                elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author',
+                elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName',
                              'DC.contributor.author']:
-                    rec['autaff'].append([meta['content']])
+                    if 'autaff' in rec:
+                        rec['autaff'].append([meta['content']])
+                    else:
+                        rec['autaff'] = [[meta['content']]]
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor']:
-                    rec['supervisor'].append([meta['content']])
+                    if 'supervisor' in rec:
+                        rec['supervisor'].append([meta['content']])
+                    else:
+                        rec['supervisor'] = [[meta['content']]]
                     done.append(tag)
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution']:
                     rec['autaff'][-1].append(meta['content'])
@@ -1287,7 +1329,10 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['autaff'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
                     done.append(tag)
                 elif tag in ['citation_editor']:
-                    rec['autaff'].append([meta['content'].title() + ' (Ed.)'])
+                    if 'autaff' in rec:
+                        rec['autaff'].append([meta['content'].title() + ' (Ed.)'])
+                    else:
+                        rec['autaff'] = [[meta['content'].title() + ' (Ed.)']]
                     done.append(tag)
                 #title
                 elif tag in ['bepress_citation_title', 'Citation_Article_Title', 'citation_title', 'eprints.title',
@@ -1335,7 +1380,11 @@ def metatagcheck(rec, artpage, listoftags):
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords']:
-                    rec['keyw'].append(meta['content'])
+                    if 'keyw' in rec:
+                        if not meta['content'] in rec['keyw']:
+                            rec['keyw'].append(meta['content'])
+                    else:
+                        rec['keyw'] = [meta['content']]
                     done.append(tag)
                 #fulltext
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
