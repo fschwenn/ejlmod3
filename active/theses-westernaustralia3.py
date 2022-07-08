@@ -78,7 +78,7 @@ def get_sub_site(url):
 
             # Get the award date
             if title.find('Award date') != -1:
-                rec['date'] = date
+                rec['date'] = data.text.strip()
     if not 'date' in list(rec.keys()):
         try:
             rec['date'] = year
