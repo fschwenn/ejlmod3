@@ -65,7 +65,7 @@ for rec in recs:
                 # pages
                 elif tht == 'Extent:':
                     if re.search('\d\d', td.text):
-                        rec['pages'] = re.sub('.*(\d\d+).*', r'\1', td.text.strip())
+                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', td.text.strip())
                 # supervisor
                 elif tht == 'Supervisor(s)/Advisor:':
                     rec['supervisor'] = []
@@ -73,4 +73,4 @@ for rec in recs:
                         rec['supervisor'].append([re.sub(' \(.*', '', sv)])
     ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
