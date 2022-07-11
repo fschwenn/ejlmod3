@@ -458,12 +458,12 @@ def writeXML(recs,dokfile,publisher):
                     for kwt in re.split(', ', kw):
                         if not kwt in rec['keyw']:
                             keywordsfinal.append(kwt)
-                        xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kwt))])
+                    xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kw))])
                 elif rekeywsplit2plus.search(kw):
                     for kwt in re.split('; ', kw):
                         if not kwt in rec['keyw']:
                             keywordsfinal.append(kwt)
-                        xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kwt))])
+                    xmlstring += marcxml('595', [('a', 'Keywords split: "%s"' % (kw))])
                 else:
                     keywordsfinal.append(kw)
             for kw in keywordsfinal:
