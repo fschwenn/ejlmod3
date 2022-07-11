@@ -113,7 +113,7 @@ print('kept %i of %i' % (len(recs), len(prerecs)))
 i = 0
 for rec in recs:
     i += 1
-    ejlmod3.printprogress('-', [[i+1, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
     driver.get(rec['artlink'])
     artpage = BeautifulSoup(driver.page_source, features="lxml")
     #metadata in script
