@@ -1090,6 +1090,8 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
             if pseudodoi:
                 rec['doi'] = pseudodoi
                 doi1 = re.sub('[\(\)\/]', '_', rec['doi'])
+                if 'artlink' in rec and not 'link' in rec:
+                    rec['link'] = rec['artlink']
         if doi1:
             absfilename = os.path.join(absdir, doi1)
             bibfilename = os.path.join(tmpdir, doi1+'.qis.bib')
@@ -1262,7 +1264,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #abstract
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
-                           'description']:
+                           'description', 'citation_abstract_content']:
                     rec['abs'] = meta['content']
                     done.append(tag)
                 #persistant identifiers
