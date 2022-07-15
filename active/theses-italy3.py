@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #harvest theses from different italian universities
 #FS: 2020-02-20
+#
+#repository not very up-to-date
 
 import sys
 import urllib.request, urllib.error, urllib.parse
@@ -9,6 +11,9 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+
+
+
 
 universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '/handle/10281/9145', 8),
                 'trento' : ('Trento U.', 'https://iris.unitn.it', '/handle/11572/237822', 10),
