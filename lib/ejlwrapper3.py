@@ -170,7 +170,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-kit_etp.py']),
         (1, ['mdpi.sftp.py', 'atoms']),
         (3, ['spie_journal.py', 'jatis', pryear-2014, prquarter]),
-        (3, ['messenger.py', 4*pryear + prquarter - 7902]),
+        (3, ['messenger.py', 4*pryear + prquarter - 7902 - 2]),
         (1, ['sciencemag3.py', 'science', pryear]),
         (2, ['theses-unesp3.py']),
         (1, ['sciencemag3.py', 'sciadv', pryear]),
@@ -195,7 +195,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-bern.py']),
         (2, ['theses-edinburgh.py']),
         (2, ['theses-kyoto.py']),
-        (1, ['theses-narcis.py']),
+        (1, ['theses-narcis3.py']),
         (2, ['theses-tud.py']),
         (1, ['theses-surrey.py']),
         (2, ['theses-lmu.py']),
@@ -222,7 +222,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-mainz.py']),
         (2, ['theses-texas.py']),
         (2, ['theses-johnhopkins.py']),
-        (2, ['theses-sidney.py']),
+        (2, ['theses-sidney3.py']),
         (2, ['theses-toronto.py']),
         (2, ['theses-arizona.py']),
         (2, ['theses-carleton.py']),
@@ -273,8 +273,8 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-britishcolumbia.py']),
         (2, ['theses-bonn2.py', pryear]),
         (2, ['theses-granada.py']),
-        (2, ['theses-stanford.py']),
-        (3, ['theses-chilecatolica.py']),
+        (2, ['theses-stanford3.py']),
+        (666, ['theses-chilecatolica.py']), #GitHub Issue
         (3, ['theses-wuppertal.py']),
         (3, ['theses-kansas.py']),
         (2, ['theses-chicago.py']),
@@ -352,7 +352,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-compostella.py']),
         (2, ['theses-riogrande.py']),
         (6, ['cahiers.py']),
-        (2, ['theses-tuwien.py']),
+        (666, ['theses-tuwien.py']),  #GitHub Issue
         (2, ['theses-amsterdam.py']),
         (3, ['theses-colombiaunatl.py']),
         (1, ['theses-northeastern.py']),
@@ -405,7 +405,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (4, ['theses-dart.py']),
         (3, ['edpjournals.py', '4open', pryear, '1']),
         (2, ['theses-wien.py']),
-        (3, ['theses-rostock.py']),
+        (3, ['theses-rostock3.py']),
         (3, ['theses-texastech.py']),
         (2, ['theses-rochester.py']),
         (2, ['theses-colorado.py']),
@@ -429,7 +429,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-swansea.py']),
         (3, ['theses-vanderbilt.py']),
         (3, ['theses-wisconsinmadison.py']),
-        (3, ['theses-royalholloway.py']),
+        (3, ['theses-royalholloway3.py']),
         (2, ['theses-ucm.py']),
         (3, ['theses-coloradostate.py']),
         (3, ['theses-nottingham.py']),
@@ -476,7 +476,8 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-westernaustralia3.py']),
         (2, ['theses-bergen3.py']),
         (3, ['theses-warwick3.py']),
-        (1, ['sppu3.py', 'jpm'])]
+        (1, ['sppu3.py', 'jpm']),
+        (1, ['dergipark3.py', 'jum'])]
 
 if prmonth == 12:
     jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 25]))
@@ -540,7 +541,7 @@ prfil.close()
 
 
 #do the jobs
-refin = re.compile('FINISHED writenewXML\((.*);(.*)\)')
+refin = re.compile('FINISHED writenewXML\((.*);(.*);(.*)\)')
 shortreport = ''
 for com in listofcommands:
     writtenfiles = []
@@ -562,7 +563,7 @@ for com in listofcommands:
     logfil.write(result)
     for line in re.split('\n', result):
         if refin.search(line):
-            writtenfiles.append(refin.sub(r'   \1.xml (\2 records)', line))
+            writtenfiles.append(refin.sub(r'   \1.xml (\2 records) [records with datafields: \3]', line))
     logfil.write(errors)
     logfil.close()
     #summary to bes
