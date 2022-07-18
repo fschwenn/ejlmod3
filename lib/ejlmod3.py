@@ -1313,6 +1313,9 @@ def metatagcheck(rec, artpage, listoftags):
                     elif re.search('doi.org\/10', meta['content']):
                         rec['doi'] = re.sub('.*doi.org\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
+                    elif re.search('doi:10\.\d', meta['content']):
+                        rec['doi'] = re.sub('.*doi:\/(10.*)', r'\1', meta['content'])
+                        done.append(tag)
                     elif re.search('^10\.\d+\/', meta['content']):
                         rec['doi'] = meta['content']
                         done.append(tag)
@@ -1335,7 +1338,7 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['autaff'] = [[meta['content']]]
                     done.append(tag)
-                elif tag in ['DC.contributor.advisor', 'DC.contributor']:
+                elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name']:
                     if 'supervisor' in rec:
                         rec['supervisor'].append([meta['content']])
                     else:
@@ -1465,6 +1468,8 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
     rehdl = re.compile('.*handle\/')
     reyear = re.compile('.*([12]\d\d\d).*')
     redegree = re.compile('rft.degree=')
+    redate = re.compile('rft.date=')
+    relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'})
     links = []
@@ -1488,6 +1493,10 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
                     for info in infos:
                         if redegree.search(info):
                             rec['degree'].append(redegree.sub('', info))
+                        elif relicense.search(info):
+                            rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
+                        elif redate.search(info):
+                            rec['date'].append(redate.sub('', info))
                 #construct link and HDL (or fakeDOI)
                 if not rec['link'] in links:
                     links.append(rec['link'])
