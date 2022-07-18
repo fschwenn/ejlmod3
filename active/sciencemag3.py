@@ -97,14 +97,15 @@ def harvestissue(jnl, vol, issue):
     i = 0
     for rec in recs:
         i += 1
-        ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+        sleepingtime = random.randint(100, 300)
+        ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']], [sleepingtime]])
         try:
-            time.sleep(random.randint(40, 240))
+            time.sleep(sleepingtime)
             driver.get(rec['artlink'])
             artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
-            print("retry in 600 seconds")
-            time.sleep(600)
+            print("retry in 900 seconds")
+            time.sleep(900)
             driver.get(rec['artlink'])
             artpage = BeautifulSoup(driver.page_source, features="lxml")
         #DOI
