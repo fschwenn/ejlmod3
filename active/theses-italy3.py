@@ -28,6 +28,7 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'verona' : ('Verona U.', 'https://iris.univr.it', '/handle/11562/924246', 7),
                 'cagliari' : ('Cagliari U.', 'https://iris.unica.it', '/handle/11584/207612', 8),
                 'sns' : ('Pisa, Scuola Normale Superiore', 'https://ricerca.sns.it', '/handle/11384/78634', 5),
+                'sissa' : ('SISSA', 'https://iris.sissa.it', '/handle/20.500.11767/64', 6),
                 'cagliarieprints' : ('Cagliari U.', 'https://iris.unica.it', '/handle/11584/265854', 8),
                 'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1)}
 
@@ -36,11 +37,12 @@ publisher = universities[uni][0]
 pages = universities[uni][3]
 jnlfilename = 'THESES-%s-%s' % (uni.upper(), ejlmod3.stampoftoday())
 years = 2
+rpp = 20
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for page in range(pages):
-    tocurl = '%s%s?offset=%i&sort_by=-1&order=DESC' % (universities[uni][1], universities[uni][2], 20*page)
+    tocurl = '%s%s?offset=%i&sort_by=-1&order=DESC' % (universities[uni][1], universities[uni][2], page*rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -64,7 +66,8 @@ for page in range(pages):
                 if re.search('[12]\d\d\d', td.text):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', td.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
-                        prerecs.append(rec)
+                        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                            prerecs.append(rec)
                 else:
                     print('(YEAR?)', td.text)
                     prerecs.append(rec)
@@ -77,7 +80,8 @@ for page in range(pages):
                 if re.search('[12]\d\d\d', p.text):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', p.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
-                        prerecs.append(rec)
+                        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                            prerecs.append(rec)
                 else:
                     print('(YEAR?)', p.text)
     print('     %3i records so far' % (len(prerecs)))
@@ -89,7 +93,7 @@ recs = []
 for rec in prerecs:
     interesting = True
     i += 1
-    ejlmod3.printprogress('-', [[i, len(prerecs), len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     if not ejlmod3.ckeckinterestingDOI(rec['hdl']):
         continue
     try:
@@ -126,6 +130,12 @@ for rec in prerecs:
                 if re.search('^[A-Z][A-Z][A-Z]', section):
                     interesting = False
                     if section[:3] in ['FIS', 'INF', 'ING', 'MAT']:
+                        if section[:3] == 'INF':
+                            rec['fc'] = 'c'
+                        elif section[:3] == 'MAT':
+                            rec['fc'] = 'm'
+                        elif section[:6] == 'FIS/05':
+                            rec['fc'] = 'a'
                         rec['note'].append(section)
                         interesting = True
                     else:
@@ -175,6 +185,12 @@ for rec in prerecs:
                     if re.search('^[A-Z][A-Z][A-Z]', section):
                         interesting = False
                         if section[:3] in ['FIS', 'INF', 'ING', 'MAT']:
+                            if section[:3] == 'INF':
+                                rec['fc'] = 'c'
+                            elif section[:3] == 'MAT':
+                                rec['fc'] = 'm'
+                            elif section[:6] == 'FIS/05':
+                                rec['fc'] = 'a'
                             rec['note'].append(td.text.strip())
                             interesting = True
                         else:
