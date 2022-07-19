@@ -1048,10 +1048,14 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
-    global checkedmetatags
+    global checkedmetatags    
     uniqrecs = []
     doi1s = []
     for rec in recs:
+        #remove link if DOI
+        if 'doi' in rec and 'link' in rec:
+            if re.search('^10\.\d+', rec['doi']):
+                del(rec['link'])
         #add doki file name
         if 'note' in rec:
             rec['note'].append('DOKIFILE:'+jnlfilename)
@@ -1080,7 +1084,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                     if pbnkey in rec:
                         pseudodoi += '/' + re.sub('\W', '', rec[pbnkey])
             elif 'link' in rec:
-                pseudodoi = '20.2000/LINK/' + re.sub('\W', '', link[4:])        
+                pseudodoi = '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:])        
             elif 'tit' in rec:
                 pseudodoi = '30.3000/AUT_TIT'
                 if 'auts' in rec and rec['auts']:
@@ -1373,10 +1377,10 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
-                elif tag in ['citation_lastpage']:
+                elif tag in ['citation_lastpage', 'bepress_citation_lastpage']:
                     rec['p2'] = meta['content']
                     done.append(tag)
-                elif tag in ['citation_firstpage']:
+                elif tag in ['citation_firstpage', 'bepress_citation_firstpage']:
                     rec['p1'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_issue']:
@@ -1405,7 +1409,8 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
-                             'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords']:
+                             'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
+                             'keywords']:
                     if 'keyw' in rec:
                         if not meta['content'] in rec['keyw']:
                             rec['keyw'].append(meta['content'])
