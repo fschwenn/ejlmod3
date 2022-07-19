@@ -356,7 +356,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-amsterdam.py']),
         (3, ['theses-colombiaunatl.py']),
         (1, ['theses-northeastern.py']),
-        (1, ['theses-forskningsdatabasen.py']), #stopped January 2021
+        (1, ['theses-forskningsportal3.py']),
         (2, ['theses-arizona_u.py']),
         (2, ['theses-geneve.py']),
         (3, ['theses-hawc.py']),
