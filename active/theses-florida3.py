@@ -339,3 +339,4 @@ for rec in prerecs:
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+driver.quit()

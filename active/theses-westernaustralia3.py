@@ -124,4 +124,4 @@ for page in range(pages):
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-
+driver.quit()

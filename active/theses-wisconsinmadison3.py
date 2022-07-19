@@ -119,3 +119,4 @@ for (pages, dep, fc, aff) in departments:
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+driver.quit()

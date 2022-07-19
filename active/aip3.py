@@ -329,4 +329,4 @@ print('%i records for %s' % (len(recs), jnlfilename))
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-
+driver.quit()

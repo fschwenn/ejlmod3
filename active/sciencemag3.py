@@ -171,3 +171,4 @@ for (vol, issue) in todo:
     recs = harvestissue(jnl, vol, issue)
     jnlfilename = '%s%s.%s' % (re.sub('\.', '', jnlname.lower()), vol, issue)
     ejlmod3.writenewXML(recs, publisher, jnlfilename)
+driver.quit()

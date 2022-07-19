@@ -177,3 +177,4 @@ for rec in recs:
     time.sleep(10)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+driver.quit()
