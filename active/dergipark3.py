@@ -100,3 +100,4 @@ for (issuenumber, issuelink) in todo:
                         
             
     ejlmod3.writenewXML(recs, publisher, jnlfilename+str(issuenumber))
+driver.quit()

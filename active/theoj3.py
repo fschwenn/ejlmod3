@@ -117,3 +117,4 @@ for artlink in artlinks:
         recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+driver.quit()
