@@ -1052,10 +1052,24 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
     uniqrecs = []
     doi1s = []
     for rec in recs:
+        #clean persistent identifiers
+        if 'doi' in rec.keys() and rec['doi'] and not rec['doi'][:3] == '10.':
+            rec['doi'] = re.sub('.*doi.org\/', '', rec['doi'])
+            rec['doi'] = re.sub('doi:(10\.\d+\/)', r'\1', rec['doi'])
+        if 'hdl' in rec.keys() and rec['hdl'] and not re.search('^\d+\/', rec['hdl']):
+            rec['hdl'] = re.sub('.*handle.net\/', '', rec['hdl'])
         #remove link if DOI
         if 'doi' in rec and 'link' in rec:
             if re.search('^10\.\d+', rec['doi']):
                 del(rec['link'])
+        #open access fulltext
+        if 'pdf_url' in rec.keys():
+            if 'license' in rec.keys() or 'licence' in rec.keys():
+                rec['FFT'] = rec['pdf_url']
+            elif 'oa' in rec and rec['oa']:
+                rec['FFT'] = rec['pdf_url']
+            else:
+                rec['hidden'] = rec['pdf_url']
         #add doki file name
         if 'note' in rec:
             rec['note'].append('DOKIFILE:'+jnlfilename)
@@ -1293,7 +1307,7 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI']:
-                    rec['doi'] = re.sub('.*doi.org\/', '', meta['content'])
+                    rec['doi'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_arxiv_id']:
                     rec['arxiv'] = meta['content']
@@ -1421,14 +1435,6 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
                     rec['pdf_url'] = meta['content']
                     done.append(tag)
-    #opan access fulltext
-    if 'pdf_url' in rec.keys():
-        if 'license' in rec.keys():
-            rec['FFT'] = rec['pdf_url']
-        elif 'oa' in rec and rec['oa']:
-            rec['FFT'] = rec['pdf_url']
-        else:
-            rec['hidden'] = rec['pdf_url']
     #resume
     notdone = []
     for tag in listoftags:
