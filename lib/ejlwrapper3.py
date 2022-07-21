@@ -177,7 +177,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-eth.py']),
         (2, ['theses-hub.py']),
         (2, ['theses-mit.py']),
-        (1, ['theses-unibo.py']),
+        (1, ['theses-unibo3.py']),
         (1, ['theses-heidelberg.py']),
         (1, ['theses-rutgers.py']),
         (2, ['theses-frankfurt.py']),
@@ -305,7 +305,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-vtech.py']),
         (3, ['theses-vcommonwealth.py']),
         (3, ['comaphy.py', pryear-1998, prquarter]),
-        (2, ['theses-tokyo.py']),
+        (1, ['theses-tokyo3.py']),
         (2, ['theses-unlp.py']),
         (2, ['theses-dresden.py']),
         (2, ['theses-northcarolina.py']),
@@ -563,7 +563,7 @@ for com in listofcommands:
     logfil.write(result)
     for line in re.split('\n', result):
         if refin.search(line):
-            writtenfiles.append(refin.sub(r'   \1.xml (\2 records) [records with datafields: \3]', line))
+            writtenfiles.append(refin.sub(r'   \1.xml (\2 records)\n   [records with datafields: \3]\n\n', line))
     logfil.write(errors)
     logfil.close()
     #summary to bes
