@@ -98,7 +98,7 @@ def harvestissue(jnl, vol, issue):
     for rec in recs:
         i += 1
         sleepingtime = random.randint(100, 300)
-        ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']], [sleepingtime]])
+        ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']], ['%isec' % (sleepingtime)]])
         try:
             time.sleep(sleepingtime)
             driver.get(rec['artlink'])
