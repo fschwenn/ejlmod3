@@ -69,11 +69,13 @@ elif (jnl == 'pto'): #authors messy
 
 options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/opt/google/chrome/google-chrome'
-#options.binary_location='/opt/google/chrome/chrome'
+#options.binary_location='/opt/google/chrome/google-chrome'
+##options.binary_location='/opt/google/chrome/chrome'
+options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
-#driver = uc.Chrome(version_main=103, options=options)
-driver = uc.Chrome(options=options)
+driver = uc.Chrome(version_main=103, options=options)
+#driver = uc.Chrome(browser_executable_path='/usr/bin/chromedriver', options=options)
+#driver = uc.Chrome(options=options)
 
 
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
