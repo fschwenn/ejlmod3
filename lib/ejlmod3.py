@@ -382,7 +382,7 @@ def writeXML(recs,dokfile,publisher):
                     lang = languages.get(part1=rec['language']).name
                 except:
                     lang = False                    
-            elif len(rec['language']) == 3:              
+            elif len(rec['language']) == 3 and rec['language'] != 'eng':
                 try:
                     lang = languages.get(part2t=rec['language']).name
                 except:
@@ -396,7 +396,11 @@ def writeXML(recs,dokfile,publisher):
             else:
                 lang = rec['language']
             if lang:
-                if lang != 'English':
+                if not lang in ['English', u'Inglês']:
+                    if lang == u'Português': lang = 'Portuguese'
+                    elif lang == 'Deutsch': lang = 'German'
+                    elif lang == u'Française': lang = 'French'
+                    elif lang == 'Italiano': lang = 'Italian'
                     xmlstring += marcxml('041', [('a', lang)])
                     xmlstring += marcxml('595', [('a', 'Text in %s' % (lang))])
             else:
@@ -1039,7 +1043,8 @@ def shapeaut(author):
 reqis = re.compile('^\d+ *')
 untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlights on Recent JACS Publications',
             'Guest Editorial', 'Personalia, meetings, bibliography',
-            'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies']
+            'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies',
+            'Editorial Board', 'Content']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1302,7 +1307,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #abstract
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
-                           'description', 'citation_abstract_content']:
+                           'description', 'citation_abstract_content', 'dc.description.abstract']:
                     rec['abs'] = meta['content']
                     done.append(tag)
                 #persistant identifiers
@@ -1318,7 +1323,7 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
                     done.append(tag)
-                elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier']:
+                elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier', 'dc.identifier.uri']:
                     if re.search('^(urn|URN):', meta['content']):
                         rec['urn'] = meta['content']
                         done.append(tag)
@@ -1356,7 +1361,7 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['autaff'] = [[meta['content']]]
                     done.append(tag)
-                elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name']:
+                elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name', 'dc.contributor.advisor']:
                     if 'supervisor' in rec:
                         rec['supervisor'].append([meta['content']])
                     else:
@@ -1387,7 +1392,7 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['dc.date', 'dc.Date', 'DC.date', 'DC.Date.created', 'bepress_citation_date',
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
-                             'DCTERMS.issued']:
+                             'DCTERMS.issued', 'dc.date.submitted']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
