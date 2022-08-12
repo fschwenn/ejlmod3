@@ -47,18 +47,11 @@ urltrunk = 'https://www.osapublishing.org/%s/issue.cfm?volume=%s&issue=%s' % (jn
 urltrunk = 'https://opg.optica.org/%s/issue.cfm?volume=%s&issue=%s' % (jnl, vol, issue)
 print(urltrunk)
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
 
 driver.get(urltrunk)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
