@@ -15,27 +15,17 @@ publisher = 'KIT, Karlsruhe'
 jnlfilename = 'THESES-KIT-%s' % (ejlmod3.stampoftoday())
 pages = 4 
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
-#driver
-#opts = Options()
-#opts.add_argument("--headless")
-#caps = webdriver.DesiredCapabilities().FIREFOX
-#caps["marionette"] = True
-#driver = webdriver.Firefox(options=opts, capabilities=caps)
-#driver.implicitly_wait(30)
-#driver.set_window_position(0, 0)
-#driver.set_window_size(1920, 10800)
+
+options = uc.ChromeOptions()
+options.headless=True
+#options.binary_location='/opt/google/chrome/google-chrome'
+##options.binary_location='/opt/google/chrome/chrome'
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
+#driver = uc.Chrome(browser_executable_path='/usr/bin/chromedriver', options=options)
+#driver = uc.Chrome(options=options)
+
 
 recs = []
 for page in range(pages):
@@ -54,7 +44,7 @@ for page in range(pages):
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
     for div in tocpage.find_all('div', attrs = {'class' : 'list-item-wrapper'}):
         for div2 in div.find_all('div', attrs = {'class' : 'list-item-primary-content'}):
-            rec = {'jnl' : 'BOOK', 'tc' : 'T', 'note' : [], 'keyw' : []}
+            rec = {'jnl' : 'BOOK', 'tc' : 'T', 'note' : [], 'keyw' : [], 'supervisor' : []}
             rec['data-recordid'] = div2['data-recordid']
             rec['artlink'] = 'https://primo.bibliothek.kit.edu/primo-explore/fulldisplay?docid=' + div2['data-recordid']+ '&context=L&vid=KIT&lang=de_DE'
             recs.append(rec)
@@ -153,7 +143,10 @@ for rec in recs:
                                 rec['pages'] = re.sub('.*?(\d\d\d+).*', r'\1', tds[1].text.strip())
                         #supervisor
                         elif re.search('Betreuer', tds[0].text):
-                            rec['supervisor'] = [[ re.sub('Prof\. ', '', re.sub('Dr\. ', '', tds[1].text.strip())) ]]
+                            for br in tds[1].find_all('br'):
+                                br.replace_with(';;;')
+                            for sv in re.split(' *;;; *', tds[1].text.strip()):
+                                rec['supervisor'].append([ re.sub('Prof\. ', '', re.sub('Dr\. ', '', sv)) ])
                         #date
                         elif re.search('Pr.fungsdatum', tds[0].text):
                             rec['MARC'] = [ ['500', [('a', 'Presented on ' + re.sub('(\d\d).(\d\d).(\d\d\d\d)', r'\3-\2-\1', tds[1].text.strip()))] ] ]
