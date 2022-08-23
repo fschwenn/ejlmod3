@@ -396,7 +396,7 @@ def writeXML(recs,dokfile,publisher):
             else:
                 lang = rec['language']
             if lang:
-                if not lang in ['English', u'Inglês']:
+                if not lang in ['English', u'Inglês', 'eng', 'Inglese']:
                     if lang == u'Português': lang = 'Portuguese'
                     elif lang == 'Deutsch': lang = 'German'
                     elif lang == u'Française': lang = 'French'
@@ -663,7 +663,7 @@ def writeXML(recs,dokfile,publisher):
         #FULLTEXT
         if 'FFT' in rec:
             if re.search('^http', rec['FFT']) or re.search('^\/afs\/cern', rec['FFT']):
-                xmlstring += marcxml('FFT',[('a',rec['FFT']), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
+                xmlstring += marcxml('FFT',[('a',re.sub(' ', '%20', rec['FFT'])), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['FFT']))])
         elif 'fft' in rec:
@@ -679,7 +679,7 @@ def writeXML(recs,dokfile,publisher):
         #LINK
         if 'link' in rec:
             if re.search('^http', rec['link']):
-                xmlstring += marcxml('8564',[('u', rec['link'])])
+                xmlstring += marcxml('8564',[('u', re.sub(' ', '%20', rec['link']))])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['link']))])
         #LICENSE
@@ -1392,7 +1392,7 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['dc.date', 'dc.Date', 'DC.date', 'DC.Date.created', 'bepress_citation_date',
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
-                             'DCTERMS.issued', 'dc.date.submitted']:
+                             'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
