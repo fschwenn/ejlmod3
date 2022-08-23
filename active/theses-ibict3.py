@@ -75,15 +75,15 @@ for rec in recs:
                     rec['auts'] = [ td.text.strip() ]
                 #language
                 elif tht == 'Idioma:':
-                    tdt = td.text.strip()
-                    if tdt == 'por':
-                        rec['language'] = 'portuguese'
-                    elif tdt != 'eng':
-                        rec['language'] = tdt
-                        rec['notes'].append('language: '+tdt)
+                    rec['language'] = td.text.strip()
                 #link
-                elif tht == 'Download Texto Completo:':
+                elif tht in ['Download Texto Completo:', 'Online Access:']:
                     for a in tr.find_all('a'):
+                        if re.search('orcid.org', a['href']):
+                            continue
+                        elif re.search('handle.net\/', a['href']):
+                            rec['hdl'] = re.sub('.*handle.net\/', '', a['href'])
+                            del(rec['doi'])
                         rec['link'] = a['href']
                         if re.search('teses\.usp\.br', a['href']):
                             rec['notes'].append('should also be harvested by theses-saopaulo.py')
