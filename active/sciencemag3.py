@@ -17,18 +17,13 @@ publisher = 'American Association for the Advancement of Science'
 jnl = sys.argv[1]
 year = sys.argv[2]
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
+
 
 
 if jnl == 'science':
