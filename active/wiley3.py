@@ -37,6 +37,7 @@ elif (jnl == 'mdpc'):
     jnlname = 'Mater.Des.Proc.Comm.'
 elif (jnl == 'anyaa'):
     issn = '1749-6643'
+    issn = '1749-6632'
     doitrunk = '10.1111/nyas'
     jnlname = 'Annals N.Y.Acad.Sci.'
 elif (jnl == 'ctpp'):
@@ -121,23 +122,20 @@ elif (jnl == 'mop'):
     jnlname = 'Microw.Opt.Technol.Lett.'
 
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+
+
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
+
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
 print("%s %s, Issue %s" %(jnlname,vol,issue))
 if re.search('1111',doitrunk):
     toclink = '%s/%s.%s.%s.issue-%s/issuetoc' % (urltrunk,doitrunk,year,vol,issue)
+    toclink = 'https://nyaspubs.onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
 else:
     toclink = '%s/%s.v%s.%s/issuetoc' % (urltrunk,doitrunk,vol,issue)
     toclink = 'https://onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
