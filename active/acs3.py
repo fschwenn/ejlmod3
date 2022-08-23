@@ -36,18 +36,13 @@ else:
     print(' unknown journal "%s"' % (jnl))
     sys.exit(0)
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
+
+
 
 tocurl = 'https://pubs.acs.org/toc/%s/%s/%s' % (jnl, vol, iss)
 print(tocurl)
@@ -105,8 +100,9 @@ for rec in recs:
             time.sleep(600)
             driver.get(rec['artlink'])
             artpage = BeautifulSoup(driver.page_source, features="lxml")
-        except:
+        except:            
             print('  keep only', list(rec.keys()))
+            continue
     rec['autaff'] = []
     ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'og:description', 'dc.Date'])
     #keywords
