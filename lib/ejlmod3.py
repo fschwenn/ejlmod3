@@ -1042,16 +1042,17 @@ def shapeaut(author):
 
 reqis = re.compile('^\d+ *')
 untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlights on Recent JACS Publications',
-            'Guest Editorial', 'Personalia, meetings, bibliography',
+            'Guest Editorial', 'Personalia, meetings, bibliography', 'Speaker',
             'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies',
-            'Editorial Board', 'Content']
+            'Editorial Board', 'Content', 'General Chair', 'Table of Content']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
 		     re.compile('[fF]ront [mM]atter'), re.compile('Welcome'), re.compile('Committee'),
                      re.compile('[iI]nformation for [aA]authors'), re.compile('[pP]ublication [iI]nofrmation'),
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
-                     re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker')]
+                     re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
+                     re.compile('^[tT]itle [pP]age [ivxIVX]+$')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags    
     uniqrecs = []
@@ -1067,6 +1068,9 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
         if 'doi' in rec and 'link' in rec:
             if re.search('^10\.\d+', rec['doi']):
                 del(rec['link'])
+        elif not 'doi' in rec or rec['doi'][0] != '1':
+            if 'artlink' in rec and not 'link' in rec:
+                rec['link'] = rec['artlink']
         #open access fulltext
         if 'pdf_url' in rec.keys():
             if 'license' in rec.keys() or 'licence' in rec.keys():
@@ -1349,13 +1353,14 @@ def metatagcheck(rec, artpage, listoftags):
                             rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
                         done.append(tag)
                 #language
-                elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language']:
+                elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language',
+                             'dc.language.iso']:
                     rec['language'] = meta['content']
                     done.append(tag)
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName',
-                             'DC.contributor.author']:
+                             'DC.contributor.author', 'dc.creator']:
                     if 'autaff' in rec:
                         rec['autaff'].append([meta['content']])
                     else:
@@ -1385,14 +1390,14 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 #title
                 elif tag in ['bepress_citation_title', 'Citation_Article_Title', 'citation_title', 'eprints.title',
-                             'twitter:title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title']:
+                             'twitter:title', 'dc.title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title']:
                     rec['tit'] = meta['content']
                     done.append(tag)
                 #date
                 elif tag in ['dc.date', 'dc.Date', 'DC.date', 'DC.Date.created', 'bepress_citation_date',
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
-                             'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date']:
+                             'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
@@ -1419,7 +1424,7 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['vol'] = meta['content']
                     done.append(tag)
                 #license
-                elif tag in ['dc.rights', 'DC.rights', 'DC.Rights', 'DCTERMS.URI']:
+                elif tag in ['dc.rights', 'DC.rights', 'DC.Rights', 'DCTERMS.URI', 'dc.rights.uri']:
                     if re.search('creativecommons.org', meta['content']):
                         rec['license'] = {'url' : meta['content']}
                         done.append(tag)
