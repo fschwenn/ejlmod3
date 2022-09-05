@@ -20,17 +20,22 @@ import codecs
 
 articlesperpage = 100
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    #options.binary_location='/usr/bin/chromium-browser'
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=103, options=options)
-except:
+host = os.uname()[1]
+if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.headless=True
     options.add_argument('--headless')
     driver = uc.Chrome(version_main=96, options=options)
+    tmpdir = '/home/schwenn/tmp'
+else:
+    options = uc.ChromeOptions()
+    options.headless=True
+    options.binary_location='/usr/bin/chromium-browser'
+    options.add_argument('--headless')
+    driver = uc.Chrome(version_main=103, options=options)
+    tmpdir = '/tmp'
+
+
 
 def meta_with_name(tag):
     return tag.name == 'meta' and tag.has_attr('name')
@@ -149,14 +154,14 @@ def addreferences(refsdict, articlelink):
     global refwait
     refsdict[articlelink] = []
     arefs = []
-    reffilename = '/tmp/ieee.%s.refs' % re.sub('\W', '', articlelink)
+    reffilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', articlelink))
     print('    ... from %s%s' % (articlelink, 'references'))
     needtowait = True
     try:
         driver.get(articlelink + 'references')
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'stats-reference-link-googleScholar')))
         refpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(60)
+        time.sleep(40)
         needtowait = False
     except:
         print(' wait %i seconds' % (refwait))
@@ -276,15 +281,16 @@ def ieee(number):
 #        print page
     recs = []
     i = 0
+    iref = 1
     for articlelink in allarticlelinks:
         i += 1
-        if (i % 45) == 0:
+        if (iref % 45) == 0:
             print('\n   [[[ special pause for not to be blocked ]]]\n')
             time.sleep(180)
         hasreferencesection = False
         ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink]])
         #rec['note'] = ['Konferenz ?']
-        artfilename = '/tmp/ieee_%s.%s' % (number, re.sub('\W', '', articlelink))
+        artfilename = '%s/ieee_%s.%s' % (tmpdir, number, re.sub('\W', '', articlelink))
         if not os.path.isfile(artfilename):
             time.sleep(20)
             try:
@@ -375,6 +381,7 @@ def ieee(number):
         rec['year'] = rec['date'][-4:]
         if 'issue' in gdm:
             rec['issue'] = gdm['issue']
+            rec['issue'] = re.sub('(\d+): .*', r'\1', rec['issue'])
         if 'volume' in gdm:
             rec['vol'] = gdm['volume']
         rec['tc'] = tc
@@ -389,13 +396,14 @@ def ieee(number):
                 rec['note'].append(args[1])
         #references
         if hasreferencesection:
-                refilename = '/tmp/ieee.%s.refs' % re.sub('\W', '', articlelink)
+                refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', articlelink))
                 if not os.path.isfile(refilename):
+                    iref += 1
                     print('  try to get references')
                     action_process = Process(target=addreferences, args=(refsdict, articlelink))
                     action_process.start()
                     #action_process.join(timeout=5)
-                    action_process.join(120)
+                    action_process.join(100)
                     if action_process.is_alive():
                         action_process.terminate()
                         action_process.join()
@@ -479,6 +487,7 @@ if __name__ == '__main__':
     publisher = 'IEEE'
 
     (recs, jnlfilename) = ieee(number)
-    ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+    if host != 'l00schwenn':
+        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
 
 driver.quit()
