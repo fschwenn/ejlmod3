@@ -12,9 +12,6 @@ import re
 import ejlmod3
 import time
 
-
-
-
 universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '/handle/10281/9145', 8),
                 'trento' : ('Trento U.', 'https://iris.unitn.it', '/handle/11572/237822', 10),
                 'pavia' : ('Pavia U.', 'https://iris.unipv.it', '/handle/11571/1198268', 10),
@@ -22,7 +19,8 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'milan' : ('Milan U.', 'https://air.unimi.it', '/handle/2434/146884', 20),
                 'udine' : ('Udine U.', 'https://air.uniud.it', '/handle/11390/1123314', 7),
                 'genoa' : ('Genoa U.', 'https://iris.unige.it', '/handle/11567/928192', 15),
-                'ferrara' : ('Ferrara U.', 'https://iris.unife.it', '/handle/11392/2380873', 4),
+                'ferraraeprints' : ('Ferrara U.', 'https://iris.unife.it', '/handle/11392/2380873', 2),
+                'ferrara' : ('Ferrara U.', 'https://iris.unife.it', '/handle/11392/2380872', 4),
                 'trieste' : ('Trieste U', 'https://arts.units.it', '/handle/11368/2907477', 10),
                 'siena' : ('Siena U.', 'https://usiena-air.unisi.it', '/handle/11365/973085', 5),
                 'verona' : ('Verona U.', 'https://iris.univr.it', '/handle/11562/924246', 7),
@@ -31,12 +29,38 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'sissa' : ('SISSA', 'https://iris.sissa.it', '/handle/20.500.11767/64', 6),
                 'cagliarieprints' : ('Cagliari U.', 'https://iris.unica.it', '/handle/11584/265854', 8),
                 'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1)}
-
+boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
+          'biochemistry and molecular biology bibim 2.0', 'bioingegneria e scienze medico-chirurgiche',
+          'biomolecular sciences', 'biotecnologie mediche', 'chemical and pharmaceutical sciences', 'chim',
+          'civil, environmental and mechanical engineering', 'cognitive and brain sciences', 'cognitive science',
+          'development economics and local systems - delos',
+          'dipartimento di studi letterari, filologici e linguistici', 'economia e management', 'economics',
+          'economics and management', 'energetica', 'environmental engineering',
+          'european cultures. environment, contexts, histories, arts, ideas', u'facolt\xe0 di giurisprudenza',
+          'filologia e critica', 'genetica, oncologia e medicina clinica', 'geo', 'gestione, produzione e design',
+          'ing-ind', 'ing-inf', 'ingegneria aerospaziale', 'ingegneria chimica', 'ingegneria civile e ambientale',
+          'ingegneria elettrica, elettronica e delle comunicazioni', 'international studies', 'ius', 'l-ant',
+          'l-art', 'l-fil-let', 'l-lin', 'l-or', 'lettere e filosofia', 'm-dea', 'm-edf', 'm-fil', 'm-ggr',
+          'm-ped', 'm-psi', 'm-sto', 'materials, mechatronics and systems engineering', 'med',
+          'medicina molecolare', 'metrologia', 'psicologia e scienze cognitive',
+          'psychological sciences and education', 'scienza politica - politica comparata ed europea',
+          'scienze chimiche e farmaceutiche', 'scienze del testo letterario e musicale',
+          "scienze della terra e dell'ambiente", 'scienze della vita', 'scienze della vita-life sciences',
+          'scienze giuridiche', 'scienze linguistiche', 'scuola di studi internazionali', 'secs-p',
+          'sociologia e ricerca sociale', 'sociology and social research', 'storia',
+          'tecnologie per la salute, bioingegneria e bioinformatica', 'urban and regional development']
+boring += ['scienze e tecnologie della chimica e dei materiali - drug discovery and nanobiotechnologies',
+           'scienze e tecnologie della chimica e dei materiali - nanochemistry',
+           'scienze e tecnologie della chimica e dei materiali - scienza e tecnologia dei materiali',
+           'bioingegneria e robotica - bioengineering and robotics - bionanotechnology',
+           'bioingegneria e robotica - bioengineering and robotics',
+           'biotecnologie in medicina traslazionale - medicina rigenerativa ed ingegneria dei tessuti']
+regsec = re.compile('^([a-z]+\-?[a-z]+\-?[a-z]+)\/\d+ .*')
 uni = sys.argv[1]
 publisher = universities[uni][0]
 pages = universities[uni][3]
 jnlfilename = 'THESES-%s-%s' % (uni.upper(), ejlmod3.stampoftoday())
-years = 2
+years = 2+10
 rpp = 20
 
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -86,7 +110,6 @@ for page in range(pages):
                     print('(YEAR?)', p.text)
     print('     %3i records so far' % (len(prerecs)))
     time.sleep(5)
-                    
 
 i = 0
 recs = []
@@ -97,7 +120,7 @@ for rec in prerecs:
     if not ejlmod3.ckeckinterestingDOI(rec['hdl']):
         continue
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink'] + '?mode=complete'), features="lxml")
         time.sleep(3)
     except:
         try:
@@ -109,7 +132,7 @@ for rec in prerecs:
             continue
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'citation_author_email', 'citation_author_orcid', 'citation_pdf_url', 'citation_doi',
                                         'citation_title', 'citation_publication_date', 'citation_language', 'DC.subject', 'citation_keywords',
-                                        'citation_date'])
+                                        'citation_date', 'DC.identifier'])
     for meta in artpage.find_all('meta'):
         if meta.has_attr('name') and meta.has_attr('content'):
             #pages
@@ -125,21 +148,19 @@ for rec in prerecs:
             #    if len(meta['content']) > 5:
             #        rec['note'].append(meta['content'])
             #department
-            elif meta['name'] == 'citation_keywords':
+            elif meta['name'] in ['DC.subject', 'citation_keywords']:
                 section = re.sub('Settore ', '', meta['content'])
-                if re.search('^[A-Z][A-Z][A-Z]', section):
+                if re.search('^[A-Z]+\-?[A-Z]+\-?[A-Z]+\/\d+', section):
                     interesting = False
                     if section[:3] in ['FIS', 'INF', 'ING', 'MAT']:
                         if section[:3] == 'INF':
                             rec['fc'] = 'c'
                         elif section[:3] == 'MAT':
                             rec['fc'] = 'm'
-                        elif section[:6] == 'FIS/05':
-                            rec['fc'] = 'a'
                         rec['note'].append(section)
                         interesting = True
-                    else:
-                        print('  skip', section)
+#                    else:
+#                        print('  skip', section)
     if not 'autaff' in list(rec.keys()):
         for meta in artpage.find_all('meta', attrs = {'name' : 'DC.creator'}):
             rec['autaff'] = [[ meta['content'] ]]
@@ -203,6 +224,30 @@ for rec in prerecs:
                         for a in div.find_all('a'):
                             if re.search('pdf$', a['href']):
                                 rec['FFT'] = universities[uni][1] + a['href']
+    #faculty
+    for div in artpage.body.find_all('div', attrs = {'id' : ['dc.authority.orgunit_content', 'dc.description.phdCourse_content',
+                                                             'dc.authority.academicField2000_content',
+                                                             'dc.ugov.classaux1_content', 'dc.subject.miur_content']}):
+        for em in div.find_all('em'):
+            fac = em.text.strip().lower()
+            fac = re.sub(' \(.*', '', fac)
+            fac = re.sub('^\d+ cicli?o \- ', '', fac)
+            fac = re.sub('^[xiv]+ cicli?o \- ', '', fac)
+            fac = re.sub('^settore ', '', fac)
+            fac = regsec.sub(r'\1', fac)
+            if fac in boring:
+                interesting = False
+            elif re.search('mat\/\d+ ', fac):
+                rec['fc'] = 'm'
+            elif re.search('inf\/\d+ ', fac):
+                rec['fc'] = 'c'
+            else:
+                rec['note'].append(fac)
+    #pages
+    for div in artpage.body.find_all('div', attrs = {'id' : 'dc.relation.numberofpages_content'}):
+        for em in div.find_all('em'):
+            if re.search('^\d+$', em.text):
+                rec['pages'] = em.text
     if 'autaff' in list(rec.keys()):
         rec['autaff'][-1].append(publisher)
         #year might be the year of deposition
