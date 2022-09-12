@@ -381,7 +381,7 @@ def writeXML(recs,dokfile,publisher):
                 try:
                     lang = languages.get(part1=rec['language']).name
                 except:
-                    lang = False                    
+                    lang = False
             elif len(rec['language']) == 3 and rec['language'] != 'eng':
                 try:
                     lang = languages.get(part2t=rec['language']).name
@@ -404,7 +404,7 @@ def writeXML(recs,dokfile,publisher):
                     xmlstring += marcxml('041', [('a', lang)])
                     xmlstring += marcxml('595', [('a', 'Text in %s' % (lang))])
             else:
-                xmlstring += marcxml('595', [('a', 'unknown language "%s"' % (rec['language']))])  
+                xmlstring += marcxml('595', [('a', 'unknown language "%s"' % (rec['language']))])
         #ABSTRACT
         if 'abs' in rec:
             if len(rec['abs']) > 5:
@@ -471,7 +471,7 @@ def writeXML(recs,dokfile,publisher):
                 else:
                     keywordsfinal.append(kw)
             for kw in keywordsfinal:
-                if kw.strip():                    
+                if kw.strip():
                     try:
                         xmlstring += marcxml('6531',[('a',kw), ('9','author')])
                     except:
@@ -1054,7 +1054,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
                      re.compile('^[tT]itle [pP]age [ivxIVX]+$')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
-    global checkedmetatags    
+    global checkedmetatags
     uniqrecs = []
     doi1s = []
     for rec in recs:
@@ -1107,7 +1107,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                     if pbnkey in rec:
                         pseudodoi += '/' + re.sub('\W', '', rec[pbnkey])
             elif 'link' in rec:
-                pseudodoi = '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:])        
+                pseudodoi = '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:])
             elif 'tit' in rec:
                 pseudodoi = '30.3000/AUT_TIT'
                 if 'auts' in rec and rec['auts']:
@@ -1207,13 +1207,33 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                         datafields[rk] = 1
         datafieldsoutBIG = []
         datafieldsout = []
+        if 'auts' in datafields:
+            if 'autaff' in datafields:
+                if datafields['auts']+datafields['autaff'] == len(uniqrecs):
+                    datafieldsoutBIG.append('AUTAFF+AUTS(ALL)')
+                else:
+                    datafieldsoutBIG.append('AUTAFF+AUTS(%i)' % (datafields['auts']+datafields['autaff']))
+            else:
+                if datafields['auts'] == len(uniqrecs):
+                    datafieldsoutBIG.append('AUTS(ALL)')
+                else:
+                    datafieldsoutBIG.append('AUTS(%i)' % (datafields['auts']))
+        elif 'autaff' in datafields:
+            if datafields['autaff'] == len(uniqrecs):
+                datafieldsoutBIG.append('AUTAFF(ALL)')
+            else:
+                datafieldsoutBIG.append('AUTAFF(%i)' % (datafields['autaff']))
+        else:
+            datafieldsoutBIG.append('AUTAFF+AUTS(0)')
         for rk in datafields:
             if datafields[rk] == len(uniqrecs):
                 dfo = '%s(all)' % (rk)
             else:
                 dfo = '%s(%i)' % (rk, datafields[rk])
-            if rk in ['autaff', 'date', 'tit', 'auts']:
+            if rk in ['date', 'tit']:
                 datafieldsoutBIG.append(dfo.upper())
+            elif rk in ['autaff', 'auts']:
+                pass
             else:
                 datafieldsout.append(dfo)
         print('FINISHED writenewXML(%s;%i;%s || %s)' % (jnlfilename, len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
@@ -1247,7 +1267,7 @@ def printrecsummary(rec):
     return
 def printrec(rec):
     if rec:
-        for k in rec:        
+        for k in rec:
             print ('%-10s:: ' % (k), rec[k])
         printrecsummary(rec)
     else:
@@ -1299,6 +1319,7 @@ def metatagcheck(rec, artpage, listoftags):
         if not tag in checkedmetatags:
             checkedmetatags[tag] = 0
     done = []
+    abstracts = {}
     for meta in artpage.find_all('meta'):
         if meta.has_attr('content') and meta['content']:
             if meta.has_attr('name') and meta['name'] in listoftags:
@@ -1312,7 +1333,10 @@ def metatagcheck(rec, artpage, listoftags):
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
                            'description', 'citation_abstract_content', 'dc.description.abstract']:
-                    rec['abs'] = meta['content']
+                    if meta.has_attr('xml:lang'):
+                        abstracts[meta['xml:lang']] = meta['content']
+                    else:
+                        abstracts[''] = meta['content']
                     done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI']:
@@ -1431,6 +1455,9 @@ def metatagcheck(rec, artpage, listoftags):
                     elif re.search('^cc_[a-z][a-z].*', meta['content']):
                         rec['license'] = {'statement' : re.sub('_', '-', meta['content'].upper())}
                         done.append(tag)
+                #link
+                elif tag in ['citation_public_url']:
+                    rec['link'] =  meta['content']
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
@@ -1445,6 +1472,21 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
                     rec['pdf_url'] = meta['content']
                     done.append(tag)
+    #abstract (if theere are several in different languages)
+    if len(abstracts.keys()) == 1:
+        for lang in abstracts:
+            rec['abs'] = abstracts[lang]
+    elif len(abstracts.keys()) > 1:
+        for lang in abstracts:
+            if lang in ['en', 'eng']:
+                rec['abs'] = abstracts[lang]
+        if not 'abs' in rec:
+            for lang in abstracts:
+                rec['abs'] = abstracts[lang]
+            if 'note' in rec:
+                rec['note'].append('abstract languages? (%s)' % (','.join(abstracts.keys())))
+            else:
+                rec['note'] = ['abstract languages? (%s)' % (','.join(abstracts.keys()))]
     #resume
     notdone = []
     for tag in listoftags:
@@ -1491,12 +1533,14 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
     redegree = re.compile('rft.degree=')
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
+    boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters', 'D.Ed.']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'})
     links = []
     for div in divs:
         for a in div.find_all('a'):
             if a.has_attr('href') and rehdl.search(a['href']):
+                keepit = True
                 rec = {'tc' : 'T', 'jnl' : 'BOOK', 'supervisor' : [], 'keyw' : [], 'note' : [], 'autaff' : [], 'degree' : []}
                 rec['soup'] = div
                 rec['tit'] = a.text.strip()
@@ -1511,15 +1555,21 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
                 #some have infos in <span class="Z3988">
                 for span in div.find_all('span', attrs = {'class' : 'Z3988'}):
                     infos = re.split('&', span['title'])
+                    rec['degrees'] = []
                     for info in infos:
                         if redegree.search(info):
-                            rec['degree'].append(redegree.sub('', info))
+                            degree = redegree.sub('', info)
+                            rec['degrees'].append(degree)
+                            if degree in boringdegrees:
+                                keepit = False
                         elif relicense.search(info):
                             rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
                         elif redate.search(info):
                             rec['date'].append(redate.sub('', info))
+                    if rec['degrees']:
+                        rec['note'].append('DEGREES=%s' % (','.join(rec['degrees'])))
                 #construct link and HDL (or fakeDOI)
-                if not rec['link'] in links:
+                if keepit and not rec['link'] in links:
                     links.append(rec['link'])
                     if fakehdl:
                         rec['doi'] = '30.3000/' + re.sub('\W', '',  urltrunc) + rehdl.sub('/', a['href'])
