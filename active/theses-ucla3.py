@@ -18,7 +18,7 @@ abbr = sys.argv[1]
 
 numberofpages = 5-2
 articlesperpage = 100
-jnlfilename = 'THESES-%s-%s_%ib' % (abbr.upper(), ejlmod3.stampoftoday(), numberofpages*articlesperpage)
+jnlfilename = 'THESES-%s-%s_%i' % (abbr.upper(), ejlmod3.stampoftoday(), numberofpages*articlesperpage)
 
 subjectstoskip = ['Biochemistry', 'LGBTQstudies', 'Classicalstudies', 'Microbiology', 'Informationscience', 
                   'Remotesensing', 'Filmstudies', 'Organicchemistry', 'Internationallaw', 
