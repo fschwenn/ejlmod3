@@ -55,60 +55,60 @@ python = {'python3' : '/home/library/.virtualenvs/inspire3-python3.8/bin/python'
 
 #list of harvesters
 #entries: (after how many months it should run next time, [program, argument1, argument2])
-jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
+jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (6, ['theses-bogota3.py']),
-        (1, ['aip3.py', 'jmp', pryear-1959, prmonth]),
+        (1, ['aip3XXX.py', 'jmp', pryear-1959, prmonth]),
         (3, ['theses-bristol3.py']),
-        (3, ['aip3.py', 'chaos', pryear-1990, prquarter]),
+        (3, ['aip3XXX.py', 'chaos', pryear-1990, prquarter]),
         (2, ['theses-goettingen3.py']),
-        (1, ['aip3.py', 'ltp', pryear-1974, prmonth]),
+        (1, ['aip3XXX.py', 'ltp', pryear-1974, prmonth]),
         (2, ['theses-helda3.py']),
-        (1, ['aip3.py', 'php', pryear-1993, prmonth]),
+        (1, ['aip3XXX.py', 'php', pryear-1993, prmonth]),
         (2, ['theses-leedssheffieldyork3.py']),
-        (1, ['aip3.py', 'adva', pryear-2010, prmonth]),
+        (1, ['aip3XXX.py', 'adva', pryear-2010, prmonth]),
         (3, ['theses-oslo3.py']),
-        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ol', pryear-1975, prmonth * 2 - 1]),
-        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'ol', pryear-1975, prmonth * 2]),
-        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 - 1]),
-        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2]),
-        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 2]),
-        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 1]),
-        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3]),
-        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'josaa', pryear-1983, prmonth]),
-        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'josab', pryear-1983, prmonth]),
-        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'optica', pryear-2013, prmonth]),
-        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (2, ['theses-oregon3.py']),
-        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (2, ['theses-aachen3.py']),
-        (1, ['aip3.py', 'ajp', pryear-1932, prmonth]),
+        (1, ['aip3XXX.py', 'ajp', pryear-1932, prmonth]),
         (2, ['theses-oatd.py', '0', '3']),
-        (1, ['aip3.py', 'phf', pryear-1988, prmonth]),
+        (1, ['aip3XXX.py', 'phf', pryear-1988, prmonth]),
         (3, ['theses-oatd.py', '3', '5']),
-        (2, ['aip3.py', 'jva', pryear-1982, prsixth]),
+        (2, ['aip3XXX.py', 'jva', pryear-1982, prsixth]),
         (2, ['theses-oatd.py', '5', '7']),
-        (2, ['aip3.py', 'jvb', pryear-1982, prsixth]),
+        (2, ['aip3XXX.py', 'jvb', pryear-1982, prsixth]),
         (3, ['theses-oatd.py', '7', '9']),
-        (3, ['aip3.py', 'aqs', pryear-2018, prquarter]),
+        (3, ['aip3XXX.py', 'aqs', pryear-2018, prquarter]),
         (1, ['mdpi.sftp.py', 'symmetry']),
-        (1, ['aip3.py', 'pto', pryear-1947, prmonth]),
+        (1, ['aip3XXX.py', 'pto', pryear-1947, prmonth]),
         (1, ['mdpi.sftp.py', 'sensors']),
         (1, ['cjp3.py', 'cjp', pryear-1922, prmonth]),
         (1, ['mdpi.sftp.py', 'nanomaterials']),
         (2, ['theses-oatd.py', '9', '11']),
-        (12, ['annualreview.py', 'arnps', pryear-1950]),
+        (12, ['annualreview3.py', 'arnps', pryear-1950]),
         (3, ['theses-oatd.py', '11', '13']),
-        (12, ['annualreview.py', 'araa', pryear-1962]),
+        (12, ['annualreview3.py', 'araa', pryear-1962]),
         (2, ['theses-oatd.py', '13', '15']),
         (1, ['royalsociety.xml2.py', 'prs', pryear-1544, (pryear-1834)*12+prmonth]),
         (3, ['theses-oatd.py', '15', '17']),
@@ -166,7 +166,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['mdpi.sftp.py', 'condensedmatter']),
         (1, ['oxfordjournals.xml.py', 'mnrasl', 1 + mnrasbignumber//4, '1', 'in_progress']),
         (1, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+3, 4*(prmonth-1)+4)]),
-        (2, ['annualreview.py', 'arcmp', pryear-2009]),
+        (12, ['annualreview3.py', 'arcmp', pryear-2009]),
         (2, ['theses-kit_etp.py']),
         (1, ['mdpi.sftp.py', 'atoms']),
         (3, ['spie_journal.py', 'jatis', pryear-2014, prquarter]),
@@ -219,8 +219,8 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-cornell.py']),
         (2, ['theses-texasam.py']),
         (2, ['theses-gent.py']),
-        (2, ['theses-mainz.py']),
-        (2, ['theses-texas.py']),
+        (2, ['theses-mainz3.py']),
+        (2, ['theses-texas3.py']),
         (2, ['theses-johnhopkins.py']),
         (2, ['theses-sidney3.py']),
         (2, ['theses-toronto.py']),
@@ -251,7 +251,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-shodganga.py', 'Math', '201', '500']),
         (2, ['theses-ibict3.py', 'math']),
         (1, ['theoj3.py', 'joss']),
-        (2, ['theses-ibict3.py', 'nucl']),
+        (2, ['theses-ibict3.py', 'cnpq']),
         (2, ['theses-prr.py']),
         (2, ['theses-ibict3.py', 'physpost']),
         (2, ['theses-freiburg.py']),
@@ -292,12 +292,12 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-caltech.py']),
         (2, ['theses-iowa.py']),
         (1, ['mdpi.sftp.py', 'mathematics']),
-        (2, ['theses-floridastate.py']),
+        (2, ['theses-floridastate3.py']),
         (3, ['theses-southermethodist.py']),
         (2, ['theses-tubingen.py']),
         (2, ['theses-waynestate.py']),
         (2, ['theses-thueringen.py']),
-        (1, ['theses-minnesota.py']),
+        (1, ['theses-minnesota3.py']),
         (2, ['oxfordjournals.xml.py', 'astrogeo', pryear-1959, prsixth]),
         (2, ['theses-indiana.py']),
         (1, ['theses-alberta.py']),
@@ -343,8 +343,8 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-washington.py']),
         (2, ['theses-queenmary.py']),
         (3, ['theses-trinity.py']),
-        (3, ['theses-jyvaskyla.py']),
-        (2, ['theses-ohio.py']),
+        (3, ['theses-jyvaskyla3.py']),
+        (666, ['theses-ohio.py']),  #GitHub Issue
         (1, ['theses-manitoba.py']),
         (2, ['theses-canterbury.py']),
         (2, ['theses-saskatchewan.py']),
@@ -400,7 +400,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-houston.py']),
         (3, ['theses-iisc.py']),
         (1, ['mdpi.sftp.py', 'applsci']),
-        (2, ['theses-hawaii.py']),
+        (2, ['theses-hawaii3.py']),
         (3, ['theses-porto.py']),
         (4, ['theses-dart.py']),
         (3, ['edpjournals.py', '4open', pryear, '1']),
@@ -484,12 +484,17 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-brasilia3.py']),
         (1, ['ems3.py']),
         (3, ['theses-italy3.py', 'ferraraeprints']),
-        (2, ['theses-cuny3.py'])]
+        (2, ['theses-cuny3.py']),
+        (3, ['theses-maynooth3.py']),
+        (2, ['theses-delaware3.py']),
+        (1, ['scientific.py']),
+        (2, ['theses-ibict3.py', 'physics2'])]
+
         
 
 if prmonth == 12:
-    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 25]))
-    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 26]))
+    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + 1, 25]))
+    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + 1, 26]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 1]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 2]))
     jnls.append((1, ['procnas3.py', pryear-1903, '49, 50']))
@@ -497,8 +502,8 @@ if prmonth == 12:
     jnls.append((1, ['intlpress.py', pryear-1992, '7']))
     jnls.append((1, ['intlpress.py', pryear-1992, '8']))
 if prmonth == 6:
-    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924, 25]))
-    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924, 26]))
+    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924, 25]))
+    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924, 26]))
 
 
 #work from 3th to 28th day of a month
@@ -530,8 +535,8 @@ if (today.day % 7 == 0):
     listofcommands.append(['iop.stack.py'])
     prfil.write(' - iop.stacks.py\n')
 else:
-    listofcommands.append(['iop.sftp.py'])
-    prfil.write(' - iop.sftp.py\n')
+    listofcommands.append(['iop3.py'])
+    prfil.write(' - iop3.py\n')
 
 prfil.close()
 
