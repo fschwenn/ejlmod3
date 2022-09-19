@@ -21,18 +21,13 @@ stopdate = re.sub('\-', '', ejlmod3.stampoftoday())
 tuples = []
 dois = []
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
-except:
-    print('try Chrome=99 instead')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+driver = uc.Chrome(version_main=103, options=options)
+
 
 for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', ''),
                                  ('130339', 'Astrophysics / Astronomy / Cosmology / Geophysics', 'a'),
