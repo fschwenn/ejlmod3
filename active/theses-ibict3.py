@@ -16,10 +16,17 @@ stopyear =  ejlmod3.year()
 
 subject = sys.argv[1]
 
-filters = {'physics' : (2, 'dc.subject.por.fl_str_mv%3A%22F%C3%ADsica%22'),
-           'math' : (2, 'dc.publisher.program.fl_str_mv%3A%22F%C3%ADsica%22'),
-           'nucl' : (2, 'dc.subject.por.fl_str_mv%3A%22F%C3%ADsica+nuclear%22'),
-           'physpost' : (3, 'dc.publisher.program.fl_str_mv%3A%22Programa+de+P%C3%B3s-Gradua%C3%A7%C3%A3o+em+F%C3%ADsica%22')}
+filters = {'physics' : (2, 'dc.subject.por.fl_str_mv%3A%22F%C3%ADsica%22', ''),
+           'comp' : (2, 'dc.publisher.program.fl_str_mv%3A%22Ci%C3%AAncias%2Bda%2BComputa%C3%A7%C3%A3o%2Be%2BMatem%C3%A1tica%2BComputacional%22', 'c'),
+           'math' : (2, 'dc.publisher.program.fl_str_mv%3A%22Matem%C3%A1tica%22', 'm'),
+           'nucl' : (2, 'dc.subject.por.fl_str_mv%3A%22F%C3%ADsica+nuclear%22', ''),
+           'physpost' : (3, 'dc.publisher.program.fl_str_mv%3A%22Programa+de+P%C3%B3s-Gradua%C3%A7%C3%A3o+em+F%C3%ADsica%22', ''),
+           'physics2' : (2, 'dc.publisher.program.fl_str_mv%3A%22F%C3%ADsica%22', ''),
+           'cnpq' : (2, 'dc.subject.cnpq.fl_str_mv%3A%22CNPQ%3A%3ACIENCIAS+EXATAS+E+DA+TERRA%3A%3AFISICA%22', '')}
+
+
+
+  
 
 hdr = {'User-Agent' : 'Magic Browser'}
 publisher = 'publisher'
@@ -44,7 +51,10 @@ for i in range(numberofpages):
             rec['tit'] = a.text.strip()
             rec['artlink'] = 'http://bdtd.ibict.br' + a['href']
             rec['doi'] = '20.2000/IBICT/' + re.sub('\W', '', a['href'][15:])
+            if filters[subject][2]:
+                rec['fc'] = filters[subject][2]
         recs.append(rec)
+        
 
 i = 0
 for rec in recs:
