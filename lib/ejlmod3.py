@@ -85,7 +85,7 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
 fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.']),
-                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.']),
+                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.']),
@@ -366,11 +366,13 @@ def writeXML(recs,dokfile,publisher):
         #TITLE
         if 'tit' in rec:
             xmlstring += marcxml('245',[('a',kapitalisiere(rec['tit'])), ('9',publisher)])
+            if 'transtit' in rec:
+                xmlstring += marcxml('242',[('a',kapitalisiere(rec['transtit'])), ('9',publisher)])
+        elif 'transtit' in rec:
+            xmlstring += marcxml('245',[('a',kapitalisiere(rec['transtit'])), ('9',publisher)])
         if 'otits' in rec:
             for otit in rec['otits']:
                 xmlstring += marcxml('246', [('a',kapitalisiere(otit)), ('9',publisher)])
-        if 'transtit' in rec:
-            xmlstring += marcxml('242',[('a',kapitalisiere(rec['transtit'])), ('9',publisher)])
         #LANGUAGE
         if 'language' in rec:
             #combined language/country codes like RFC 1766
@@ -874,7 +876,7 @@ def writeXML(recs,dokfile,publisher):
             print(' extracting %i refs for record %i of %i' % (len(rec['refs']),i,len(recs)))
             for ref in rec['refs']:
                 #print '  ->  ', ref
-                if len(ref) == 1 and ref[0][0] == 'x':
+                if len(ref) == 1 and ref[0][0] == 'xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX':
                     rawref = re.sub('Google ?Scholar', '', ref[0][1])
                     rawref = re.sub('[cC]ross[rR]ef', '', rawref)
                     rawref = re.sub('[\n\t\r]', ' ', rawref)
