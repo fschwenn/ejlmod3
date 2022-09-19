@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 #harvest theses from Florida U.
 #FS: 2021-04-29
 
@@ -133,14 +133,14 @@ try:
     options = uc.ChromeOptions()
     options.headless=True
     options.add_argument('--headless')
-    driver = uc.Chrome(version_main=102, options=options)
+    driver = uc.Chrome(version_main=103, options=options)
 except:
-    print('try Chrome=99 instead')
+    print('try again')
     options = uc.ChromeOptions()
     options.headless=True
     options.add_argument('--headless')
-    driver = uc.Chrome(version_main=99, options=options)
-    #driver = uc.Chrome(options=options)
+    #driver = uc.Chrome(version_main=99, options=options)
+    driver = uc.Chrome(options=options)
 
 prerecs = []
 
