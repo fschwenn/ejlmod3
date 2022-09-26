@@ -24,19 +24,8 @@ for department in ['Physics', 'Mathematics']:
     tocurl = 'https://repositories.lib.utexas.edu/handle/2152/4/browse?type=department&value=' + department + '&sort_by=2&order=DESC&rpp=' + str(rpp)
     ejlmod3.printprogress('=', [[department], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req))
-    recs = []
-    #divs = tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'})
-    #for div in divs:
-    #    rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK'}
-    #    if department == 'Mathematics':
-    #        rec['fc'] = 'm'
-    #    for span in div.find_all('span', title=re.compile('rft.degree=Doctor')):
-    #        for a in div.find_all('a'):
-    #            rec['artlink'] = 'https://repositories.lib.utexas.edu' + a['href'] #+ '?show=full'
-    #            rec['hdl'] = re.sub('.*handle\/', '', a['href'])
-    #            recs.append(rec)
-    #print('  %i/%i' % (len(recs), len(divs)))    
+    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    recs = []    
     recs = ejlmod3.getdspacerecs(tocpage, 'https://repositories.lib.utexas.edu/')
     time.sleep(30)
 
@@ -45,18 +34,19 @@ for department in ['Physics', 'Mathematics']:
         i += 1
         ejlmod3.printprogress('-', [[department], [i, len(recs)], [rec['link']]])
         try:
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']))
+            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
             time.sleep(3)
         except:
             try:
                 print("retry %s in 180 seconds" % (rec['link']))
                 time.sleep(180)
-                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']))
+                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
             except:
                 print("no access to %s" % (rec['link']))
                 continue
         ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DCTERMS.issued', 'DC.subject', 'DCTERMS.abstract', 'citation_pdf_url', 'DC.identifier'])
-                            
+        if department == 'Mathematics':
+            rec['fc'] = 'm'
         for meta in artpage.head.find_all('meta'):
             if meta.has_attr('name'):
                 #author
