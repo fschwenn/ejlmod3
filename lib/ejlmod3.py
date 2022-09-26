@@ -562,7 +562,7 @@ def writeXML(recs,dokfile,publisher):
             for isbn in rec['isbns']:
                 xmlstring += marcxml('020', isbn)
         elif 'isbn' in rec:
-            xmlstring += marcxml('020',[('a', re.sub('\D', '', rec['isbn']))])
+            xmlstring += marcxml('020',[('a', re.sub('[^X\d]', '', rec['isbn']))])
         #DOI
         if 'doi' in rec:
             xmlstring += marcxml('0247',[('a',rec['doi']), ('2','DOI'), ('9',publisher)])
@@ -1054,7 +1054,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('[iI]nformation for [aA]authors'), re.compile('[pP]ublication [iI]nofrmation'),
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
-                     re.compile('^[tT]itle [pP]age [ivxIVX]+$')]
+                     re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
@@ -1341,7 +1341,7 @@ def metatagcheck(rec, artpage, listoftags):
                         abstracts[''] = meta['content']
                     done.append(tag)
                 #persistant identifiers
-                elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI']:
+                elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI', 'doi']:
                     rec['doi'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_arxiv_id']:
@@ -1349,9 +1349,9 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 elif tag in ['citation_isbn']:
                     if 'isbns' in rec:
-                        rec['isbns'].append([('a', re.sub('\D', '', meta['content']))])
+                        rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content']))])
                     else:
-                        rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
+                        rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content']))] ]
                     done.append(tag)
                 elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier', 'dc.identifier.uri']:
                     if re.search('^(urn|URN):', meta['content']):
@@ -1374,9 +1374,9 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                     elif re.search('^978', meta['content']):
                         if 'isbns' in rec:
-                            rec['isbns'].append([('a', re.sub('\D', '', meta['content']))])
+                            rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content']))])
                         else:
-                            rec['isbns'] = [ [('a', re.sub('\D', '', meta['content']))] ]
+                            rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content']))] ]
                         done.append(tag)
                 #language
                 elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language',
