@@ -32,7 +32,7 @@ def get_sub_site(url, fc, sess, aff):
         rec['autaff'][author].append(aff)
     # Title
     if not 'tit' in rec:
-        for title in artpage.find_all('title'}:
+        for title in artpage.find_all('title'):
             rec['tit'] = re.sub('\|.*', '', title.text)
 
 #    rec['hidden'] = rec['pdf_url']
