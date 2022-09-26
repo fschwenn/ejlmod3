@@ -14,6 +14,7 @@ import time
 publisher = 'Bologna U.'
 
 boring = ["Architettura", u"Traduzione, interpretazione e interculturalità",
+          u'Automotive per una mobilità intelligente',
           "Biologia cellulare e molecolare", "Chimica", "Diritto europeo",
           "Scienze mediche generali e scienze dei servizi", "Scienze veterinarie",
           "Scienze pedagogiche", "Meccanica e scienze avanzate dell'ingegneria",
@@ -45,6 +46,9 @@ boring += ['BIO/10 Biochimica', 'MED/18 Chirurgia generale', 'ING-IND/08 Macchin
            'L-ART/04 Museologia e critica artistica e del restauro',
            'SECS-P/03 Scienza delle finanze', 'ING-IND/34 Bioingegneria industriale',
            'ING-IND/14 Progettazione meccanica e costruzione di macchine',
+           'SECS-S/03 Statistica economica', 'CHIM/08 Chimica farmaceutica',
+           'CHIM/11 Chimica e biotecnologia delle fermentazioni',
+           "CHIM/12 Chimica dell'ambiente e dei beni culturali",
            'ING-IND/16 Tecnologie e sistemi di lavorazione']
 
 for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
@@ -134,4 +138,4 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             recs.append(rec)
         else:
             ejlmod3.adduninterestingDOI(rec['artlink'])
-    ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)
