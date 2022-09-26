@@ -211,6 +211,10 @@ for rec in recs:
     if not os.path.isfile(artfilename):
         os.system('wget -T 300 -t 3 -q -O %s "%s"' % (artfilename, rec['artlink']))
         time.sleep(10)
+    if int(os.path.getsize(artfilename)) == 0:
+        time.sleep(30)
+        os.system('wget -T 300 -t 3 -q -O %s "%s"' % (artfilename, rec['artlink']))
+        time.sleep(10)
     inf = open(artfilename, 'r')
     artpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
     inf.close()
