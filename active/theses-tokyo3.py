@@ -18,7 +18,7 @@ stampofstartdate = '%4d-%02d-%02d' % (startdate.year, startdate.month, startdate
 
 publisher = 'Tokyo U.'
 verbose = True
-years = 2+3
+years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
 boring = ['journal article', 'conference paper', 'departmental bulletin paper', 'article',
@@ -174,6 +174,6 @@ for category in prerecs:
     if category != 'doctoral thesis':
         jnlfilename = '%s-TOKYO_U-%s' % (re.sub('\W', '', category.upper()), ejlmod3.stampoftoday())
         try:
-            ejlmod3.writenewXML(prerecs[category], publisher, jnlfilename, retfilename='retfiles_special')
+            ejlmod3.writenewXML(prerecs[category], publisher, jnlfilename)
         except:
-            ejlmod3.writenewXML([], publisher, jnlfilename, retfilename='retfiles_special')
+            ejlmod3.writenewXML([], publisher, jnlfilename)
