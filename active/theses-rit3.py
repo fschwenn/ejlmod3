@@ -11,7 +11,7 @@ import re
 import ejlmod3
 import time
 
-numofpages = 5 #first 10 are done in THESES-RochesterInstTech-2022-07-22.xml
+numofpages = 5
 
 publisher = 'Rochester Inst. Tech.'
 boring = ["Master's Project"]
@@ -23,7 +23,14 @@ boring += ['Chester F. Carlson Center for Imaging Science (COS)', 'School of Des
            'School of Art (CAD)', 'School of Chemistry and Materials Science (COS)',
            'School of Communication (CLA)', 'School of Film and Animation (CAD)',
            'School of Photographic Arts and Sciences (CAD)', 'Sustainability (GIS)',
-           'Thomas H. Gosnell School of Life Sciences (COS)', 'Wegmans School of Health and Nutrition (CHST)']
+           'Thomas H. Gosnell School of Life Sciences (COS)', 'Wegmans School of Health and Nutrition (CHST)',
+           'School for American Crafts (CIAS)', 'School of Art (CIAS)',
+           'School of Design (CIAS)', 'School of Film and Animation (CIAS)',
+           'School of Media Sciences (CIAS)', 'School of Photographic Arts and Sciences (CIAS)',
+           'School of Print Media (CIAS)', 'Biomedical Sciences (CHST)',
+           'Center for Materials Science and Engineering',
+           'Civil Engineering Technology Environmental Management and Safety (CAST)',
+           'School of Media Sciences (CET)']
 reboring = re.compile('\((BS|M.Arch.|MFA|MS)\)')
 
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -120,4 +127,4 @@ for rec in prerecs:
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
