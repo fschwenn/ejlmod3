@@ -15,16 +15,14 @@ urllib3.disable_warnings()
 
 publisher = 'CERN'
 rpp = 50
-pages = 4
+pages = 1
 jnlfilename = 'THESES-CDS-%s' % (ejlmod3.stampoftoday())
-
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
 
-
 for page in range(pages):
-    tocurl = 'https://cds.cern.ch/search?jrec=' + str(page*rpp+1) + '&ln=en&p=037__a%3ACERN-THESIS-*+502__a%3Aphd&action_search=Search&op1=a&m1=a&p1=&f1=&c=CERN+Document+Server&sf=year&so=d&rm=&rg=' + str(rpp) + '&sc=1&of=xm'
+    tocurl = 'https://cds.cern.ch/search?jrec=' + str(page*rpp+1) + '&ln=en&p=037__a%3ACERN-THESIS-*+502__a%3Aphd+not+035__9%3Ainspire&action_search=Search&op1=a&m1=a&p1=&f1=&c=CERN+Document+Server&sf=year&so=d&rm=&rg=' + str(rpp) + '&sc=1&of=xm'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -56,13 +54,10 @@ for page in range(pages):
                     inspire = perform_inspire_search_FS('report_numbers.value:'+rn)
                     if inspire:
                         keepit = False
+                    else:
+                        rec['rn'].append(rn)
                 else:
                     rec['rn'].append(rn)
-        #INSPIRE-ID
-        for df in record.find_all('datafield', attrs = {'tag' : '035'}):
-            for sf in df.find_all('subfield', attrs = {'code' : '9'}):
-                if sf.text.strip() == 'Inspire':
-                    keepit = False
         #author
         for df in record.find_all('datafield', attrs = {'tag' : '100'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
@@ -108,6 +103,12 @@ for page in range(pages):
         for df in record.find_all('datafield', attrs = {'tag' : '693'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'e'}):
                 rec['exp'] = sf.text.strip()
+                if rec['exp'] in ['CMS', 'ATLAS', 'LHCb', 'ALPHA AD-5', 'SHip', 'COMPASS NA58', 'CMS---CERN LHC', 'TOTEM']:
+                    rec['fc'] = 'e'
+                elif rec['exp'] in ['ALICE', 'SHINE NA61', 'NA62', '']:
+                    rec['fc'] = 'xe'
+                elif rec['exp'] in ['nTOF', 'ISOLTRAP', 'ISOL']:
+                    rec['fc'] = 'x'
         #fulltext
         for df in record.find_all('datafield', attrs = {'tag' : '856', 'ind1' : '4'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'u'}):
