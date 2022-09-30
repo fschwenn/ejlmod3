@@ -119,7 +119,6 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
         for a in p.find_all('a'):
             if a.has_attr('href') and re.search('livrepository.liverpool.ac.uk', a['href']):
                 rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'year' : str(year), 'supervisor' : []}
-                rec['doi'] = '20.2000/Liverpool/' + re.sub('\D', '', a['href'])
                 rec['tit'] = a.text.strip()
                 a.replace_with('XXX')
                 pt = re.sub('.*XXX', '', re.sub('[\n\r\t]', '', p.text.strip()))
@@ -142,8 +141,11 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             except:
                 print('no access to %s' % (rec['link']))
                 continue
-        ejlmod3.metatagcheck(rec, artpage, ['eprints.creators_name', 'eprints.creators_orcid', 'eprints.keywords', 'eprints.abstract',
-                                            'eprints.date', 'eprints.doi', 'eprints.pages', 'eprints.document_url', 'eprints.doi'])        
+        ejlmod3.metatagcheck(rec, artpage, ['eprints.creators_name', 'eprints.keywords', 'eprints.abstract', #'eprints.creators_orcid', 
+                                            'eprints.date', 'eprints.doi', 'eprints.pages', 'eprints.document_url'])
+        for meta in artpage.head.find_all('meta', attrs = {'name' : 'eprints.creators_orcid'}):
+            orcid = meta['content'][:19]
+            rec['autaff'][-1].append('ORCID:'+orcid)
         #department
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'eprints.department'}):
             department = meta['content']
@@ -166,6 +168,8 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
                         for span in li.find_all('span', attrs = {'class' : 'orcid-tooltip'}):
                             rec['supervisor'][-1].append(re.sub(' ', '', span.text.strip()))	  
         if keepit:
+            if not 'doi' in rec:
+                rec['doi'] = '20.2000/Liverpool/' + re.sub('\D', '', a['href'])
             recs.append(rec)
             rec['autaff'][-1].append(publisher)
             ejlmod3.printrecsummary(rec)
