@@ -715,7 +715,7 @@ def writeXML(recs,dokfile,publisher):
         if 'supervisor' in rec:
             marc = '701'
             for autaff in rec['supervisor']:
-                autlist = [('a',shapeaut(autaff[0]))]
+                autlist = [('a', shapeaut(autaff[0]))]
                 for aff in autaff[1:]:
                     if re.search('ORCID', aff):
                         aff = re.sub('\s+', '', aff)
@@ -1569,7 +1569,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
                         elif relicense.search(info):
                             rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
                         elif redate.search(info):
-                            rec['date'].append(redate.sub('', info))
+                            rec['date'] = redate.sub('', info)
                     if rec['degrees']:
                         rec['note'].append('DEGREES=%s' % (','.join(rec['degrees'])))
                 #construct link and HDL (or fakeDOI)
