@@ -46,6 +46,7 @@ elif (jnl == 'spsln'):
         jnlfilename = "%s.%s" % (jnl, re.sub('\W', '', re.sub('.*collection\/', '', toclink)))
         if len(sys.argv) > 3:
             cnum = sys.argv[3]
+jnlfilename += '_'+ejlmod3.stampoftoday()
         
 #elif (jnl == 'spscb'):
 #    jnlname = 'SciPost ???'
