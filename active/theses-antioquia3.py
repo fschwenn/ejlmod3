@@ -16,8 +16,8 @@ rpp = 20
 numofpages = 1
 
 hdr = {'User-Agent' : 'Magic Browser'}
+recs = []
 for i in range(numofpages):
-    recs = []
     tocurl = 'https://bibliotecadigital.udea.edu.co/handle/10495/1764/browse?rpp=%i&sort_by=2&type=dateissued&offset=%i&etal=-1&order=DESC' % (rpp, i*rpp)
     ejlmod3.printprogress('=', [[i+1, numofpages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
