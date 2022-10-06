@@ -91,7 +91,7 @@ for rec in recs:
             #Supervisor
             if tdt == 'Supervisor':
                 for a in td.find_all('a'):
-                    rec['supervisor'].append([td.text.strip()])
+                    rec['supervisor'].append([a.text.strip()])
             #Handle
             elif tdt == 'URI':
                 for a in td.find_all('a'):
