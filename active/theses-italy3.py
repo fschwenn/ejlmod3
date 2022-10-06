@@ -28,7 +28,8 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'sns' : ('Pisa, Scuola Normale Superiore', 'https://ricerca.sns.it', '/handle/11384/78634', 5),
                 'sissa' : ('SISSA', 'https://iris.sissa.it', '/handle/20.500.11767/64', 6),
                 'cagliarieprints' : ('Cagliari U.', 'https://iris.unica.it', '/handle/11584/265854', 8),
-                'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1)}
+                'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1),
+                'modena' : ('Modena U.', 'https://iris.unimore.it', '/handle/11380/1196085', 7)}
 boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
           'biochemistry and molecular biology bibim 2.0', 'bioingegneria e scienze medico-chirurgiche',
           'biomolecular sciences', 'biotecnologie mediche', 'chemical and pharmaceutical sciences', 'chim',
@@ -60,7 +61,7 @@ uni = sys.argv[1]
 publisher = universities[uni][0]
 pages = universities[uni][3]
 jnlfilename = 'THESES-%s-%s' % (uni.upper(), ejlmod3.stampoftoday())
-years = 2+10
+years = 2
 rpp = 20
 
 hdr = {'User-Agent' : 'Magic Browser'}
