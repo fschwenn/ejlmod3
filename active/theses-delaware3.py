@@ -118,7 +118,10 @@ def get_sub_site(url, sess):
 
             # Get the advisor
             if title == 'Advisor':
-                rec['supervisor'].append([data])
+                for br in row.find_all('br'):
+                    br.replace_with(';')
+                for sv in re.split(';', row.find_all('td')[0].text.strip()):
+                    rec['supervisor'].append([sv])
             # Department
             elif title == 'Department':
                 dep = data.strip()
