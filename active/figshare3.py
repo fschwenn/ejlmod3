@@ -31,7 +31,8 @@ my_secret_token = "df88e4ebd43b823b945a7e6cd4809a579ba7dee9e60ac2e5a1c18874b36d6
 auth = "Bearer %s" % (my_secret_token)
 
 #categories with fieldcodes
-cattofc = {'Computing and Processing' : 'c',
+cattofc = {'Uncategorized' : '',
+           'Computing and Processing' : 'c',
            'Components, Circuits, Devices and Systems' : 'i',
            'Components Circuits Devices and Systems' : 'i',
            'Electronic and Magnetic Properties of Condensed Matter; Superconductivity' : 'f',
@@ -158,7 +159,7 @@ thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'melbourne' : 'U. Melbourne (main)', #2
                          'brunel' : 'Brunel U.', #no theses 
                          'auckland' : 'Auckland U.', #6
-                         'leicester' : 'Leicester U.',#no theses 
+                         'leicester' : 'Leicester U.',
                          'monash' : 'Monash U.',
                          'ryerson' : 'Ryerson U.', 
                          'wgtn' : 'Victoria U., Wellington',#no theses 
