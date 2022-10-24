@@ -49,7 +49,7 @@ for (dep, fc) in deps:
 i = 0
 for rec in recs:
     i += 1
-    ejlmod.printprogress('-', [[i, len(recs)], [re.sub('.*\/', '../', rec['link'])]])
+    ejlmod3.printprogress('-', [[i, len(recs)], [re.sub('.*\/', '../', rec['link'])]])
     try:        
         #artpage = BeautifulSoup(urllib2.build_opener(urllib2.HTTPCookieProcessor).open(rec['link']), features="lxml")
         req = urllib.request.Request(rec['link'], headers=hdr)
