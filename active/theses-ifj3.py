@@ -52,7 +52,11 @@ for (dep, degree) in [('3', 'phd'), ('6', 'habilitation')]:
             except:
                 print("   no access to %s" % (rec['link']))
                 continue
-        ejlmod3.metatagcheck(rec, artpage, ['citation_language', 'citation_author', 'citation_pdf_url',
+        #fulltext
+        for a in artpage.body.find_all('a', attrs = {'class' : 'image-link'}):
+            if a.has_attr('href') and re.search('\.pdf', a['href']):
+                rec['pdf_url'] = 'https://rifj.ifj.edu.pl' + a['href']
+        ejlmod3.metatagcheck(rec, artpage, ['citation_language', 'citation_author', #'citation_pdf_url',
                                             'citation_date', 'citation_isbn', 'DCTERMS.abstract',
                                             'citation_title', 'DC.rights'])
         rec['MARC'] = [('502', [('b', degree), ('c', publisher), ('d', rec['date'])])]
@@ -72,7 +76,7 @@ for (dep, degree) in [('3', 'phd'), ('6', 'habilitation')]:
                 #pages
                 elif tdt == 'dc.description.physical':
                     if re.search('\d\d', td.text):
-                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', td.text.strip())
+                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', td.text.strip())                        
         if len(rec['autaff']) == 1:
             if degree == 'habilitation':
                 rec['note'].append('ONLY MAY BE A HABILITATION')
