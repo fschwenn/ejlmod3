@@ -23,7 +23,7 @@ except:
 
 try:
     # needed to remove the print-commands from /usr/lib/python2.6/site-packages/refextract/references/engine.py
-    from refextract import  extract_references_from_string
+    from refextract import extract_references_from_string
 except:
     #for running on PubDB
     print('could not import extract_references_from_string')
@@ -1476,6 +1476,56 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
                     rec['pdf_url'] = meta['content']
                     done.append(tag)
+                #references
+                elif tag in ['citation_reference']:
+                    done.append(tag)
+                    reference = [('x', meta['content'])]
+                    if re.search('citation_.*=.*citation_.*=', meta['content']):
+                        (pbnjt, pbnv, pbnfp, pbnlp) = ('', '', '', '')
+                        for part in re.split('; *citation_', re.sub('^citation_', '',  meta['content'])):                        
+                            pparts = re.split(' *=', part)
+                            key = pparts[0]
+                            val = '='.join(pparts[1:])
+                            if key == 'author':
+                                reference.append(('h', val))
+                            elif key == 'doi':
+                                reference.append(('a', 'doi:'+val))
+                            elif key == 'isbn':
+                                reference.append(('i', re.sub('\-', '', val)))
+                            elif key == 'title':
+                                reference.append(('t', val))
+                            elif key in ['year', 'publication_date']:
+                                reference.append(('y', val))
+                            elif key == 'inbook_title':
+                                reference.append(('q', val))
+                            elif key == 'journal_title':
+                                pbnjt = val
+                            elif key == 'volume':
+                                pbnv = val
+                            elif key == 'firstpage':
+                                pbnfp = val
+                            elif key == 'lastpage':
+                                pbnlp = val
+                            elif not key in ['conference_title', 'issn', 'publication_date', 'issue', 'publisher']:
+                                print('        ? citation_%s ?' % (key))
+                        if pbnjt and pbnv and pbnfp:
+                            pbn = '%s %s, %s' % (pbnjt, pbnv, pbnfp)
+                            repbn = extract_references_from_string(pbn, override_kbs_files={'journals': '/opt/invenio/etc/docextract/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
+                            if 'journal_reference' in list(repbn[0].keys()):
+                                if 'Physics' in repbn[0]['journal_title']:
+                                    pbn = ''
+                                else:
+                                    pbn = repbn[0]['journal_reference'][0]
+                            else:
+                                pbn = '%s,%s,%s' % (pbnjt, pbnv, pbnfp)
+                                if pbnlp:
+                                    pbn += '-' + pbnlp
+                            if pbn:
+                                reference.append(('s', pbn))                               
+                    if 'refs' in rec:
+                        rec['refs'].append(reference)
+                    else:
+                        rec['refs'] = [reference]
     #abstract (if theere are several in different languages)
     if len(abstracts.keys()) == 1:
         for lang in abstracts:
