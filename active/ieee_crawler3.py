@@ -445,7 +445,8 @@ def ieee(number):
                               'Table of Contents', 'Sponsors', 'Conference Organization', '[Sponsors]', 'Contents',
                               'IEEE Information Theory Society information', 'Board of Governors', 'Commitees',
                               'IEEE Journal on Special Areas in Information Theory information for authors', 'Copyright Page',
-                              'IEEE Journal on Special Areas in Information Theoryinformation for authors', 'Title Page']:
+                              'IEEE Journal on Special Areas in Information Theoryinformation for authors', 'Title Page',
+                              'Back Cover', 'Conference Programme']:
 
 #            if 'p1' in rec.keys():
 #                del rec['p1']
@@ -488,6 +489,6 @@ if __name__ == '__main__':
 
     (recs, jnlfilename) = ieee(number)
     if host != 'l00schwenn':
-        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+        ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 
 driver.quit()
