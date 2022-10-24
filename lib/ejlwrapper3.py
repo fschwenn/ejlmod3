@@ -326,7 +326,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-italy3.py', 'verona']),
         (2, ['theses-italy3.py', 'cagliari']),
         (2, ['theses-italy3.py', 'sns']),
-        (3, ['theses-oslo.py']),
+        (333, ['theses-oslo.py']), #ist schon als python3
         (3, ['theses-naples.py']),
         (3, ['theses-cantabria.py']),
         (3, ['theses-coimbra.py']),
@@ -436,7 +436,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-connecticut.py']),
         (3, ['theses-hokkaido.py']),
         (3, ['theses-wisconsinmilwaukee.py']),
-        (3, ['theses-hkust.py']),
+        (3, ['theses-hkust3.py']),
         (2, ['theses-vrijeuamsterdam.py']),
         (3, ['theses-regina.py']),
         (2, ['theses-brussels.py']),
@@ -489,6 +489,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-ibict3.py', 'physics2']),
         (1, ['figshare3.py', 'leicester']),
         (2, ['scipost3.py', 'sps', 2*(prpryear-2016) + (prprmonth-1)//6, (prprmonth -1) % 6 +1]),
+        (2, ['theses-unsw3.py']),
         (2, ['theses-italy3.py', 'modena'])]
         
 
@@ -525,8 +526,8 @@ if (today.day % 3 == 0):
     listofcommands.append(['wsp.xml2.py'])
     prfil.write(' - wsp.xml2.py\n')
 elif (today.day % 3 == 1):
-    listofcommands.append(['ieee_wrapper.py'])
-    prfil.write(' - ieee_wrapper.py\n')
+    listofcommands.append(['ieee_wrapper3.py'])
+    prfil.write(' - ieee_wrapper3.py\n')
 if (today.weekday() == 0):
     listofcommands.append(['pubdbweb.py'])
     prfil.write(' - pubdbweb.py\n')
