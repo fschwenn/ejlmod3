@@ -84,7 +84,7 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #list of lists to automatically suggest fieldcodes based on journalname
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
-fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.']),
+fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW']),
                   ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.']),
@@ -511,6 +511,7 @@ def writeXML(recs,dokfile,publisher):
             elif 'artnum' in rec:
                 liste.append(('c',rec['artnum']))
             if 'vol' in rec: liste.append(('v',rec['vol']))
+            if 'acronym' in rec: liste.append(('q',rec['acronym']))
             if 'pbnrep' in rec: liste.append(('r',rec['pbnrep']))
             if 'issue' in rec: liste.append(('n',rec['issue']))
             if 'cnum' in rec: liste.append(('w',rec['cnum']))
@@ -701,6 +702,8 @@ def writeXML(recs,dokfile,publisher):
                 entry.append(('a', re.sub('\/', '-', re.sub('\/$', '', statement))))
             if 'url' in rec['licence']:
                 entry.append(('u',rec['licence']['url']))
+            elif 'statement' in rec['licence'] and re.search('cc.by', rec['licence']['statement'], re.IGNORECASE):
+                entry.append(('u', 'https://creativecommons.org/licenses/' + re.sub('\-(\d.*)', r'/\1', rec['licence']['statement'][3:].lower())))
             if 'organization' in rec['licence']:
                 entry.append(('b',rec['licence']['organization']))
             elif entry:
@@ -763,6 +766,8 @@ def writeXML(recs,dokfile,publisher):
                             autlist.append(('j', aff))
                         else:
                             print(' "%s" is not a valid ORCID' % (aff))
+                    elif re.search('^JACoW', aff):
+                        autlist.append(('j', aff))
                     elif re.search('EMAIL', aff):
                         if re.search('@', aff):
                             autlist.append(('m', re.sub('EMAIL:', '', aff)))
@@ -1388,7 +1393,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName',
-                             'DC.contributor.author', 'dc.creator']:
+                             'DC.contributor.author', 'dc.creator', 'dcterms.creator']:
                     if 'autaff' in rec:
                         rec['autaff'].append([meta['content']])
                     else:
@@ -1418,8 +1423,15 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 #title
                 elif tag in ['bepress_citation_title', 'Citation_Article_Title', 'citation_title', 'eprints.title',
-                             'twitter:title', 'dc.title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title']:
+                             'twitter:title', 'dc.title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title',
+                             'dcterms.title']:
                     rec['tit'] = meta['content']
+                    done.append(tag)
+                elif tag in ['DC.Title.Alternative']:
+                    if 'otits' in rec:
+                        rec['otits'].append(meta['content'])
+                    else:
+                        rec['otits'] = [meta['content']]
                     done.append(tag)
                 #date
                 elif tag in ['dc.date', 'dc.Date', 'DC.date', 'DC.Date.created', 'bepress_citation_date',
@@ -1452,7 +1464,7 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['vol'] = meta['content']
                     done.append(tag)
                 #license
-                elif tag in ['dc.rights', 'DC.rights', 'DC.Rights', 'DCTERMS.URI', 'dc.rights.uri']:
+                elif tag in ['dc.rights', 'DC.rights', 'DC.Rights', 'DCTERMS.URI', 'dc.rights.uri', 'dc:rights']:
                     if re.search('creativecommons.org', meta['content']):
                         rec['license'] = {'url' : meta['content']}
                         done.append(tag)
@@ -1465,7 +1477,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
-                             'keywords', 'eprints.keywords,']:
+                             'keywords', 'dc:subject']:
                     if 'keyw' in rec:
                         if not meta['content'] in rec['keyw']:
                             rec['keyw'].append(meta['content'])
