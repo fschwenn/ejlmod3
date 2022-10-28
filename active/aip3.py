@@ -10,7 +10,7 @@ import codecs
 from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
-
+import random
 regexpref = re.compile('[\n\r\t]')
 
 publisher = 'AIP'
@@ -276,7 +276,7 @@ def getarticle(href, sec, subsec, p1):
                     rec['refs'] = rec['possiblerefs']
                         
     ejlmod3.printrecsummary(rec)
-    time.sleep(5)
+    time.sleep(random.randint(30,90))
     return rec
                 
 (sec, subsec) = (False, False)
