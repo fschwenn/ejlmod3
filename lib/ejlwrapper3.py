@@ -490,7 +490,10 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['figshare3.py', 'leicester']),
         (2, ['scipost3.py', 'sps', 2*(prpryear-2016) + (prprmonth-1)//6, (prprmonth -1) % 6 +1]),
         (2, ['theses-unsw3.py']),
-        (2, ['theses-italy3.py', 'modena'])]
+        (2, ['theses-italy3.py', 'modena']),
+        (3, ['theses-liege3.py']),
+        (3, ['theses-georgiastate3.py']),
+        (3, ['theses-standrews3.py'])]
         
 
 if prmonth == 12:
