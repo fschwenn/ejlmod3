@@ -398,10 +398,10 @@ def writeXML(recs,dokfile,publisher):
             else:
                 lang = rec['language']
             if lang:
-                if not lang in ['English', u'Inglês', 'eng', 'Inglese']:
+                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais']:
                     if lang == u'Português': lang = 'Portuguese'
                     elif lang == 'Deutsch': lang = 'German'
-                    elif lang == u'Française': lang = 'French'
+                    elif lang in [u'Française', u'Français']: lang = 'French'
                     elif lang == 'Italiano': lang = 'Italian'
                     xmlstring += marcxml('041', [('a', lang)])
                     xmlstring += marcxml('595', [('a', 'Text in %s' % (lang))])
@@ -1060,7 +1060,8 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('[iI]nformation for [aA]authors'), re.compile('[pP]ublication [iI]nofrmation'),
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
-                     re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:')]
+                     re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:'),
+                     re.compile('occasion of.* anniversary')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
