@@ -380,10 +380,13 @@ def writeXML(recs,dokfile,publisher):
                 rec['language'] = rerfc.sub(r'\1', rec['language'])
             #try ISO 639, then the other ISOs
             if len(rec['language']) == 2:
-                try:
-                    lang = languages.get(part1=rec['language']).name
-                except:
-                    lang = False
+                if rec['language'] == 'gr':
+                    lang = 'Greek'
+                else:
+                    try:
+                        lang = languages.get(part1=rec['language']).name
+                    except:
+                        lang = False
             elif len(rec['language']) == 3 and rec['language'] != 'eng':
                 try:
                     lang = languages.get(part2t=rec['language']).name
@@ -690,6 +693,12 @@ def writeXML(recs,dokfile,publisher):
             rec['licence'] = rec['license']
         if 'licence' in rec:
             entry = []
+            if 'url' in rec['licence']:
+                rec['licence']['url'] = re.sub('.*(http.*)', r'\1', rec['licence']['url'])
+                rec['licence']['url'] = re.sub('( |\)|,).*', '', rec['licence']['url'])
+                entry.append(('u',rec['licence']['url']))
+            elif 'statement' in rec['licence'] and re.search('cc.by', rec['licence']['statement'], re.IGNORECASE):
+                entry.append(('u', 'https://creativecommons.org/licenses/' + re.sub('\-(\d.*)', r'/\1', rec['licence']['statement'][3:].lower())))
             if 'statement' in rec['licence']:
                 entry.append(('a',rec['licence']['statement']))
             elif 'url' in rec['licence'] and re.search('creativecommons.org', rec['licence']['url']):
@@ -700,10 +709,6 @@ def writeXML(recs,dokfile,publisher):
                     statement = re.sub('.LEGALCODE', '', statement)
                     statement = re.sub('.DEED...', '', statement)
                 entry.append(('a', re.sub('\/', '-', re.sub('\/$', '', statement))))
-            if 'url' in rec['licence']:
-                entry.append(('u',rec['licence']['url']))
-            elif 'statement' in rec['licence'] and re.search('cc.by', rec['licence']['statement'], re.IGNORECASE):
-                entry.append(('u', 'https://creativecommons.org/licenses/' + re.sub('\-(\d.*)', r'/\1', rec['licence']['statement'][3:].lower())))
             if 'organization' in rec['licence']:
                 entry.append(('b',rec['licence']['organization']))
             elif entry:
@@ -1026,6 +1031,7 @@ reswap = re.compile('(.*) (.*)')
 def shapeaut(author):
     author = re.sub('\&nbps;', ' ', author)
     author = re.sub('\xa0', ' ', author)
+    author = re.sub('^(Doctor|Dr\.|Professor|Prof.) ', '', author)
     if re.search(' ',  author):
         if not re.search(',', author):
             if revan1a.search(author):
