@@ -152,7 +152,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['figshare3.py', 'ryerson']),
         (2, ['theses-belle.py']),
         (2, ['theses-CSUC.py']),
-        (2, ['theses-cambridge.py']),
+        (2, ['theses-cambridge3.py']),
         (2, ['theses-pennstate3.py']),
         (2, ['theses-DCN.py']),
         (2, ['theses-PANDA.py']),
@@ -493,7 +493,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-italy3.py', 'modena']),
         (3, ['theses-liege3.py']),
         (3, ['theses-georgiastate3.py']),
-        (3, ['theses-standrews3.py'])]
+        (3, ['theses-standrews3.py']),
+        (3, ['theses-patras3.py'])]
         
 
 if prmonth == 12:
