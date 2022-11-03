@@ -11,6 +11,7 @@ import codecs
 import time
 from bs4 import BeautifulSoup
 from iso639 import languages
+import urllib.parse
 
 from collclean_lib3 import coll_cleanforthe
 from collclean_lib3 import coll_clean710
@@ -667,19 +668,21 @@ def writeXML(recs,dokfile,publisher):
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['pdf']))])
         #FULLTEXT
+        if 'fft' in rec: rec['FFT'] = rec['fft']
         if 'FFT' in rec:
             if re.search('^http', rec['FFT']) or re.search('^\/afs\/cern', rec['FFT']):
-                xmlstring += marcxml('FFT',[('a',re.sub(' ', '%20', rec['FFT'])), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
+                if re.search('%', rec['FFT']):
+                    xmlstring += marcxml('FFT',[('a', rec['FFT']), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
+                else:
+                    xmlstring += marcxml('FFT',[('a', urllib.parse.quote(rec['FFT'], safe='/:')), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])                    
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['FFT']))])
-        elif 'fft' in rec:
-            if re.search('^http', rec['fft']) or re.search('^\/afs\/cern', rec['fft']):
-                xmlstring += marcxml('FFT',[('a',rec['fft']), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
-            else:
-                xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['fft']))])
         elif 'hidden' in rec:
             if re.search('^http', rec['hidden']) or re.search('^\/afs\/cern', rec['hidden']):
-                xmlstring += marcxml('FFT',[('a',rec['hidden']), ('d','Fulltext'), ('o', 'HIDDEN')])
+                if re.search('%', rec['hidden']):
+                    xmlstring += marcxml('FFT',[('a',rec['hidden']), ('d','Fulltext'), ('o', 'HIDDEN')])
+                else:
+                    xmlstring += marcxml('FFT',[('a',urllib.parse.quote(rec['hidden'], safe='/:')), ('d','Fulltext'), ('o', 'HIDDEN')])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['hidden']))])
         #LINK
