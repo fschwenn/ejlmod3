@@ -350,7 +350,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-compostella.py']),
         (2, ['theses-riogrande.py']),
         (6, ['cahiers.py']),
-        (666, ['theses-tuwien.py']),  #GitHub Issue
+        (1, ['theses-wien3.py']),
         (2, ['theses-amsterdam.py']),
         (3, ['theses-colombiaunatl.py']),
         (1, ['theses-northeastern.py']),
@@ -391,7 +391,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-dart3.py']),
         (1, ['theses-didaktorika.py']),
         (2, ['theses-giessen.py']),
-        (2, ['theses-bochum.py']),
+        (2, ['theses-bochum3.py']),
         (2, ['theses-lisbon.py']),
         (2, ['theses-munster.py']),
         (3, ['theses-houston.py']),
@@ -401,7 +401,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-porto.py']),
         (666, ['theses-dart3.py']), #ist schon in der liste
         (3, ['edpjournals.py', '4open', pryear, '1']),
-        (2, ['theses-wien.py']),
+        (1, ['theses-tuwien3.py']),
         (3, ['theses-rostock3.py']),
         (3, ['theses-texastech.py']),
         (2, ['theses-rochester.py']),
@@ -494,7 +494,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-liege3.py']),
         (3, ['theses-georgiastate3.py']),
         (3, ['theses-standrews3.py']),
-        (3, ['theses-patras3.py'])]
+        (3, ['theses-patras3.py']),
+        (2, ['theses-chilecatolica3.py'])]
         
 
 if prmonth == 12:
