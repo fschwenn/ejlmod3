@@ -105,9 +105,12 @@ for rec in recs:
                 time.sleep(10)
                 artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open('https://doi.org/'+rec['doi']), features="lxml")
             except:
-                print("retry %s in 180 seconds" % (rec['link']))
-                time.sleep(180)
-                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open('https://doi.org/'+rec['doi']), features="lxml")
+                try:
+                    print("retry %s in 180 seconds" % ('https://doi.org/'+rec['doi']))
+                    time.sleep(180)
+                    artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open('https://doi.org/'+rec['doi']), features="lxml")
+                except:
+                    pass
             for meta in artpage.head.find_all('meta'):
                 if meta.has_attr('name'):
                     #abstract
@@ -165,7 +168,12 @@ for rec in recs:
                 if a.has_attr('data-content'):
                     adc = a['data-content']
                     if re.search('creativecommons.org', adc):
-                        rec['license'] = {'url' : re.sub('.*(http.*?) target.*', r'\1', adc)}                                        
+                        rec['license'] = {'url' : re.sub('.*(http.*?) target.*', r'\1', adc)}
+            #english abstract
+            for div in artpage.body.find_all('div', attrs = {'id' : 'KIT_KITopen_abstract_eng'}):
+                for span in div.find_all('span', attrs = {'class' : 'kit_link_on_white_background'}):
+                    span.decompose()
+                    rec['abs'] = div.text.strip()
     else:
         rec['doi'] = '20.2000/KIT/'+rec['data-recordid']
         rec['link'] = rec['artlink']
