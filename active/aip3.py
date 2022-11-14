@@ -311,7 +311,8 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'sub-section'}):
                                 p1 = re.sub('.*, ([A-Z0-9]+) \(\d\d\d\d\);.*', r'\1', div3.text.strip())
                             if href and p1:
                                 tocheck.append((href, sec, subsec, p1))
-                        
+
+random.shuffle(tocheck)
 recs = []
 i = 0
 for (href, sec, subsec, p1) in tocheck:
@@ -319,7 +320,10 @@ for (href, sec, subsec, p1) in tocheck:
     if href in ['/doi/full/10.1063/1.5019809']:
         print('skip %s' % (href))
     else:
-        ejlmod3.printprogress('-', [[i, len(tocheck)], [href, sec, subsec, p1]])
+        if subsec:
+            ejlmod3.printprogress('-', [[i, len(tocheck)], [sec, subsec], [href, p1]])
+        else:
+            ejlmod3.printprogress('-', [[i, len(tocheck)], [sec], [href, p1]])
         if sec in ['From the Editor', "Readers' Forum", 'Issues and Events', 'Books',
                    'New Products', 'Obituaries', 'Quick Study', 'Back Scatter']:
             print('     skip "%s"' % (sec))
