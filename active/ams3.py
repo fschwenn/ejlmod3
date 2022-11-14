@@ -12,6 +12,7 @@ import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
 import ssl
+import datetime
 
 jrnid = sys.argv[1]
 year = sys.argv[2]
