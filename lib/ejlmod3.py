@@ -338,7 +338,7 @@ refcc = re.compile('Comput')
 refca = re.compile('Astro')
 #refck = re.compile('[qQ]uantum.(Phys|phys|Infor|infor|Comp|comp|Tec|Com|Corr|Theor|Mech|Dynam|Opti|Elec)')
 refck = re.compile('[qQ]uantum.(Infor|infor|Comp|comp)')
-rerfc = re.compile('^([a-z][a-z])\W[A-Z].*')
+rerfc = re.compile('^([a-z][a-z])_[A-Z].*')
 def writeXML(recs,dokfile,publisher):
     dokfile.write('<collection>\n')
     i = 0
@@ -402,7 +402,7 @@ def writeXML(recs,dokfile,publisher):
             else:
                 lang = rec['language']
             if lang:
-                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais']:
+                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english']:
                     if lang == u'Português': lang = 'Portuguese'
                     elif lang == 'Deutsch': lang = 'German'
                     elif lang in [u'Française', u'Français']: lang = 'French'
@@ -674,7 +674,7 @@ def writeXML(recs,dokfile,publisher):
                 if re.search('%', rec['FFT']):
                     xmlstring += marcxml('FFT',[('a', rec['FFT']), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
                 else:
-                    xmlstring += marcxml('FFT',[('a', urllib.parse.quote(rec['FFT'], safe='/:')), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])                    
+                    xmlstring += marcxml('FFT',[('a', urllib.parse.quote(rec['FFT'], safe='/:=?&')), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])                    
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['FFT']))])
         elif 'hidden' in rec:
@@ -682,7 +682,7 @@ def writeXML(recs,dokfile,publisher):
                 if re.search('%', rec['hidden']):
                     xmlstring += marcxml('FFT',[('a',rec['hidden']), ('d','Fulltext'), ('o', 'HIDDEN')])
                 else:
-                    xmlstring += marcxml('FFT',[('a',urllib.parse.quote(rec['hidden'], safe='/:')), ('d','Fulltext'), ('o', 'HIDDEN')])
+                    xmlstring += marcxml('FFT',[('a',urllib.parse.quote(rec['hidden'], safe='/:=?&')), ('d','Fulltext'), ('o', 'HIDDEN')])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['hidden']))])
         #LINK
@@ -1416,7 +1416,7 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['supervisor'] = [[meta['content']]]
                     done.append(tag)
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
-                             'citation_dissertation_institution']:
+                             'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
                     rec['autaff'][-1].append(meta['content'])
                     done.append(tag)
                 elif tag in ['citation_author_email', 'citation_editor_email']:
@@ -1554,7 +1554,7 @@ def metatagcheck(rec, artpage, listoftags):
             rec['abs'] = abstracts[lang]
     elif len(abstracts.keys()) > 1:
         for lang in abstracts:
-            if lang in ['en', 'eng']:
+            if lang in ['en', 'eng'] or re.search('^en_', lang):
                 rec['abs'] = abstracts[lang]
         if not 'abs' in rec:
             for lang in abstracts:
