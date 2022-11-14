@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#program to harvest Adv.Nucl.Phys.
+#program to harvest HNPS Adv.Nucl.Phys.
 # FS 2022-10-24
 
 import sys
@@ -46,7 +46,7 @@ for section in tocpage.body.find_all('section'):
             for div in section.find_all('div', attrs = {'class' : 'card'}):
                 for h6 in div.find_all('h6'):
                     for a in h6.find_all('a'):
-                        rec = {'jnl' : 'Adv.Nucl.Phys.', 'tc' : typecode, 'note' : note}
+                        rec = {'jnl' : 'HNPS Adv.Nucl.Phys.', 'tc' : typecode, 'note' : note}
                         rec['note'] = [note, sectiontitle]
                         rec['artlink'] = a['href']
                         if cnum: rec['cnum'] = cnum
@@ -80,9 +80,9 @@ for (i, rec) in enumerate(recs):
                 
 
 if cnum:
-    jnlfilename = 'advnuclphys%s_%s_%s' % (issueid, rec['vol'], cnum)
+    jnlfilename = 'hnpsadvnuclphys%s_%s_%s' % (issueid, rec['vol'], cnum)
 else:
-    jnlfilename = 'advnuclphys%s_%s' % (issueid, rec['vol'])
+    jnlfilename = 'hnpsadvnuclphys%s_%s' % (issueid, rec['vol'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
