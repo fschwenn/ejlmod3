@@ -91,41 +91,41 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-oregon3.py']),
         (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (2, ['theses-aachen3.py']),
-        (1, ['aip3XXX.py', 'ajp', pryear-1932, prmonth]),
-        (2, ['theses-oatd.py', '0', '3']),
+        (1, ['aip3.py', 'ajp', pryear-1932, prmonth]),
+        (222, ['theses-oatd.py', '0', '3']), #proteced by Claudflare
         (1, ['aip3XXX.py', 'phf', pryear-1988, prmonth]),
-        (3, ['theses-oatd.py', '3', '5']),
+        (333, ['theses-oatd.py', '3', '5']), #proteced by Claudflare
         (2, ['aip3XXX.py', 'jva', pryear-1982, prsixth]),
-        (2, ['theses-oatd.py', '5', '7']),
+        (222, ['theses-oatd.py', '5', '7']), #proteced by Claudflare
         (2, ['aip3XXX.py', 'jvb', pryear-1982, prsixth]),
-        (3, ['theses-oatd.py', '7', '9']),
+        (333, ['theses-oatd.py', '7', '9']), #proteced by Claudflare
         (3, ['aip3XXX.py', 'aqs', pryear-2018, prquarter]),
         (1, ['mdpi.sftp.py', 'symmetry']),
         (1, ['aip3XXX.py', 'pto', pryear-1947, prmonth]),
         (1, ['mdpi.sftp.py', 'sensors']),
         (1, ['cjp3.py', 'cjp', pryear-1922, prmonth]),
         (1, ['mdpi.sftp.py', 'nanomaterials']),
-        (2, ['theses-oatd.py', '9', '11']),
+        (288, ['theses-oatd.py', '9', '11']), #proteced by Claudflare
         (12, ['annualreview3.py', 'arnps', pryear-1950]),
-        (3, ['theses-oatd.py', '11', '13']),
+        (388, ['theses-oatd.py', '11', '13']), #proteced by Claudflare
         (12, ['annualreview3.py', 'araa', pryear-1962]),
-        (2, ['theses-oatd.py', '13', '15']),
+        (288, ['theses-oatd.py', '13', '15']), #proteced by Claudflare
         (1, ['royalsociety.xml2.py', 'prs', pryear-1544, (pryear-1834)*12+prmonth]),
-        (3, ['theses-oatd.py', '15', '17']),
+        (388, ['theses-oatd.py', '15', '17']), #proteced by Claudflare
         (1, ['actapolytechnica.py']),
-        (2, ['theses-oatd.py', '17', '19 ']),
+        (288, ['theses-oatd.py', '17', '19 ']), #proteced by Claudflare
         (2, ['oxfordjournals.xml.py', 'pasj', pryear-1948, prsixth]),
-        (3, ['theses-oatd.py', '19', '21']),
+        (388, ['theses-oatd.py', '19', '21']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'ptep', pryear, prmonth]),
-        (2, ['theses-oatd.py', '21', '23']),
+        (288, ['theses-oatd.py', '21', '23']), #proteced by Claudflare
         (1, ['figshare3.py', 'kilthub']),
-        (3, ['theses-oatd.py', '23', '25']),
+        (388, ['theses-oatd.py', '23', '25']), #proteced by Claudflare
         (1, ['mdpi.sftp.py', 'universe']),
-        (2, ['theses-oatd.py', '25', '27']),
+        (288, ['theses-oatd.py', '25', '27']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'imrn', pryear, 2*prmonth]),
-        (3, ['theses-oatd.py', '27', '29']),
+        (388, ['theses-oatd.py', '27', '29']), #proteced by Claudflare
         (3, ['ccsenet.py', 'apr', pryear-2008, prquarter]),
-        (2, ['theses-oatd.py', '29', '31']),
+        (288, ['theses-oatd.py', '29', '31']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'mnras', mnrasbignumber//4, mnrasbignumber % 4 + 1]),
         (2, ['ccsenet.py', 'jmr', pryear-2008, prsixth]),
         (3, ['intlpress.py', 'cms', pryear-2002, prquarter]),
@@ -381,7 +381,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['acs3.py', 'apchd5', pryear-2013, prmonth]),
         (3, ['theses-northernillinois.py']),
         (1, ['theses-leuven.py']),
-        (2, ['msp.py']),
+        (2, ['msp3.py']),
         (3, ['theses-izmir.py']),
         (2, ['theses-kansasu.py']),
         (2, ['theses-barcelonaautonoma3.py']),
