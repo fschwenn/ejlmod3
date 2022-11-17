@@ -6,6 +6,7 @@ from requests import Session
 from time import sleep
 from bs4 import BeautifulSoup
 import ejlmod3
+import re
 
 publisher = 'U. Delaware, Newark'
 jnlfilename = 'THESES-DELAWARE-%s' % (ejlmod3.stampoftoday())
@@ -104,8 +105,15 @@ def get_sub_site(url, sess):
         return
     rec = {'tc': 'T', 'jnl': 'BOOK', 'supervisor': [], 'note' : [], 'link' : url}
     print('Harvesting data -->', url)
-    resp = sess.get(url)
-    artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
+    try:
+        resp = sess.get(url)
+        artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
+    except:
+        print('  try %s again in 120s' % (url))
+        sleep(120)
+        resp = sess.get(url)
+        artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
+        
 
     ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.date', 'DCTERMS.abstract', 'DC.subject', 'DC.title', 'citation_date'])
     rec['autaff'][-1].append(publisher)
