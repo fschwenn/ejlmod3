@@ -966,6 +966,11 @@ def writeXML(recs,dokfile,publisher):
         if 'comments' in rec:
             for comment in rec['comments']:
                 xmlstring += marcxml('595',[('a',comment)])
+        if 'notes' in rec:
+            if 'note' in rec:
+                rec['note'] += rec['notes']
+            else:
+                rec['note'] = rec['note']                
         if 'note' in rec:
             if not 'fc' in rec:
                 for comment in rec['note']:
@@ -1296,8 +1301,8 @@ def printrec(rec):
 now = datetime.datetime.now()
 def stampoftoday():
     return '%4d-%02d-%02d' % (now.year, now.month, now.day)
-def year(backwards=0):
-    return now.year-backwards
+def year(backwards=0, forwards=0):
+    return now.year-backwards+forwards
 
 #gives the year, day, and time
 def stampofnow():
@@ -1658,4 +1663,46 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False):
     print('  [getdspacerecs] %i/%i' % (len(recs), len(divs)))
     return recs
 
+#get base-url from a link
+def getbaseurl(url):
+    url = re.sub('http.*\/\/', '', url)
+    url = re.sub('["\'\/\%\{\?].*', '', url)
+    url = re.sub('^www\.', '', url)
+    url = re.sub(':.*', '', url)
+    urlparts = re.split('\.', url)
+    if len(urlparts) > 2:
+        if len(urlparts[-2]) > 3 or urlparts[-3] in ['researchrepository', 'scholarsmine', 'scholarworks',
+                                                     'digitalcommons', 'scholars', 'scholarship',
+                                                     'library', 'scholarcommons', 'commons', 'teses',
+                                                     'scholarlycommons', 'scholar', 'ricerca',
+                                                     'scholarscompass', 'eprints', 'repositorio',
+                                                     'libraries', 'lib', 'digitalrepository',
+                                                     'conservancy', 'kuscholarworks', 'repository',
+                                                     'research', 'digibug', 'upcommons']:
+            url =  '.'.join(urlparts[-2:])
+        else:
+            url =  '.'.join(urlparts[-3:])
+    return url
 
+#check for url truncs of servers for which we already have dedicated harvesters
+dedicated = {'smu.edu.sg' : '(Singapore Management University not interesting)',
+             'auctr.edu' : '(Clark Atlanta University does not work))'}
+for ordner in ['/afs/desy.de/user/l/library/proc', '/afs/desy.de/user/l/library/proc/python3']:
+    grepout = os.popen("grep 'http.*:\/\/' %s/th*y|sed 's/\.py.*http.*\/\//;;;/'" % (ordner)).read()
+    for line in re.split('\n', grepout):
+        if re.search(';;;', line):
+            parts = re.split(';;;', line)            
+            program = re.sub('.*\/', '', parts[0])
+            url = getbaseurl(parts[1])
+            if url and not url in dedicated:
+                if re.search('\.', url) and not url in ['doi.org', 'creativecommons.org']:
+                    dedicated[url] = program
+                    #print('%-30s %s' % (program, url))                
+def dedicatedharvesterexists(url):
+    if url[:4] == 'http':
+        url = getbaseurl(url)
+    if url in dedicated:
+        return dedicated[url]
+    else:
+        return False
+#print('%i URLs already covered by dedicated harvesters' % (len(dedicated)))
