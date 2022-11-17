@@ -97,44 +97,6 @@ bibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassi
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
 tmpdir = '/afs/desy.de/user/l/library/tmp'
 
-#get base-url
-def getbaseurl(url):
-    url = re.sub('http.*\/\/', '', url)
-    url = re.sub('["\'\/\%\{\?].*', '', url)
-    url = re.sub('^www\.', '', url)
-    url = re.sub(':.*', '', url)
-    urlparts = re.split('\.', url)
-    if len(urlparts) > 2:
-        if len(urlparts[-2]) > 3 or urlparts[-3] in ['researchrepository', 'scholarsmine', 'scholarworks',
-                                                     'digitalcommons', 'scholars', 'scholarship',
-                                                     'library', 'scholarcommons', 'commons', 'teses',
-                                                     'scholarlycommons', 'scholar', 'ricerca',
-                                                     'scholarscompass', 'eprints', 'repositorio',
-                                                     'libraries', 'lib', 'digitalrepository',
-                                                     'conservancy', 'kuscholarworks', 'repository',
-                                                     'research', 'digibug', 'upcommons']:
-            url =  '.'.join(urlparts[-2:])
-        else:
-            url =  '.'.join(urlparts[-3:])
-    return url
-
-
-#check for url truncs of servers for which we already have dedicated harvesters
-dedicated = {'smu.edu.sg' : '(Singapore Management University not interesting)',
-             'auctr.edu' : '(Clark Atlanta University does not work))'}
-for ordner in ['/afs/desy.de/user/l/library/proc', '/afs/desy.de/user/l/library/proc/python3']:
-    grepout = os.popen("grep 'http.*:\/\/' %s/th*y|sed 's/\.py.*http.*\/\//;;;/'" % (ordner)).read()
-    for line in re.split('\n', grepout):
-        if re.search(';;;', line):
-            parts = re.split(';;;', line)            
-            program = re.sub('.*\/', '', parts[0])
-            url = getbaseurl(parts[1])
-            if url and not url in dedicated:
-                if re.search('\.', url) and not url in ['doi.org', 'creativecommons.org']:
-                    dedicated[url] = program
-                    if verbatim: print('%-30s %s' % (program, url))                
-print('%i URLs already covered by dedicated harvesters' % (len(dedicated)))
-
 prerecs = []
 baseurls = {}
 for i in range(len(deps)):
@@ -185,10 +147,11 @@ for i in range(len(deps)):
                                                   "World Maritime University Dissertations", "Mathematics and Statistics"]:
                                 rec['note'].append(disstype)
                         rec['link'] = a['href']
-                        baseurl = getbaseurl(a['href'])
+                        baseurl = ejlmod3.getbaseurl(a['href'])
                         if keepit:
-                            if baseurl in dedicated:
-                                if verbatim: print('         %s already covered by %s' % (a['href'], dedicated[baseurl]))
+                            dedicated = ejlmod3.dedicatedharvesterexists(baseurl)
+                            if dedicated:
+                                if verbatim: print('         %s already covered by %s' % (a['href'], dedicated))
                                 keepit = False                        
                             elif re.search('honors', rec['link']):
                                 if verbatim: print('  honors %s' % (a['href']))
