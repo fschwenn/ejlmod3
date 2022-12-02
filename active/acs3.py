@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 #!/usr/bin/python
 #program to harvest ACS journals
+#Claudflare!!!
 # FS 2020-12-04
 
 import sys
@@ -103,11 +104,10 @@ for rec in recs:
         except:            
             print('  keep only', list(rec.keys()))
             continue
-    rec['autaff'] = []
-    ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'og:description', 'dc.Date'])
+    ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'og:description', 'dc.Date'])     
     #keywords
-    if not 'keyw' in rec or not rec['keyw']:
-        for div in artpage.find_all('div', attrs = {'class' : 'article_header-taxonomy'}):
+    for div in artpage.find_all('div', attrs = {'class' : 'article_header-taxonomy'}):
+        if not 'keyw' in rec or not rec['keyw']:
             rec['keyw'] = []
             for a in div.find_all('a'):
                 rec['keyw'].append(a.text)
@@ -118,12 +118,15 @@ for rec in recs:
             rec['FFT'] = 'https://pubs.acs.org' + a['href']
     #authors
     for span in artpage.find_all('span'):
-        for div in span.find_all('div', attrs = {'class' : 'loa-info-name'}):
-            rec['autaff'].append([div.text.strip()])
-            for a in span.find_all('a', attrs = {'title' : 'Orcid link'}):
-                rec['autaff'][-1].append(re.sub('.*\/', r'ORCID:', a['href']))
-            for div2 in span.find_all('div', attrs = {'class' : 'loa-info-affiliations-info'}):
-                rec['autaff'][-1].append(div2.text.strip())
+        divs = span.find_all('div', attrs = {'class' : 'loa-info-name'})
+        if divs:
+            rec['autaff'] = []
+            for div in divs:
+                rec['autaff'].append([div.text.strip()])
+                for a in span.find_all('a', attrs = {'title' : 'Orcid link'}):
+                    rec['autaff'][-1].append(re.sub('.*\/', r'ORCID:', a['href']))
+                for div2 in span.find_all('div', attrs = {'class' : 'loa-info-affiliations-info'}):
+                    rec['autaff'][-1].append(div2.text.strip())
     #pages
     for span in artpage.find_all('span', attrs = {'class' : 'cit-fg-pageRange'}):
         rec['p1'] = re.sub('\D*(\d+).*', r'\1', span.text.strip())
