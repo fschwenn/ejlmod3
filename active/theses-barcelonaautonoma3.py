@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
 
 rpp = 50
 pages = 10
@@ -122,8 +123,12 @@ departmentstoskip += ['e%20Doctorat%20en%20Antropologia%20Social%20i%20Cultural'
                       'e%20Doctorat%20en%20Hist%C3%B2ria%20de%20la%20Ci%C3%A8ncia', 'e%20Doctorat%20en%20Immunologia%20Avan%C3%A7ada',
                       'e%20Doctorat%20en%20Lleng%C3%BCes%20i%20Cultures%20Rom%C3%A0niques',
                       'e%20Doctorat%20en%20Psicologia%20Cl%C3%ADnica%20i%20de%20la%20Salut',
-                      'e%20Doctorat%20en%20Psicologia%20de%20la%20Comunicaci%C3%B3%20i%20Canvi']
+                      'e%20Doctorat%20en%20Psicologia%20de%20la%20Comunicaci%C3%B3%20i%20Canvi',
+                      'Programa de Doctorat en Arqueologia Clàssica=e%20Doctorat%20en%20Arqueologia%20Cl%C3%A0ssica']
 
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 prerecs = []
 jnlfilename = 'THESES-BarcelonaAutonomaU-%s' % (ejlmod3.stampoftoday())
@@ -131,7 +136,7 @@ for page in range(pages):
     tocurl = 'https://ddd.uab.cat/search?cc=tesis&ln=en&rg=' + str(rpp) + '&jrec=' + str(page*rpp+1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
     time.sleep(2)
     for table in tocpage.body.find_all('table'):
         (rec, keepit) = (False, False)
@@ -157,7 +162,7 @@ for page in range(pages):
         elif rec:
             ejlmod3.adduninterestingDOI(rec['link'])
     print('   %i records so far' % (len(prerecs)))
-    time.sleep(3-2)
+    time.sleep(3)
 
 i = 0
 recs = []
@@ -166,18 +171,22 @@ for rec in prerecs:
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     keepit = True
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(3-2)
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        time.sleep(3)
     except:
         try:
             print('retry %s in 180 seconds' % (rec['link']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            req = urllib.request.Request(rec['link'], headers=hdr)
+            artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+            time.sleep(3)
         except:
             print('no access to %s' % (rec['link']))
             continue        
-    ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_author', 'citation_publication_date', 'citation_pdf_url', 'citation_isbn', 'citation_keywords',
-                                        'dc.title', 'dc.creator', 'dc.date', 'dc.keywords'])
+    ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_author', 'citation_author_orcid', 'citation_publication_date', 'citation_pdf_url',
+                                        'citation_isbn', 'citation_keywords', 'dc.title', 'dc.date', 'dc.keywords', 'dc.creator'])
+    ejlmod3.globallicensesearch(rec, artpage)
     #abstract
     for meta in artpage.head.find_all('meta', attrs = {'name' : 'citation_abstract'}):
         if meta.has_attr('content') and meta['content']:
@@ -232,6 +241,25 @@ for rec in prerecs:
     #abstract
     if not 'abs' in list(rec.keys()) and 'absspa' in list(rec.keys()):
         rec['abs'] = rec['absspa']
+    #supervisor
+    for div in artpage.body.find_all('div', attrs = {'class' : 'pagebody'}):
+        for muell in div.find_all(['span', 'table', 'ul']):
+            muell.decompose()
+        for a in div.find_all('a'):
+            if a.has_attr('href'):
+                if re.search('orcid.org', a['href']):
+                    orcid = re.sub('.*orcid.org\/', 'ORCID:', a['href'])
+                    a.replace_with(';;;' + orcid)
+        for br in div.find_all('br'):
+            br.replace_with('XXXX')
+        divt = re.sub('[\n\t\r]', ' ', div.text.strip())
+        for part in re.split(' *XXXX *', divt):
+            if re.search(' dir\.', part):
+                sv = re.sub(' *,? dir\.', '', part)
+                sv = re.sub(', \d+.', '', sv)
+                sv = re.sub(', *;', ';', sv)
+                rec['supervisor'].append(re.split(' *;;; *', sv))
+                print('sv->', sv)            
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
