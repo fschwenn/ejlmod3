@@ -56,32 +56,32 @@ python = {'python3' : '/home/library/.virtualenvs/inspire3-python3.8/bin/python'
 #list of harvesters
 #entries: (after how many months it should run next time, [program, argument1, argument2])
 jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
+        (1, ['aip3.py', 'pto', pryear-1947, prmonth]),
         (6, ['theses-bogota3.py']),
         (1, ['aip3XXX.py', 'jmp', pryear-1959, prmonth]),
+        (3, ['aip3XXX.py', 'aqs', pryear-2018, prquarter]),
         (3, ['theses-bristol3.py']),
         (3, ['aip3XXX.py', 'chaos', pryear-1990, prquarter]),
-        (2, ['theses-goettingen3.py']),
+        (2, ['aip3XXX.py', 'jvb', pryear-1982, prsixth]),
         (1, ['aip3XXX.py', 'ltp', pryear-1974, prmonth]),
         (2, ['theses-helda3.py']),
         (1, ['aip3XXX.py', 'php', pryear-1993, prmonth]),
-        (2, ['theses-leedssheffieldyork3.py']),
         (1, ['aip3.py', 'adva', pryear-2010, prmonth]),
-        (3, ['theses-oslo3.py']),
-        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ol', pryear-1975, prmonth * 2 - 1]),
-        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'ol', pryear-1975, prmonth * 2]),
-        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 - 1]),
-        (1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 2]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 1]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'josaa', pryear-1983, prmonth]),
         (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'josab', pryear-1983, prmonth]),
@@ -92,43 +92,40 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (2, ['theses-aachen3.py']),
         (1, ['aip3.py', 'ajp', pryear-1932, prmonth]),
-        (222, ['theses-oatd.py', '0', '3']), #proteced by Claudflare
+#        (222, ['theses-oatd.py', '0', '3']), #proteced by Claudflare
         (1, ['aip3XXX.py', 'phf', pryear-1988, prmonth]),
-        (333, ['theses-oatd.py', '3', '5']), #proteced by Claudflare
-        (2, ['aip3XXX.py', 'jva', pryear-1982, prsixth]),
-        (222, ['theses-oatd.py', '5', '7']), #proteced by Claudflare
-        (2, ['aip3XXX.py', 'jvb', pryear-1982, prsixth]),
-        (333, ['theses-oatd.py', '7', '9']), #proteced by Claudflare
-        (3, ['aip3XXX.py', 'aqs', pryear-2018, prquarter]),
+#        (333, ['theses-oatd.py', '3', '5']), #proteced by Claudflare
+        (2, ['aip3.py', 'jva', pryear-1982, prsixth]),
+#        (222, ['theses-oatd.py', '5', '7']), #proteced by Claudflare
+#        (333, ['theses-oatd.py', '7', '9']), #proteced by Claudflare
         (1, ['mdpi.sftp.py', 'symmetry']),
-        (1, ['aip3XXX.py', 'pto', pryear-1947, prmonth]),
         (1, ['mdpi.sftp.py', 'sensors']),
         (1, ['cjp3.py', 'cjp', pryear-1922, prmonth]),
         (1, ['mdpi.sftp.py', 'nanomaterials']),
-        (288, ['theses-oatd.py', '9', '11']), #proteced by Claudflare
+#        (288, ['theses-oatd.py', '9', '11']), #proteced by Claudflare
         (12, ['annualreview3.py', 'arnps', pryear-1950]),
-        (388, ['theses-oatd.py', '11', '13']), #proteced by Claudflare
+#        (388, ['theses-oatd.py', '11', '13']), #proteced by Claudflare
         (12, ['annualreview3.py', 'araa', pryear-1962]),
-        (288, ['theses-oatd.py', '13', '15']), #proteced by Claudflare
+#        (288, ['theses-oatd.py', '13', '15']), #proteced by Claudflare
         (1, ['royalsociety.xml2.py', 'prs', pryear-1544, (pryear-1834)*12+prmonth]),
-        (388, ['theses-oatd.py', '15', '17']), #proteced by Claudflare
+#        (388, ['theses-oatd.py', '15', '17']), #proteced by Claudflare
         (1, ['actapolytechnica.py']),
-        (288, ['theses-oatd.py', '17', '19 ']), #proteced by Claudflare
+#        (288, ['theses-oatd.py', '17', '19 ']), #proteced by Claudflare
         (2, ['oxfordjournals.xml.py', 'pasj', pryear-1948, prsixth]),
-        (388, ['theses-oatd.py', '19', '21']), #proteced by Claudflare
+#        (388, ['theses-oatd.py', '19', '21']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'ptep', pryear, prmonth]),
-        (288, ['theses-oatd.py', '21', '23']), #proteced by Claudflare
+#        (288, ['theses-oatd.py', '21', '23']), #proteced by Claudflare
         (1, ['figshare3.py', 'kilthub']),
-        (388, ['theses-oatd.py', '23', '25']), #proteced by Claudflare
+#        (388, ['theses-oatd.py', '23', '25']), #proteced by Claudflare
         (1, ['mdpi.sftp.py', 'universe']),
-        (288, ['theses-oatd.py', '25', '27']), #proteced by Claudflare
+#        (288, ['theses-oatd.py', '25', '27']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'imrn', pryear, 2*prmonth]),
-        (388, ['theses-oatd.py', '27', '29']), #proteced by Claudflare
-        (3, ['ccsenet.py', 'apr', pryear-2008, prquarter]),
-        (288, ['theses-oatd.py', '29', '31']), #proteced by Claudflare
+#        (388, ['theses-oatd.py', '27', '29']), #proteced by Claudflare
+#        (333, ['ccsenet.py', 'apr', pryear-2008, prquarter]), #moved to list
+#        (288, ['theses-oatd.py', '29', '31']), #proteced by Claudflare
         (1, ['oxfordjournals.xml.py', 'mnras', mnrasbignumber//4, mnrasbignumber % 4 + 1]),
-        (2, ['ccsenet.py', 'jmr', pryear-2008, prsixth]),
-        (3, ['intlpress.py', 'cms', pryear-2002, prquarter]),
+        (2, ['ccsenet3.py', 'jmr', pryear-2008, prsixth]),
+        (2, ['intlpress.py', 'cms', pryear-2002, prsixth]),
         (1, ['oxfordjournals.xml.py', 'mnras', (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1]),
         (1, ['edpjournals.py', 'aanda', pryear, prmonth]),
         (1, ['oxfordjournals.xml.py', 'mnras', (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1]),
@@ -148,7 +145,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-clas.py']),
         (2, ['theses-kentucky3.py']),
         (2, ['theses-italy3.py', 'sissa']),
-        (2, ['theses-maryland.py']),
+        (2, ['theses-maryland3.py']),
         (1, ['figshare3.py', 'ryerson']),
         (2, ['theses-belle.py']),
         (2, ['theses-CSUC.py']),
@@ -181,7 +178,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-rutgers3.py']),
         (2, ['theses-frankfurt3.py']),
         (1, ['theses-diva.py']),
-        (1, ['theses-tum.py']),
+        (1, ['theses-tum3.py']),
+        (2, ['theses-goettingen3.py']),
         (2, ['theses-waterloo3.py']),
         (2, ['theses-princeton.py']),
         (2, ['theses-capetown.py']),
@@ -284,8 +282,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-sussex.py']),
         (2, ['theses-federicosantamaria.py']),
         (2, ['theses-hannover.py']),
-        (2, ['theses-stonybrook.py']),
-        (2, ['theses-nust.py']),
+        (2, ['theses-stonybrook.py']), #2017 eingeschlafen, https://commons.library.stonybrook.edu/ not yet ready?
+        (2, ['theses-nust3.py']),
         (2, ['theses-cbpf.py']),
         (2, ['theses-chennai.py']),
         (2, ['theses-caltech.py']),
@@ -355,11 +353,13 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-colombiaunatl.py']),
         (1, ['theses-northeastern.py']),
         (1, ['theses-forskningsportal3.py']),
+        (3, ['theses-oslo3.py']),
         (2, ['theses-arizona_u.py']),
         (2, ['theses-geneve.py']),
         (3, ['theses-hawc.py']),
         (3, ['theses-concepcion.py']),
         (2, ['theses-illinois3.py']),
+        (2, ['theses-leedssheffieldyork3.py']),
         (2, ['theses-melbourne.py']),
         (2, ['theses-barcelona.py']),
         (2, ['theses-seoulnatlu.py']),
@@ -399,7 +399,6 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['mdpi.sftp.py', 'applsci']),
         (2, ['theses-hawaii3.py']),
         (3, ['theses-porto.py']),
-        (666, ['theses-dart3.py']), #ist schon in der liste
         (3, ['edpjournals.py', '4open', pryear, '1']),
         (1, ['theses-tuwien3.py']),
         (3, ['theses-rostock3.py']),
@@ -418,7 +417,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['oapen.py']),
         (3, ['theses-tsukuba.py']),
         (3, ['theses-rice.py']),
-        (3333, ['npreview.py', pryear, prquarter]), #zu unregulaer
+#        (3333, ['npreview.py', pryear, prquarter]), #zu unregulaer
         (12, ['oxfordjournals.xml.py', 'integrablesystems', pryear-2015, '1']),
         (2, ['theses-taiwannatlu.py']),
         (2, ['theses-virginia.py']),
@@ -504,21 +503,28 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-stellenbosch3.py']),
         (1, ['theses-bepress3.py']),
         (1, ['theses-michigantech3.py']),
-        (1, ['theses-louisianatech3.py'])]
+        (1, ['mdpi.sftp.py', 'axioms']),
+        (1, ['mdpi.sftp.py', 'foundations']),
+        (1, ['mdpi.sftp.py', 'instruments']),
+        (1, ['mdpi.sftp.py', 'photonics']),
+        (1, ['theses-louisianatech3.py']),
+        (3, ['theses-minho3.py']),
+        (3, ['theses-island3.py']),
+        (2, ['theses-calgary3.py'])]
 
 
 if prmonth == 12:
-    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + 1, 25]))
-    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924 + 1, 26]))
+    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 25]))
+    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 26]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 1]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 2]))
     jnls.append((1, ['procnas3.py', pryear-1903, '49, 50']))
     jnls.append((1, ['procnas3.py', pryear-1903, '51, 52']))
-    jnls.append((1, ['intlpress.py', pryear-1992, '7']))
-    jnls.append((1, ['intlpress.py', pryear-1992, '8']))
+    jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '7']))
+    jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '8']))
 if prmonth == 6:
-    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924, 25]))
-    jnls.append((1, ['aip3XXX.py', 'apl', 2*pryear - 3924, 26]))
+    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924, 25]))
+    jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924, 26]))
 
 
 #work from 3th to 28th day of a month
