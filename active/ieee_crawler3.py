@@ -25,7 +25,7 @@ if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.headless=True
     options.add_argument('--headless')
-    driver = uc.Chrome(version_main=105, options=options)
+    driver = uc.Chrome(version_main=106, options=options)
     tmpdir = '/home/schwenn/tmp'
 else:
     options = uc.ChromeOptions()
@@ -418,7 +418,6 @@ def ieee(number):
                         rec['refs'].append([('x', line.decode('utf-8'))])
                     reffile.close()
         #print '    ' + ', '.join( ['%s (%i)' % (k, len(rec[k])) for k in rec.keys()] ) + '\n'
-        print('   ', list(rec.keys()))
                     
         if jnlname in ['BOOK', 'IEEE Nucl.Sci.Symp.Conf.Rec.']:
             try:
@@ -446,14 +445,15 @@ def ieee(number):
                               'IEEE Information Theory Society information', 'Board of Governors', 'Commitees',
                               'IEEE Journal on Special Areas in Information Theory information for authors', 'Copyright Page',
                               'IEEE Journal on Special Areas in Information Theoryinformation for authors', 'Title Page',
-                              'Back Cover', 'Conference Programme']:
+                              'Back Cover', 'Conference Programme', 'Panel']:
 
 #            if 'p1' in rec.keys():
 #                del rec['p1']
 #            if 'p2' in rec.keys():
 #                del rec['p2']
-#            rec['fc'] = 'c'
+#            rec['fc'] = 'kc'
             
+            ejlmod3.printrecsummary(rec)
             recs.append(rec)
 
     if jnlname == 'BOOK':
