@@ -19,7 +19,7 @@ import requests
 import mimetypes
 import urllib3
 import ssl
-
+from inspirelabslib3 import *
 
 wordsperquery = 10
 chunksize = 50
@@ -261,7 +261,7 @@ def checkweblinks(rec):
                                         
 
 i = 0
-recs = []
+prerecs = []
 dois = []
 hdr = {'User-Agent' : 'Magic Browser'}
 urllib3.disable_warnings()
@@ -332,7 +332,7 @@ for search in searches:
                             if checkall:
                                 if verbose: print('      ', rec['nodoi'])
                                 rec['note'].append('NODOI:'+rec['nodoi'])
-                                recs.append(rec)
+                                prerecs.append(rec)
                                 dois.append(rec['nodoi'])
                                 statistics[search]['harvested'] += 1
                             else:
@@ -342,15 +342,15 @@ for search in searches:
                         elif not rec['nodoi'] in dois:
                             if verbose: print('      ', rec['nodoi'])
                             rec['note'].append('NODOI:'+rec['nodoi'])
-                            recs.append(rec)
+                            prerecs.append(rec)
                             dois.append(rec['nodoi'])
                             statistics[search]['harvested'] += 1
                             statistics[search]['total'] += 1
                         else:
                             if verbose: print('     (', rec['nodoi'],')')
                             statistics[search]['total'] += 1
-            print('    %i records so far' % (len(recs)))
-        #if not recs:
+            print('    %i records so far' % (len(prerecs)))
+        #if not prerecs:
         #    print '[]', re.sub('\n *\n', '\n', re.sub('  +', '', tocpage.text))
 
 
@@ -362,10 +362,11 @@ for (tot, search) in totals:
     if verbose: print(' - %3i %3i %3i %3i %s' % (tot, statistics[search]['harvested'], statistics[search]['dedicated'], statistics[search]['bereitsin'], search))
         
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
     english = False
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']]])
     try:
         time.sleep(10)
         req = urllib.request.Request(rec['artlink'], headers=hdr)
@@ -498,15 +499,21 @@ for rec in recs:
         del rec['language']
     #do we need article link and/or pseudo-DOI
     checkweblinks(rec)
-    if not 'doi' in list(rec.keys()) and not 'hdl' in list(rec.keys()):
-        if not 'link' in list(rec.keys()):
+    if 'doi' in rec and get_recids('doi:%s' % (rec['doi'])):
+        print('   skip "%s" since already in INSPIRE' % (rec['doi']))
+    elif 'hdl' in rec and get_recids('persistent_identifiers.value:"%s"' % (rec['hdl'])):
+        print('   skip "%s" since already in INSPIRE' % (rec['hdl']))
+    else:
+        recs.append(rec)
+    if not 'doi' in rec and not 'hdl' in rec:
+        if not 'link' in rec:
             rec['link'] = rec['artlink']
         if not 'urn' in list(rec.keys()):
             rec['doi'] = rec['nodoi']
     ejlmod3.printrecsummary(rec)
     if not 'autaff' in list(rec.keys()):
         sys.exit(0)
-    if ((i % chunksize) == 0) or (i == len(recs)):
+    if ((i % chunksize) == 0) or (i == len(prerecs)):
         chunknumber = (i-1)//chunksize + 1
         numofchunks = (len(recs) - 1) // chunksize + 1
         jnlfilename = 'THESES-DART_%s_%i-%i_%i_%03i-%03i' % (ejlmod3.stampoftoday(), years[0], years[-1], chunksize, chunknumber, numofchunks)
