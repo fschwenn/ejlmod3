@@ -13,7 +13,7 @@ urllib3.disable_warnings()
 
 publisher = 'Minho U.'
 rpp = 50
-pages = 4+56
+pages = 4
 
 reboring = re.compile('(Administração|Ambiental|Arqueologia|Arquitectura|Biologia|Biológica|Biological|Biológicas|Biology|Biomédica|Biomédicas|Celular|Células|Chemical|Civil|Clínica|Criança|Cultura|Curricular|Design|Educação|Educativa|Empresariais|Ensino|Escolar|Especial|Especialidade|Estratégica|Filosofia|Geografia|Geologia|Gestão|História|Humana|Infância|Infantil|Jurídicas|Lazer|Líderes|Linguagem|Linguística|Literatura|Marketing|Medicina|Molecular|Planeamento|Polímeros|Política|Políticas|Psicologia|Públicas|Química|Recreação|Regenerativa|Regional|Saúde|Social|Sociedade|Sociologia|Têxtil)')
 refcc = re.compile('(Computer Science|Informática|Informatics)')
@@ -105,4 +105,4 @@ for page in range(pages):
 
 jnlfilename = 'THESES-MINHO-%s' % (ejlmod3.stampoftoday())
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
