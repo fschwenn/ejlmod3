@@ -130,12 +130,6 @@ for rec in recs:
                 continue
         ejlmod3.metatagcheck(rec, artpage2, ['citation_pdf_url', 'citation_doi', 'DCTERMS.abstract',
                                              'citation_keywords', 'citation_date', 'DC.identifier'])
-        #abstract
-        for meta in artpage2.head.find_all('meta', attrs = {'name' : 'DCTERMS.abstract', 'xml:lang' : 'en'}):
-            rec['abs'] = meta['content']
-        if not 'abs' in rec:
-            for meta in artpage2.head.find_all('meta', attrs = {'name' : 'DCTERMS.abstract', 'xml:lang' : 'pt-br'}):
-                rec['abs'] = meta['content']
     else:
         rec['link'] = rec['artlink']        
     ejlmod3.printrecsummary(rec)
