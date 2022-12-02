@@ -32,7 +32,7 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             for a in tr.find_all('a'):
                 if a.has_attr('href') and re.search('d.scholarship.pitt.edu\/\d', a['href']):
                     rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'year' : str(year), 'note' : []}
-                    rec['tit'] = a.text.strip()
+                    rec['tit'] = re.sub('\.$', '', a.text.strip())
                     rec['link'] = a['href']
                     rec['doi'] = '20.2000/Pittsburgh/' + re.sub('\D', '', a['href'])
                     recs.append(rec)
