@@ -115,6 +115,11 @@ for rec in recs:
         time.sleep(180)
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
+        if len(artpage.find_all('meta')) < 10:
+            print('  -- try again after 300 s  --  ')
+            time.sleep(300)
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         
         
     print('   read meta tags')
@@ -174,5 +179,5 @@ for rec in recs:
     ejlmod3.printrecsummary(rec)
     time.sleep(40)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 driver.quit()
