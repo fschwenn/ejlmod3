@@ -2,6 +2,7 @@
 ##!/usr/bin/python
 #program to harvest Proc.Nat.Acad.Sci.
 # FS 2019-07-17
+# Cloudflare -> need for newer OpenSSL -> run on HAL
 
 import sys
 import os
@@ -9,8 +10,8 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
-import undetected_chromedriver as uc
 import json
+import cloudscraper
 
 
 
@@ -20,23 +21,14 @@ issues = sys.argv[2]
 jnlfilename = 'procnas%s.%s' % (vol, re.sub(',', '_', issues))
 jnlname = 'Proc.Nat.Acad.Sci.'
 
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/opt/google/chrome/google-chrome'
-#options.binary_location='/opt/google/chrome/chrome'
-options.add_argument('--headless')
-#driver = uc.Chrome(version_main=103, options=options)
-driver = uc.Chrome(options=options)
-
-
+scraper = cloudscraper.create_scraper()
 prerecs = []
 artlinks = []
 for issue in re.split(',', issues):
     (note1, note2) = (False, False)
     tocurl = 'https://www.pnas.org/content/%s/%s' % (vol, issue)
     ejlmod3.printprogress('=', [[issue, issues], [tocurl]])
-    driver.get(tocurl)
-    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
 
     for contdiv in tocpage.body.find_all('div', attrs = {'class' : 'toc__body'}):
         for section in contdiv.children:
@@ -93,20 +85,19 @@ for issue in re.split(',', issues):
 recs = []
 for rec in prerecs:
     if not rec['note1'] in ['Commentaries', 'This Week in PNAS', 'News Feature', 'Retrospective',
-                     'Biological Sciences', 'Social Sciences']:
-        if rec['note1']:
-            rec['note'].append(rec['note1'])
-        if rec['note2']:
+                            'Biological Sciences', 'Social Sciences']:
+        if not rec['note2'] in ['Biophysics and Computational Biology',
+                                'Chemistry']:
             rec['note'].append(rec['note2'])
-        #date
-        for span in rec['soup'].find_all('span', attrs = {'class' : 'card__meta__date'}):
-            rec['date'] = span.text.strip()
-        #link
-        for h3 in rec['soup'].find_all('h3', attrs = {'class' : 'article-title'}):
-            for a in h3.find_all('a'):
-                rec['tit'] = a.text
-                rec['artlink'] = 'https://www.pnas.org' + a['href']
-        recs.append(rec)
+            #date
+            for span in rec['soup'].find_all('span', attrs = {'class' : 'card__meta__date'}):
+                rec['date'] = span.text.strip()
+            #link
+            for h3 in rec['soup'].find_all('h3', attrs = {'class' : 'article-title'}):
+                for a in h3.find_all('a'):
+                    rec['tit'] = a.text
+                    rec['artlink'] = 'https://www.pnas.org' + a['href']
+                recs.append(rec)
 
 print('kept %i of %i' % (len(recs), len(prerecs)))
 
@@ -114,15 +105,17 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
+                                        "citation_online_date", "citation_title"])
     #metadata in script
     for script in artpage.head.find_all('script'):
         if script.contents:
-            scriptt = re.sub('.*?= *(.*?);.*', r'\1', re.sub('[\n\t]', '', script.contents[0].strip()))
+            scriptt = re.sub('.*?= *(\{.*?);.*', r'\1', re.sub('[\n\t]', '', script.contents[0].strip()))
             if re.search('^\{', scriptt):
                 metadata = json.loads(scriptt)
                 if 'page' in metadata:
+                    print("   metadata in JSON found")
                     if 'pageInfo' in metadata['page']:
                         #date
                         if 'pubDate' in metadata['page']['pageInfo']:
@@ -138,8 +131,6 @@ for rec in recs:
                         if 'openAccess' in metadata['page']['attributes']:
                             if metadata['page']['attributes']['openAccess'] == 'yes':
                                 rec['license'] = {'statement' : metadata['page']['attributes']['licenseType']}
-                                for a in artpage.body.find_all('a', attrs = {'aria-label' : 'PDF'}):
-                                    rec['FFT'] = a['href']
     #p1
     for span in artpage.body.find_all('span', attrs = {'property' : 'identifier'}):
         rec['p1'] = span.text.strip()
@@ -150,7 +141,7 @@ for rec in recs:
     #references
     for section in artpage.body.find_all('section', attrs = {'id' : 'bibliography'}):
         rec['refs'] = []
-        for div in section.find_all('div', attrs = {'class' : 'labeled'}):
+        for div in section.find_all('div', attrs = {'role' : 'doc-biblioentry listitem'}):
             for a in div.find_all('a'):
                 at = a.text.strip()
                 if at == 'Crossref':                    
@@ -172,9 +163,13 @@ for rec in recs:
             rec['autaff'][-1].append(re.sub('.*org\/', 'ORCID:', a['href']))
         for div2 in div.find_all('div', attrs = {'property' : 'affiliation'}):
             for span in div2.find_all('span'):
-                rec['autaff'][-1].append(span.text.strip())                    
+                rec['autaff'][-1].append(span.text.strip())
+    #license
+    for section in artpage.body.find_all('section', attrs = {'class' : 'core-copyright'}):
+        for a in section.find_all('a'):
+            if a.has_attr('href') and re.search('creativecom', a['href']):
+                rec['license'] = {'url' : a['href']}
     ejlmod3.printrecsummary(rec)
     time.sleep(10)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-driver.quit()
