@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 #program to harvest Wiley-journals
 # FS 2016-12-13
+# FS 2022-12-12
 
 import sys
 import os
@@ -9,7 +10,8 @@ import re
 import ejlmod3
 import codecs
 import time
-import undetected_chromedriver as uc
+import cloudscraper
+import random
 
 publisher = 'WILEY'
 jnl = sys.argv[1]
@@ -121,15 +123,9 @@ elif (jnl == 'mop'):
     doitrunk = '10.1002/mop'
     jnlname = 'Microw.Opt.Technol.Lett.'
 
-
-
-
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-driver = uc.Chrome(version_main=103, options=options)
-
+    
+scraper = cloudscraper.create_scraper()
+#scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'android', 'desktop': False})
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
 print("%s %s, Issue %s" %(jnlname,vol,issue))
@@ -141,23 +137,21 @@ else:
     toclink = 'https://onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
 print(toclink)
 
-driver.get(toclink)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
-
+tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
 
 recs = []
 alldois = []
 for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
     for h3 in div.find_all('h3'):
-        tit = h2.text.strip()
-        if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Masthead', tit):
+        tit = h3.text.strip()
+        if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
             continue
     for h2 in div.find_all('h2'):
         tit = h2.text.strip()
-    if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Masthead', tit):
+    if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
         continue
     rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
-           'note' : [], 'vol' : vol, 'issue' : issue, 'keyw' : []}
+           'note' : [], 'vol' : vol, 'issue' : issue, 'keyw' : []}    
     if jnl == 'pssa':
         rec['vol'] = 'A'+vol
     for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
@@ -166,19 +160,29 @@ for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
     if not rec['doi'] in alldois:
         recs.append(rec)
         alldois.append(rec['doi'])
-    
+
 i = 0
 for rec in recs:
     i += 1
     typecode = 'P'
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['doi']], [rec['artlink']]])
-    time.sleep(5)
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
-                                        'citation_lastpage', 'citation_publication_date', 'citation_author',
-                                        'citation_author_institution', 'citation_author_orcid',
-                                        'citation_author_email'])#'citation_pdf_url' does not resolve
+    time.sleep(random.randint(70, 130))
+    try:
+        artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+        ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
+                                            'citation_lastpage', 'citation_publication_date', 'citation_author',
+                                            'citation_author_institution', 'citation_author_orcid', 
+                                            'citation_author_email'])#'citation_pdf_url' does not resolve
+        rec['autaff'][0]
+    except:
+        print('  ... try again in 30-90 s')
+        rec['artlink'] = re.sub('doi\/', 'doi/ftr/', rec['artlink'])
+        time.sleep(random.randint(30,90))
+        artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+        ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
+                                            'citation_lastpage', 'citation_publication_date', 'citation_author',
+                                            'citation_author_institution', 'citation_author_orcid',
+                                            'citation_author_email'])#'citation_pdf_url' does not resolve
     if not 'p1' in rec:
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
             rec['p1'] = re.sub('.*, (.+?)\..*', r'\1', meta['content'].strip())
@@ -269,9 +273,9 @@ for rec in recs:
     if not jnl in ['puz']:
         rec['tc'] = typecode
     else:
-        rec['tc'] = ''
+        rec['tc'] = ''        
     ejlmod3.printrecsummary(rec)
-
+#    rec['tc'] = 'C'
+#    rec['cnum'] = 'C19-10-23.1'
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
-driver.quit()
