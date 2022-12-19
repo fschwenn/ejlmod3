@@ -287,6 +287,7 @@ def ieee(number):
         if (iref % 45) == 0:
             print('\n   [[[ special pause for not to be blocked ]]]\n')
             time.sleep(180)
+            iref += 1
         hasreferencesection = False
         ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink]])
         #rec['note'] = ['Konferenz ?']
@@ -303,6 +304,7 @@ def ieee(number):
         articlepage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
         inf.close()
         rec = {'keyw' : [], 'autaff' : [], 'note' : []}
+        #rec['fc'] = 'kc'
         #metadata now in javascript
         for script in articlepage.find_all('script', attrs = {'type' : 'text/javascript'}):
             #if re.search('global.document.metadata', script.text):
@@ -392,6 +394,8 @@ def ieee(number):
             rec['tc'] = 'C'
             if re.search('^C\d\d\-\d\d\-\d\d', args[1]):
                 rec['cnum'] = args[1]
+                if len(args) > 2:
+                    rec['fc'] = args[2]
             elif not args[1] in rec['note']:
                 rec['note'].append(args[1])
         #references
