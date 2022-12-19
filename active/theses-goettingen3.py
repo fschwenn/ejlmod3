@@ -2,7 +2,6 @@
 #harvest theses from Goettingen U.
 #FS: 2019-11-13
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
