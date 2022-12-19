@@ -169,6 +169,7 @@ for i in range(numberofpages):
     #req = urllib2.Request(tocurl, headers=hdr)
     #tocpage = BeautifulSoup(urllib2.urlopen(req))
     divs = tocpage.body.find_all('div', attrs = {'class' : 'c-pub'})
+    count = [0, 0, 0]
     if len(divs) == 100:
         for div in divs:
             for h2 in div.find_all('h2'):
@@ -180,6 +181,9 @@ for i in range(numberofpages):
                         print(' link "%s" is problematic' % (rec['artlink']))
                     elif ejlmod3.ckeckinterestingDOI(rec['artlink']):
                         recs.append(rec)
+                        count[0] += 1
+                    else:
+                        count[1] += 1
     else:
         divs2 = re.split('<div class="c-pub">', lines)[1:]
         print('BeautifulSoup failed to get all links (now %i instead of %i)' % (len(divs2), len(divs)))
@@ -199,7 +203,12 @@ for i in range(numberofpages):
                 print(' link "%s" is problematic' % (rec['artlink']))
             elif ejlmod3.ckeckinterestingDOI(rec['artlink']):
                 recs.append(rec)
-    print('  ', len(recs))
+                count[0] += 1
+            else:
+                count[1] += 1
+    count[2] = len(recs)
+    print('   added %i links to be checked, %i were uninteresting -> %i in total' % tuple(count))
+
 
 i = 0
 subjectrecs = {}
