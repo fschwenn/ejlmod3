@@ -332,7 +332,8 @@ for (href, sec, subsec, p1) in tocheck:
             if rec['auts']:
                 recs.append(rec)
 print('%i records for %s' % (len(recs), jnlfilename))
+if not recs:
+    print(tocpage.text)
 
-
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 driver.quit()
