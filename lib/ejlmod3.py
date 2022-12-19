@@ -30,7 +30,11 @@ except:
     print('could not import extract_references_from_string')
 
 #QIS bibclassify
-qisbibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
+host = os.uname()[1]
+if host == 'l00schwenn':
+    qisbibclassifycommand = "/usr/bin/python3 /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
+else:
+    qisbibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
 tmpdir = '/afs/desy.de/user/l/library/tmp'
 
@@ -518,7 +522,11 @@ def writeXML(recs,dokfile,publisher):
             if 'acronym' in rec: liste.append(('q',rec['acronym']))
             if 'pbnrep' in rec: liste.append(('r',rec['pbnrep']))
             if 'issue' in rec: liste.append(('n',rec['issue']))
-            if 'cnum' in rec: liste.append(('w',rec['cnum']))
+            if 'cnum' in rec:
+                if re.search('^C\d\d\-\d\d\-\d\d$', rec['cnum']) or re.search('^C\d\d\-\d\d\-\d\d\.\d+$',rec['cnum']):
+                    liste.append(('w',rec['cnum']))
+                else:
+                    print('INVALID CNUM:', rec['cnum'])
             if 'motherisbn' in rec: liste.append(('z',rec['motherisbn']))
             xmlstring += marcxml('773',liste)
         if 'alternatejnl' in rec:
@@ -557,7 +565,11 @@ def writeXML(recs,dokfile,publisher):
                 liste.append(('c',rec['p1p22']))
             if 'vol2' in rec: liste.append(('v',rec['vol2']))
             if 'issue2' in rec: liste.append(('n',rec['issue2']))
-            if 'cnum' in rec: liste.append(('w',rec['cnum']))
+            if 'cnum' in rec: 
+                if re.search('^C\d\d\-\d\d\-\d\d$', rec['cnum']) or re.search('^C\d\d\-\d\d\-\d\d\.\d+$',rec['cnum']):
+                    liste.append(('w',rec['cnum']))
+                else:
+                    print('INVALID CNUM:', rec['cnum'])
             xmlstring += marcxml('773',liste)
         #BOOK SERIES
         if 'bookseries' in rec:
@@ -959,7 +971,7 @@ def writeXML(recs,dokfile,publisher):
                                 cleanref.append(part)
                         else:
                             cleanref.append(part)
-                    xmlstring += marcxml('999C5',ref)
+                    xmlstring += marcxml('999C5', cleanref)
         xmlstring += marcxml('980',[('a','HEP')])
         #COMMENTS
         #temporary informations used for selection process
@@ -1357,9 +1369,9 @@ def metatagcheck(rec, artpage, listoftags):
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract']:
                     if meta.has_attr('xml:lang'):
-                        abstracts[meta['xml:lang']] = meta['content']
+                        abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
                     else:
-                        abstracts[''] = meta['content']
+                        abstracts[''] = re.sub('^ABSTRACT', '', meta['content'])
                     done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
