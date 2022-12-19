@@ -14,6 +14,7 @@ import time
 publisher = 'Munich, Tech. U.'
 jnlfilename = 'THESES-TUM-%s' % (ejlmod3.stampoftoday())
 rpp = 100
+years = 2
 boring = ['Fakultät für Sport- und Gesundheitswissenschaften']
 boring += ['CHE Chemie', 'BAU 550', 'BAU 650', 'BAU 650', 'UMW 300', 'BAU 651', 'BAU 900', 'BAU 950',
            'BAU Bauingenieurwesen, Vermessungswesen', 'GEO Geowissenschaften',
@@ -50,7 +51,9 @@ hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 links = []
 reboring = re.compile('(Bachelorarbeit|Masterarbeit)')
-for (fc, dep, pages) in [('', '603847', 1), ('m', '603845', 1), ('c', '603842', 1), ('o', '603787', 10)]:
+#for (fc, dep, pages) in [('', '603847', 1), ('m', '603845', 1), ('c', '603842', 1), ('o', '603787', 10)]:
+for (fc, dep, pages) in [('c', '1691132', 1), ('m', '1691133', 1), ('', '1688930', 5)]:
+#                         ('m', '603815', 2), ('', '603821', '')]:
     tocurl = 'https://mediatum.ub.tum.de/' + dep + '?id=' + dep + '&sortfield0=-year&sortfield1=&nodes_per_page=' + str(rpp)
     for page in range(pages):
         ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
@@ -64,8 +67,16 @@ for (fc, dep, pages) in [('', '603847', 1), ('m', '603845', 1), ('c', '603842', 
             for child in div.find_all('div', attrs = {'class' : 'mediatum-stylelist-div'}):
                 if not reboring.search(child.text) and ejlmod3.ckeckinterestingDOI(rec['link']):
                     if not rec['link'] in links:
-                        prerecs.append(rec)
-                        links.append(rec['link'])
+                        for br in child.find_all('br'):
+                            br.replace_with('XXXXXX')
+                        for part in re.split(' *XXXXXX *', child.text):
+                            if re.search('^[12]\d\d\d$', part):
+                                rec['year'] = part
+                                if int(part) <= ejlmod3.year(backwards=years):
+                                    keepit = False
+                        if keepit:
+                            prerecs.append(rec)
+                            links.append(rec['link'])
         print('  %4i records so far' % (len(prerecs)))
         time.sleep(5)
         nextpage = tocpage.body.find_all('a', attrs = {'class' : 'page-nav-next'})
@@ -79,108 +90,129 @@ for (i, rec) in enumerate(prerecs):
     i += 1
     keepit = True
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
-    req = urllib.request.Request(rec['link'], headers=hdr)
+    req = urllib.request.Request(rec['link'] + '&change_language=de', headers=hdr)
     artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DC.subject', 'citation_publication_date',
+    ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'citation_publication_date',
                                         'citation_pdf_url'])
-    #first get Language
-    for div in artpage.body.find_all('div', attrs = {'class' : ['field-language', 'field-lang']}):
-        for div2 in div.find_all('div', attrs = {'class' : 'mask_value'}):
-            rec['language'] = div2.text.strip()
     #Metadata
-    for div in artpage.body.find_all('div', attrs = {'class' : 'mask_row'}):
-        row = ''
-        for cl in div['class']:
-            if cl != 'mask-row':
-                row = cl
-        for div2 in div.find_all('div', attrs = {'class' : 'mask_value'}):
-            #Document type
-            if row == 'field-type':
-                rec['documenttype'] = div2.text.strip()
-                rec['note'].append(rec['documenttype'])
-            #Author
-            elif row == 'field-studentauthor':
-                rec['autaff'] = [[div2.text.strip()]]
-            #Title
-            elif row in ['field-title', 'field-booktitle']:
-                rec['tit'] = div2.text.strip()
-            elif row == 'field-title-translated':
-                rec['transtit'] = div2.text.strip()
-            #Abstract
-            elif row in ['field-abstract', 'field-description'] and rec['language'] == 'en':
-                rec['abs'] = div2.text.strip()
-            elif row in ['field-abstract-translated', 'field-description-translated'] and rec['language'] == 'de':
-                rec['abs'] = div2.text.strip()
-            #classification
-            elif row in ['field-subject', 'field-subject2']:
-                for subject in re.split(' *; *', div2.text.strip()):
-                    if subject in boring:
-                        keepit = False
-                        #print('   skip "%s"' % (subject))
-                    elif subject in ['DAT Datenverarbeitung, Informatik']:
-                        rec['fc'] = 'c'
-                    elif subject in ['MAT Mathematik']:
-                        rec['fc'] = 'm'
-                    elif subject in ['PHY 600']:
-                        rec['fc'] = 'f'
-                    elif subject in ['PHY 900']:
-                        rec['fc'] = 'a'
-                    elif subject in ['PHY 410']:
-                        rec['fc'] = 'p'
-                    elif subject in ['PHY 023', 'PHY 025', 'PHY 035', 'PHY 037']:
-                        rec['fc'] = 't'
-                    elif subject in ['PHY 040', 'PHY 041', 'PHY 042', 'PHY 043']:
-                        rec['fc'] = 'g'
-                    elif subject in ['PHY 402', 'PHY 403', 'PHY 404']:
-                        rec['fc'] = 'b'
-                    else:
-                        rec['note'].append(subject)
-            #field-ddc
-            elif row == 'field-ddc':
-                rec['ddc'] = []
-                for part in re.split('[,;]',  div2.text.strip()):
-                    ddc = re.sub('\D', '', part)
-                    if len(ddc) == 3:
-                        rec['ddc'].append(ddc)
-                        if ddc[:2] == '00':
-                            rec['fc'] = 'c'
-                        elif ddc[:2] == '51':
-                            rec['fc'] = 'm'
-                        elif ddc[:2] == '52':
-                            rec['fc'] = 'a'
-                        elif not rec['ddc'][:2] in ['50', '53', '60', '62']:
+    for dl in artpage.body.find_all('dl', attrs = {'class' : 'object_meta'}):
+        for child in dl.children:
+            try:
+                childclass = child['class'][0]
+            except:
+                continue
+            if childclass == 'mask_label':
+                label = child.text.strip()
+            elif childclass == 'mask_value':
+                #Document type
+                if label == 'Dokumenttyp:':
+                    rec['documenttype'] = child.text.strip()
+                    rec['note'].append(rec['documenttype'])
+                #Author
+                elif label == 'Autor:':
+                    rec['autaff'] = [[ child.text.strip() ]]
+                    for a in child.find_all('a'):
+                        if a.has_attr('href') and a['href'][:6] == 'mailto':
+                            rec['autaff'][-1].append(re.sub('mailto:', 'EMAIL:', a['href']))
+                #title:
+                elif label == 'Originaltitel:':
+                    rec['tit'] = child.text.strip()
+                elif label == 'Übersetzter Titel:':
+                    rec['transtit'] = child.text.strip()
+                #Abstract
+                elif label == 'Kurzfassung:':
+                    rec['origabs'] = child.text.strip()
+                elif label == 'Übersetzte Kurzfassung:':
+                    rec['transabs'] = child.text.strip()
+                #classification
+                elif label in ['Fachgebiet:', 'TU-Systematik:']:
+                    for subject in re.split(' *; *', child.text.strip()):
+                        if subject in boring:
                             keepit = False
-                            #print('   skip "%s"' % (div2.text.strip()))
-            #Supervisor
-            elif row in ['field-studentadvisor', 'field-advisor']:
-                rec['supervisor'].append([re.sub(' \(.*', '', div2.text.strip())])
-            #Faculty
-            elif row == 'field-faculty':
-                department = div2.text.strip()
-                if department in boring:
-                    keepit = False
-                    #print('   skip "%s"' % (department))
-                elif department == 'Fakultät für Informatik':
-                    rec['fc'] = 'm'
-                elif department == 'Fakultät für Informatik':
-                    rec['fc'] = 'c'
-                else:                    
-                    rec['note'].append(department)
-            #pages
-            elif row in ['field-pages', 'field-pdf_pages']:
-                if re.search('\d\d', div2.text):
-                    rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', div2.text.strip())
-            #URN
-            elif row == 'field-urn_link':
-                rec['urn'] = re.sub('.*\?', '', div2.text.strip())
+                            #print('   skip "%s"' % (subject))
+                        elif subject in ['DAT Datenverarbeitung, Informatik']:
+                            rec['fc'] = 'c'
+                        elif subject in ['MAT Mathematik']:
+                            rec['fc'] = 'm'
+                        elif subject in ['PHY 600']:
+                            rec['fc'] = 'f'
+                        elif subject in ['PHY 900']:
+                            rec['fc'] = 'a'
+                        elif subject in ['PHY 410']:
+                            rec['fc'] = 'p'
+                        elif subject in ['PHY 023', 'PHY 025', 'PHY 035', 'PHY 037']:
+                            rec['fc'] = 't'
+                        elif subject in ['PHY 040', 'PHY 041', 'PHY 042', 'PHY 043']:
+                            rec['fc'] = 'g'
+                        elif subject in ['PHY 402', 'PHY 403', 'PHY 404']:
+                            rec['fc'] = 'b'
+                        else:
+                            rec['note'].append(subject)
+                #DDC
+                elif label == 'DDC:':
+                    rec['ddc'] = []
+                    for part in re.split('[,;]',  child.text.strip()):
+                        ddc = re.sub('\D', '', part)
+                        if len(ddc) == 3:
+                            rec['ddc'].append(ddc)
+                            if ddc[:2] == '00':
+                                rec['fc'] = 'c'
+                            elif ddc[:2] == '51':
+                                rec['fc'] = 'm'
+                            elif ddc[:2] == '52':
+                                rec['fc'] = 'a'
+                            elif not rec['ddc'][:2] in ['50', '53', '60', '62']:
+                                keepit = False
+                                #print('   skip "%s"' % (div2.text.strip()))
+                #Supervisor
+                elif label == 'Betreuer:':
+                    rec['supervisor'].append([re.sub(' \(.*', '', child.text.strip())])
+                #Faculty
+                elif label in ['Institution:', 'Fakultät:']:
+                    department = child.text.strip()
+                    if department in boring:
+                        keepit = False
+                        #print('   skip "%s"' % (department))
+                    elif department == 'Fakultät für Informatik':
+                        rec['fc'] = 'm'
+                    elif department == 'Fakultät für Informatik':
+                        rec['fc'] = 'c'
+                    else:                    
+                        rec['note'].append(department)
+                #Pages
+                elif label == 'Seiten:':
+                    if re.search('\d\d', child.text):
+                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', child.text.strip())
+                #URN
+                elif label in ['URN:', 'Urn (Zitierfähige URL):']:
+                    rec['urn'] = re.sub('.*\?', '', child.text.strip())
+                #Keywords
+                elif label in ['Stichworte:', 'Übersetzte Stichworte:']:
+                    rec['keyw'] += re.split(', ', child.text.strip())
+                #language
+                elif label == 'Sprache:':
+                    rec['language'] = child.text.strip()
+                #ISBN
+                elif label == 'ISBN:':
+                    rec['isbn'] = child.text.strip()
+                #Hinweis
+                elif label == 'Hinweis:':
+                    rec['note'].append(child.text.strip())
+                #
+                #elif label == '':
+                #    rec[''] = child.text.strip()
+                elif not label in ['Jahr:', 'Gutachter:', 'Dateigröße:', 'WWW:', 'Eingereicht am:',
+                                   'Mündliche Prüfung:', 'Letzte Änderung:',
+                                   'Originaluntertitel:', 'Übersetzter Untertitel:']:
+                    print('\n  - ', label, ':', child.text.strip() + '\n')
     #abstract
-    if not 'abs' in rec:
-        if 'language' in rec and rec['language'] == 'de':
-            for div in artpage.body.find_all('div', attrs = {'id' : 'description-translated_full'}):
-                rec['abs'] = div.text.strip()
-        else:
-            for div in artpage.body.find_all('div', attrs = {'id' : 'description_full'}):
-                rec['abs'] = div.text.strip()
+    if 'language' in rec and rec['language'] == 'de' and 'transabs' in rec:
+        rec['abs'] = rec['transabs']
+    elif 'origabs' in rec:
+        rec['abs'] = rec['origabs']
+    #title
+    if 'language' in rec and rec['language'] == 'en' and 'transtit' in rec:
+        del(rec['transtit'])
     #Habilitation
     if 'documenttype' in rec and rec['documenttype'] == 'Habilitation':
         year = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
