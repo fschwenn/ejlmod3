@@ -13,7 +13,7 @@ import re
 import ejlmod3
 import time
 
-pages = 5
+pages = 10
 rpp = 50
 years = 10
 publisher = 'Rutgers U.'
@@ -67,7 +67,7 @@ boring += ["School of Public Health ETD Collection", "African literature", "Amer
 boring += ["American Studies", "Art history", "Artificial intelligence", "Atmospheric Science", "Biomedical Sciences",
            "Business and Science", "Computational and Integrative Biology", "Developmental biology",
            "Endocrinology and Animal Biosciences", "Environmental health", "Environmental Sciences", "Fluid mechanics", "French",
-           "Geological engineering", "German", "Music Education", "Operations Research", "Physics", "Public Affairs",
+           "Geological engineering", "German", "Music Education", "Operations Research", "Public Affairs",
            "Religious Studies", "Sedimentary geology", "Social Work", "Spanish", "Urban planning"]
     
 for page in range(pages):
@@ -86,9 +86,8 @@ for page in range(pages):
                 fieldtext = span.text.strip()
             if fieldtitle in ['Collection', 'School', 'Graduate Program']:
                 if fieldtext in boring:
-                    keepit = False
+                    keepit = False                    
                 else:
-                    rec['note'].append('%s=%s' % (fieldtitle, fieldtext))
                     if fieldtext == 'Computer Science':
                         rec['fc'] = 'c'
                     elif fieldtext == 'Condensed matter physics':
@@ -101,6 +100,8 @@ for page in range(pages):
                         rec['fc'] = 'm'
                     elif fieldtext in ['Astronomy', 'Astrophysics']:
                         rec['fc'] = 'a'
+                    else:
+                        rec['note'].append('%s=%s' % (fieldtitle, fieldtext))
             elif fieldtitle == 'Date Created':
                 if re.search('^[12]\d\d\d$', fieldtext):
                     if int(fieldtext) < ejlmod3.year() - years:
@@ -154,9 +155,13 @@ for rec in prerecs:
                     if re.search('\d\d+ pages', span2.text):
                         rec['pages'] = re.sub('.*?(\d\d+) pages.*', r'\1', span2.text)
             #date fallback
-            elif span.text == 'Other Date' and not 'date' in list(rec.keys()):
+            elif span.text == 'Other Date':
                 for span2 in div.find_all('span', attrs = {'class' : 'resultFull__result-text'}):
-                    rec['date'] = re.sub('.*?([12]\d\d\d).*', r'\1', span2.text.strip())
+                    st = span2.text.strip()
+                    if not 'date' in list(rec.keys()):
+                        rec['date'] = re.sub('.*?([12]\d\d.*\d).*', r'\1', st)
+                    elif re.search('degre', span2.text):
+                        rec['date'] = re.sub('.*?([12]\d\d.*\d).*', r'\1', st)
     if keepit:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
