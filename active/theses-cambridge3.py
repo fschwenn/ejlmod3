@@ -16,6 +16,9 @@ import json
 publisher = 'Cambridge U.'
 jnlfilename = 'THESES-CAMBRIDGE-%s' % (ejlmod3.stampoftoday())
 years = 2
+skipalreadyharvested = True
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+
 
 boring = ['Theses - Chemistry', 'Department of Chemistry']
 
@@ -25,6 +28,13 @@ tocurls.append('https://www.repository.cam.ac.uk/handle/1810/256064/discover?rpp
 tocurls.append('https://www.repository.cam.ac.uk/handle/1810/256064/discover?rpp=100&etal=0&scope=&group_by=none&page=1&sort_by=dc.date.issued_dt&order=asc&filtertype_0=type&filter_relational_operator_0=equals&filter_0=Thesis')
 tocurls.append('https://www.repository.cam.ac.uk/handle/1810/256064/discover?rpp=100&etal=0&scope=&group_by=none&page=2&sort_by=dc.date.issued_dt&order=asc&filtertype_0=type&filter_relational_operator_0=equals&filter_0=Thesis')
 tocurls.append('https://www.repository.cam.ac.uk/handle/1810/256064/discover?rpp=100&etal=0&scope=&group_by=none&page=3&sort_by=dc.date.issued_dt&order=asc&filtertype_0=type&filter_relational_operator_0=equals&filter_0=Thesis')
+
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))        
 
 prerecs = []
 artlinks = []
@@ -114,7 +124,10 @@ for (i, rec) in enumerate(prerecs):
     else:
         rec['autaff'][-1].append(publisher)
     if keepit:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('  already in backup')
+        else:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
