@@ -17,9 +17,18 @@ startyear = ejlmod3.year(backwards=2)
 endyear = ejlmod3.year()
 recsperpage = 60
 pages = 6
+skipalreadyharvested = True
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-CHICAGO-%s' % (ejlmod3.stampoftoday())
+
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))        
 
 recs = []
 for page in range(pages):
@@ -32,7 +41,9 @@ for page in range(pages):
         for a in div.find_all('a', attrs = {'class' : 'title'}):
             rec['link'] = 'https://catalog.lib.uchicago.edu' + a['href']
             rec['doi'] = '20.2000/Chicago/' + re.sub('\D', '', a['href'])
-            recs.append(rec)
+            if not rec['doi'] in alreadyharvested:
+                recs.append(rec)
+    print('  %4i records so far' % (len(recs)))
 
 
 i = 0
