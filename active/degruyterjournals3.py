@@ -43,9 +43,11 @@ elif journal == 'crll':
     jnl = 'J.Reine Angew.Math.'
 elif journal == 'agms':
     jnl = 'Anal.Geom.Metr.Spaces'
+elif journal == 'cmam':
+    jnl = 'Comp.Meth.Appl.Math.'
 
 #get list of volumes
-if journal in ['kern', 'ract', 'phys', 'astro', 'crll', 'agms']:
+if journal in ['kern', 'ract', 'phys', 'astro', 'crll', 'agms', 'cmam']:
     tocurl = 'https://www.degruyter.com/journal/key/%s/%s/%s/html' % (journal.upper(), vol, iss)
 else:
     tocurl = "%s/view/j/%s.%s.%s.issue-%s/issue-files/%s.%s.%s.issue-%s.xml" % (urltrunc, journal, year, vol, iss, journal, year, vol, iss)        
@@ -57,12 +59,13 @@ tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookiePro
 recs = []
 i = 0
 #for h4 in tocpage.find_all('h4'):
-for div in tocpage.find_all('div', attrs = {'class' : 'resultTitle'}):
+titledivs = tocpage.find_all('div', attrs = {'class' : 'resultTitle'})
+for div in titledivs:
     for a in div.find_all('a'):        
         if a.has_attr('href'):
             i += 1
             vollink = 'https://www.degruyter.com' + a['href']
-            print(i, vollink)
+            ejlmod3.printprogress('-', [[i, len(titledivs)], [vollink]])
             rec = {'tc' : 'P', 'jnl' : jnl, 'year' : year, 'vol' : vol, 'issue' : iss, 'autaff' : [],
                    'auts' : [], 'aff' : [], 'keyw' : [], 'pacs' : []}
             #title
