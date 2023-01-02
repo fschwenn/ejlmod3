@@ -8,6 +8,7 @@ import sys
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
+import os
 import ejlmod3
 import time
 
@@ -15,6 +16,9 @@ publisher = 'Munich, Tech. U.'
 jnlfilename = 'THESES-TUM-%s' % (ejlmod3.stampoftoday())
 rpp = 100
 years = 2
+skipalreadyharvested = True
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+
 boring = ['Fakultät für Sport- und Gesundheitswissenschaften']
 boring += ['CHE Chemie', 'BAU 550', 'BAU 650', 'BAU 650', 'UMW 300', 'BAU 651', 'BAU 900', 'BAU 950',
            'BAU Bauingenieurwesen, Vermessungswesen', 'GEO Geowissenschaften',
@@ -47,6 +51,13 @@ boring += ['ARC 045', 'ARC 165', 'ARC 279', 'ARC 370', 'ARC Architektur', 'BAU 0
            'WER 740', 'WER Werkstoffwissenschaften', 'WIR 006', 'WIR 523', 'WIR 527', 'WIR 780',
            'WIS 600', 'WIS Wissenschaftskunde']
 hdr = {'User-Agent' : 'Magic Browser'}
+
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))        
 
 prerecs = []
 links = []
@@ -222,9 +233,12 @@ for (i, rec) in enumerate(prerecs):
         for a in div.find_all('a'):
             rec['hidden'] = 'https://mediatum.ub.tum.de' + a['href']
     if keepit:
-        rec['autaff'][-1].append(publisher)
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if 'urn' in rec and rec['urn'] in alreadyharvested:
+            print('  already in backup')
+        else:
+            rec['autaff'][-1].append(publisher)
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
     time.sleep(5)
