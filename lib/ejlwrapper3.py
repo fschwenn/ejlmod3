@@ -75,13 +75,13 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 - 1]),
         (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'oe', pryear-1992, prmonth * 2]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 2]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3 - 1]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3]),
-        (1, ['aip3XXX.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'josaa', pryear-1983, prmonth]),
         (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'josab', pryear-1983, prmonth]),
@@ -157,22 +157,22 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['oxfordjournals.xml.py', 'mnras', 1 + mnrasbignumber//4, mnrasbignumber % 4 + 1, 'in_progress']),
         (1, ['mdpi.sftp.py', 'physics']),
         (1, ['oxfordjournals.xml.py', 'mnras', 1 + (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1, 'in_progress']),
-        (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+1, 4*(prmonth-1)+2)]), #Cloudflare -> HAL
+        (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+1, 4*(prmonth-1)+2)]), #Cloudflare -> l00schwenn
         (1, ['oxfordjournals.xml.py', 'mnras', 1 + (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1, 'in_progress']),
         (1, ['mdpi.sftp.py', 'condensedmatter']),
         (1, ['oxfordjournals.xml.py', 'mnrasl', 1 + mnrasbignumber//4, '1', 'in_progress']),
-        (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+3, 4*(prmonth-1)+4)]), #Cloudflare -> HAL
+        (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+3, 4*(prmonth-1)+4)]), #Cloudflare -> l00schwenn
         (12, ['annualreview3.py', 'arcmp', pryear-2009]),
         (2, ['theses-kit_etp.py']),
         (1, ['mdpi.sftp.py', 'atoms']),
         (3, ['spie_journal.py', 'jatis', pryear-2014, prquarter]),
         (3, ['messenger.py', 4*pryear + prquarter - 7902 - 2]),
-        (1, ['sciencemag3.py', 'science', pryear]),
+        (111, ['sciencemag3.py', 'science', pryear]), #Cloudflare -> l00schwenn
         (2, ['theses-unesp3.py']),
-        (1, ['sciencemag3.py', 'sciadv', pryear]),
+        (111, ['sciencemag3.py', 'sciadv', pryear]), #Cloudflare -> l00schwenn
         (2, ['theses-eth3.py']),
-        (2, ['theses-hub.py']),
-        (2, ['theses-mit.py']),
+        (2, ['theses-hub3.py']),
+        (2, ['theses-mit3.py']),
         (1, ['theses-unibo3.py']),
         (1, ['theses-heidelberg3.py']),
         (1, ['theses-rutgers3.py']),
@@ -181,8 +181,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-tum3.py']),
         (2, ['theses-goettingen3.py']),
         (2, ['theses-waterloo3.py']),
-        (2, ['theses-princeton.py']),
-        (2, ['theses-capetown.py']),
+        (2, ['theses-princeto3.py']),
+        (2, ['theses-capetown3.py']),
         (1, ['sciencemag3.py', 'science', pryear]),
         (1, ['theses-uam.py']),
         (2, ['theses-durham.py']),
@@ -194,7 +194,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-kyoto.py']),
         (1, ['theses-narcis3.py']),
         (2, ['theses-tud.py']),
-        (1, ['theses-surrey.py']),
+        (1, ['theses-surrey3.py']),
         (2, ['theses-lmu.py']),
         (1, ['theses-regensburg.py']),
         (2, ['theses-saopaulo.py']),
@@ -265,8 +265,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-italy3.py', 'milanbicocca']),
         (3, ['theses-adelaide.py']),
         (2, ['theses-glasgow.py']),
-        (2, ['theses-siegen.py']),
-        (2, ['theses-basel.py']),
+        (2, ['theses-siegen3.py']),
+        (2, ['theses-basel3.py']),
         (2, ['theses-britishcolumbia3.py']),
         (1, ['theses-bonn2.py', pryear]),
         (2, ['theses-granada.py']),
@@ -279,7 +279,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-purdue.py']),
         (1, ['theses-columbia3.py']),
         (1, ['theses-tel.py']),
-        (2, ['theses-sussex.py']),
+        (2, ['theses-sussex3.py']),
         (2, ['theses-federicosantamaria.py']),
         (2, ['theses-hannover.py']),
         (2, ['theses-stonybrook.py']), #2017 eingeschlafen, https://commons.library.stonybrook.edu/ not yet ready?
@@ -297,7 +297,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-minnesota3.py']),
         (2, ['oxfordjournals.xml.py', 'astrogeo', pryear-1959, prsixth]),
         (2, ['theses-indiana.py']),
-        (1, ['theses-alberta.py']),
+        (1, ['theses-alberta3.py']),
         (2, ['theses-mississippi.py']),
         (3, ['theses-vtech.py']),
         (3, ['theses-vcommonwealth.py']),
@@ -510,7 +510,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-louisianatech3.py']),
         (3, ['theses-minho3.py']),
         (3, ['theses-island3.py']),
-        (2, ['theses-calgary3.py'])]
+        (2, ['theses-calgary3.py']),
+        (2, ['theses-alveiro3.py'])]
 
 
 if prmonth == 12:
@@ -549,10 +550,10 @@ if (today.day % 3 == 0):
     listofcommands.append(['wsp.xml2.py'])
     prfil.write(' - wsp.xml2.py\n')
 elif (today.day % 3 == 1):
-    listofcommands.append(['ieee_wrapper3.py'])
-    prfil.write(' - ieee_wrapper3.py\n')
+    listofcommands.append(['ieee_wrapper3XXX.py'])
+    prfil.write(' - ieee_wrapper3XXX.py\n')
 elif (today.day % 3 == 2):
-    listofcommands.append(['hindawi.py', '-ftp'])
+    listofcommands.append(['hindawi3.py', '-ftp'])
     prfil.write(' - hindawi3.py\n')
 #harvest PubDB each week
 if (today.weekday() == 0):
