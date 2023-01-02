@@ -11,18 +11,19 @@ import time
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 import random
-
+import cloudscraper
 
 publisher = 'American Association for the Advancement of Science'
 jnl = sys.argv[1]
 year = sys.argv[2]
 
 
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-driver = uc.Chrome(version_main=103, options=options)
+#options = uc.ChromeOptions()
+#options.headless=True
+#options.binary_location='/usr/bin/chromium-browser'
+#options.add_argument('--headless')
+#driver = uc.Chrome(version_main=103, options=options)
+scraper = cloudscraper.create_scraper()
 
 
 
@@ -36,8 +37,9 @@ def getissuenumbers(jnl, year):
     tocurl = 'https://%s.sciencemag.org/content/by/year/%s' % (jnl, year)
     tocurl = 'https://www.science.org/loi/%s/group/y%s' % (jnl, year)
     print(tocurl)
-    driver.get(tocurl)
-    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    #driver.get(tocurl)
+    #tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
     for a in tocpage.find_all('a', attrs = {'class' : 'd-flex'}):
             vol = re.sub('.*[a-z]\/(\d+).*', r'\1', a['href'])
             issue = re.sub('.*\/(\d+).*', r'\1', a['href'])
@@ -69,9 +71,10 @@ def getdone():
 def harvestissue(jnl, vol, issue):
     tocurl = 'https://www.science.org/toc/%s/%s/%s' % (jnl, vol, issue)
     print("   get table of content of %s %s.%s via %s ..." % (jnlname, vol, issue, tocurl))
-    driver.get(tocurl)
-    tocpage = BeautifulSoup(driver.page_source, features="lxml")
-    recs = []
+    #driver.get(tocurl)
+    #tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
+    prerecs = []
     for sct in tocpage.find_all('section', attrs = {'class' : 'toc__section'}):
         for h4 in sct.find_all('h4'):
             scttit = h4.text.strip()
@@ -82,31 +85,40 @@ def harvestissue(jnl, vol, issue):
                       'Social and Interdisciplinary Sciences', 'Biomedicine and Life Sciences']:
             print('      skip', scttit)
         else:
+            print('          ', scttit)
             for h3 in sct.find_all('h3'):
                 for a in h3.find_all('a'):
                     rec = {'tc' : 'P', 'jnl' : jnlname, 'vol' : vol, 'issue' : issue,
                            'year' : year, 'autaff' : [], 'note' : [scttit], 'refs' : []}
                     rec['artlink'] = 'https://www.science.org%s' % (a['href'])
-                    recs.append(rec)
+                    prerecs.append(rec)
     #check article pages
     i = 0
-    for rec in recs:
+    recs = []
+    for rec in prerecs:
         i += 1
-        sleepingtime = random.randint(100, 300)
-        ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']], ['%isec' % (sleepingtime)]])
+        sleepingtime = random.randint(30, 150)
+        ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], ['%isec' % (sleepingtime)], [len(recs)]])
         try:
             time.sleep(sleepingtime)
-            driver.get(rec['artlink'])
-            artpage = BeautifulSoup(driver.page_source, features="lxml")
+            #driver.get(rec['artlink'])
+            #artpage = BeautifulSoup(driver.page_source, features="lxml")
+            artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
         except:
             print("retry in 900 seconds")
             time.sleep(900)
-            driver.get(rec['artlink'])
-            artpage = BeautifulSoup(driver.page_source, features="lxml")
+            #driver.get(rec['artlink'])
+            #artpage = BeautifulSoup(driver.page_source, features="lxml")
+            artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
         #DOI
         rec['doi'] = re.sub('.*?(10\.\d+\/)', r'\1', rec['artlink'])
         #meta-tags
         ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Date'])
+        if 'tit' in rec:
+            if rec['tit'] in ['In Science Journals']:
+                continue
+        else:
+            print(artpage.text)    
         #pages
         for meta in artpage.find_all('meta', attrs = {'name' : 'dc.Identifier'}):
             if meta.has_attr('scheme'):
@@ -150,6 +162,7 @@ def harvestissue(jnl, vol, issue):
                     a.decompose()
             rec['refs'].append([('x', div.text.strip())])
         ejlmod3.printrecsummary(rec)
+        recs.append(rec)
     return recs
 
 
@@ -166,4 +179,4 @@ for (vol, issue) in todo:
     recs = harvestissue(jnl, vol, issue)
     jnlfilename = '%s%s.%s' % (re.sub('\.', '', jnlname.lower()), vol, issue)
     ejlmod3.writenewXML(recs, publisher, jnlfilename)
-driver.quit()
+
