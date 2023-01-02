@@ -25,7 +25,7 @@ if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.headless=True
     options.add_argument('--headless')
-    driver = uc.Chrome(version_main=106, options=options)
+    driver = uc.Chrome(version_main=108, options=options)
     tmpdir = '/home/schwenn/tmp'
 else:
     options = uc.ChromeOptions()
