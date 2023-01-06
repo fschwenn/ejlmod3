@@ -36,7 +36,7 @@ for (dep, degree) in [('3', 'phd'), ('6', 'habilitation')]:
         time.sleep(10)
 
     for (i, rec) in enumerate(prerecs):
-        if not ejlmod3.ckeckinterestingDOI(rec['link']):
+        if not ejlmod3.checkinterestingDOI(rec['link']):
             continue
         ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['link']], [len(recs)]])
         try:

@@ -38,7 +38,7 @@ for dep in ['Department+Physik', 'Department+Mathematik', 'Naturwissenschaftlich
                     rec['fc'] = 'm'
                 if rec['link'] in links:
                     print('  already in list')
-                elif ejlmod3.ckeckinterestingDOI(rec['link']):
+                elif ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
                     links.append(rec['link'])
         print(' %i records so far' % (len(prerecs)))

@@ -47,7 +47,7 @@ for (dep, fc) in departments:
                         rec = {'tc' : 'T', 'jnl' : 'BOOK'}
                         rec['artlink'] = 'https://nemertes.library.upatras.gr/items/' + identifier
                         if fc: rec['fc'] = fc
-                        if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                        if ejlmod3.checkinterestingDOI(rec['artlink']):
                             prerecs.append(rec)
         print('   %3i records so far' % (len(prerecs)))
         sleep(5)

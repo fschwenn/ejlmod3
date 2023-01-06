@@ -218,7 +218,7 @@ undepartments = ['Department of Mechanical Engineering Sciences',
 
 def get_sub_side(asset):
     url = "https://openresearch.surrey.ac.uk/esplorows/rest/research/fullAssetPage/assets/"+str(asset['id'])+"?institution=44SUR_INST&language=en"
-    if not ejlmod3.ckeckinterestingDOI(url):
+    if not ejlmod3.checkinterestingDOI(url):
         return
     ejlmod3.printprogress('-', [[url], [len(recs)]])
     request = urllib.request.Request(url)

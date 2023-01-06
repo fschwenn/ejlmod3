@@ -72,7 +72,7 @@ for page in range(pages):
             for a in h4.find_all('a'):
                 rec['link'] = 'https://repository.asu.edu' + a['href']
                 rec['artlink'] = 'https://keep.lib.asu.edu' + a['href'] + '?_format=mods'
-                if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                if ejlmod3.checkinterestingDOI(rec['artlink']):
                     prerecs.append(rec)
     print('    %i' % (len(prerecs)))
     for a in tocpage.find_all('a', attrs = {'class' : 'page-link', 'title' : 'Go to last page'}):

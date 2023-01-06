@@ -172,7 +172,7 @@ for page in tocpages:
                 rec['mxdlink'] = reclicksplit.sub(r'https://forskningsportal.dk/local/dki-cgi/ws/mxd/\1', div['onclick'])
                 rec['link'] = reclicksplit.sub(r'https://forskningsportal.dk/local/dki-cgi/ws/cris-link?src=au&id=\1', div['onclick'])
                 rec['tit'] = div.text
-                if ejlmod3.ckeckinterestingDOI(rec['mxdlink']):
+                if ejlmod3.checkinterestingDOI(rec['mxdlink']):
                     prerecs.append(rec)
 
 #enrich records

@@ -75,7 +75,7 @@ for year in years:
                         if concept in boring:
                             print(concept)
                             ejlmod3.adduninterestingDOI(rec['doi'])
-                if ejlmod3.ckeckinterestingDOI(['doi']):
+                if ejlmod3.checkinterestingDOI(['doi']):
                     prerecs.append(rec)
 
 i = 0

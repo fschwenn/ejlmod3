@@ -43,7 +43,7 @@ for page in range(pages):
                 rec['tit'] = a.text.strip()
                 if 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
                     pass
-                elif ejlmod3.ckeckinterestingDOI(rec['link']):
+                elif ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
 

@@ -174,7 +174,7 @@ for (j, tocurl) in enumerate(tocurls):
                         if rec['link'] in problematicurls:
                             keepit = False
         if keepit and 'doi' in rec:
-            if ejlmod3.ckeckinterestingDOI(rec['doi']):
+            if ejlmod3.checkinterestingDOI(rec['doi']):
                 prerecs.append(rec)
 
 for (i, rec) in enumerate(prerecs):

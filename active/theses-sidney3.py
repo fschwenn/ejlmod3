@@ -85,7 +85,7 @@ for j in range(pages):
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://ses.library.usyd.edu.au'):
-        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+        if ejlmod3.checkinterestingDOI(rec['hdl']):
             prerecs.append(rec)
     print('        %4i' % (len(prerecs)))
     time.sleep(10)

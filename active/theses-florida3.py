@@ -161,7 +161,7 @@ for page in range(pages):
                     #marc xml works only for some records
                     rec['artlink'] =  re.sub('^\/(..)(..)(..)(..)(..)\/(.*)\/citation', r'https://ufdcimages.uflib.ufl.edu/\1/\2/\3/\4/\5/\6/marc.xml', a['href'])
                     rec['doi'] = '20.2000/FloridaU' + re.sub('\/citation', '', a['href'])
-                    if ejlmod3.ckeckinterestingDOI(rec['doi']):
+                    if ejlmod3.checkinterestingDOI(rec['doi']):
                         prerecs.append(rec)
     except:
         print(' could not load "%s"' % (tocurl))

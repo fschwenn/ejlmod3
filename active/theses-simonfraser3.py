@@ -33,7 +33,7 @@ for (dep, fc, aff) in [('30012', 'c', publisher), ('30034', 'm', publisher), ('3
                 rec['link'] = 'https://summit.sfu.ca' + a['href']
                 rec['doi'] = '20.2000/SimonFraser' + a['href']
                 if fc: rec['fc'] = fc
-                if ejlmod3.ckeckinterestingDOI(rec['doi']):
+                if ejlmod3.checkinterestingDOI(rec['doi']):
                     prerecs.append(rec)
 
 i = 0

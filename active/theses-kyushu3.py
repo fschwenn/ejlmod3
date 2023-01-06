@@ -45,7 +45,7 @@ for page in range(pages):
                     for a in div.find_all('a'):
                         rec['artlink'] = 'https://catalog.lib.kyushu-u.ac.jp' + a['href']
                         rec['hdl'] = re.sub('.*bibid=(\d+).*', r'2324/\1', a['href'])
-                    if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                    if ejlmod3.checkinterestingDOI(rec['hdl']):
                         prerecs.append(rec)
     time.sleep(2)
         

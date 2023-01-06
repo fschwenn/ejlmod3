@@ -23,7 +23,7 @@ refcq = re.compile('Física')
 recs = []
 
 def get_sub_site(url, session_var):
-    if ejlmod3.ckeckinterestingDOI(url):
+    if ejlmod3.checkinterestingDOI(url):
         print('[%s] --> Harvesting data' % url)
     else:
         return

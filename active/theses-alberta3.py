@@ -92,7 +92,7 @@ for page in range(pages):
         for h3 in div.find_all('h3'):
             for a in h3.find_all('a'):
                 rec['artlink'] = 'https://era.library.ualberta.ca' + a['href']
-                if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                if ejlmod3.checkinterestingDOI(rec['artlink']):
                     prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
     time.sleep(5)

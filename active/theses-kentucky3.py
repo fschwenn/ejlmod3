@@ -46,7 +46,7 @@ for div in tocpage.body.find_all('div', attrs = {'id' : 'series-home'}):
                         rec['tit'] = a.text.strip()
                         rec['artlink'] = a['href']
                         a.replace_with('')
-                    if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                    if ejlmod3.checkinterestingDOI(rec['artlink']):
                         prerecs.append(rec)
 
 i = 0

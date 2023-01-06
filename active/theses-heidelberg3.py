@@ -86,7 +86,7 @@ for p in ps:
         if re.search('\(\d\d\d\d\)', pt):
             rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
             if rec['date'] in years:
-                if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                if ejlmod3.checkinterestingDOI(rec['artlink']):
                     prerecs.append(rec)
 
 i = 0

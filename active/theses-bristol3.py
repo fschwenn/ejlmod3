@@ -82,7 +82,7 @@ for year in years:
                     rec['link'] = a['href']
                     rec['tit'] = a.text.strip()
                     rec['doi'] = '20.2000/Bristol/' + re.sub('\W', '', a['href'])[41:]
-                    if ejlmod3.ckeckinterestingDOI(rec['doi']):
+                    if ejlmod3.checkinterestingDOI(rec['doi']):
                         prerecs.append(rec)
 
 i = 0

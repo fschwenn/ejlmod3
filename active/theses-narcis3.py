@@ -157,7 +157,7 @@ for year in [str(ejlmod3.year()), str(ejlmod3.year(backwards=1))]:
                     if regenre.sub('', ihttp) in bereitsin:
                         #print('   skip %s' % (rec['artlink']))
                         pass
-                    elif ejlmod3.ckeckinterestingDOI(rec['identifier']):
+                    elif ejlmod3.checkinterestingDOI(rec['identifier']):
                         recs.append(rec)
                         bereitsin.append(ihttp)
         time.sleep(10)

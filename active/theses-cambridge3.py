@@ -53,7 +53,7 @@ for tocurl in tocurls:
             for a in h4.find_all('a'):
                 rec['tit'] = a.text.strip()
                 rec['artlink'] = 'https://www.repository.cam.ac.uk' + a['href']
-                if ejlmod3.ckeckinterestingDOI(rec['artlink']) and not rec['artlink'] in artlinks:
+                if ejlmod3.checkinterestingDOI(rec['artlink']) and not rec['artlink'] in artlinks:
                     prerecs.append(rec)
                     artlinks.append(rec['artlink'])
 

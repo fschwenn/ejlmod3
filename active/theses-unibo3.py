@@ -79,7 +79,7 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             span.replace_with('')    
         for a in p.find_all('a'):
             rec['artlink'] =  a['href']
-            if keepit and ejlmod3.ckeckinterestingDOI(rec['artlink']):                
+            if keepit and ejlmod3.checkinterestingDOI(rec['artlink']):                
                 prerecs.append(rec)
     i = 0
     recs = []

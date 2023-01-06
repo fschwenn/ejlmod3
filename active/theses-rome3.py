@@ -61,7 +61,7 @@ for page in range(numofpages):
             rec['link'] = 'https://iris.uniroma1.it' + a['href']
             rec['hdl'] = re.sub('\/handle\/', '', a['href'])
             rec['tit'] = a.text.strip()
-            if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+            if ejlmod3.checkinterestingDOI(rec['hdl']):
                 prerecs.append(rec)
             
 j = 0

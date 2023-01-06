@@ -38,7 +38,7 @@ for dep in deps:
     i += 1
     
 for (i, rec) in enumerate(recs):
-    if not ejlmod3.ckeckinterestingDOI(rec['link']):
+    if not ejlmod3.checkinterestingDOI(rec['link']):
         continue
     ejlmod3.printprogress('-', [[i+1, len(recs)], [rec['link']]])
     try:

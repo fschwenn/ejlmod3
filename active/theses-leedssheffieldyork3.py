@@ -131,7 +131,7 @@ for i in range(pages):
                             rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'note' : []}
                             rec['link'] = a['href']
                             rec['doi'] = '20.2000/' + re.sub('\W', '', a['href'])
-                            if ejlmod3.ckeckinterestingDOI(rec['doi']) and not rec['doi'] in dois:
+                            if ejlmod3.checkinterestingDOI(rec['doi']) and not rec['doi'] in dois:
                                 prerecs.append(rec)
                                 dois.append(rec['doi'])
 

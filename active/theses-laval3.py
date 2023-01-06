@@ -95,7 +95,7 @@ for page in range(pages):
             for a in li.find_all('a', attrs = {'class' : 'item-list-title'}):
                 rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
                 rec['link'] = 'https://corpus.ulaval.ca' + a['href']  + '/full'
-                if ejlmod3.ckeckinterestingDOI(rec['link']):
+                if ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
         print('                     %3i records so far' % (len(prerecs)))
         time.sleep(6)

@@ -83,7 +83,7 @@ for qiskeyword in ["quantum computing", "quantum computer", "qubit", "quantum in
                 rec['doi'] = s.text
             for date in doc.find_all('date', attrs = {'name' : 'publication_date'}):
                 rec['date'] = date.text
-            if not rec['doi'] in dois and ejlmod3.ckeckinterestingDOI(rec['doi']):
+            if not rec['doi'] in dois and ejlmod3.checkinterestingDOI(rec['doi']):
                 dois.append(rec['doi'])
                 prerecs.append(rec)
         print('   %4i records so far' % (len(prerecs)))
@@ -125,7 +125,7 @@ for (sec, baseurl, pages, fc) in baseurls:
                     seccount += 1
                     #rec['note'] = [ 'SECCOUNT(%s) = %5i' % (sec, seccount) ]
                     newdois.append(rec['doi'])
-                    if not rec['doi'] in dois and ejlmod3.ckeckinterestingDOI(rec['doi']):
+                    if not rec['doi'] in dois and ejlmod3.checkinterestingDOI(rec['doi']):
                         dois.append(rec['doi'])
                         prerecs.append(rec)
         print('   %4i records so far' % (len(prerecs)))

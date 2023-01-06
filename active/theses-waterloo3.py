@@ -68,7 +68,7 @@ for page in range(pages):
                     rec['fc'] = 'k'
                 elif degree in ['Applied+Mathematics+%28Quantum+Information%29']:
                     rec['fc'] = 'km'
-        if keepit and ejlmod3.ckeckinterestingDOI(rec['hdl']):
+        if keepit and ejlmod3.checkinterestingDOI(rec['hdl']):
             recs.append(rec)
         else:
             ejlmod3.adduninterestingDOI(rec['hdl'])

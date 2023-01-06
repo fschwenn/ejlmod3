@@ -76,7 +76,7 @@ for i in range(pages):
                             rec['tit'] = a.text.strip()
                             rec['artlink'] = a['href']
                             a.replace_with('')
-                        if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                        if ejlmod3.checkinterestingDOI(rec['artlink']):
                             prerecs.append(rec)
     print('  ', len(prerecs))
     tocextension = '%i.html' % (i+2)

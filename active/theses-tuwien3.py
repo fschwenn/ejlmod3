@@ -54,7 +54,7 @@ for page in range(pages):
                     rec['oa'] = True
                 if not rec['hdl'] in hdls:
                     hdls.append(rec['hdl'])
-                    if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                    if ejlmod3.checkinterestingDOI(rec['hdl']):
                         prerecs.append(rec)
                         
     print('   %4i records so far' % (len(prerecs)))

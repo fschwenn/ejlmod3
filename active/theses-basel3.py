@@ -108,7 +108,7 @@ for i in range(pagestocheck):
                 #print(' skip %s' % (reason[0]))
                 keep = False
                 break
-        if keep and ejlmod3.ckeckinterestingDOI(rec['artlink']):
+        if keep and ejlmod3.checkinterestingDOI(rec['artlink']):
             prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
 

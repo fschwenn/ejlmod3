@@ -98,7 +98,7 @@ for page in range(pages):
         article_link = article.find_all('a')
         if len(article_link) == 1:
             url = 'https://repositorioinstitucional.buap.mx%s?show=all' % article_link[0].get('href')
-            if ejlmod3.ckeckinterestingDOI(url):
+            if ejlmod3.checkinterestingDOI(url):
                 get_sub_site(url)
                 sleep(4)
     sleep(10)

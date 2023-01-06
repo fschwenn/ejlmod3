@@ -91,7 +91,7 @@ for page in range(pages):
                 if re.search('[12]\d\d\d', td.text):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', td.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
-                        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                        if ejlmod3.checkinterestingDOI(rec['hdl']):
                             prerecs.append(rec)
                 else:
                     print('(YEAR?)', td.text)
@@ -105,7 +105,7 @@ for page in range(pages):
                 if re.search('[12]\d\d\d', p.text):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', p.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
-                        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+                        if ejlmod3.checkinterestingDOI(rec['hdl']):
                             prerecs.append(rec)
                 else:
                     print('(YEAR?)', p.text)
@@ -118,7 +118,7 @@ for rec in prerecs:
     interesting = True
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
-    if not ejlmod3.ckeckinterestingDOI(rec['hdl']):
+    if not ejlmod3.checkinterestingDOI(rec['hdl']):
         continue
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink'] + '?mode=complete'), features="lxml")

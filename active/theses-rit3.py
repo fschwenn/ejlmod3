@@ -49,7 +49,7 @@ for i in range(numofpages):
         for a in p.find_all('a'):
             rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'supervisor' : []}
             rec['link'] = a['href']
-            if ejlmod3.ckeckinterestingDOI(rec['link']):
+            if ejlmod3.checkinterestingDOI(rec['link']):
                 prerecs.append(rec)
 
 i = 0

@@ -76,7 +76,7 @@ for (fc, dep, pages) in [('c', '1691132', 1), ('m', '1691133', 1), ('', '1688930
                 rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'note' : [], 'supervisor' : []}
                 rec['link'] = re.sub('.*=', 'https://mediatum.ub.tum.de/?id=', a['href'])
             for child in div.find_all('div', attrs = {'class' : 'mediatum-stylelist-div'}):
-                if not reboring.search(child.text) and ejlmod3.ckeckinterestingDOI(rec['link']):
+                if not reboring.search(child.text) and ejlmod3.checkinterestingDOI(rec['link']):
                     if not rec['link'] in links:
                         for br in child.find_all('br'):
                             br.replace_with('XXXXXX')

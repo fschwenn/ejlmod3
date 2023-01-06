@@ -156,7 +156,7 @@ for i in range(len(deps)):
                             elif re.search('honors', rec['link']):
                                 if verbatim: print('  honors %s' % (a['href']))
                                 keepit = False                                          
-                            elif ejlmod3.ckeckinterestingDOI(rec['link']):
+                            elif ejlmod3.checkinterestingDOI(rec['link']):
                                 if verbatim: print('     ->  %s (%s)' % (a['href'], baseurl))
                                 rec['note'].append('BASEURL=%s' % (baseurl))
                                 rec['baseurl'] = baseurl

@@ -45,7 +45,7 @@ for page in range(pages):
             rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'note' : [], 'supervisor' : []}
             for a in div2.find_all('a'):
                 rec['artlink'] = 'https://hss-opus.ub.ruhr-uni-bochum.de' + a['href']
-                if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                if ejlmod3.checkinterestingDOI(rec['artlink']):
                     prerecs.append(rec)
     time.sleep(10)
 

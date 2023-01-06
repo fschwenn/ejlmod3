@@ -100,7 +100,7 @@ recs = []
 
 def get_sub_site(url, sess):
     keepit = True
-    if not ejlmod3.ckeckinterestingDOI(url):
+    if not ejlmod3.checkinterestingDOI(url):
         print('                   ', url)
         return
     rec = {'tc': 'T', 'jnl': 'BOOK', 'supervisor': [], 'note' : [], 'link' : url}

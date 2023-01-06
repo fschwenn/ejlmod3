@@ -28,7 +28,7 @@ recs = []
 
 def get_sub_site(url):
     rec = {'link': url, 'tc': 'T', 'jnl': 'BOOK', 'autaff' : [], 'keyw' : [], 'supervisor' : []}
-    if not ejlmod3.ckeckinterestingDOI(url):
+    if not ejlmod3.checkinterestingDOI(url):
         return
     print(url)
     driver.get(url)

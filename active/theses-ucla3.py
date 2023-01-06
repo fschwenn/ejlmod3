@@ -179,7 +179,7 @@ for i in range(numberofpages):
                     rec['tit'] = a.text.strip()
                     if rec['artlink'] in problematiclinks:
                         print(' link "%s" is problematic' % (rec['artlink']))
-                    elif ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                    elif ejlmod3.checkinterestingDOI(rec['artlink']):
                         recs.append(rec)
                         count[0] += 1
                     else:
@@ -201,7 +201,7 @@ for i in range(numberofpages):
                     break
             if rec['artlink'] in problematiclinks:
                 print(' link "%s" is problematic' % (rec['artlink']))
-            elif ejlmod3.ckeckinterestingDOI(rec['artlink']):
+            elif ejlmod3.checkinterestingDOI(rec['artlink']):
                 recs.append(rec)
                 count[0] += 1
             else:

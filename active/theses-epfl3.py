@@ -55,7 +55,7 @@ for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
             rec = {'tc' : 'T', 'jnl' : 'BOOK', 'year' : str(year), 'keyw' : [], 'inst' : '', 'date' : str(year), 'supervisor' : [], 'note' : []}
             rec['artlink'] = 'https://infoscience.epfl.ch' + a['href']
             rec['tit'] = a.text.strip()
-            if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+            if ejlmod3.checkinterestingDOI(rec['artlink']):
                 if reharvest or not rec['artlink'] in bereitsin:
                     prerecs.append(rec)
                 

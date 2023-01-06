@@ -133,7 +133,7 @@ def extract_links(content: str, prafix: str):
 hdr = {'User-Agent' : 'Magic Browser'}
 def get_sub_site(url, sess):
     print("[{}] --> Harvesting data".format(url))
-    if ejlmod3.ckeckinterestingDOI(url):
+    if ejlmod3.checkinterestingDOI(url):
         keepit = True
         req = urllib.request.Request(url, headers=hdr)
         soup = BeautifulSoup(urllib.request.urlopen(req), features="lxml")

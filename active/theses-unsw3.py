@@ -36,7 +36,7 @@ jnlfilename = 'THESES-UNSW-%sE' % (ejlmod3.stampoftoday())
 recs = []
 
 def normal_get_sub_site(url, sess):
-    if not ejlmod3.ckeckinterestingDOI(url):
+    if not ejlmod3.checkinterestingDOI(url):
         return
     print('[%s] --> Harvesting data' % url)
     data_resp = sess.get(url)

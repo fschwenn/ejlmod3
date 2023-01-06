@@ -157,7 +157,7 @@ for page in range(pages):
                     keepit = False
                 else:
                     rec['note'].append(dep)
-        if keepit and ejlmod3.ckeckinterestingDOI(rec['link']):
+        if keepit and ejlmod3.checkinterestingDOI(rec['link']):
             prerecs.append(rec)
         elif rec:
             ejlmod3.adduninterestingDOI(rec['link'])

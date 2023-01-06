@@ -25,7 +25,7 @@ for i in range(numofpages):
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://prism.ucalgary.ca'):
-        if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+        if ejlmod3.checkinterestingDOI(rec['hdl']):
             keepit = True            
             if 'degrees' in rec:
                 for deg in rec['degrees']:

@@ -108,7 +108,7 @@ for page in range(pages):
                         keepit = False
         for a in div.find_all('a'):            
             rec['artlink'] = 'https://rucore.libraries.rutgers.edu' + a['href']
-            if ejlmod3.ckeckinterestingDOI(rec['artlink']) and keepit:
+            if ejlmod3.checkinterestingDOI(rec['artlink']) and keepit:
                 prerecs.append(rec)
     print('     %i/%i/%i records so far' % (len(prerecs), (page+1)*rpp, pages*rpp))
 

@@ -29,7 +29,7 @@ for i in range(pages):
             rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [], 'keyw_de' : []}
             for a in td.find_all('a'):
                 rec['link'] = 'https://dspace.ub.uni-siegen.de' + a['href'] #+ '?show=full'
-                if ejlmod3.ckeckinterestingDOI(rec['link']):
+                if ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
     time.sleep(15)
 

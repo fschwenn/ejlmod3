@@ -235,7 +235,7 @@ for i in range(pages):
                 rec['xml'] = record
                 rec['identifier'] = rec['xml'].header.identifier.text
                 if not rec['identifier'] in bereitsin:
-                    if ejlmod3.ckeckinterestingDOI(rec['identifier']):
+                    if ejlmod3.checkinterestingDOI(rec['identifier']):
                         recs.append(rec)
     print('   ', len(recs))
     if len(recs) >= bunchlength:

@@ -183,7 +183,7 @@ for page in range(pages):
                             rec['tit'] = a.text.strip()
                             rec['artlink'] = a['href']
                             a.replace_with('')
-                        if ejlmod3.ckeckinterestingDOI(rec['artlink']):
+                        if ejlmod3.checkinterestingDOI(rec['artlink']):
                             prerecs.append(rec)
     tocurl = 'https://academicworks.cuny.edu/gc_etds/index.%i.html' % (page+2)
     print('  %i recs so far' % (len(prerecs)))

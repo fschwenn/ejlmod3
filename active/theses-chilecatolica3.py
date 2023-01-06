@@ -37,7 +37,7 @@ with Session() as session:
             articles = loads(resp.content.decode('utf-8')).get('response').get('docs')
             for article in articles:
                 keepit = True
-                if ejlmod3.ckeckinterestingDOI(article.get('handle')):
+                if ejlmod3.checkinterestingDOI(article.get('handle')):
                     sub_link = 'https://repositorio.uc.cl/assets/php/ficha.php?handle=' + article.get('handle')
                 else:
                     continue

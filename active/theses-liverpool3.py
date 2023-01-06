@@ -122,7 +122,7 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
                 rec['tit'] = a.text.strip()
                 a.replace_with('XXX')
                 pt = re.sub('.*XXX', '', re.sub('[\n\r\t]', '', p.text.strip()))
-                if not reboring.search(pt) and ejlmod3.ckeckinterestingDOI(rec['link']):
+                if not reboring.search(pt) and ejlmod3.checkinterestingDOI(rec['link']):
                     rec['note'] = [ pt ]
                     prerecs.append(rec)
 
