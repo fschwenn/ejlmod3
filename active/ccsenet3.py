@@ -64,4 +64,4 @@ for li in tocpage.body.find_all('li', attrs = {'class' : 'h5'}):
                                             'citation_lastpage', 'citation_pdf_url'])
         recs.append(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
