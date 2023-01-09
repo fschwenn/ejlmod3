@@ -55,13 +55,13 @@ python = {'python3' : '/home/library/.virtualenvs/inspire3-python3.8/bin/python'
 
 #list of harvesters
 #entries: (after how many months it should run next time, [program, argument1, argument2])
-jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
-        (1, ['aip3XXX.py', 'pto', pryear-1947, prmonth]),
+jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
+        (1, ['aip3.py', 'pto', pryear-1947, prmonth]),
         (6, ['theses-bogota3.py']),
-        (1, ['aip3XXX.py', 'jmp', pryear-1959, prmonth]),
-        (3, ['aip3XXX.py', 'aqs', pryear-2018, prquarter]),
+        (1, ['aip3.py', 'jmp', pryear-1959, prmonth]),
+        (3, ['aip3.py', 'aqs', pryear-2018, prquarter]),
         (3, ['theses-bristol3.py']),
-        (3, ['aip3XXX.py', 'chaos', pryear-1990, prquarter]),
+        (3, ['aip3.py', 'chaos', pryear-1990, prquarter]),
         (2, ['aip3XXX.py', 'jvb', pryear-1982, prsixth]),
         (1, ['aip3XXX.py', 'ltp', pryear-1974, prmonth]),
         (2, ['theses-helda3.py']),
@@ -83,13 +83,13 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['osa3.py', 'ao', pryear-1961, prmonth * 3]),
         (1, ['aip3.py', 'jcp', 2*pryear - 3888 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (1, ['osa3.py', 'josaa', pryear-1983, prmonth]),
-        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
+        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'josab', pryear-1983, prmonth]),
-        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
+        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
         (1, ['osa3.py', 'optica', pryear-2013, prmonth]),
-        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
+        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + (4*prmonth - 1) % 24]),
         (2, ['theses-oregon3.py']),
-        (1, ['aip3XXX.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
+        (1, ['aip3.py', 'jap', 2*pryear - 3913 + ((prmonth-1) // 6), 1 + 4*prmonth % 24]),
         (2, ['theses-aachen3.py']),
         (1, ['aip3XXX.py', 'ajp', pryear-1932, prmonth]),
 #        (222, ['theses-oatd.py', '0', '3']), #proteced by Claudflare
@@ -181,7 +181,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-tum3.py']),
         (2, ['theses-goettingen3.py']),
         (2, ['theses-waterloo3.py']),
-        (2, ['theses-princeto3.py']),
+        (2, ['theses-princeton3.py']),
         (2, ['theses-capetown3.py']),
         (1, ['sciencemag3.py', 'science', pryear]),
         (1, ['theses-uam.py']),
@@ -332,7 +332,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-kamiokande.py']),
         (3, ['theses-louvain.py']),
         (2, ['theses-graz.py']),
-        (2, ['theses-osaka.py']),
+        (2, ['theses-osaka3.py']),
         (3, ['theses-kingscollege.py']),
         (3, ['theses-okayama.py']),
         (2, ['theses-italy3.py', 'parma']),
@@ -411,11 +411,11 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-syracuse.py']),
         (2, ['theses-ncsu.py']),
         (3, ['theses-oviedo.py']),
-        (3, ['theses-yorkcanada.py']),
+        (3, ['theses-yorkcanada3.py']),
         (3, ['theses-alabama.py']),
         (3, ['theses-louisianastate.py']),
         (1, ['oapen.py']),
-        (3, ['theses-tsukuba.py']),
+        (3, ['theses-tsukuba3.py']),
         (3, ['theses-rice.py']),
 #        (3333, ['npreview.py', pryear, prquarter]), #zu unregulaer
         (12, ['oxfordjournals.xml.py', 'integrablesystems', pryear-2015, '1']),
@@ -442,7 +442,7 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-ljubljana.py']),
         (1, ['theses-antwerp.py']),
         (3, ['theses-conicet.py']),
-        (3, ['theses-groningen.py']),
+        (3, ['theses-groningen3.py']),
         (2, ['theses-kyushu.py']),
         (3, ['theses-ankara.py']),
         (2, ['theses-new-mexico.py']),
@@ -459,15 +459,15 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-guelph.py']),
         (1, ['theses-potsdam.py']),
         (1, ['figshare3.py', 'techrxiv']),
-        (1, ['theses-middleeasttech.py']),
+        (1, ['theses-middleeasttech3.py']),
         (3, ['theses-wigner.py']),
         (3, ['theses-zaragoza.py']),
         (3, ['theses-melbourne.py']),
         (1, ['theses-queensland.py']),
-        (3, ['theses-laval.py']),
+        (3, ['theses-laval3.py']),
         (3, ['theses-cyprus.py']),
         (2, ['theses-barcelonapolytech.py']),
-        (1, ['mitbooks.py']),
+        (1, ['mitbooks3.py']),
         (2, ['theses-puebla3.py']),
         (2, ['theses-westernaustralia3.py']),
         (2, ['theses-bergen3.py']),
@@ -511,7 +511,8 @@ jnls = [(1, ['aip3XXX.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-minho3.py']),
         (3, ['theses-island3.py']),
         (2, ['theses-calgary3.py']),
-        (2, ['theses-alveiro3.py'])]
+        (2, ['theses-alveiro3.py']),
+        (2, ['theses-santacatarina3.py'])]
 
 
 if prmonth == 12:
@@ -519,8 +520,8 @@ if prmonth == 12:
     jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 26]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 1]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 2]))
-    jnls.append((1, ['procnas3.py', pryear-1903, '49, 50']))
-    jnls.append((1, ['procnas3.py', pryear-1903, '51, 52']))
+    jnls.append((1, ['procnas3.py', pryear-1903, '49,50']))
+    jnls.append((1, ['procnas3.py', pryear-1903, '51,52']))
     jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '7']))
     jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '8']))
 if prmonth == 6:
@@ -557,7 +558,7 @@ elif (today.day % 3 == 2):
     prfil.write(' - hindawi3.py\n')
 #harvest PubDB each week
 if (today.weekday() == 0):
-    listofcommands.append(['pubdbweb.py'])
+    listofcommands.append(['pubdbweb3.py'])
     prfil.write(' - pubdbweb.py\n')
 #IOP books still old workflow, do IOP journals 6 times per week
 if (today.day % 7 == 0):
