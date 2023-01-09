@@ -1609,7 +1609,7 @@ def writeretrival(jnlfilename, retfilename='retfiles'):
 #uninteresting DOIs
 inf = open('/afs/desy.de/user/l/library/dok/ejl/uninteresting.dois', 'r')
 uninterestingDOIS = []
-newuninterestingDOIS = []
+#newuninterestingDOIS = []
 for line in inf.readlines():
     uninterestingDOIS.append(line.strip())
 inf.close()
@@ -1623,6 +1623,25 @@ def adduninterestingDOI(doi):
     ouf.write(doi + '\n')
     ouf.close()
     return
+
+
+#too old theses
+inf = open('/afs/desy.de/user/l/library/lists/tooold.dois', 'r')
+toooldDOIS = []
+for line in inf.readlines():
+    toooldDOIS.append(line.strip())
+inf.close()
+def checknewenoughDOI(doi):
+    if doi in toooldDOIS:
+        return False
+    else:
+        return True
+def addtoooldDOI(doi):
+    ouf = open('/afs/desy.de/user/l/library/lists/tooold.dois', 'a')
+    ouf.write(doi + '\n')
+    ouf.close()
+    return
+
 
 
 #standard DSPace
