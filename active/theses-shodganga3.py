@@ -230,7 +230,7 @@ for (hdl, uni, dep) in departments[kw]:
                             recs = []
                             k += 1 
                     else:
-                        print('    %i: %i is too old' % (rec['hdl'], year))
+                        print('    %s: %i is too old' % (rec['hdl'], year))
                         ejlmod3.addtoooldDOI(rec['hdl'])
                 else:
                     rec['note'].append('kein Datum')
