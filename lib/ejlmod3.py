@@ -1514,7 +1514,12 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 #fulltext
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
-                    rec['pdf_url'] = meta['content']
+                    if not re.search('[aA]bstract', meta['content']):
+                        rec['pdf_url'] = meta['content']
+                    done.append(tag)
+                #object type
+                elif tag in ['DC.type', 'dc.type', 'dc.Type', 'DC.Type']:
+                    rec['note'].append(meta['content'])
                     done.append(tag)
                 #references
                 elif tag in ['citation_reference']:
@@ -1608,7 +1613,7 @@ newuninterestingDOIS = []
 for line in inf.readlines():
     uninterestingDOIS.append(line.strip())
 inf.close()
-def ckeckinterestingDOI(doi):
+def checkinterestingDOI(doi):
     if doi in uninterestingDOIS:
         return False
     else:
@@ -1667,11 +1672,11 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     links.append(rec['link'])
                     if fakehdl:
                         rec['doi'] = '30.3000/' + re.sub('\W', '',  urltrunc) + rehdl.sub('/', a['href'])
-                        if ckeckinterestingDOI(rec['link']):
+                        if checkinterestingDOI(rec['link']):
                             recs.append(rec)
                     else:
                         rec['hdl'] = rehdl.sub('', a['href'])
-                        if ckeckinterestingDOI(rec['hdl']):
+                        if checkinterestingDOI(rec['hdl']):
                             recs.append(rec)
     print('  [getdspacerecs] %i/%i' % (len(recs), len(divs)))
     return recs
