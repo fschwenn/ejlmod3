@@ -32,6 +32,7 @@ else:
     options.headless=True
     options.binary_location='/usr/bin/chromium-browser'
     options.add_argument('--headless')
+    #options.add_argument('--proxy-server=http://vpnbook:rxtasfh@fr1.vpnbook.com')
     driver = uc.Chrome(version_main=103, options=options)
     tmpdir = '/tmp'
 
@@ -336,7 +337,8 @@ def ieee(number):
                 if 'orcid' in author:
                     autaff.append('ORCID:'+author['orcid'])
                 rec['autaff'].append(autaff)
-        if jnlname in ['IEEE Trans.Magnetics', 'IEEE Trans.Appl.Supercond.', 'IEEE J.Sel.Top.Quant.Electron.', 'IEEE Trans.Instrum.Measur.']:
+        if jnlname in ['IEEE Trans.Magnetics', 'IEEE Trans.Appl.Supercond.', 'IEEE J.Sel.Top.Quant.Electron.',
+                       'IEEE Trans.Instrum.Measur.', 'IEEE J.Quant.Electron.']:
             if 'externalId' in gdm:
                 rec['p1'] = gdm['externalId']
             elif 'articleNumber' in gdm:
