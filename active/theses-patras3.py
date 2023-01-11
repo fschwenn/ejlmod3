@@ -15,6 +15,7 @@ jnlfilename = 'THESES-PATRAS-%s' % (ejlmod3.stampoftoday())
 rpp = 100
 pages = 3
 years = 2
+skiptooold = True
 
 # Initialize webdriver
 
@@ -47,7 +48,9 @@ for (dep, fc) in departments:
                         rec = {'tc' : 'T', 'jnl' : 'BOOK'}
                         rec['artlink'] = 'https://nemertes.library.upatras.gr/items/' + identifier
                         if fc: rec['fc'] = fc
-                        if ejlmod3.checkinterestingDOI(rec['artlink']):
+                        if skiptooold and not ejlmod3.checknewenoughDOI(rec['artlink']):
+                            print('    %s too old' % (rec['artlink']))
+                        else:
                             prerecs.append(rec)
         print('   %3i records so far' % (len(prerecs)))
         sleep(5)
@@ -83,8 +86,7 @@ for (i, rec) in enumerate(prerecs):
     #check age of thesis
     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
     if int(rec['year']) <= ejlmod3.year(backwards=years):
-        #not really uninteresting but too old
-        ejlmod3.adduninterestingDOI(rec['artlink'])
+        ejlmod3.addtoooldDOI(rec['artlink'])
     else:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
