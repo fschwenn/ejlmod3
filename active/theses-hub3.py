@@ -17,6 +17,9 @@ import undetected_chromedriver as uc
 jnlfilename = 'THESES-HUB-%s' % (ejlmod3.stampoftoday())
 rpp = 50
 publisher = 'Humboldt U., Berlin'
+skipalreadyharvested = True
+skiptooold = True
+years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
 options = uc.ChromeOptions()
@@ -26,6 +29,16 @@ options.add_argument('--headless')
 driver = uc.Chrome(version_main=103, options=options)
 prerecs = []
 hdls = []
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+hdls += alreadyharvested
+    
 for (ddc, fc) in [('530+Physik', ''),  ('510+Mathematik', 'm'), ('539+Moderne+Physik', ''),
                   ('004+Informatik', 'c')]:
     tocurl = 'https://edoc.hu-berlin.de/handle/18452/2/discover?sort_by=dc.date.issued_dt&order=desc&rpp=' +str(rpp) + '&filtertype_0=subjectDDC&filter_relational_operator_0=equals&filter_0=' + ddc 
@@ -39,8 +52,11 @@ for (ddc, fc) in [('530+Physik', ''),  ('510+Mathematik', 'm'), ('539+Moderne+Ph
         if fc: rec['fc'] = 'fc'
         rec['note'].append(ddc)
         if not rec['hdl'] in hdls:
-            prerecs.append(rec)
-            hdls.append(rec['hdl'])
+            if skiptooold and not ejlmod3.checknewenoughDOI(rec['hdl']):
+                print('   %s too old ' % (rec['hdl']))
+            else:
+                prerecs.append(rec)
+                hdls.append(rec['hdl'])
     print('  %4i records so far' % (len(prerecs)))
 
 
@@ -69,7 +85,11 @@ for rec in prerecs:
                 author = re.sub(' *\[.*', '', meta['content'])
                 rec['autaff'] = [[ author ]]
                 rec['autaff'][-1].append(publisher)
-    recs.append(rec)
-    ejlmod3.printrecsummary(rec)
+    if 'date' in rec and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+        print('    too old')
+        ejlmod3.addtoooldDOI(rec['hdl'])
+    else:
+        recs.append(rec)
+        ejlmod3.printrecsummary(rec)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.close()
