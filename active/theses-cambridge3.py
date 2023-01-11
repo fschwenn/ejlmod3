@@ -17,6 +17,7 @@ publisher = 'Cambridge U.'
 jnlfilename = 'THESES-CAMBRIDGE-%s' % (ejlmod3.stampoftoday())
 years = 2
 skipalreadyharvested = True
+skiptooold = True
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 
@@ -47,34 +48,40 @@ for tocurl in tocurls:
         print("retry %s in 180 seconds" % (tocurl))
         time.sleep(180)
         tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-    for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
-        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
-        for h4 in div.find_all('h4'):
-            for a in h4.find_all('a'):
-                rec['tit'] = a.text.strip()
-                rec['artlink'] = 'https://www.repository.cam.ac.uk' + a['href']
-                if ejlmod3.checkinterestingDOI(rec['artlink']) and not rec['artlink'] in artlinks:
+    for rec in ejlmod3.getdspacerecs(tocpage, 'https://www.repository.cam.ac.uk', fakehdl=True):
+        if ejlmod3.checkinterestingDOI(rec['link']):
+            if not rec['link'] in artlinks:
+                if skiptooold:
+                    if ejlmod3.checknewenoughDOI(rec['link']):
+                        prerecs.append(rec)
+                    else:
+                        print('    %s too old' % (rec['link']))
+                else:
                     prerecs.append(rec)
-                    artlinks.append(rec['artlink'])
+        else:
+            print('    %s uninteresting' % (rec['link']))
+
+
 
 recs = []
 for (i, rec) in enumerate(prerecs):
     keepit = True
     aff = []
-    ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['artlink']], [len(recs)]])
+    ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['link']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
         time.sleep(3)
     except:
-        print("retry %s in 180 seconds" % (rec['artlink']))
+        print("retry %s in 180 seconds" % (rec['link']))
         time.sleep(180)
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
     for a in artpage.body.find_all('a'):
         #check department
         if a.has_attr('role') and a['role'] == 'menuitem':
             at = a.text.strip()
             if at in boring:
                 keepit = False
+                ejlmod3.adduninterestingDOI(rec['link'])
             elif at in ['Department of Pure Mathematics and Mathematical Statistics (DPMMS)',
                         'Theses - Pure Mathematics and Mathematical Statistics']:
                 rec['fc'] = 'm'
@@ -90,8 +97,7 @@ for (i, rec) in enumerate(prerecs):
     if int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) < ejlmod3.year(backwards=years):
         keepit = False
         print('   skip', rec['date'])
-        if int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) < ejlmod3.year(backwards=years*10):
-            ejlmod3.adduninterestingDOI(rec['artlink'])            
+        ejlmod3.addtoooldDOI(rec['link'])            
     for div in artpage.body.find_all('div', attrs = 'item-page-field-wrapper'):
         for h5 in div.find_all('h5'):
             h5text = h5.text.strip()
@@ -116,7 +122,7 @@ for (i, rec) in enumerate(prerecs):
                 if dt in ['MPhil']:
                     print('  skip "%s"' % (dt))
                     keepit = False
-                    ejlmod3.adduninterestingDOI(rec['artlink'])
+                    ejlmod3.adduninterestingDOI(rec['link'])
                 else:
                     rec['note'] = [ dt ]
     if aff:
