@@ -15,6 +15,7 @@ publisher = 'Liege U.'
 pages = 1
 rpp = 10
 years = 2
+skiptooold = True
 
 jnlfilename = 'THESES-LIEGE-%s' % (ejlmod3.stampoftoday())
 
@@ -48,7 +49,10 @@ for (degree, authority1) in [('PhD', 'DSO%2FF03'), ('Habilitation', 'DSO%2FF04')
                         rec['degree'] = degree
                         if fc:
                             rec['fc'] = fc
-                        prerecs.append(rec)
+                        if skiptooold and not ejlmod3.checknewenoughDOI(rec['hdl']):
+                            print('    %s too old ' % (rec['hdl']))
+                        else:
+                            prerecs.append(rec)
             print('    %3i records so far' % (len(prerecs)))
 
 i = 0
@@ -59,7 +63,9 @@ for rec in prerecs:
     try:
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(3)
+        ejlmod3.metatagcheck(rec, artpage, ['citation_title'])
+        rec['tit']
+        time.sleep(3)        
     except:
         print("retry %s in 180 seconds" % (rec['artlink']))
         time.sleep(180)
@@ -104,7 +110,9 @@ for rec in prerecs:
     if int(year) > ejlmod3.year(backwards=years):
         rec['MARC'] = [('502', [('b', rec['degree']), ('c', publisher), ('d', year)])]
         recs.append(rec)
-        ejlmod3.printrecsummary(rec)                                                               
+        ejlmod3.printrecsummary(rec)
+    else:
+        ejlmod3.addtoooldDOI(rec['hdl'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
