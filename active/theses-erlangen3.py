@@ -13,6 +13,7 @@ import ejlmod3
 import codecs
 import time
 import json
+skipalreadyharvested = True
 
 numofpages = 1
 publisher = 'Erlangen - Nuremberg U.'
@@ -21,6 +22,15 @@ hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
 prerecs = []
 jnlfilename = 'THESES-ERLANGEN-%s' % (ejlmod3.stampoftoday())
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+    
 links = []
 for dep in ['Department+Physik', 'Department+Mathematik', 'Naturwissenschaftliche+Fakult%C3%A4t']:
     for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
@@ -63,7 +73,7 @@ for rec in prerecs:
             continue
     ejlmod3.metatagcheck(rec, artpage, ['DC.Description', 'DC.description', 'DC.Subject', 'DC.subject', 'DC.Rights',
                                         'DC.rights', 'citation_pdf_url', 'DC.Identifier', 'DC.identifier', 'citation_language',
-                                        'DC.Subject', 'DC.subject', 'citation_date'])
+                                        'citation_date'])
     for table in artpage.body.find_all('table', attrs = {'class' : 'frontdoordata'}):
         for tr in table.find_all('tr'):
             for th in tr.find_all('th'):
@@ -116,8 +126,11 @@ for rec in prerecs:
                         else:
                             rec['note'].append(a.text)
     if keepit:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
+            print('    already in backup')
+        else:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
             
