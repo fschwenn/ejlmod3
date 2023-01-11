@@ -16,6 +16,8 @@ import time
 pages = 10
 rpp = 50
 years = 10
+skipalreadyharvested = True
+
 publisher = 'Rutgers U.'
 jnlfilename = 'THESES-RUTGERS-%s' % (ejlmod3.stampoftoday())
 
@@ -69,6 +71,14 @@ boring += ["American Studies", "Art history", "Artificial intelligence", "Atmosp
            "Endocrinology and Animal Biosciences", "Environmental health", "Environmental Sciences", "Fluid mechanics", "French",
            "Geological engineering", "German", "Music Education", "Operations Research", "Public Affairs",
            "Religious Studies", "Sedimentary geology", "Social Work", "Spanish", "Urban planning"]
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
     
 for page in range(pages):
     tocurl = 'https://rucore.libraries.rutgers.edu/search/results/?orderby=datedesc&ppage=' + str(rpp) + '&numresults=' + str(rpp) + '&key=ETD-RU&start=%i' % (rpp*page + 1)
@@ -163,8 +173,11 @@ for rec in prerecs:
                     elif re.search('degre', span2.text):
                         rec['date'] = re.sub('.*?([12]\d\d.*\d).*', r'\1', st)
     if keepit:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if re.sub('^doi:', '', rec['doi']) in alreadyharvested:
+            print('    %s already in backup' % (rec['doi']))
+        else:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
