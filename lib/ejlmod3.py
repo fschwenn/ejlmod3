@@ -741,7 +741,7 @@ def writeXML(recs,dokfile,publisher):
                 autlist = [('a', shapeaut(autaff[0]))]
                 for aff in autaff[1:]:
                     if re.search('ORCID', aff):
-                        aff = re.sub('\s+', '', aff)
+                        aff = re.sub('\s+', '', aff).upper()
                         if reorcid.search(aff):
                             autlist.append(('j', aff))
                         else:
@@ -781,7 +781,7 @@ def writeXML(recs,dokfile,publisher):
                     autlist = [('a',shapeaut(autaff[0]))]
                 for aff in autaff[1:]:
                     if re.search('ORCID', aff):
-                        aff = re.sub('\s+', '', aff)
+                        aff = re.sub('\s+', '', aff).upper()
                         if reorcid.search(aff):
                             autlist.append(('j', aff))
                         else:
@@ -862,7 +862,7 @@ def writeXML(recs,dokfile,publisher):
                             aut.append(('q', re.sub('.*, CHINESENAME: ', '', author)))
                             author = re.sub(' *, CHINESENAME.*', '', author)
                         if re.search('ORCID', author):
-                            orcid = re.sub('\s+', '', re.sub('\.$', '', re.sub('.*, ORCID',  'ORCID', author)))
+                            orcid = re.sub('\s+', '', re.sub('\.$', '', re.sub('.*, ORCID',  'ORCID', author))).upper()
                             if reorcid.search(orcid):
                                 aut.append(('j', orcid))
                             else:
@@ -1381,6 +1381,9 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['citation_arxiv_id']:
                     rec['arxiv'] = meta['content']
                     done.append(tag)
+                elif tag in ['eprints.urn']:
+                    rec['urn'] = meta['content']
+                    done.append(tag)
                 elif tag in ['citation_isbn']:
                     if 'isbns' in rec:
                         rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content']))])
@@ -1426,7 +1429,8 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['autaff'] = [[meta['content']]]
                     done.append(tag)
-                elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name', 'dc.contributor.advisor']:
+                elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
+                             'dc.contributor.advisor', 'eprints.referee_name']:
                     if 'supervisor' in rec:
                         rec['supervisor'].append([meta['content']])
                     else:
@@ -1436,9 +1440,10 @@ def metatagcheck(rec, artpage, listoftags):
                              'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
                     rec['autaff'][-1].append(meta['content'])
                     done.append(tag)
-                elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email']:
-                    rec['autaff'][-1].append('EMAIL:' + meta['content'])
-                    done.append(tag)
+                elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email', 'eprints.creators_id']:
+                    if re.search('@', meta['content']):
+                        rec['autaff'][-1].append('EMAIL:' + meta['content'])
+                        done.append(tag)
                 elif tag in ['citation_author_orcid', 'citation_editor_orcid', 'eprints.creators_orcid', 'eprints.creators_orcid']:
                     rec['autaff'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
                     done.append(tag)
@@ -1505,7 +1510,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
-                             'keywords', 'dc:subject']:
+                             'keywords', 'dc:subject', 'eprints.keywords_name']:
                     if 'keyw' in rec:
                         if not meta['content'] in rec['keyw']:
                             rec['keyw'].append(meta['content'])
