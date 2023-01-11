@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #harvest theses from Kyushu U.
 #FS: 2022-02-17
-#FS: 2022-12-09
+#FS: 2023-01-10
 
 import sys
 import os
@@ -9,9 +9,13 @@ import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
+import unicodedata 
 import time
 import ssl
 
+startyear = ejlmod3.year(backwards=1)
+stopyear = ejlmod3.year()
+skipalreadyharvested = True
 publisher = 'Kyushu U., Fukuoka (main)'
 pages = 2
 rpp = 200
@@ -30,11 +34,20 @@ hdr = {'User-Agent' : 'Magic Browser'}
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))        
 
 prerecs = []
 for page in range(pages):
-    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B167057062892751&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=6'
-    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=2&appname=Netscape&version=5&cmode=0&kywd=&smode=1&year1_exp=' + str(startyear) + '&year2_exp=' + str(stopyear) + '&file_exp[]=4&dpmc_exp[]=all&txtl_exp=2&sort_exp=6&disp_exp=' + str(rpp) + '&start=' + str(page*rpp+1)
+    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B167334399927692&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=6&fc_val=c_string_disser_degreetype%23%40%23110&fc_val=c_int_disser_degreeyear%23%40%23%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D&cmode=0&chk_st=0&check=00000000000000000000000000000000000000000000000000'
+    ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
     for ul in tocpage.body.find_all('ul', attrs = {'class' : 'result-list'}):
@@ -46,7 +59,8 @@ for page in range(pages):
                         rec['artlink'] = 'https://catalog.lib.kyushu-u.ac.jp' + a['href']
                         rec['hdl'] = re.sub('.*bibid=(\d+).*', r'2324/\1', a['href'])
                     if ejlmod3.checkinterestingDOI(rec['hdl']):
-                        prerecs.append(rec)
+                        if not rec['hdl'] in alreadyharvested:
+                            prerecs.append(rec)
     time.sleep(2)
         
 
@@ -56,7 +70,7 @@ for rec in prerecs:
     keepit = True
     oa = False
     i += 1
-    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
+    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         req = urllib.request.Request(rec['artlink'], headers=hdr)
         artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
@@ -65,7 +79,7 @@ for rec in prerecs:
         try:
             print("retry %s in 180 seconds" % (rec['artlink']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         except:
             print("no access to %s" % (rec['artlink']))
             continue
@@ -90,9 +104,6 @@ for rec in prerecs:
                         keepit = False
                     else:
                         rec['note'].append(degree)
-                #DOI
-                elif tht == 'JaLC DOI':
-                    rec['doi'] = re.sub('..*doi.org\/', '', td.text.strip())
                 #OA
                 elif tht == 'Access Rights':
                     if re.search('open access', td.text):
@@ -108,11 +119,6 @@ for rec in prerecs:
             elif meta['property'] == 'og:url':
                 rec['link'] = meta['content']
                 rec['hdl'] = re.sub('.*handle.net\/', '', meta['content'])
-    #Master's Program?
-    for div in artpage.find_all('div', attrs = {'class' : 'metadata_block'}):
-        if re.search('[mM]aster.?s? [pP]rogram', div.text):
-            keepit = False
-            print(div.text)
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
