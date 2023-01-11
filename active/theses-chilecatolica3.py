@@ -11,6 +11,7 @@ import re
 publisher = 'Chile U., Catolica'
 jnlfilename = 'THESES-CHILECATOLICA-%s' % (ejlmod3.stampoftoday())
 years = 3
+skiptooold = True
 
 reorcid = re.compile('.*(\d\d\d\d\-\d\d\d\d\-\d\d\d\d\-\d\d\d.).*')
 with Session() as session:
@@ -37,9 +38,14 @@ with Session() as session:
             articles = loads(resp.content.decode('utf-8')).get('response').get('docs')
             for article in articles:
                 keepit = True
+                sub_link = 'https://repositorio.uc.cl/assets/php/ficha.php?handle=' + article.get('handle')
                 if ejlmod3.checkinterestingDOI(article.get('handle')):
-                    sub_link = 'https://repositorio.uc.cl/assets/php/ficha.php?handle=' + article.get('handle')
+                    if skiptooold:
+                        if not ejlmod3.checknewenoughDOI(article.get('handle')):
+                            print('[{}] --> too old'.format(sub_link))
+                            continue
                 else:
+                    print('[{}] --> uninteresting'.format(sub_link))
                     continue
                 sleep(5)
 
@@ -65,6 +71,7 @@ with Session() as session:
                 rec['date'] = article_data.get('dateIssued')[0]
                 if int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
                        keepit = False
+                       ejlmod3.addtoooldDOI(rec['hdl'])
 
                 # Get the link
                 rec['link'] = article_data.get('dc.identifier.uri')[0]
@@ -100,6 +107,7 @@ with Session() as session:
                     for description in article_data.get("dc.description"):
                         if re.search('(Msc|MSc|Master of Science|Mater in|Mag.ster|Master.s|Master) (degree|in|en|of) ', description):
                             keepit = False
+                            ejlmod3.adduninterestingDOI(rec['hdl'])
                         elif  not  re.search('(Doctor|PHD|PhD|Ph\.D\.|Docteur|Dissertation) (en|in|of) ', description):
                             rec['note'].append(description)
                 #ORCID?
@@ -115,8 +123,6 @@ with Session() as session:
                 rec['autaff'][0].append(publisher)
                 if keepit:
                     recs.append(rec)
-                else:
-                    ejlmod3.adduninterestingDOI(rec['hdl'])
             sleep(5)
         sleep(5)
 
