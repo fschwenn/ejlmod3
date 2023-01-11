@@ -6,6 +6,7 @@ import urllib.request, urllib.error, urllib.parse
 import urllib.parse
 from bs4 import BeautifulSoup
 import re
+import os
 import ejlmod3
 import time
 
@@ -18,6 +19,8 @@ hdr = {'User-Agent' : 'Magic Browser'}
 rpp = 50
 pages = 4
 years = 2
+skipalreadyharvested = True
+
 boringdisciplines = ['Department+of+Geography', 'Department+of+Educational+Methodology%2C+Policy%2C+and+Leadership',
                      'Department+of+Psychology', 'School+of+Music+and+Dance', 'Department+of+Geological+Sciences',
                      'Department+of+Biology', 'Department+of+Linguistics', 'Department+of+Anthropology',
@@ -32,9 +35,19 @@ boringdisciplines = ['Department+of+Geography', 'Department+of+Educational+Metho
                      'Department+of+East+Asian+Languages+and+Literatures', 'Department+of+Education+Studies',
                      'Department+of+German+and+Scandinavian', 'Department+of+Landscape+Architecture',
                      'Department+of+Management', 'Department+of+Philosophy',
-                     'Department+of+Romance+Languages', 'Department+of+Theater+Arts']
+                     'Department+of+Romance+Languages', 'Department+of+Theater+Arts',
+                     'Department+of+the+History+of+Art+and+Architecture']
+
 boringdegrees = ['M.A.', 'M.S.', 'masters', 'D.Ed.']
 
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+    
 recs = []
 for page in range(pages):
     tocurl = 'https://scholarsbank.uoregon.edu/xmlui/handle/1794/13076/discover?rpp='+str(rpp)+'&etal=0&group_by=none&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
@@ -48,13 +61,20 @@ for page in range(pages):
         if 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
             keepit = False
         #check degree
-        for degree in rec['degree']:
-            if degree in boringdisciplines or degree in boringdegrees:
-                keepit = False
-            elif not degree in ['Ph.D.', 'doctoral']:
-                rec['note'].append(degree)
+        for degree in rec['degrees']:
+                if degree in boringdisciplines or degree in boringdegrees:
+                    keepit = False
+                elif degree in ['Department+of+Mathematics']:
+                    rec['fc'] = 'm'
+                elif degree in ['Department+of+Computer+and+Information+Science']:
+                    rec['fc'] = 'c'
+                elif not degree in ['Ph.D.', 'doctoral', 'Department+of+Physics']:
+                    rec['note'].append(degree)
         if keepit:
-            recs.append(rec)
+            if rec['hdl'] in alreadyharvested:
+                print('    %s already in backup' % (rec['hdl']))
+            else:
+                recs.append(rec)
     print('  %i records so far' % (len(recs)))
     time.sleep(2)
 
