@@ -15,6 +15,7 @@ import time
 
 numopages = 5
 articlesperpage = 50
+skipalreadyharvested = True
 
 boring = ['Agricultural+Economics', 'Animal+Science', 'Applied+Educational+Studies', 'Biomedical+Sciences',
           'Business+Administration', 'Chemistry', 'Civil+Engineering', 'Comparative+Biomedical+Sciences',
@@ -94,6 +95,14 @@ boring += ['Weitzenhoffer Family College of Fine Arts::School of Music',
            'Mewbourne College of Earth and Energy', 'Weitzenhoffer Family College of Fine Arts',
            'Weitzenhoffer Family College of Fine Arts::School of Visual Arts']
 
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = 'THESES-OKLAHO*doki'
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+
 hdr = {'User-Agent' : 'Magic Browser'}
 for uni in [('Oklahoma U.', '11244/10476'), ('Oklahome State U.', '11244/10462')]:
     publisher = uni[0]
@@ -115,7 +124,10 @@ for uni in [('Oklahoma U.', '11244/10476'), ('Oklahome State U.', '11244/10462')
                     elif degree in ['Mathematics']:
                         rec['fc'] = 'm'
             if keepit:
-                prerecs.append(rec)
+                if rec['hdl'] in alreadyharvested:
+                    print('    %s already in backup' % (rec['hdl']))
+                else:
+                    prerecs.append(rec)
         print ('  %4i records so far' % (len(prerecs)))
         time.sleep(10)
     i = 0
