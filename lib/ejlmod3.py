@@ -12,6 +12,7 @@ import time
 from bs4 import BeautifulSoup
 from iso639 import languages
 import urllib.parse
+import json
 
 from collclean_lib3 import coll_cleanforthe
 from collclean_lib3 import coll_clean710
@@ -1576,6 +1577,14 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['refs'].append(reference)
                     else:
                         rec['refs'] = [reference]
+                #get special tag
+                else:
+                    if tag in rec:
+                        rec[tag].append(meta['content'])
+                    else:
+                        rec[tag] = [meta['content']]
+                    done.append(tag)
+                    
     #abstract (if theere are several in different languages)
     if len(abstracts.keys()) == 1:
         for lang in abstracts:
@@ -1748,3 +1757,148 @@ def dedicatedharvesterexists(url):
     else:
         return False
 #print('%i URLs already covered by dedicated harvesters' % (len(dedicated)))
+
+#extract metadata from json-structure in 'NGRX_STATE'
+checkedmetatags = {}
+def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
+    global checkedmetatags
+    for tag in listofkeys:
+        if not tag in checkedmetatags:
+            checkedmetatags[tag] = 0
+    prerecs = []
+    j = 0
+    for script in tocpage.find_all('script'):
+        if script.contents:
+            scriptt = re.sub('&q;', '"', re.sub('[\n\t]', '', script.contents[0].strip()))
+        else:
+            scriptt = False
+    if scriptt:
+        scripttjson = json.loads(scriptt)
+        metadata = scripttjson['NGRX_STATE']['core']['cache/object']
+        links = metadata.keys()
+        for (i, link) in enumerate(links):
+#            printprogress('-', [[i+1, len(links)], [link], [j]])
+            if 'data' in metadata[link]:
+                keepit = True
+                thesis = metadata[link]['data']
+                if 'isWithdrawn' in thesis and thesis['isWithdrawn']:
+                    continue
+                if 'handle' in thesis:
+                    rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [],
+                           'autaff' : [], 'degree' : [], 'fac' : []}
+                    rec['hdl'] = thesis['handle']
+                    j += 1
+                    done = []
+                    if not checkinterestingDOI(rec['hdl']):
+                        continue
+                else:
+                    continue
+                if not 'metadata' in thesis:
+#                    print(thesis.keys())
+                    continue
+#                else:
+#                    print(thesis['metadata'].keys())
+                #fulltext
+                rec['uuid'] = thesis['uuid']
+                rec['link'] = urltrunc + '/entities/publication/%s' % (thesis['uuid'])
+                if urltrunc in ['https://wiredspace.wits.ac.za']:
+                    rec['pdf_url'] = '%s/server/api/core/bitstreams/%s/content' % (urltrunc, thesis['uuid'])
+                else:
+                    rec['pdf_url'] = '%s/bitstreams/%s/download' % (urltrunc, thesis['uuid'])
+                ###
+                for key in thesis['metadata'].keys():
+#                    if key != 'dc.description.abstract':
+#                        print('  ->', key, thesis['metadata'][key][0]['value'])
+                    #abstract
+                    if key in ['dc.description.abstract']:
+                        for abstract in thesis['metadata'][key]:
+                            if 'language' in abstract:
+                                if abstract['language'] == 'en':
+                                    rec['abs'] = abstract['value']
+                                else:
+                                    rec['absother'] = abstract['value']
+                        if not 'abs' in rec and 'absother' in rec:
+                            rec['abs'] = rec['absother']
+                        done.append(key)
+                    #faculty
+                    if key in ['bul.faculte', 'dc.faculty', 'dc.school']:
+                        for fac in thesis['metadata'][key]:
+                            if fac['value'] in boring:
+#                                print('    skip %s' % (fac['value']))
+                                keepit = False
+                            else:
+                                rec['fac'].append(fac['value'])
+                                rec['note'].append('%s=%s' % (key.upper(), fac['value']))
+                        done.append(key)
+                    #supervisor
+                    if key in ["dc.contributor.advisor"]:
+                        for sv in thesis['metadata'][key]:
+                            rec['supervisor'].append([sv['value']])
+                        done.append(key)
+                    #author
+                    if key in ['dc.contributor.author']:
+                        for au in thesis['metadata'][key]:
+                            rec['autaff'].append([au['value']])
+                        done.append(key)
+                    #date
+                    if key in ['dc.date.available', 'dc.date.issued']:
+                        for date in thesis['metadata'][key]:
+                            rec['date'] = date['value']
+                        done.append(key)
+                    #pages
+                    if key in ['dc.format.extent']:
+                        for extent in thesis['metadata'][key]:
+                            if re.search('\d\d p', extent['value']):
+                                rec['pages'] = re.sub('.*?(\d\d+) p.*', r'\1', extent['value'])
+                            else:
+                                rec['note'].append('EXTENT='+extent['value'])
+                        done.append(key)
+                    #language
+                    if key in ['dc.language', 'dc.language.iso']:
+                        for lang in thesis['metadata'][key]:
+                            rec['language'] = lang['value']
+                        done.append(key)
+                    #description
+                    if key in ['dc.description']:
+                        for descr in thesis['metadata'][key]:
+                            rec['description'] = re.sub('  +', ', ', re.sub('[\n\t\r]', ' ', descr['value']))
+                            rec['note'].append('%s=%s' % (key.upper(), rec['description']))
+                        done.append(key)
+                    #license
+                    if key in ['dc.rights']:
+                        for rights in thesis['metadata'][key]:
+                            if re.search('creativecom', rights['value']):
+                                rec['license'] = {'url' : rights['value']}
+                        done.append(key)
+                    #title
+                    if key in ['dc.title']:
+                        for tit in thesis['metadata'][key]:
+                            rec['tit'] = tit['value']
+                        done.append(key)
+                    #degree
+                    if key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type']:
+                        for degree in thesis['metadata'][key]:
+                            if degree['value'] in boring:
+                                keepit = False
+                            else:
+                                rec['degree'].append(degree['value'])
+                                rec['note'].append('%s=%s' % (key.upper(), degree['value']))
+                        done.append(key)
+                    #keywords
+                    if key in ['dc.subject.rvm']:
+                        for keyw in thesis['metadata'][keyw]:
+                            rec['keyw'].append(keyw['value'])
+                        done.append(key)
+                #resume
+                notdone = []
+                for key in listofkeys:
+                    if key in done:
+                        checkedmetatags[key] += 1
+                    else:
+                        notdone.append(key)
+#                if notdone:
+#                    print("   %i of %i keys not found (%s)" % (len(notdone), len(listofkeys), ', '.join(notdone)))
+                if keepit:
+                    prerecs.append(rec)
+    print('  [ngrx] %i/%i' % (len(prerecs), j))
+    return prerecs
