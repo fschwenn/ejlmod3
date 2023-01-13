@@ -6,11 +6,15 @@
 
 import sys
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import os
+
+years = 2
+rpp = 20
+skipalreadyharvested = True
 
 universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '/handle/10281/9145', 8),
                 'trento' : ('Trento U.', 'https://iris.unitn.it', '/handle/11572/237822', 10),
@@ -40,7 +44,7 @@ boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
           'european cultures. environment, contexts, histories, arts, ideas', u'facolt\xe0 di giurisprudenza',
           'filologia e critica', 'genetica, oncologia e medicina clinica', 'geo', 'gestione, produzione e design',
           'ing-ind', 'ing-inf', 'ingegneria aerospaziale', 'ingegneria chimica', 'ingegneria civile e ambientale',
-          'ingegneria elettrica, elettronica e delle comunicazioni', 'international studies', 'ius', 'l-ant',
+          'international studies', 'ius', 'l-ant',
           'l-art', 'l-fil-let', 'l-lin', 'l-or', 'lettere e filosofia', 'm-dea', 'm-edf', 'm-fil', 'm-ggr',
           'm-ped', 'm-psi', 'm-sto', 'materials, mechatronics and systems engineering', 'med',
           'medicina molecolare', 'metrologia', 'psicologia e scienze cognitive',
@@ -61,8 +65,14 @@ uni = sys.argv[1]
 publisher = universities[uni][0]
 pages = universities[uni][3]
 jnlfilename = 'THESES-%s-%s' % (uni.upper(), ejlmod3.stampoftoday())
-years = 2
-rpp = 20
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
@@ -92,7 +102,12 @@ for page in range(pages):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', td.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
                         if ejlmod3.checkinterestingDOI(rec['hdl']):
-                            prerecs.append(rec)
+                            if rec['hdl'] in alreadyharvested:
+                                print('    %s already in backup' % (rec['hdl']))
+                            else:
+                                prerecs.append(rec)
+                    else:
+                        print('    %s too old (%s)' % (rec['hdl'], rec['year']))                        
                 else:
                     print('(YEAR?)', td.text)
                     prerecs.append(rec)
@@ -106,7 +121,12 @@ for page in range(pages):
                     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', p.text.strip())
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
                         if ejlmod3.checkinterestingDOI(rec['hdl']):
-                            prerecs.append(rec)
+                            if rec['hdl'] in alreadyharvested:
+                                print('    %s already in backup' % (rec['hdl']))
+                            else:
+                                prerecs.append(rec)
+                    else:
+                        print('    %s too old (%s)' % (rec['hdl'], rec['year']))
                 else:
                     print('(YEAR?)', p.text)
     print('     %3i records so far' % (len(prerecs)))
@@ -133,7 +153,7 @@ for rec in prerecs:
             continue
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'citation_author_email', 'citation_author_orcid', 'citation_pdf_url', 'citation_doi',
                                         'citation_title', 'citation_publication_date', 'citation_language', 'DC.subject', 'citation_keywords',
-                                        'citation_date', 'DC.identifier'])
+                                        'citation_date', 'DC.identifier', 'DC.description'])
     for meta in artpage.find_all('meta'):
         if meta.has_attr('name') and meta.has_attr('content'):
             #pages
