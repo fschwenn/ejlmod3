@@ -13,6 +13,8 @@ import time
 
 rpp = 60
 pages = 1
+skipalreadyharvested = True
+years = 2
 
 publisher = 'Jyvaskyla U'
 
@@ -26,10 +28,18 @@ boring = [u'Akvaattiset tieteet', u'Ekologia ja evoluutiobiologia', u'Englannin 
           u'Soveltava kielitiede', u'Terveyskasvatus', u'Valtio-oppi', u'Varhaiskasvatustiede',
           u'Viestintä', u'Yrittäjyys', u'Yritysten ympäristöjohtaminen']
 
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+
 recs = []
 prerecs = []
 for section in ['56881', '56880', '56990']:
-    for page in range(pages):        
+    for page in range(pages):
         tocurl = 'https://jyx.jyu.fi/handle/123456789/' + section + '/discover?rpp=' + str(rpp) + '&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
         ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
         try:
@@ -39,7 +49,15 @@ for section in ['56881', '56880', '56990']:
             print("retry %s in 180 seconds" % (tocurl))
             time.sleep(180)
             tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-        prerecs += ejlmod3.getdspacerecs(tocpage, 'https://jyx.jyu.fi', fakehdl=True)
+        for rec in ejlmod3.getdspacerecs(tocpage, 'https://jyx.jyu.fi', fakehdl=True):
+            rec['doi'] = '30.3000/httpsjyxjyufi' + re.sub('.*handle', '', rec['link'])
+            if rec['doi'] in alreadyharvested:
+                print('   %s already in backup' % (rec['link']))
+            else:
+                if 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
+                    print('   %s too old' % (rec['link']))
+                    continue
+                prerecs.append(rec)
 
 i = 0
 for rec in prerecs:
@@ -53,7 +71,9 @@ for rec in prerecs:
         print("retry %s in 180 seconds" % (rec['link']))
         time.sleep(180)
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ["citation_author", "citation_date", "citation_language", "citation_pdf_url", "DCTERMS.extent", "DC.subject", "DC.identifier", "DC.rights", "DCTERMS.abstract"])
+    ejlmod3.metatagcheck(rec, artpage, ["citation_author", "citation_date", "citation_language",
+                                        "citation_pdf_url", "DCTERMS.extent", "DC.subject",
+                                        "DC.rights", "DCTERMS.abstract", "citation_isbn"])
     if not 'autaff' in rec or not rec['autaff']:
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'DC.creator'}):
             rec['autaff'] = [[ meta['content'] ]]
@@ -64,7 +84,7 @@ for rec in prerecs:
             keepit = False
         elif not meta['content'] in ['Diss.']:
             rec['note'].append('DEGREE='+meta['content'])
-    
+
     for tr in artpage.body.find_all('tr', attrs = {'class' : 'ds-table-row'}):
         tdt = ''
         for td in tr.find_all('td'):
