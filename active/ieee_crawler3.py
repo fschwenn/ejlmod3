@@ -33,7 +33,8 @@ else:
     options.binary_location='/usr/bin/chromium-browser'
     options.add_argument('--headless')
     #options.add_argument('--proxy-server=http://vpnbook:rxtasfh@fr1.vpnbook.com')
-    driver = uc.Chrome(version_main=103, options=options)
+    chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
 
 

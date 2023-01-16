@@ -28,7 +28,8 @@ options = uc.ChromeOptions()
 options.headless=True
 options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
-driver = uc.Chrome(version_main=103, options=options)
+chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 #avoid douple harvesting
 dois = ["10.1371/journal.pone.0271462", "10.1371/journal.pone.0222371", "10.1371/journal.pone.0223636", "10.1371/journal.pone.0220237", "10.1371/journal.pone.0207827", "10.1371/journal.pone.0210817", "10.1371/journal.pone.0229382", "10.1371/journal.pone.0193785", "10.1371/journal.pone.0215287", "10.1371/journal.pone.0200910", "10.1371/journal.pone.0186624", "10.1371/journal.pone.0195494", "10.1371/journal.pone.0188398", "10.1371/journal.pone.0166011", "10.1371/journal.pone.0175876", "10.1371/journal.pone.0170920", "10.1371/journal.pone.0159898", "10.1371/journal.pone.0197735", "10.1371/journal.pone.0169832", "10.1371/journal.pone.0182779", "10.1371/journal.pone.0163241", "10.1371/journal.pone.0182130", "10.1371/journal.pone.0131184", "10.1371/journal.pone.0133679", "10.1371/journal.pone.0115993", "10.1371/journal.pone.0109507", "10.1371/journal.pone.0108482", "10.1371/journal.pone.0106368", "10.1371/journal.pone.0078114", "10.1371/journal.pone.0085777", "10.1371/journal.pone.0054165", "10.1371/journal.pone.0056086", "10.1371/journal.pone.0064694", "10.1371/journal.pone.0046428", "10.1371/journal.pone.0069469", "10.1371/journal.pone.0040689", "10.1371/journal.pone.0047523", "10.1371/journal.pone.0031929", "10.1371/journal.pone.0097107", "10.1371/journal.pone.0020721", "10.1371/journal.pone.0030136", "10.1371/journal.pone.0024330", "10.1371/journal.pone.0013061", "10.1371/journal.pone.0002052"]
