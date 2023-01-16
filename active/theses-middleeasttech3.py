@@ -15,7 +15,7 @@ import time
 import undetected_chromedriver as uc
 from selenium.webdriver.remote.webdriver import By
 
-pages = 20-18
+pages = 20
 
 publisher = 'Middle East Tech. U., Ankara'
 jnlfilename = 'THESES-MiddleEastTechUAnkara-%s' % (ejlmod3.stampoftoday())
@@ -95,7 +95,11 @@ boringdegrees = ['M.S. - Master of Science', 'M.A. - Master of Arts', 'M.Arch. -
                  'Thesis (Ph.D.) -- Graduate School of Social Sciences. Mathematics and Science Education.']
 #driver
 options = uc.ChromeOptions()
-driver = uc.Chrome(options=options)
+options.headless=True
+options.binary_location='/usr/bin/chromium-browser'
+options.add_argument('--headless')
+chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 prerecs = []
 driver.get(tocurl)
@@ -106,7 +110,7 @@ for page in range(pages):
         if a.has_attr('href') and re.search('handle', a['href']):
             rec = {'tc' : 'T', 'jnl' : 'BOOK', 'keyw' : [], 'note' : []}
             rec['hdl'] = re.sub('.*handle\/', '', a['href'])
-            if ejlmod3.ckeckinterestingDOI(rec['hdl']):
+            if ejlmod3.checkinterestingDOI(rec['hdl']):
                 rec['link'] = 'https://open.metu.edu.tr' + a['href']
                 rec['tit'] = a.text.strip()
                 prerecs.append(rec)

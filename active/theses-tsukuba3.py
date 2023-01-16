@@ -26,7 +26,8 @@ publisher = 'Tsukuba U.'
 options = uc.ChromeOptions()
 options.headless=True
 options.binary_location='/usr/bin/chromium-browser'
-driver = uc.Chrome(version_main=103, options=options)
+chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 #driver.implicitly_wait(30)
 
 recs = []
