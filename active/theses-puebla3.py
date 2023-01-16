@@ -21,7 +21,8 @@ options = uc.ChromeOptions()
 options.headless=True
 options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
-driver = uc.Chrome(version_main=103, options=options)
+chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 publisher = 'Puebla U., Inst. Fis.'
