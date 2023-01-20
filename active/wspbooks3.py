@@ -16,6 +16,7 @@ jnlfilename = 'WSPBooks_%s' % (ejlmod3.stampoftoday())
 
 startdate = str(ejlmod3.year(backwards=1)) + '0401'
 stopdate = re.sub('\-', '', ejlmod3.stampoftoday())
+skipalreadyharvested = True
 
 tuples = []
 dois = []
@@ -28,6 +29,13 @@ options.add_argument('--headless')
 chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
 
 for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', ''),
                                  ('130339', 'Astrophysics / Astronomy / Cosmology / Geophysics', 'a'),
@@ -55,7 +63,7 @@ for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', '')
     for a in toc.body.find_all('a'):
         if a.has_attr('href') and re.search('worldscibooks.10.1142', a['href']):
             doi = re.sub('.*worldscibooks.', '', a['href'])
-            if not doi in dois:
+            if not doi in dois and not doi in alreadyharvested:
                 tuples.append((subject, doi, fc))
                 dois.append(doi)
     print('       %3i' % (len(tuples)))
