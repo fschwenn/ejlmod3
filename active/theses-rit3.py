@@ -28,7 +28,7 @@ boring += ['Chester F. Carlson Center for Imaging Science (COS)', 'School of Des
            'School of Design (CIAS)', 'School of Film and Animation (CIAS)',
            'School of Media Sciences (CIAS)', 'School of Photographic Arts and Sciences (CIAS)',
            'School of Print Media (CIAS)', 'Biomedical Sciences (CHST)',
-           'Center for Materials Science and Engineering',
+           'Center for Materials Science and Engineering', 'Biomedical Engineering (KGCOE)',
            'Civil Engineering Technology Environmental Management and Safety (CAST)',
            'School of Media Sciences (CET)']
 reboring = re.compile('\((BS|M.Arch.|MFA|MS)\)')
