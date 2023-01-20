@@ -9,7 +9,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 import time 
 import undetected_chromedriver as uc
-
+import os
 
 publisher = 'KIT, Karlsruhe'
 jnlfilename = 'THESES-KIT-%s' % (ejlmod3.stampoftoday())
