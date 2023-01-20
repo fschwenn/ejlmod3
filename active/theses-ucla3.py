@@ -18,6 +18,7 @@ abbr = sys.argv[1]
 
 numberofpages = 5-2
 articlesperpage = 100
+skipalreadyharvested = True
 jnlfilename = 'THESES-%s-%s_%i' % (abbr.upper(), ejlmod3.stampoftoday(), numberofpages*articlesperpage)
 
 subjectstoskip = ['Biochemistry', 'LGBTQstudies', 'Classicalstudies', 'Microbiology', 'Informationscience', 
@@ -144,6 +145,14 @@ subjectstoskip += ['AnthropologyArchaeology', 'Architecturalengineering', 'Audio
 		   'Petroleumgeology', 'Physicaleducation', 'Quantitativepsychologyandpsychometrics',
 		   'Rangemanagement', 'Religiouseducation', 'Systemscience', 'Biomedical engineering',
 		   'Technicalcommunication', 'Textileresearch', 'FrenchCanadianculture']
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
 
 problematiclinks = ['https://escholarship.org/uc/item/3hv4z0z8', 'https://escholarship.org/uc/item/5gw3v7bf', 'https://escholarship.org/uc/item/69m6205w', 'https://escholarship.org/uc/item/49q2s5km', 'https://escholarship.org/uc/item/4xn23688', 'https://escholarship.org/uc/item/8tj5d61d', 'https://escholarship.org/uc/item/28w4j5xc', 'https://escholarship.org/uc/item/6972h04z', 'https://escholarship.org/uc/item/8w73232j']
 #problematiclinks = []
@@ -319,9 +328,14 @@ for rec in recs:
             else:
                 subjectrecs[subject] = [rec]
     if keepit:
-        relevantrecs.append(rec)
-        ejlmod3.printrecsummary(rec)
-        print('    ', ', '.join(['%s (%i)' % (s, len(subjectrecs[s])) for s in list(subjectrecs.keys())]))
+        if 'hdl' in rec and rec['hdl'] in alreadyharvested:
+            print('    already in backup')
+        elif 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('    already in backup')
+        else:
+            relevantrecs.append(rec)
+            ejlmod3.printrecsummary(rec)
+            print('    ', ', '.join(['%s (%i)' % (s, len(subjectrecs[s])) for s in list(subjectrecs.keys())]))
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
