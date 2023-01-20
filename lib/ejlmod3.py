@@ -1431,17 +1431,25 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['autaff'] = [[meta['content']]]
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
-                             'dc.contributor.advisor', 'eprints.referee_name']:
+                             'dc.contributor.advisor', 'eprints.referee_name',
+                             'eprints.thesis_advisor_name']:
                     if 'supervisor' in rec:
                         rec['supervisor'].append([meta['content']])
                     else:
                         rec['supervisor'] = [[meta['content']]]
                     done.append(tag)
+                elif tag in ['eprints.thesis_advisor_orcid']:
+                    rec['supervisor'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
+                    done.append(tag)
+                elif tag in ['eprints.thesis_advisor_email']:
+                    if re.search('@', meta['content']):
+                        rec['supervisor'][-1].append('EMAIL:' + meta['content'])
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
                              'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
                     rec['autaff'][-1].append(meta['content'])
                     done.append(tag)
-                elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email', 'eprints.creators_id']:
+                elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email', 'eprints.creators_id',
+                             'eprints.creators_email']:
                     if re.search('@', meta['content']):
                         rec['autaff'][-1].append('EMAIL:' + meta['content'])
                         done.append(tag)
@@ -1511,7 +1519,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
-                             'keywords', 'dc:subject', 'eprints.keywords_name']:
+                             'keywords', 'dc:subject', 'eprints.keywords_name', 'prism.keyword']:
                     if 'keyw' in rec:
                         if not meta['content'] in rec['keyw']:
                             rec['keyw'].append(meta['content'])
@@ -1580,9 +1588,9 @@ def metatagcheck(rec, artpage, listoftags):
                 #get special tag
                 else:
                     if tag in rec:
-                        rec[tag].append(meta['content'])
+                        rec[tag].append('%s:::%s' % (tag, meta['content']))
                     else:
-                        rec[tag] = [meta['content']]
+                        rec[tag] = ['%s:::%s' % (tag, meta['content'])]
                     done.append(tag)
                     
     #abstract (if theere are several in different languages)
