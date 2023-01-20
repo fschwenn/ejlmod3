@@ -16,8 +16,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 publisher = 'British Columbia U.'
+jnlfilename = 'THESES-BRITISHCOLUMBIA-%s' % (ejlmod3.stampoftoday())
 
 pages = 1
+skipalreadyharvested = True
 deps = [('Mathematics', 'm'), ('Astronomy', 'a'), ('Physics', ''),
         ('Computer%20Science', 'c'), ('Statistics', 's')]
 
@@ -28,8 +30,15 @@ options.add_argument('--headless')
 chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-recs = []
-jnlfilename = 'THESES-BRITISHCOLUMBIA-%s' % (ejlmod3.stampoftoday())
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+
+prerecs = []
 artlinks = []
 for (dep, fc) in deps:
     for page in range(pages):
@@ -57,17 +66,18 @@ for (dep, fc) in deps:
                 if fc:
                     rec['fc'] = fc
                 if not rec['artlink'] in artlinks:
-                    recs.append(rec)
+                    prerecs.append(rec)
                     artlinks.append(rec['artlink'])
                 else:
                     print('         %s already in recs' % (rec['artlink']))
-        print('    %4i records so far' % (len(recs)))
+        print('    %4i records so far' % (len(prerecs)))
             
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -99,7 +109,9 @@ for rec in recs:
                     if a.has_attr('href') and re.search('handle.net\/', a['href']):
                         rec['hdl'] = re.sub('.*handle.net\/', '', a['href'])
     if 'autaff' in rec:
-        rec['autaff'][-1].append(publisher)
-    ejlmod3.printrecsummary(rec)
+        if not rec['doi'] in alreadyharvested:
+            rec['autaff'][-1].append(publisher)
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
