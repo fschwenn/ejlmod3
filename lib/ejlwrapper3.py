@@ -66,7 +66,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['aip3.py', 'ltp', pryear-1974, prmonth]),
         (2, ['theses-helda3.py']),
         (1, ['aip3.py', 'php', pryear-1993, prmonth]),
-        (1, ['aip3XXX.py', 'adva', pryear-2010, prmonth]),
+        (1, ['aip3.py', 'adva', pryear-2010, prmonth]),
         (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 3) % 24]),
         (1, ['osa3.py', 'ol', pryear-1975, prmonth * 2 - 1]),
         (1, ['aip3.py', 'apl', 2*pryear - 3924 + ((prmonth-1) // 6), 1 + (4*prmonth - 2) % 24]),
@@ -95,7 +95,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
 #        (222, ['theses-oatd.py', '0', '3']), #proteced by Claudflare
         (1, ['aip3XXX.py', 'phf', pryear-1988, prmonth]),
 #        (333, ['theses-oatd.py', '3', '5']), #proteced by Claudflare
-        (2, ['aip3XXX.py', 'jva', pryear-1982, prsixth]),
+        (2, ['aip3.py', 'jva', pryear-1982, prsixth]),
 #        (222, ['theses-oatd.py', '5', '7']), #proteced by Claudflare
 #        (333, ['theses-oatd.py', '7', '9']), #proteced by Claudflare
         (1, ['mdpi.sftp.py', 'symmetry']),
@@ -139,14 +139,14 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['oxfordbooks3.py']),
         (1, ['wspbooks3.py']),
         (2, ['theses-kit3.py']),
-        (3, ['theses-ora.py']),
+        (3, ['theses-ora3.py']),
         (2, ['theses-nikhef.py']),
-        (2, ['theses-clas.py']),
+        (2, ['theses-clas3.py']),
         (2, ['theses-kentucky3.py']),
         (2, ['theses-italy3.py', 'sissa']),
         (2, ['theses-maryland3.py']),
         (1, ['figshare3.py', 'ryerson']),
-        (2, ['theses-belle.py']),
+        (2, ['theses-belle3.py']),
         (2, ['theses-CSUC.py']),
         (2, ['theses-cambridge3.py']),
         (2, ['theses-pennstate3.py']),
@@ -186,7 +186,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-uam.py']),
         (2, ['theses-durham.py']),
         (1, ['sciencemag3.py', 'sciadv', pryear]),
-        (2, ['theses-southampton.py']),
+        (2, ['theses-southampton3.py']),
         (2, ['theses-imperial.py']),
         (2, ['theses-bern.py']),
         (2, ['theses-edinburgh.py']),
@@ -267,7 +267,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-siegen3.py']),
         (2, ['theses-basel3.py']),
         (2, ['theses-britishcolumbia3.py']),
-        (1, ['theses-bonn2.py', pryear]),
+        (1, ['theses-bonn23.py', pryear]),
         (2, ['theses-granada.py']),
         (2, ['theses-stanford3.py']),
         (666, ['theses-chilecatolica.py']), #GitHub Issue
@@ -285,7 +285,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-nust3.py']),
         (2, ['theses-cbpf.py']),
         (2, ['theses-chennai.py']),
-        (2, ['theses-caltech.py']),
+        (2, ['theses-caltech3.py']),
         (2, ['theses-iowa.py']),
         (1, ['mdpi.sftp.py', 'mathematics']),
         (2, ['theses-floridastate3.py']),
@@ -402,7 +402,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-tuwien3.py']),
         (3, ['theses-rostock3.py']),
         (3, ['theses-texastech.py']),
-        (2, ['theses-rochester.py']),
+        (2, ['theses-rochester3.py']),
         (2, ['theses-colorado.py']),
         (1, ['mdpi.sftp.py', 'information']),
         (2, ['theses-buenosaires.py']),
@@ -519,8 +519,8 @@ if prmonth == 12:
     jnls.append((1, ['aip3.py', 'apl', 2*pryear - 3924 + 1, 26]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 1]))
     jnls.append((1, ['osa3.py', 'oe', pryear-1992, prmonth * 2 + 2]))
-    jnls.append((1, ['procnas3.py', pryear-1903, '49,50']))
-    jnls.append((1, ['procnas3.py', pryear-1903, '51,52']))
+    jnls.append((111, ['procnas3.py', pryear-1903, '49,50']))
+    jnls.append((111, ['procnas3.py', pryear-1903, '51,52']))
     jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '7']))
     jnls.append((1, ['intlpress.py', 'cms', pryear-2002, '8']))
 if prmonth == 6:
