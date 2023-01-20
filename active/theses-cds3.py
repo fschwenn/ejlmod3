@@ -14,8 +14,9 @@ import urllib3
 urllib3.disable_warnings()
 
 publisher = 'CERN'
-rpp = 50
-pages = 1
+rpp = 20
+pages = 100
+targetnumberoftheses = 20
 jnlfilename = 'THESES-CDS-%s' % (ejlmod3.stampoftoday())
 
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -37,7 +38,7 @@ for page in range(pages):
             rec['recid'] = cf.text.strip()
             rec['link'] = 'https://cds.cern.ch/record/' + rec['recid']
             rec['doi'] = '30.3000/CDS/' + rec['recid']
-            ejlmod3.printprogress('-', [[i, rpp], [i+page*rpp, pages*rpp], [rec['link']]])
+            ejlmod3.printprogress('-', [[i, rpp], [len(recs), i+page*rpp, pages*rpp], [rec['link']]])
         #DOI 
         for df in record.find_all('datafield', attrs = {'tag' : '024', 'ind1' : '7'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
@@ -54,8 +55,10 @@ for page in range(pages):
                     inspire = perform_inspire_search_FS('report_numbers.value:'+rn)
                     if inspire:
                         keepit = False
+                        print('    %s in INSPIRE' % (rn))
                     else:
                         rec['rn'].append(rn)
+                        print('    %s' % (rn))
                 else:
                     rec['rn'].append(rn)
         #author
@@ -102,13 +105,39 @@ for page in range(pages):
         #experiment
         for df in record.find_all('datafield', attrs = {'tag' : '693'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'e'}):
-                rec['exp'] = sf.text.strip()
-                if rec['exp'] in ['CMS', 'ATLAS', 'LHCb', 'ALPHA AD-5', 'SHip', 'COMPASS NA58', 'CMS---CERN LHC', 'TOTEM']:
+                exp = sf.text.strip()
+                if exp in ['CMS', 'ATLAS', 'LHCb', 'ALPHA AD-5', 'SHip', 'COMPASS NA58', 'CMS---CERN LHC', 'TOTEM']:
                     rec['fc'] = 'e'
-                elif rec['exp'] in ['ALICE', 'SHINE NA61', 'NA62', '']:
+                elif exp in ['ALICE', 'SHINE NA61', 'NA62']:
                     rec['fc'] = 'xe'
-                elif rec['exp'] in ['nTOF', 'ISOLTRAP', 'ISOL']:
+                elif exp in ['nTOF', 'ISOLTRAP', 'ISOL']:
                     rec['fc'] = 'x'
+                elif exp in ['CMS', 'CMS---CERN LHC']:
+                    rec['exp'] = 'CERN-LHC-CMS'
+                elif exp == 'ATLAS':
+                    rec['exp'] = 'CERN-LHC-ATLAS'
+                elif exp == 'LHCb':
+                    rec['exp'] = 'CERN-LHC-LHCb'
+                elif exp == 'ALPHA AD-5':
+                    rec['exp'] = 'CERN-ALPHA'
+                elif exp == 'SHip':
+                    rec['exp'] = 'CERN-SPS-SHIP'
+                elif exp == 'COMPASS NA58':
+                    rec['exp'] = 'CERN-NA-058'
+                elif exp == 'TOTEM':
+                    rec['exp'] = 'CERN-LHC-TOTEM'
+                elif exp == 'ALICE':
+                    rec['exp'] = 'CERN-LHC-ALICE'
+                elif exp == 'SHINE NA61':
+                    rec['exp'] = 'CERN-NA-061'
+                elif exp == 'NA62':
+                    rec['exp'] = 'CERN-NA-062'
+                elif exp == 'nTOF':
+                    rec['exp'] = 'CERN-nTOF'
+                elif exp == 'ISOLTRAP':
+                    rec['exp'] = 'CERN-ISOLTRAP'
+                else:
+                    print('    unknown experiment "%s"' % (exp))
         #fulltext
         for df in record.find_all('datafield', attrs = {'tag' : '856', 'ind1' : '4'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'u'}):
@@ -129,6 +158,8 @@ for page in range(pages):
         if keepit:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
+        if len(recs) >= targetnumberoftheses:
+            break
     time.sleep(5)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
