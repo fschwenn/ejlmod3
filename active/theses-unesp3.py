@@ -26,7 +26,7 @@ for offset in [0]:
     except:
         print("retry in 180 seconds")
         time.sleep(180)
-        tocpage = BeautifulSoup(urllib2.build_opener(urllib2.HTTPCookieProcessor).open('%s%i' % (tocurl, offset)))
+        tocpage = BeautifulSoup(urllib2.build_opener(urllib2.HTTPCookieProcessor).open('%s%i' % (tocurl, offset)), features=lxml)
     for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
         rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK'}
         for a in div.find_all('a'):
@@ -41,13 +41,13 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features=lxml)
         time.sleep(3)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['link']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features=lxml)
         except:
             print("no access to %s" % (rec['link']))
             continue
