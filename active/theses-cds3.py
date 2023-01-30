@@ -21,7 +21,7 @@ jnlfilename = 'THESES-CDS-%s' % (ejlmod3.stampoftoday())
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
-
+listofunknownsexps = []
 for page in range(pages):
     tocurl = 'https://cds.cern.ch/search?jrec=' + str(page*rpp+1) + '&ln=en&p=037__a%3ACERN-THESIS-*+502__a%3Aphd+not+035__9%3Ainspire&action_search=Search&op1=a&m1=a&p1=&f1=&c=CERN+Document+Server&sf=year&so=d&rm=&rg=' + str(rpp) + '&sc=1&of=xm'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
@@ -38,7 +38,7 @@ for page in range(pages):
             rec['recid'] = cf.text.strip()
             rec['link'] = 'https://cds.cern.ch/record/' + rec['recid']
             rec['doi'] = '30.3000/CDS/' + rec['recid']
-            ejlmod3.printprogress('-', [[i, rpp], [len(recs), i+page*rpp, pages*rpp], [rec['link']]])
+            ejlmod3.printprogress('-', [[i, rpp], [i+page*rpp, pages*rpp], [rec['link']], [len(recs), targetnumberoftheses]])
         #DOI 
         for df in record.find_all('datafield', attrs = {'tag' : '024', 'ind1' : '7'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
@@ -136,8 +136,13 @@ for page in range(pages):
                     rec['exp'] = 'CERN-nTOF'
                 elif exp == 'ISOLTRAP':
                     rec['exp'] = 'CERN-ISOLTRAP'
+                elif exp == 'RD50':
+                    rec['exp'] = 'CERN-RD-050'
                 else:
-                    print('    unknown experiment "%s"' % (exp))
+                    if not exp in listofunknownsexps:
+                        listofunknownsexps.append(exp)
+                    if keepit:
+                        print('    unknown experiment "%s"' % (exp))                                            
         #fulltext
         for df in record.find_all('datafield', attrs = {'tag' : '856', 'ind1' : '4'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'u'}):
@@ -158,9 +163,12 @@ for page in range(pages):
         if keepit:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
-        if len(recs) >= targetnumberoftheses:
-            break
+    if len(recs) >= targetnumberoftheses:
+        break
     time.sleep(5)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
 
+for exp in listofunknownsexps:
+    if exp != 'Not applicable':
+        print('%-20s https://inspirehep.net/experiments?sort=mostrecent&size=25&page=1&q=%s' % (exp, exp))
