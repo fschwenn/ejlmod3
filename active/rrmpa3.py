@@ -45,5 +45,5 @@ for center in tocpage.body.find_all('center'):
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
