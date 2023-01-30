@@ -147,10 +147,15 @@ for (i, artlink) in enumerate(artlinks):
         rec['link'] = meta['content']
         if 'oa' in jnldict[jrnid] and jnldict[jrnid]['oa']:
             rec['FFT'] = meta['content']
-      #abstract
+    #abstract
     for p in artpage.body.find_all('p'):
         for a in p.find_all('a', attrs = {'name' : 'Abstract'}):
             rec['abs'] = re.sub(' *Abstract: *', '', p.text.strip())
+    if not 'abs' in rec:
+        for section in artpage.body.find_all('section', attrs = {'id' : 'Abstract'}):
+            for h2 in section.find_all('h2'):
+                h2.decompose()
+            rec['abs'] = section.text.strip()
     #references
     if not 'refs' in rec:
         rec['refs'] = []
