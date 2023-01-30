@@ -168,6 +168,11 @@ for rec in prerecs:
                     rdoi = re.sub('.*\/doi\/', '', a['href'])
                     a.replace_with('')
                 else:
+                    if a.has_attr('href'):
+                        if re.search('doi.(org|pangea.de)\/10', a['href']):
+                            rdoi = re.sub('.*?\/(10\..*)', r'\1', a['href'])
+#                        elif not rdoi:
+#                            print('       referencelink:', a['href'])
                     a.replace_with('')
             if rdoi:
                 lit = re.sub('\.? *$', ', DOI: %s' % (rdoi), li.text.strip())
