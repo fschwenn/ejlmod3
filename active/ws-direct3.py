@@ -73,10 +73,16 @@ for span in tocpage.body.find_all('span', attrs = {'class' : 'cover-date'}):
 
 recs = []
 typecode = 'P'
+subject = False
 for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     rec = {'note' : note.copy(), 'jnl' : jnlname, 'autaff' : []}
     if year:
         rec['year'] = year
+    #subject
+    for div2 in div.find_all('div', attrs = {'class' : 'subject'}):
+        subject = div2.text.strip()
+    if subject: rec['note'].append(subject)
+
     #CNUM
     if len(sys.argv) > 3:
         rec['cnum'] = sys.argv[3]
