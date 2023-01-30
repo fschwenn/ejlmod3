@@ -1479,7 +1479,7 @@ def metatagcheck(rec, artpage, listoftags):
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
                              'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued',
-                             'eprints.datestamp']:
+                             'eprints.datestamp', 'DC.issued']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
@@ -1524,7 +1524,7 @@ def metatagcheck(rec, artpage, listoftags):
                         if not meta['content'] in rec['keyw']:
                             rec['keyw'].append(meta['content'])
                     else:
-                        rec['keyw'] = [meta['content']]
+                        rec['keyw'] = re.split('; ', meta['content'])
                     done.append(tag)
                 #fulltext
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
@@ -1910,3 +1910,17 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                     prerecs.append(rec)
     print('  [ngrx] %i/%i' % (len(prerecs), j))
     return prerecs
+
+
+#get PIDs of already harvested records
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+def tfstrip(x): return x.strip()
+def getalreadyharvested(jnlfilename, years=3):
+    filenametrunc = re.sub('\d.*', '', jnlfilename)
+    filenametrunc += '*doki'
+    filestosearch = '%s/*%s ' % (dokidir, filenametrunc)
+    for i in range(years-1):
+        filestosearch += '%s/%i/*%s ' % (dokidir, now.year-i-1, filenametrunc)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (filestosearch))))
+    print('%i records in backup (%s)' % (len(alreadyharvested), filenametrunc))
+    return alreadyharvested
