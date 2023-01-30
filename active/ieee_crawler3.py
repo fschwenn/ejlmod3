@@ -19,6 +19,7 @@ from multiprocessing import Manager
 import codecs
 
 articlesperpage = 100
+skipalreadyharvested = True
 
 host = os.uname()[1]
 if host == 'l00schwenn':
@@ -37,6 +38,14 @@ else:
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
 
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = 'ieee*doki'
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*http/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
 
 
 def meta_with_name(tag):
@@ -284,6 +293,7 @@ def ieee(number):
     recs = []
     i = 0
     iref = 1
+    jnlname = False
     for articlelink in allarticlelinks:
         i += 1
         if (iref % 45) == 0:
@@ -292,6 +302,9 @@ def ieee(number):
             iref += 1
         hasreferencesection = False
         ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink]])
+        if articlelink in alreadyharvested:
+            print('   already in backup')
+            continue
         #rec['note'] = ['Konferenz ?']
         artfilename = '%s/ieee_%s.%s' % (tmpdir, number, re.sub('\W', '', articlelink))
         if not os.path.isfile(artfilename):
@@ -305,7 +318,7 @@ def ieee(number):
         inf = open(artfilename, 'r')
         articlepage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
         inf.close()
-        rec = {'keyw' : [], 'autaff' : [], 'note' : []}
+        rec = {'keyw' : [], 'autaff' : [], 'note' : [articlelink]}
         #rec['fc'] = 'kc'
         #metadata now in javascript
         for script in articlepage.find_all('script', attrs = {'type' : 'text/javascript'}):
@@ -404,7 +417,7 @@ def ieee(number):
         #references
         if hasreferencesection:
                 refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', articlelink))
-                if not os.path.isfile(refilename):
+                if not os.path.isfile(refilename) and host == 'l00schwenn':
                     iref += 1
                     print('  try to get references')
                     action_process = Process(target=addreferences, args=(refsdict, articlelink))
@@ -462,19 +475,21 @@ def ieee(number):
             
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
-
-    if jnlname == 'BOOK':
-        oufname = 'IEEENuclSciSympConfRec'
+    if recs:
+        if jnlname == 'BOOK':
+            oufname = 'IEEENuclSciSympConfRec'
+        else:
+            oufname = re.sub('[ \.]','',jnlname).lower()
+        if 'vol' in rec: oufname += '.'+rec['vol']
+        if 'issue' in rec:
+            oufname += '.'+rec['issue']
+        else:
+            oufname += '_'+ejlmod3.stampoftoday()
+        if 'cnum' in rec: oufname += '.'+rec['cnum']
+        #driver.quit()
+        return (recs, oufname+'_'+number) #XYZ
     else:
-        oufname = re.sub('[ \.]','',jnlname).lower()
-    if 'vol' in rec: oufname += '.'+rec['vol']
-    if 'issue' in rec:
-        oufname += '.'+rec['issue']
-    else:
-        oufname += '_'+ejlmod3.stampoftoday()
-    if 'cnum' in rec: oufname += '.'+rec['cnum']
-    #driver.quit()
-    return (recs, oufname+'_'+number) #XYZ
+        return (recs, 'none')
 
 
 if __name__ == '__main__':
