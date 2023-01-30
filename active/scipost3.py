@@ -39,6 +39,8 @@ elif (jnl == 'spsc'):
 elif (jnl == 'spsln'):
     jnlname = 'SciPost Phys.Lect.Notes'
     urltrunk = 'https://scipost.org/SciPostPhysLectNotes'
+    urltrunk = 'https://scipost.org/journals/publications?journal=SciPost+Physics+Lecture+Notes&orderby=date'
+    vol = False
     toclink = urltrunk
     tc = 'LP'
     if len(sys.argv) > 2:
@@ -92,7 +94,9 @@ else:
 
     #for div  in tocpage.body.find_all('div', attrs = {'class' : 'publicationHeader'}):
     for div  in divs:
-        rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'auts' : []}
+        rec = {'jnl' : jnlname, 'tc' : tc, 'auts' : []}
+        if vol:
+            rec['vol'] = vol
         if (jnl == 'sps'):
             rec['issue'] = issue
         elif (jnl == 'spsp'):
