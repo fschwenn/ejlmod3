@@ -15,6 +15,7 @@ import datetime
 
 publisher = 'U. Heidelberg (main)'
 jnlfilename = 'THESES-HEIDELBERG-%s' % (ejlmod3.stampoftoday())
+skipalreadyharvested = True
 
 boring = ['Zentrum für Biomedizin und Medizintechnik (CBTM)', 'European Molecular Biology Laboratory (EMBL)',
           "Alfred-Weber-Institut for Economics", "Anglistisches Seminar",
@@ -66,6 +67,12 @@ if now.month <= 8:
 else:
     years = [str(now.year)]
 
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 tocurl = 'http://archiv.ub.uni-heidelberg.de/volltextserver/view/type/doctoralThesis.html'
 print(tocurl)
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -82,12 +89,12 @@ for p in ps:
             rec['artlink'] = a['href']
             rec['tit'] = a.text.strip()
             a.replace_with('')
-        pt = re.sub('[\n\t\r]', ' ', p.text.strip())
-        if re.search('\(\d\d\d\d\)', pt):
-            rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
-            if rec['date'] in years:
-                if ejlmod3.checkinterestingDOI(rec['artlink']):
-                    prerecs.append(rec)
+            pt = re.sub('[\n\t\r]', ' ', p.text.strip())
+            if re.search('\(\d\d\d\d\)', pt):
+                rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
+                if rec['date'] in years:
+                    if ejlmod3.checkinterestingDOI(rec['artlink']):
+                        prerecs.append(rec)
 
 i = 0
 recs = []
@@ -140,8 +147,13 @@ for rec in prerecs:
             else:
                 rec['note'].append(division)
     if keepit:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if 'urn' in rec and rec['urn'] in alreadyharvested:
+            print('   already in backup')
+        elif 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('   already in backup')
+        else:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
