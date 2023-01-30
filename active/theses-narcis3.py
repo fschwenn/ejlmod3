@@ -2,7 +2,6 @@
 #harvest theses from NARCIS
 #FS: 2019-09-15
 
-
 import getopt
 import sys
 import os
@@ -18,13 +17,38 @@ publisher = 'NARCIS'
 jnlfilename = 'THESES-NARCIS-%s' % (ejlmod3.stampofnow())
 bunchlength = 100
 
+boringpublishers = ['Biomedical Signals and Systems; TechMed Centre',
+                    'TechMed Centre; Biomedical Signals and Systems',
+                    'LOT', 'Building Materials',
+                    'International and European Law; RS: FdR Institute MCEL',
+                    'RS: GROW - R2 - Basic and Translational Cancer Biology; Precision Medicine',
+                    'RS: GSBE other - not theme-related research; Marketing & Supply Chain Management']
+boringkeywords = ['Anxiety', 'Aquaculture and Fisheries', 'Aquacultuur en Visserij', 'biomarkers',
+                  'Bio Process Engineering', 'Business Management & Organisation', 'Case study',
+                  'circulaire economie', 'circular economy', 'Depression', 'duurzaamheid',
+                  'Food Process Engineering', 'human rights', 'Immunotherapy', 'Inflammation',
+                  'Laboratorium voor Geo-informatiekunde en Remote Sensing',
+                  'Laboratory of Geo-information Science and Remote Sensing',
+                  'LOT dissertation series', 'mensenrechten', 'Microbiologie', 'Microbiology',
+                  'Parenting', 'physical activity', 'Physical therapy', 'refugees', 'room 0.710',
+                  'Systeem en Synthetische Biologie', 'Systems and Synthetic Biology',
+                  'systems biology', 'Tuberculosis', 'vluchtelingen', 'Water Resources Management',
+                  'Baggage Handling Systems', 'Cancer', 'Development Economics',
+                  'ERIM PhD Series Research in Management', 'Global Nutrition',
+                  'Laboratorium voor Plantenveredeling', 'Ontwikkelingseconomie', 'Plant Breeding',
+                  'sustainability', 'Wereldvoeding', 'climate change', 'Kennis',
+                  'MPI series in Psycholinguistics', 'SDG 3 - Good Health and Well-being',
+                  'Glomerulosclerosis', 'Proteinuria', 'Renal disease']
+
 #check individual pages of bunch of records
 def processrecs(recs, bunchcounter):
     i = 0
-    for rec in recs:
+    recs = []
+    for rec in prerecs:
+        keepit = True
         uni = 'unknown'
         i += 1
-        ejlmod3.printprogress('-', [[bunchcounter], [i, len(recs)], [rec['artlink']]])
+        ejlmod3.printprogress('-', [[bunchcounter], [i, len(prerecs)], [rec['artlink']], [len(recs)]])
         #req = urllib2.Request(rec['artlink'], headers=hdr)    
         #artpage = BeautifulSoup(urllib2.urlopen(req))
         artfilename = '/tmp/THESES-NARCIS_%s' % (re.sub('\W', '', rec['artlink']))
@@ -44,6 +68,10 @@ def processrecs(recs, bunchcounter):
                     tdt = td.text.strip()
                 if tht == 'Reference(s)':
                     rec['keyw'] = re.split(', ', tdt)
+                    for kw in rec['keyw']:
+                        if kw in boringkeywords:
+                            print('   skip "%s"' % (kw))
+                            keepit = False
                 elif tht == 'ISBN':
                     isbns = re.split(' *; *', tdt)
                     rec['isbns'] = [[('a', re.sub('\-', '', isbn))] for isbn in isbns]
@@ -63,6 +91,13 @@ def processrecs(recs, bunchcounter):
                     if not 'hdl' in list(rec.keys()) and not 'doi' in list(rec.keys()):
                         if re.search('\/handle\/\d', rec['link']):
                             rec['hdl'] = re.sub('.*handle\/', '', rec['link'])
+                elif tht == 'Publisher':
+                    realpublisher = tdt
+                    if realpublisher in boringpublishers:
+                        print('   skip "%s"' % (realpublisher))
+                        keepit = False
+                    else:
+                        rec['note'].append('publisher:::'+tdt)
         if 'link' in list(rec.keys()):
             print('  try to get PDF from %s' % (rec['link']))
             try:
@@ -70,14 +105,16 @@ def processrecs(recs, bunchcounter):
                 origpage = BeautifulSoup(urllib.request.urlopen(req))
                 ejlmod3.metatagcheck(rec, origpage, ['citation_pdf_url', 'citation_isbn', 'citation_doi'])
             except:
-                print('  could not find PDF')
+                print('    could not find PDF')
             if not 'FFT' in list(rec.keys()):
                 rec['link'] = rec['artlink']
-            if 'hdl' in list(rec.keys()) or 'doi' in list(rec.keys()):
-                del rec['link']
         if not 'doi' in list(rec.keys()) and not 'isbn' in list(rec.keys()) and not 'urn' in list(rec.keys()) and not 'hdl' in list(rec.keys()):
             rec['doi'] = '20.2001/NARCIS/' + re.sub('\W', '', rec['artlink'])
-        ejlmod3.printrecsummary(rec)
+        if keepit:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
+        else:
+            ejlmod3.adduninterestingDOI(rec['artlink'])
     ejlmod3.writenewXML(recs, publisher, '%s_%03i' % (jnlfilename, bunchcounter))
     return
 
@@ -108,15 +145,13 @@ for ejldir in ejldirs:
                                     bereitsin.append(http)
             print('  %6i %s' % (len(bereitsin), datei))
 
-
-
 hdr = {'User-Agent' : 'Magic Browser'}
-
 
 #there is not set for doctoral theses on OAI-PMH.
 #  tocurl = 'http://oai.tudelft.nl/ir/oai/oai2.php?verb=ListRecords&metadataPrefix=nl_didl&from=' + startdate + '&until=' + stopdate
 #would give too many results
-recs = []
+prerecs = []
+pages = 0
 pagestotal = 0
 bunchcounter = 0
 ntarget = 0
@@ -125,7 +160,7 @@ for year in [str(ejlmod3.year()), str(ejlmod3.year(backwards=1))]:
     complete = False
     while not complete:
         tocurl = 'https://www.narcis.nl/search/coll/publication/Language/EN/genre/doctoralthesis/dd_year/' + year + '/pageable/' + str(page)
-        ejlmod3.printprogress('=', [[page, tocurl], [len(recs), 10*pagestotal, ntarget], [tocurl]])
+        ejlmod3.printprogress('=', [[page+1, pages], [len(prerecs), 10*pagestotal, ntarget], [tocurl]])
         try:
             req = urllib.request.Request(tocurl, headers=hdr)
             tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -137,6 +172,7 @@ for year in [str(ejlmod3.year()), str(ejlmod3.year(backwards=1))]:
         for h1 in tocpage.body.find_all('h1', attrs = {'class' : 'search-results'}):
             target = re.sub('.*of (\d.*\d).*', r'\1', h1.text.strip())
             ntarget = int(re.sub('\D', '', target))
+            pages = (ntarget-1) // 10 + 1
         for div in tocpage.body.find_all('div', attrs = {'class' : 'search-results'}):
             for div2 in div.find_all('div', attrs = {'class' : 'search-options'}):
                 div2.replace_with('')
@@ -150,29 +186,29 @@ for year in [str(ejlmod3.year()), str(ejlmod3.year(backwards=1))]:
                         rec['identifier'] = re.sub('%2F', '/', rec['identifier'])
                         rec['identifier'] = regenre.sub('', rec['identifier'])
                         rec['tit'] = re.sub(' \(\d\d\d\d\)$', '', a.text.strip())
-                        rec['note'] = [ rec['artlink'], '%i of %i' % (len(recs) + 1, ntarget) ]
+                        rec['note'] = [ rec['artlink'], '%i of %i' % (len(prerecs) + 1, ntarget) ]
                         for img  in li.find_all('img', attrs = {'class' : 'open-access-logo'}):
                             rec['oa'] = True
                     ihttp = re.sub('(.*id).*', r'\1', rec['artlink'])
                     if regenre.sub('', ihttp) in bereitsin:
                         #print('   skip %s' % (rec['artlink']))
                         pass
-                    elif ejlmod3.checkinterestingDOI(rec['identifier']):
-                        recs.append(rec)
+                    elif ejlmod3.checkinterestingDOI(rec['identifier']) and ejlmod3.checkinterestingDOI(rec['artlink']):
+                        prerecs.append(rec)
                         bereitsin.append(ihttp)
         time.sleep(10)
         page += 1
         pagestotal += 1
-        if len(recs) >= ntarget or 10*page >= ntarget:
+        if len(prerecs) >= ntarget or 10*page >= ntarget:
             complete = True
-        if len(recs) >= bunchlength:
-            processrecs(recs, bunchcounter)
+        if len(prerecs) >= bunchlength:
+            processrecs(prerecs, bunchcounter)
             bunchcounter += 1
-            recs = []
-if len(recs) < bunchlength:
-    processrecs(recs, bunchcounter)
-    bunchcounter += 1
-    recs = []
+            prerecs = []
+if len(prerecs) < bunchlength:
+    processrecs(prerecs, bunchcounter)
+
+
 
         
 
