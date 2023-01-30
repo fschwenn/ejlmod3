@@ -15,6 +15,8 @@ from bs4 import BeautifulSoup
 
 urltrunc = 'https://www.degruyter.com'
 publisher = 'De Gruyter'
+skipalreadyharvested = True
+
 
 journal = sys.argv[1]
 year = sys.argv[2]
@@ -46,6 +48,16 @@ elif journal == 'agms':
 elif journal == 'cmam':
     jnl = 'Comp.Meth.Appl.Math.'
 
+
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+alreadyharvested = []
+def tfstrip(x): return x.strip()
+if skipalreadyharvested:
+    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+
+    
 #get list of volumes
 if journal in ['kern', 'ract', 'phys', 'astro', 'crll', 'agms', 'cmam']:
     tocurl = 'https://www.degruyter.com/journal/key/%s/%s/%s/html' % (journal.upper(), vol, iss)
@@ -246,7 +258,8 @@ for div in titledivs:
                             rec['autaff'].append([span.text.strip(), ' and '.join(affs), 'EMAIL:'+email])
                         else:
                             rec['autaff'].append([span.text.strip(), ' and '.join(affs)])
-            recs.append(rec)
-            ejlmod3.printrecsummary(rec)
+            if not rec['doi'] in alreadyharvested:
+                recs.append(rec)
+                ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
