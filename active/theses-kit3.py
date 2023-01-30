@@ -15,20 +15,14 @@ publisher = 'KIT, Karlsruhe'
 jnlfilename = 'THESES-KIT-%s' % (ejlmod3.stampoftoday())
 pages = 4 
 
-
 options = uc.ChromeOptions()
 options.headless=True
-#options.binary_location='/opt/google/chrome/google-chrome'
-##options.binary_location='/opt/google/chrome/chrome'
 options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
 chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
-#driver = uc.Chrome(browser_executable_path='/usr/bin/chromedriver', options=options)
-#driver = uc.Chrome(options=options)
 
-
-recs = []
+prerecs = []
 for page in range(pages):
     tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,*&tab=kit&sortby=date&vid=KIT&facet=local5,include,istHochschulschrift&mfacet=local3,include,istFachPhys,1&mfacet=local3,include,istFachMath,1&mode=simple&offset=' + str(10*page) + '&fn=search'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
@@ -48,12 +42,17 @@ for page in range(pages):
             rec = {'jnl' : 'BOOK', 'tc' : 'T', 'note' : [], 'keyw' : [], 'supervisor' : []}
             rec['data-recordid'] = div2['data-recordid']
             rec['artlink'] = 'https://primo.bibliothek.kit.edu/primo-explore/fulldisplay?docid=' + div2['data-recordid']+ '&context=L&vid=KIT&lang=de_DE'
-            recs.append(rec)
+            if ejlmod3.checkinterestingDOI(rec['artlink']):
+                prerecs.append(rec)
+            else:
+                print('   %s already known to be uninteresting' % (rec['data-recordid']))
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    keepit = True
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     isbns = []
     try:
         driver.get(rec['artlink'])
@@ -99,7 +98,7 @@ for rec in recs:
                 isbn = re.sub('\-', '', re.sub('.*?(978.*[\dX]).*', r'\1', ide))
                 if not isbn in isbns:
                     isbns.append(isbn)
-    if 'doi' in list(rec.keys()):
+    if 'doi' in rec:
         if re.search('^10.5445', rec['doi']):
             print('   checking primo-page')
             try:
@@ -129,20 +128,21 @@ for rec in recs:
                 for tr in table.find_all('tr'):
                     tds = tr.find_all('td')
                     if len(tds) == 2:
+                        tht = tds[0].text.strip()
                         #Keywords
-                        if re.search('Schlagw', tds[0].text.strip()):
+                        if re.search('Schlagw', tht):
                             for keyw in re.split(', ', tds[1].text.strip()):
                                 if not keyw in rec['keyw']:
                                     rec['keyw'].append(keyw)
                         #Language
-                        elif tds[0].text.strip() == 'Sprache':
+                        elif tht == 'Sprache':
                             if tds[1].text.strip() != 'Englisch':
                                 if tds[1].text.strip() == 'Deutsch':
                                     rec['language'] = 'german'
                                 else:
                                     rec['language'] = tds[1].text.strip()
                         #pages
-                        elif tds[0].text.strip() == 'Umfang':
+                        elif tht == 'Umfang':
                             if re.search('\d\d\d', tds[1].text.strip()):
                                 rec['pages'] = re.sub('.*?(\d\d\d+).*', r'\1', tds[1].text.strip())
                         #supervisor
@@ -155,15 +155,39 @@ for rec in recs:
                         elif re.search('Pr.fungsdatum', tds[0].text):
                             rec['MARC'] = [ ['500', [('a', 'Presented on ' + re.sub('(\d\d).(\d\d).(\d\d\d\d)', r'\3-\2-\1', tds[1].text.strip()))] ] ]
                         #institue
-                        elif tds[0].text.strip() == 'Institut':
-                            rec['note'].append(tds[1].text.strip())
+                        elif tht == 'Institut':
+                            institut = tds[1].text.strip()
+                            if institut in ['Institut für Angewandte und Numerische Mathematik (IANM)',
+                                            'Institut für Algebra und Geometrie (IAG)',
+                                            'Institut für Analysis (IANA)']:
+                                rec['fc'] = 'm'
+                            elif institut in ['Institut für Astroteilchenphysik (IAP)']:
+                                rec['fc'] = 'a'
+                            elif institut in ['Institut für Theorie der Kondensierten Materie (TKM)']:
+                                rec['fc'] = 'f'
+                            elif institut in ['Institut für Quantenmaterialien und -technologien (IQMT)']:
+                                rec['fc'] = 'k'
+                            elif institut in ['Institut für Experimentelle Teilchenphysik (ETP)']:
+                                rec['fc'] = 'e'
+                            elif institut in ['Institut für Theoretische Teilchenphysik (TTP)']:
+                                rec['fc'] = 'tp'
+                            else:
+                                rec['note'].append(tds[1].text.strip())
                         #urn
-                        elif tds[0].text.strip() == 'Identifikator':
+                        elif tht == 'Identifikator':
                             for br in tds[1].find_all('br'):
                                 br.replace_with('#')
                             for tdt in re.split('#',  re.sub('[\n\t\r]', '#', tds[1].text.strip())):
                                 if re.search('urn:nbn', tdt):
                                     rec['urn'] = re.sub('.*?(urn:nbn.*)', r'\1', tdt.strip())
+                        #anmerkung
+                        elif tht == 'Art der Arbeit':
+                            anmerkung = tds[1].text.strip()
+                            if re.search('(Master|Bachelor)', anmerkung):
+                                keepit = False
+                                print('   skip "%s"' % (anmerkung))
+                            elif anmerkung != 'Dissertation':
+                                rec['note'].append(anmerkung)
             #license
             for a in artpage.body.find_all('a', attrs = {'class' : 'with-popover'}):
                 if a.has_attr('data-content'):
@@ -182,8 +206,11 @@ for rec in recs:
         rec['isbns'] = []
         for isbn in isbns:
             rec['isbns'].append([('a', isbn)])
-    
-    ejlmod3.printrecsummary(rec)
+    if keepit:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+    else:
+        ejlmod3.adduninterestingDOI(rec['artlink'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
