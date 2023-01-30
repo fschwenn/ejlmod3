@@ -182,7 +182,7 @@ for rec in prerecs:
                         interesting = True
 #                    else:
 #                        print('  skip', section)
-    if not 'autaff' in list(rec.keys()):
+    if not 'autaff' in rec:
         for meta in artpage.find_all('meta', attrs = {'name' : 'DC.creator'}):
             rec['autaff'] = [[ meta['content'] ]]
     # :( meta-tags now hidden in JavaScript
@@ -193,33 +193,33 @@ for rec in prerecs:
             for td in tr.find_all('td', attrs = {'class' : 'metadataFieldValue'}):
                 #author
                 if re.search('^Autori', tdlabel):
-                    if not 'autaff' in list(rec.keys()):
+                    if not 'autaff' in rec:
                         rec['autaff'] = [[td.text.strip()]]
                 #supervisor
                 elif re.search('^Tutore', tdlabel):
-                    if not 'supervisor' in list(rec.keys()):
+                    if not 'supervisor' in rec:
                         rec['supervisor'] = [[td.text.strip()]]
                 #title
                 elif re.search('^Titolo', tdlabel):
-                    if not 'tit' in list(rec.keys()):
+                    if not 'tit' in rec:
                         rec['tit'] = td.text.strip()
                 #date
                 elif re.search('^Data di', tdlabel):
-                    if not 'date' in list(rec.keys()):
+                    if not 'date' in rec:
                         rec['date'] = re.sub('.*(\d\d\d\d).*', r'\1', td.text.strip())
                 #abstract
                 elif re.search('^Abstract', tdlabel):
-                    if not 'abs' in list(rec.keys()):
+                    if not 'abs' in rec:
                         if re.search(' the ', td.text):
                             rec['abs'] = td.text.strip()
                 #language
                 elif re.search('^Lingua', tdlabel):
-                    if not 'language' in list(rec.keys()):
+                    if not 'language' in rec:
                         if re.search('Ital', td.text.strip()):
                             rec['language'] = 'italian'
                 #keywords
                 elif re.search('^Parole.*Inglese', tdlabel):
-                    if not 'keyw' in list(rec.keys()):
+                    if not 'keyw' in rec:
                         rec['keyw'] = re.split('; ', td.text.strip())
                 #section
                 elif re.search('^Settore', tdlabel):
@@ -238,7 +238,7 @@ for rec in prerecs:
                         else:
                             print('  skip', section)
         #FFT
-        if not 'FFT' in list(rec.keys()):
+        if not 'FFT' in rec:
             for div in artpage.body.find_all('div', attrs = {'class' : 'itemTagBitstreams'}):
                 for span in div.find_all('span', attrs = {'class' : 'label'}):
                     if re.search('Open', span.text):
@@ -269,25 +269,25 @@ for rec in prerecs:
         for em in div.find_all('em'):
             if re.search('^\d+$', em.text):
                 rec['pages'] = em.text
-    if 'autaff' in list(rec.keys()):
+    if 'autaff' in rec:
         rec['autaff'][-1].append(publisher)
         #year might be the year of deposition
-        if 'date' in list(rec.keys()) and not 'year' in list(rec.keys()):
+        if 'date' in rec and not 'year' in rec:
             rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
-        if 'year' in list(rec.keys()) and not 'date' in list(rec.keys()):
+        if 'year' in rec and not 'date' in rec:
             rec['date'] = rec['year']
         #license
         ejlmod3.globallicensesearch(rec, artpage)
         #abstract
-        if not 'abs' in list(rec.keys()):
+        if not 'abs' in rec or not rec['abs'] or len(rec['abs']) < 20:
             for p in artpage.body.find_all('p', attrs = {'class' : 'abstractEng'}):
                 rec['abs'] = p.text.strip()
         #abstract
-        if not 'abs' in list(rec.keys()):
+        if not 'abs' in rec or not rec['abs'] or len(rec['abs']) < 20:
             for p in artpage.find_all('p', attrs = {'class' : 'abstractIta'}):
                 rec['abs'] = p.text.strip()
         #link
-        if not 'doi' in list(rec.keys()) and not 'hdl' in list(rec.keys()):
+        if not 'doi' in rec and not 'hdl' in rec:
             rec['link'] = rec['artlink']
         if interesting:
             recs.append(rec)
