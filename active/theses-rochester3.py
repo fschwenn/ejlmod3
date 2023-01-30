@@ -17,7 +17,7 @@ publisher = 'U. Rochester'
 startyear = ejlmod3.year(backwards=1)
 skipalreadyharvested = True
 departments = [('PHYS', 'Rochester U.', '59', ''),
-	       ('MATH', 'U. Rochester', '74', 'm')],
+	       ('MATH', 'U. Rochester', '74', 'm'),
 	       ('COMP', 'U. Rochester', '135', 'c')]
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-ROCHESTER-%s' % (ejlmod3.stampoftoday())
