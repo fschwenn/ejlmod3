@@ -84,7 +84,13 @@ for page in range(pages):
     time.sleep(5)
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://dspace.mit.edu'):
         if not rec['hdl'] in alreadyharvested:
-            prerecs.append(rec)
+            keepit = True
+            if 'degrees' in rec:
+                for deg in rec['degrees']:
+                    if deg[:10] == 'Master+of+':
+                        keepit = False
+            if keepit:
+                prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
 
 recs = []
