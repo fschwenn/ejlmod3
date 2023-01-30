@@ -145,7 +145,7 @@ for rec in prerecs:
             rec['autaff'].append(person + [publisher])
         elif role:
             rec['note'].append('ROLE:%s ???' % (role))
-        if dep in boring or division in boring:
+        if dep in boring or division in boring or subdep in boring:
             interesting = False
         elif subdep in list(supdeptofc.keys()):
             rec['fc'] = supdeptofc[subdep]
@@ -153,7 +153,7 @@ for rec in prerecs:
             rec['fc'] = supdeptofc[dep]
         else:
             if division:
-                if not 'division' in 'MPLS':
+                if not 'division' in ['MPLS']:
                     rec['note'].append('division:::'+division)
             if dep:
                 if not dep in ['Physics']:
