@@ -46,7 +46,10 @@ def get_sub_site(url, site_session, years, fc):
         return
 
     # Get the abstract
-    rec['abs'] = re.sub('[\n\t\r]', ' ', data.get('abstract'))
+    try:
+        rec['abs'] = re.sub('[\n\t\r]', ' ', data.get('abstract'))
+    except:
+        print('   no abstract?!')
 
     # Get the title
     rec['tit'] = re.sub('[\n\t\r]', ' ', data.get('title'))
