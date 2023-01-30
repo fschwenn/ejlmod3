@@ -33,13 +33,10 @@ options.add_argument('--headless')
 chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 # In this variable all the data is saved
 recs = []
