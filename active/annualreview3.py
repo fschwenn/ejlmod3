@@ -12,7 +12,8 @@ import undetected_chromedriver as uc
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import codecs
-
+import time
+import cloudscraper
 
 tmpdir = '/tmp'
 def tfstrip(x): return x.strip()
@@ -34,17 +35,21 @@ elif (jnl == 'arcmp'):
     urltrunk = 'http://www.annualreviews.org/toc/conmatphys/%s/1' % (vol)
 
 
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-driver = uc.Chrome(version_main=chromeversion, options=options)
+#options = uc.ChromeOptions()
+#options.headless=True
+#options.binary_location='/usr/bin/chromium-browser'
+#options.add_argument('--headless')
+#chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+#chromeversion = 108
+#driver = uc.Chrome(version_main=chromeversion, options=options)
+scraper = cloudscraper.create_scraper()
 
 
 print("get table of content of %s%s ... via %s" %(jnlname,vol, urltrunk))
-driver.get(urltrunk)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
+#driver.get(urltrunk)
+#tocpage = BeautifulSoup(driver.page_source, features="lxml")
+tocpage = BeautifulSoup(scraper.get(urltrunk).text, features="lxml")
+time.sleep(3)
 
 recs = []
 doisdone = []
@@ -68,10 +73,12 @@ for div in tocpage.find_all('article', attrs = {'class' : 'teaser'}):
         continue
     else:
         doisdone.append(rec['doi'])
-    print(rec['doi'])
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    print(rec['doi'], rec['artlink'])
+    #driver.get(rec['artlink'])
+    #artpage = BeautifulSoup(driver.page_source, features="lxml")
+    artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'keywords', 'dc.Description'])
+#    print(artpage.text)
     #Abstract
     for div in artpage.body.find_all('div', attrs = {'class' : 'abstractInFull'}):
         rec['abs'] = div.text.strip() 
@@ -139,6 +146,7 @@ for div in tocpage.find_all('article', attrs = {'class' : 'teaser'}):
             rec['refs'].append([('x', reftext)])
     ejlmod3.printrecsummary(rec)
     recs.append(rec)
+    time.sleep(3)
 
 
 
