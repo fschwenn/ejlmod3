@@ -49,13 +49,8 @@ elif journal == 'cmam':
     jnl = 'Comp.Meth.Appl.Math.'
 
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
     
 #get list of volumes
@@ -78,6 +73,11 @@ for div in titledivs:
             i += 1
             vollink = 'https://www.degruyter.com' + a['href']
             ejlmod3.printprogress('-', [[i, len(titledivs)], [vollink]])
+            if re.search('doi\/10', vollink):                
+                doi = re.sub('.*doi\/(10.*)\/html', r'\1', vollink)
+                if skipalreadyharvested and doi in alreadyharvested:
+                    print('   already in backup')
+                    continue
             rec = {'tc' : 'P', 'jnl' : jnl, 'year' : year, 'vol' : vol, 'issue' : iss, 'autaff' : [],
                    'auts' : [], 'aff' : [], 'keyw' : [], 'pacs' : []}
             #title
@@ -258,7 +258,9 @@ for div in titledivs:
                             rec['autaff'].append([span.text.strip(), ' and '.join(affs), 'EMAIL:'+email])
                         else:
                             rec['autaff'].append([span.text.strip(), ' and '.join(affs)])
-            if not rec['doi'] in alreadyharvested:
+            if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                print('   already in backup')
+            else:
                 recs.append(rec)
                 ejlmod3.printrecsummary(rec)
 
