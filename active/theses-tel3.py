@@ -18,13 +18,12 @@ skipalreadyharvested = True
 
 years = [ejlmod3.year(backwards=1), ejlmod3.year()]
 
-
 #which domains (topics) should be checked
 subdomains = [("phys.hexp", "e"), ("phys.nucl", "n"), ("phys.mphy", "m"), ("phys.nexp", "x"), ("phys.qphy", "k"),
               ("phys.hthe", "t"), ("phys.hphe", "p"), ("phys.grqc", "g"), ("phys.hlat", "l"),
               ("phys.phys.phys-ins-det", "i"), ("phys.phys.phys-comp-ph", "c"), ("phys.phys.phys-acc-ph", "b"),
               ("phys.cond.cm-sm", "f"), ("phys.cond.cm-msqhe", "f"), ("phys.cond.cm-sce", "f"),
-              ("phys.astr.co", "a"), ("phys.astr.im", "ai"), ("phys.astr.he", "a"), ("phys.astr.ga", "a"),             
+              ("phys.astr.co", "a"), ("phys.astr.im", "ai"), ("phys.astr.he", "a"), ("phys.astr.ga", "a"),
               ("phys.phys.phys-atom-ph", "q"), ("phys.phys.phys-data-an", ""), ("phys.phys.phys-plasm-ph", ""),
               ("phys.phys", ""),
               ("math.math-ap", "m"), ("math.math-pr", "m"), ("math.math-ag", "m"), ("math.math-co", "m"),
@@ -85,7 +84,7 @@ for year in years:
                 divs = tocpage.body.find_all('td', attrs = {'class' : 'pl-4'})
                 for div in divs:
                     for a in div.find_all('a'):
-                        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'year' : str(year), 'keyw' : [], 
+                        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'year' : str(year), 'keyw' : [],
                                'note' : [ subdom ], 'rn' : [], 'refs' : [], 'supervisor' : []}
                         rec['link'] = 'https://tel.archives-ouvertes.fr' + a['href']
                         if fc:
