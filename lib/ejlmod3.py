@@ -584,6 +584,9 @@ def writeXML(recs,dokfile,publisher):
         #DOI
         if 'doi' in rec:
             xmlstring += marcxml('0247',[('a',rec['doi']), ('2','DOI'), ('9',publisher)])
+            #keep pseudodoi in metadata
+            if rec['doi'][:3] != '10.':
+                xmlstring += marcxml('595', [('a', 'PSEUDODOI:'+rec['doi'])])
             #special euclid:
             if re.search('^20.2000\/euclid\.', rec['doi']):
                 xmlstring += marcxml('035', [('9', 'EUCLID'), ('a', rec['doi'][8:])])
