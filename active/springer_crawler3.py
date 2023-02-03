@@ -20,6 +20,8 @@ toclink = sys.argv[1]
 jnl = sys.argv[2]
 vol = sys.argv[3]
 issue = sys.argv[4]
+#cnum = sys.argv[5]
+#fc = sys.argv[6]
 
 urltrunc = 'https://link.springer.com'
 
@@ -40,6 +42,7 @@ def get_records(url):
     try:
         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(url)
         pages = {url : BeautifulSoup(page, features="lxml")}
+        time.sleep(3)
     except:
         print(('failed to open %s' % (url)))
         sys.exit(0)
@@ -90,42 +93,45 @@ def get_records(url):
         booktitle = False   
     #content spread over several pages?
     numpag = pages[url].body.findAll('span', attrs={'class': 'number-of-pages'})
-    print(numpag)
+    print('numpage=', numpag)
     if len(numpag) > 0:
         if re.search('^\d+$', numpag[0].string):
             for i in range(int(numpag[0].string)):
-                try:
-                    tocurl = '%s/page/%i' % (url, i+1)  
+#                try:
+                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
                     if not tocurl in list(pages.keys()):
                         print(tocurl)
                         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
                         pages[tocurl] = BeautifulSoup(page, features="lxml")
-                except:
-                    tocurl = '%s?page=%i' % (url, i+1) 
-                    if not tocurl in list(pages.keys()):
-                        print(tocurl)
-                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
-                        pages[tocurl] = BeautifulSoup(page, features="lxml")
+                        time.sleep(3)
+#                except:
+#                    tocurl = '%s/page=%i' % (url, i+1) 
+#                    if not tocurl in list(pages.keys()):
+#                        print(tocurl)
+#                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
+#                        pages[tocurl] = BeautifulSoup(page, features="lxml")
         else:
             print(("number of pages %s not an integer" % (numpag[0].string)))
     else:
         for input in pages[url].body.findAll('input', attrs={'class': 'c-pagination__input'}):
             if re.search('^\d+$', input['max']):
                 maxpage = int(input['max'])
-            print(maxpage)
+            print('maxpage=', maxpage)
             for i in range(maxpage):
-                try:
-                    tocurl = '%s/page/%i' % (url, i+1) 
+#                try:
+                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
                     if not tocurl in list(pages.keys()):
                         print(tocurl)
                         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
                         pages[tocurl] = BeautifulSoup(page, features="lxml")
-                except:
-                    tocurl = '%s?page=%i' % (url, i+1)
-                    if not tocurl in list(pages.keys()):
-                        print(tocurl)
-                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
-                        pages[tocurl] = BeautifulSoup(page, features="lxml")
+                        time.sleep(3)
+#                except:
+#                    tocurl = '%s?page=%i' % (url, i+1)
+#                    if not tocurl in list(pages.keys()):
+#                        print(tocurl)
+#                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
+#                        pages[tocurl] = BeautifulSoup(page, features="lxml")
+
 #    links = []
 #    for tocurl in list(pages.keys()):
 #        page = pages[tocurl]
@@ -173,7 +179,9 @@ def get_records(url):
                                     rec['artlink'] = a['href']
                                 else:
                                     rec['artlink'] = urltrunc + a['href']
-                                if not rec['artlink'] in artlinks:
+                                if rec['artlink'] in artlinks:
+                                    print('   %s alredady in list' % (rec['artlink']))
+                                else:
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
         ejlmod3.printprogress('+', [[i+1, len(pages)], [tocurl], [len(recs)]])
@@ -202,8 +210,11 @@ for rec in recs:
         rec['tc'] = 'C'
     else:
         rec['tc'] = 'P'
+    if len(sys.argv) > 6:
+        rec['fc'] = sys.argv[6]
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
     artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+    time.sleep(5)
     ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_lastpage', 'citation_doi', 'citation_author',
                                         'citation_author_institution', 'citation_author_email', 'citation_author_orcid',
                                         'description', 'dc.description', 'citation_cover_date'])
