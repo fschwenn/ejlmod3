@@ -1468,7 +1468,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #title
                 elif tag in ['bepress_citation_title', 'Citation_Article_Title', 'citation_title', 'eprints.title',
                              'twitter:title', 'dc.title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title',
-                             'dcterms.title']:
+                             'dcterms.title', 'eprints.title_name']:
                     rec['tit'] = meta['content']
                     done.append(tag)
                 elif tag in ['DC.Title.Alternative']:
