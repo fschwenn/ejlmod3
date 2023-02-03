@@ -3,6 +3,11 @@
 #
 # FS: 2022-06-13
 #
+#
+# MNRAS noch ein volume vorher harvesten
+#
+#
+#
 
 import datetime
 import os
@@ -111,28 +116,28 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
 #        (388, ['theses-oatd.py', '15', '17']), #proteced by Claudflare
         (1, ['actapolytechnica.py']),
 #        (288, ['theses-oatd.py', '17', '19 ']), #proteced by Claudflare
-        (2, ['oxfordjournals.xml.py', 'pasj', pryear-1948, prsixth]),
+        (2, ['oxfordjournals3.py', 'pasj', pryear-1948, prsixth]),
 #        (388, ['theses-oatd.py', '19', '21']), #proteced by Claudflare
-        (1, ['oxfordjournals.xml.py', 'ptep', pryear, prmonth]),
+        (1, ['oxfordjournals3.py', 'ptep', pryear, prmonth]),
 #        (288, ['theses-oatd.py', '21', '23']), #proteced by Claudflare
         (1, ['figshare3.py', 'kilthub']),
 #        (388, ['theses-oatd.py', '23', '25']), #proteced by Claudflare
         (1, ['mdpi.sftp.py', 'universe']),
 #        (288, ['theses-oatd.py', '25', '27']), #proteced by Claudflare
-        (1, ['oxfordjournals.xml.py', 'imrn', pryear, 2*prmonth]),
+        (1, ['oxfordjournals3.py', 'imrn', pryear, 2*prmonth]),
 #        (388, ['theses-oatd.py', '27', '29']), #proteced by Claudflare
 #        (288, ['theses-oatd.py', '29', '31']), #proteced by Claudflare
-        (1, ['oxfordjournals.xml.py', 'mnras', mnrasbignumber//4, mnrasbignumber % 4 + 1]),
+        (1, ['oxfordjournals3.py', 'mnras', mnrasbignumber//4, mnrasbignumber % 4 + 1]),
         (2, ['ccsenet3.py', 'jmr', pryear-2008, prsixth]),
         (2, ['intlpress.py', 'cms', pryear-2002, prsixth]),
-        (1, ['oxfordjournals.xml.py', 'mnras', (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1]),
+        (1, ['oxfordjournals3.py', 'mnras', (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1]),
         (1, ['edpjournals.py', 'aanda', pryear, prmonth]),
-        (1, ['oxfordjournals.xml.py', 'mnras', (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1]),
-        (1, ['oxfordjournals.xml.py', 'mnrasl', mnrasbignumber//4, '1']),
+        (1, ['oxfordjournals3.py', 'mnras', (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1]),
+        (1, ['oxfordjournals3.py', 'mnrasl', mnrasbignumber//4, '1']),
         (2, ['scipost3.py', 'sps', 2*(pryear-2016) + (prmonth-1)//6, (prmonth -1) % 6 +1]),
         (3, ['chicago.py', 'bjps', prpryear, prpryear-1949, prprquarter]),
         (1, ['figshare3.py', 'monash']),
-        (1, ['oxfordjournals.xml.py', 'imrn', pryear, 2*prmonth-1]),
+        (1, ['oxfordjournals3.py', 'imrn', pryear, 2*prmonth-1]),
         (1, ['mdpi.sftp.py', 'galaxies']),
         (1, ['cambridgebooks.xml.py']),
         (1, ['mdpi.sftp.py', 'entropy']),
@@ -140,7 +145,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['wspbooks3.py']),
         (2, ['theses-kit3.py']),
         (3, ['theses-ora3.py']),
-        (2, ['theses-nikhef.py']),
+        (2, ['theses-nikhef3.py']),
         (2, ['theses-clas3.py']),
         (2, ['theses-kentucky3.py']),
         (2, ['theses-italy3.py', 'sissa']),
@@ -153,13 +158,13 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-DCN.py']),
         (2, ['theses-PANDA.py']),
         (1, ['mdpi.sftp.py', 'particles']),
-        (1, ['oxfordjournals.xml.py', 'mnras', 1 + mnrasbignumber//4, mnrasbignumber % 4 + 1, 'in_progress']),
+        (1, ['oxfordjournals3.py', 'mnras', 1 + mnrasbignumber//4, mnrasbignumber % 4 + 1, 'in_progress']),
         (1, ['mdpi.sftp.py', 'physics']),
-        (1, ['oxfordjournals.xml.py', 'mnras', 1 + (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1, 'in_progress']),
+        (1, ['oxfordjournals3.py', 'mnras', 1 + (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1, 'in_progress']),
         (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+1, 4*(prmonth-1)+2)]), #Cloudflare -> l00schwenn
-        (1, ['oxfordjournals.xml.py', 'mnras', 1 + (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1, 'in_progress']),
+        (1, ['oxfordjournals3.py', 'mnras', 1 + (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1, 'in_progress']),
         (1, ['mdpi.sftp.py', 'condensedmatter']),
-        (1, ['oxfordjournals.xml.py', 'mnrasl', 1 + mnrasbignumber//4, '1', 'in_progress']),
+        (1, ['oxfordjournals3.py', 'mnrasl', 1 + mnrasbignumber//4, '1', 'in_progress']),
         (111, ['procnas3.py', pryear-1903, '%i,%i' % (4*(prmonth-1)+3, 4*(prmonth-1)+4)]), #Cloudflare -> l00schwenn
         (12, ['annualreview3.py', 'arcmp', pryear-2009]),
         (2, ['theses-kit_etp.py']),
@@ -181,8 +186,8 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-princeton3.py']),
         (2, ['theses-capetown3.py']),
         (1, ['sciencemag3.py', 'science', pryear]),
-        (1, ['theses-uam.py']),
-        (2, ['theses-durham.py']),
+        (1, ['theses-uam3.py']),
+        (2, ['theses-durham3.py']),
         (1, ['sciencemag3.py', 'sciadv', pryear]),
         (2, ['theses-southampton3.py']),
         (2, ['theses-imperial.py']),
@@ -192,11 +197,11 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-narcis3.py']),
         (2, ['theses-tud.py']),
         (1, ['theses-surrey3.py']),
-        (2, ['theses-lmu.py']),
+        (2, ['theses-lmu3.py']),
         (1, ['theses-regensburg.py']),
         (2, ['theses-saopaulo.py']),
         (2, ['theses-wm3.py']),
-        (2, ['theses-michigan.py']),
+        (2, ['theses-michigan3.py']),
         (2, ['theses-epfl3.py']),
         (2, ['theses-erlangen3.py']),
         (1, ['theses-ucla3.py', 'ucla']),
@@ -292,7 +297,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-waynestate3.py']),
         (2, ['theses-thueringen.py']),
         (1, ['theses-minnesota3.py']),
-        (2, ['oxfordjournals.xml.py', 'astrogeo', pryear-1959, prsixth]),
+        (2, ['oxfordjournals3.py', 'astrogeo', pryear-1959, prsixth]),
         (2, ['theses-indiana.py']),
         (1, ['theses-alberta3.py']),
         (2, ['theses-mississippi.py']),
