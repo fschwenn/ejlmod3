@@ -40,6 +40,7 @@ for dep in ['FB+10%3A+Mathematik+und+Informatik', 'FB+11%3A+Physik']:
 i = 0
 recs = []
 for rec in prerecs:
+    keepit = True
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
@@ -89,6 +90,11 @@ for rec in prerecs:
                     rec['urn'] = td.text.strip()
                 elif tht == 'Permalink:':
                     rec['link'] = td.text.strip()
+                #DOI
+                elif tht in ['Other Identifiers:', 'Weitere Identifikatoren:']:
+                    tdt = re.sub('[\n\t\r]', ' ', td.text)
+                    if re.search('10.17879\/', tdt):
+                        rec['doi'] = re.sub('.*(10.17879\/\d+).*', r'\1', tdt)
                 #license
                 elif tht in ['License:', 'Lizenz:']:
                     for a in td.find_all('a'):
@@ -109,9 +115,12 @@ for rec in prerecs:
             rec['abs_de'] = p.text.strip()
     if not 'abs' in list(rec.keys()) and 'abs_de' in list(rec.keys()):
         rec['abs'] = rec['abs_de']
-    if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
-        print('   already in backup')
-    else:
+    if skipalreadyharvested:
+        if 'urn' in rec and rec['urn'] in alreadyharvested:
+            keepit = False
+        elif 'doi' in rec and rec['doi'] in alreadyharvested:
+            keepit = False
+    if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
