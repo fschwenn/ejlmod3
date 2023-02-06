@@ -413,7 +413,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-yorkcanada3.py']),
         (3, ['theses-alabama.py']),
         (3, ['theses-louisianastate.py']),
-        (1, ['oapen.py']),
+        (1, ['oapen3.py']),
         (3, ['theses-tsukuba3.py']),
         (3, ['theses-rice3.py']),
 #        (3333, ['npreview.py', pryear, prquarter]), #zu unregulaer
@@ -515,6 +515,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-coloradomines3.py']),
         (2, ['theses-debrecen3.py']),
         (2, ['theses-carlos3.py']),
+        (3, ['theses-southdakota3.py']),
         #
         (1, ['theses-tokyo3.py'])]
 
