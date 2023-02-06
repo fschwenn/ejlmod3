@@ -26,7 +26,7 @@ iss = sys.argv[4]
 
 
 reemail = re.compile('(.*); ([^@]+@[^@]+\.[a-zA-Z]+) *$')
-
+rebreaks = re.compile('[\n\t\r]')
 jnlfilename = 'dg%s.%s.%s_%s' %  (journal, vol, iss, ejlmod3.stampoftoday())
 if journal == 'phys':
     if int(vol) <= 12:
@@ -140,7 +140,7 @@ for div in titledivs:
                     for a in sup.find_all('a'):
                         cont = a.text.strip()
                         a.replace_with(' / =Aff%s ' % (cont))
-                for aut in re.split(' +\/ +', re.sub('[\n\t\r]+', ' ', div.text)):
+                for aut in re.split(' +\/ +', rebreaks.sub(' ', div.text)):
                     if re.search('=Aff', aut):
                         rec['auts'].append(aut)
                     else:
@@ -166,6 +166,13 @@ for div in titledivs:
                             elif 'orcidLink' in span['class']:
                                 for a in span.find_all('a'):
                                     rec['autaff'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+            if not 'auts' in rec and not rec['autaff']:
+                for ct in artpage.find_all('contributor-popdown'):
+                    rec['autaff'].append([ct['name']])
+                    if ct.has_attr('email') and ct['email']:
+                        rec['autaff'][-1].append('EMAIL:' + ct['email'])
+                    if ct.has_attr('affiliations'):
+                        rec['autaff'][-1].append(ct['affiliations'])
             #keywords / PACS
             for p in artpage.find_all('p', attrs = {'class' : 'articleBody_keywords'}):
                 for span in p.find_all('span'):
@@ -201,7 +208,7 @@ for div in titledivs:
                                 a.replace_with(', DOI: %s  ' % (doi))
                             elif re.search('google.com', a['href']):
                                 a.replace_with('')
-                    rec['refs'].append([('x', li.text)])
+                    rec['refs'].append([('x', rebreaks.sub(' ', li.text.strip()))])
             if not 'refs' in list(rec.keys()):
                 for span in artpage.find_all('span', attrs = {'class' : 'ref-list'}):
                     rec['refs'] = []
@@ -209,7 +216,7 @@ for div in titledivs:
                         for a in p.find_all('a'):
                             if a.text.strip() == 'Search in Google Scholar':
                                 a.decompose()
-                        rec['refs'].append([('x', re.sub(';', ',', p.text))])                                
+                        rec['refs'].append([('x', rebreaks.sub(' ', re.sub(';', ',', p.text)))])                                
                     
             #date
             for div in artpage.find_all('div', attrs = {'class' : 'pubHistory'}):
