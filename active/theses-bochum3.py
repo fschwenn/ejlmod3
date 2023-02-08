@@ -10,16 +10,14 @@ import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
-import codecs
-import datetime
 import time
-import json
 
 publisher = 'Ruhr U., Bochum (main)'
 jnlfilename = 'THESES-BOCHUM-%s' % (ejlmod3.stampoftoday())
 
 rpp = 100
-pages = 3
+pages = 5
+skipalreadyharvested = True
 
 boring = ['Literatur / Englische Literatur Amerikas', 'Philosophie und Psychologie / Philosophie',
           'Philosophie und Psychologie / Psychologie', 'Allgemeines, Informatik, Informationswissenschaft / Informatik',
@@ -34,9 +32,12 @@ boring = ['Literatur / Englische Literatur Amerikas', 'Philosophie und Psycholog
           'Technik, Medizin, angewandte Wissenschaften / Technische Chemie']
 hdr = {'User-Agent' : 'Magic Browser'}
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 prerecs = []
 for page in range(pages):
-    tocurl = 'https://hss-opus.ub.ruhr-uni-bochum.de/opus4/solrsearch/index/search/searchtype/all/start/' + str(rpp*page) + '/rows/' + str(rpp) + '/doctypefq/doctoralthesis/sortfield/year/sortorder/desc'
+    tocurl = 'https://hss-opus.ub.ruhr-uni-bochum.de/opus4/solrsearch/index/search/searchtype/all/start/' + str(rpp*page) + '/rows/' + str(rpp) + '/doctypefq/doctoralthesis/sortfield/year/sortorder/desc'    
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -67,7 +68,7 @@ for rec in prerecs:
             print("no access to %s" % (rec['artlink']))
             continue
     ejlmod3.metatagcheck(rec, artpage, ['DC.Creator', 'DC.Identifier', 'DC.title',
-                                        'citation_date', 'DC.Subject', 'citation_pdf_url',
+                                        'citation_date', 'DC.subject', 'citation_pdf_url',
                                         'DC.rights'])
     #abstract
     for meta in artpage.head.find_all('meta', attrs = {'name' : 'DC.Description'}):
@@ -110,19 +111,25 @@ for rec in prerecs:
                     rec['autaff'][-1].append('%s, Bochum, Germany' % (td.text.strip()))
                 #Dewey
                 elif tht == 'Dewey Decimal Classification:':
-                    rec['note'].append(td.text.strip())
                     if td.text.strip() in boring:
                         keepit = False
                         #print('  skip', td.text.strip())
+                    elif td.text.strip() == 'Naturwissenschaften und Mathematik / Mathematik':
+                        rec['fc'] = 'm'
                     elif re.search('(K.nste |Literatur|Geografie|Sozialw|Sprache|Religion|Medizin)', td.text):
                         keepit = False
                         #print('  skip')
+                    else:
+                        rec['note'].append(td.text.strip())
     #abstract
     if not 'abs' in list(rec.keys()) and 'abs_de' in list(rec.keys()):
         rec['abs'] = rec['abs_de']
     if keepit:
-        recs.append(rec)
-        print('  ', list(rec.keys()))
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('   already in backup')
+        else:
+            recs.append(rec)
+            print('  ', list(rec.keys()))
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
