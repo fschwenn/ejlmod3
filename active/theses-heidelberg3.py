@@ -28,7 +28,7 @@ boring = ['Zentrum für Biomedizin und Medizintechnik (CBTM)', 'European Molecul
           u"Department of Neonatology, University Medicine Mannheim",
           u"Exzellenzcluster Asia and Europe in a Global Context", u"Fakultät für Chemie und Geowissenschaften",
           u"Frauenklinik", u"German Cancer Research Center (DKFZ)",
-          u"Graduiertenschulen", u"Hautklinik",
+          u"Hautklinik",
           u"Heidelberg Center for American Studies (HCA)", u"Historisches Seminar",
           u"Institute of Environmental Physics", u"Institute of Geography",
           u"Institute of Inorganic Chemistry", u"Institute of Organic Chemistry",
@@ -42,7 +42,7 @@ boring = ['Zentrum für Biomedizin und Medizintechnik (CBTM)', 'European Molecul
           u"Institut für Papyrologie und antike Paläographie", u"Institut für Public Health (IPH)",
           u"Institut für Sinologie", u"Institut für Sport und Sportwissenschaft",
           u"Kinderklinik", u"Klinik für Strahlentherapie und Radioonkologie",
-          u"Kunsthistorisches Institut", u"Max-Planck-Institute allgemein",
+          u"Kunsthistorisches Institut",
           u"Medizinische Fakultät Heidelberg", u"Medizinische Fakultät Mannheim",
           u"Medizinische Klinik - Lehrstuhl für Innere Medizin III",
           u"Medizinische Klinik - Lehrstuhl für Innere Medizin II",
@@ -55,7 +55,7 @@ boring = ['Zentrum für Biomedizin und Medizintechnik (CBTM)', 'European Molecul
           u"Pharmakologisches Institut", u"Philosophische Fakultät",
           u"Philosophisches Seminar", u"Psychiatrische Universitätsklinik",
           u"Psychosomatische Universitätsklinik", u"Seminar für klassische Philologie",
-          u"Seminar für Sprachen und Kulturen des Vorderen Orients", u"Service facilities",
+          u"Seminar für Sprachen und Kulturen des Vorderen Orients", 
           u"South Asia Institute (SAI)", u"The Faculty of Behavioural and Cultural Studies",
           u"The Faculty of Bio Sciences", u"The Faculty of Economics and Social Studies",
           u"Universitätskinderklinik", u"Urologische Klinik",
@@ -72,29 +72,43 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
+    
+tocurls = ['http://archiv.ub.uni-heidelberg.de/volltextserver/view/type/doctoralThesis.html']
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/741010/%i.html' % (ejlmod3.year()))
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/741010/%i.html' % (ejlmod3.year(backwards=1)))
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/130001/%i.html' % (ejlmod3.year()))
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/130001/%i.html' % (ejlmod3.year(backwards=1)))
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/851340/%i.html' % (ejlmod3.year()))
+tocurls.append('https://archiv.ub.uni-heidelberg.de/volltextserver/view/divisions/851340/%i.html' % (ejlmod3.year(backwards=1)))
 
-tocurl = 'http://archiv.ub.uni-heidelberg.de/volltextserver/view/type/doctoralThesis.html'
-print(tocurl)
 hdr = {'User-Agent' : 'Magic Browser'}
-req = urllib.request.Request(tocurl, headers=hdr)
-tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
 prerecs = []
-ps = tocpage.body.find_all('p')
-i = 0 
-for p in ps:
-    i += 1
-    for span in p.find_all('span', attrs = {'class' : 'person_name'}):
-        rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'pacs' : [], 'supervisor' : [], 'note' : []}
-        for a in p.find_all('a'):
-            rec['artlink'] = a['href']
-            rec['tit'] = a.text.strip()
-            a.replace_with('')
-            pt = re.sub('[\n\t\r]', ' ', p.text.strip())
-            if re.search('\(\d\d\d\d\)', pt):
-                rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
-                if rec['date'] in years:
-                    if ejlmod3.checkinterestingDOI(rec['artlink']):
-                        prerecs.append(rec)
+artlinks = []
+for (j, tocurl) in enumerate(tocurls):
+    ejlmod3.printprogress('=', [[j+1, len(tocurls)], [tocurl]])
+    req = urllib.request.Request(tocurl, headers=hdr)
+    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    ps = tocpage.body.find_all('p')
+    i = 0 
+    for p in ps:
+        i += 1
+        for span in p.find_all('span', attrs = {'class' : 'person_name'}):
+            rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'pacs' : [], 'supervisor' : [], 'note' : []}
+            for a in p.find_all('a'):
+                rec['artlink'] = a['href']
+                rec['tit'] = a.text.strip()
+                a.replace_with('')
+                pt = re.sub('[\n\t\r]', ' ', p.text.strip())
+                if re.search('\(\d\d\d\d\)', pt):                    
+                    rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
+                    if rec['date'] in years:
+                        if ejlmod3.checkinterestingDOI(rec['artlink']):
+                            if rec['artlink'] in artlinks:
+                                print(i, '   %s already in list' % (rec['artlink']))
+                            else:
+                                prerecs.append(rec)
+                                artlinks.append(rec['artlink'])
+    print('  %4i records so far' % (len(prerecs)))
 
 i = 0
 recs = []
@@ -131,6 +145,7 @@ for rec in prerecs:
         if rec['ddc'][0] == '5':
             if rec['ddc'] in ['540', '570']:
                 keepit = False
+                #print('   skip', rec['ddc'])
             else:
                 rec['note'].append(' DDC: %s ' % (rec['ddc']))
     for tr in artpage.body.find_all('tr', attrs = {'class' : 'eprint-field-advisor'}):
@@ -144,6 +159,7 @@ for rec in prerecs:
             division = a.text.strip()
             if division in boring:
                 keepit = False
+                #print('   skip', division)
             else:
                 rec['note'].append(division)
     if keepit:
