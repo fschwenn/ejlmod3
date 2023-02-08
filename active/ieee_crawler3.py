@@ -509,8 +509,13 @@ if __name__ == '__main__':
     number = args[0]
     publisher = 'IEEE'
 
-    (recs, jnlfilename) = ieee(number)
-    if host != 'l00schwenn':
-        ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+    numbers = re.split(',', number)
+    for (i, singlenumber) in enumerate(numbers):
+        ejlmod3.printprogress('###', [[i+1, len(numbers)], [singlenumber]])
+        (recs, jnlfilename) = ieee(singlenumber)
+        if host != 'l00schwenn':
+            ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+        if i+1 < len(numbers):
+            time.sleep(120)
 
 driver.quit()
