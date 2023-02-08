@@ -1410,6 +1410,9 @@ def metatagcheck(rec, artpage, listoftags):
                     elif re.search('doi:10\.\d', meta['content']):
                         rec['doi'] = re.sub('.*doi:\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
+                    elif re.search('DOI:10\.\d', meta['content']):
+                        rec['doi'] = re.sub('DOI:\/(10.*)', r'\1', meta['content'])
+                        done.append(tag)
                     elif re.search('^10\.\d+\/', meta['content']):
                         rec['doi'] = meta['content']
                         done.append(tag)
