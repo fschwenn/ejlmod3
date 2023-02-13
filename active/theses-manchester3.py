@@ -16,12 +16,16 @@ publisher = 'U. Manchester (main)'
 
 pages = 12
 years = 2
+skipalreadyharvested = True
 boring = ['Department of Materials', 'Department of Earth and Environmental Sciences',
           'Department of Mechanical, Aerospace & Civil Engineering',
           'Alliance Manchester Business School', 'Department of Chemical Engineering',
           'Department of Chemistry', 'Department of Electrical & Electronic Engineering']
 jnlfilename = 'THESES-MANCHESTER-%s' % (ejlmod3.stampoftoday())
 hdr = {'User-Agent' : 'Magic Browser'}
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 for page in range(pages):
@@ -42,6 +46,8 @@ for page in range(pages):
                 rec['doi'] = '20.2000/Manchester/' + re.sub('\W', '', re.sub('.*\/', '', a['href'][-50:-4]))
                 rec['tit'] = a.text.strip()
                 if 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
+                    pass
+                elif skipalreadyharvested and rec['doi'] in alreadyharvested:
                     pass
                 elif ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
