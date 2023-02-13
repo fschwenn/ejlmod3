@@ -617,11 +617,9 @@ def writeXML(recs,dokfile,publisher):
         if 'pages' in rec:
             if rec['pages']:
                 if type(rec['pages']) == type('999'):
-                    xmlstring += marcxml('300',[('a',rec['pages'])])
-                elif type(rec['pages']) == type('999'):
-                    xmlstring += marcxml('300',[('a',rec['pages'])])
+                    xmlstring += marcxml('300',[('a', rec['pages'])])
                 elif type(rec['pages']) == type(999):
-                    xmlstring += marcxml('300',[('a',str(rec['pages']))])
+                    xmlstring += marcxml('300',[('a', str(rec['pages']))])
         #TYPE CODE
         if 'tc' in rec:
             for tc in rec['tc']:
@@ -1082,7 +1080,7 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Guest Editorial', 'Personalia, meetings, bibliography', 'Speaker',
             'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies',
             'Editorial Board', 'Content', 'General Chair', 'Table of Content',
-            'Alphabetical Index', 'Editorial Note']
+            'Alphabetical Index', 'Editorial Note', 'In Other Journals']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1372,11 +1370,12 @@ def metatagcheck(rec, artpage, listoftags):
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract']:
-                    if meta.has_attr('xml:lang'):
-                        abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
-                    else:
-                        abstracts[''] = re.sub('^ABSTRACT', '', meta['content'])
-                    done.append(tag)
+                    if len(meta['content']) > 12:
+                        if meta.has_attr('xml:lang'):
+                            abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
+                        else:
+                            abstracts[''] = re.sub('^ABSTRACT', '', meta['content'])
+                        done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
                              'doi', 'eprints.doi']:
@@ -1411,7 +1410,7 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['doi'] = re.sub('.*doi:\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
                     elif re.search('DOI:10\.\d', meta['content']):
-                        rec['doi'] = re.sub('DOI:\/(10.*)', r'\1', meta['content'])
+                        rec['doi'] = re.sub(':\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
                     elif re.search('^10\.\d+\/', meta['content']):
                         rec['doi'] = meta['content']
@@ -1426,6 +1425,10 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language',
                              'dc.language.iso']:
                     rec['language'] = meta['content']
+                    done.append(tag)
+                #collaboration
+                elif tag in ['citation_collaboration']:
+                    rec['col'] = meta['content']
                     done.append(tag)
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
