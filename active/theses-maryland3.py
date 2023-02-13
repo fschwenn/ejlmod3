@@ -15,10 +15,14 @@ publisher = 'Maryland U., College Park'
 
 jnlfilename = 'THESES-MARYLAND-%s' % (ejlmod3.stampoftoday())
 
-rpp = 60
+rpp = 40
 pages = 1
 years = 2 
+skipalreadyharvested = True
 
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 recs = []
 for  (fc, dep, aff) in [('m', '2793', 'Maryland U., College Park'), ('c', '2756', 'Maryland U., College Park'),
                         ('a', '2746', 'Maryland U., College Park'), ('', '2800', 'Maryland U.')]:
@@ -35,19 +39,12 @@ for  (fc, dep, aff) in [('m', '2793', 'Maryland U., College Park'), ('c', '2756'
         for rec in ejlmod3.getdspacerecs(tocpage, 'https://drum.lib.umd.edu'):
             if 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
                 print('     %s too old' % (rec['hdl']))
+            elif skipalreadyharvested and rec['hdl'] in alreadyharvested:
+                print('     %s already in backup' % (rec['hdl']))
             else:
                 if fc: rec['fc'] = fc
                 rec['affiliation'] = aff
                 recs.append(rec)
-#        for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
-#            for a in div.find_all('a'):
-#                rec = {'jnl' : 'BOOK', 'tc' : 'T', 'tit' : a.text.strip(), 
-#                       'keyw' : [], 'supervisor' : [], 'affiliation' : aff}
-#            rec['artlink'] = 'https://drum.lib.umd.edu' + a['href']
-#            rec['hdl'] = re.sub('.*handle\/', '', a['href'])
-#            if fc: rec['fc'] = fc
-#            if not  rec['hdl'] in ['1903/22153']:
-#                recs.append(rec)
 
 i = 0
 for rec in recs:
