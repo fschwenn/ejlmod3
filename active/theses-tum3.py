@@ -17,7 +17,6 @@ jnlfilename = 'THESES-TUM-%s' % (ejlmod3.stampoftoday())
 rpp = 100
 years = 2
 skipalreadyharvested = True
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 boring = ['Fakultät für Sport- und Gesundheitswissenschaften']
 boring += ['CHE Chemie', 'BAU 550', 'BAU 650', 'BAU 650', 'UMW 300', 'BAU 651', 'BAU 900', 'BAU 950',
@@ -53,11 +52,8 @@ boring += ['ARC 045', 'ARC 165', 'ARC 279', 'ARC 370', 'ARC Architektur', 'BAU 0
 hdr = {'User-Agent' : 'Magic Browser'}
 
 alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))        
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 links = []

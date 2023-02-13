@@ -19,6 +19,7 @@ jnlfilename = 'THESES-BEPRESS-%s' % (ejlmod3.stampoftoday())
 years = 2
 rpp = 30
 verbatim = True
+skipalreadyharvested = True
 
 deps = [('physics/elementary-particles-and-fields-and-string-theory', ''),
         ('physics/plasma-and-beam-physics', 'b'),
@@ -92,6 +93,9 @@ boring += ['Business and Information Systems', 'Chemical and Biomolecular Engine
            'Department of Geological and Mining Engineering and Sciences','Health Physics and Diagnostic Sciences',
            'Department of Mathematical Sciences: Business Analytics', 'Economics', 'Geology and Geography',
            'Naval Architecture and Marine Engineering', 'Ocean Science and Engineering']
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('THESES')
 
 bibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/HEPont.rdf "
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
@@ -201,6 +205,13 @@ for rec in prerecs:
             rec['autaff'][-1]
         except:
             continue
+    #already in backup?
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   already in backup')
+        continue
+    elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+        print('   already in backup')
+        continue
     #supervisor
     for div in artpage.body.find_all('div', attrs = {'id' : ['advisor1', 'advisor2', 'advisor3', 'advisor4']}):
         for h4 in div.find_all('h4'):
@@ -263,7 +274,7 @@ for rec in prerecs:
             if a.has_attr('href') and re.search('creativecommons.org', a['href']):
                 rec['license'] = {'url' : a['href']}
             elif re.search('reative', a.text.strip()):
-                rec['license'] = {'statement' : a.text.strip()}
+                rec['license'] = {'statement' : a.text.strip()}                
     #INSPIRE check
     if 'doi' in rec and get_recids('doi:%s' % (rec['doi'])):
         keepit = False
