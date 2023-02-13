@@ -201,7 +201,9 @@ boring= ["Clinical Pharmacy", "Health Evidence", "Paediatrics", "Rheumatology", 
          "organische verbindingen: overige", "Reframing Spirituality and Mysticism in Past and Present",
          "Religious Identity Transformation in Context", "Research Program in Theology",
          "Shaping and Changing of Places and Spaces", "Sulfinen", "The Dynamics of Islamic Culture",
-         "The professional development of teachers", "Trombine", "Vinylstilbenen"]
+         "The professional development of teachers", "Trombine", "Vinylstilbenen",
+         "Radboud Institute for Biological and Environmental Sciences", "Systems Chemistry",
+         "Research programm of Radboud Institute for Biological and Environmental Sciences"]
 
 prerecs = []
 for page in range(pages):
