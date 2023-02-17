@@ -404,14 +404,16 @@ def writeXML(recs,dokfile,publisher):
                             lang = languages.get(part3=rec['language']).name
                         except:
                             lang = False
-            else:
+            else:                
                 lang = rec['language']
             if lang:
-                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english']:
-                    if lang == u'Português': lang = 'Portuguese'
+                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english', 'Inglés']:
+                    if lang in ['Português', 'Portugués']: lang = 'Portuguese'
                     elif lang == 'Deutsch': lang = 'German'
                     elif lang in [u'Française', u'Français']: lang = 'French'
                     elif lang == 'Italiano': lang = 'Italian'
+                    elif lang == 'Español': lang = 'Spanish'
+                    elif lang == 'Catalán': lang = 'Catalan'
                     xmlstring += marcxml('041', [('a', lang)])
                     xmlstring += marcxml('595', [('a', 'Text in %s' % (lang))])
             else:
@@ -1208,6 +1210,13 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                         rec['fc'] += 'k'
                 else:
                     rec['fc'] = 'k'
+            #check whether there are authors
+            if not 'autaff' in rec or not rec['autaff']:
+                if not 'auts' in rec or not rec['auts']:
+                    if 'note' in rec:
+                        rec['note'].append('RECORD WITHOUT AUTHOR!?')
+                    else:
+                        rec['note'] = ['RECORD WITHOUT AUTHOR!?']
             #check for "un"titles
             keepit = True
             if 'tit' in rec:
