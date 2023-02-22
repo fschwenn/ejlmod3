@@ -24,9 +24,10 @@ skipalreadyharvested = True
 host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
-    options.headless=True
+    options.binary_location='/usr/bin/chromium'
     options.add_argument('--headless')
-    driver = uc.Chrome(version_main=108, options=options)
+    options.add_argument('--no-sandbox')
+    driver = uc.Chrome(version_main=109, options=options)
     tmpdir = '/home/schwenn/tmp'
 else:
     options = uc.ChromeOptions()
@@ -513,8 +514,8 @@ if __name__ == '__main__':
     for (i, singlenumber) in enumerate(numbers):
         ejlmod3.printprogress('###', [[i+1, len(numbers)], [singlenumber]])
         (recs, jnlfilename) = ieee(singlenumber)
-        if host != 'l00schwenn':
-            ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+#        if host != 'l00schwenn':
+        ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
         if i+1 < len(numbers):
             time.sleep(120)
 
