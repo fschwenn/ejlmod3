@@ -21,13 +21,15 @@ skipalreadyharvested = True
 tuples = []
 dois = []
 
-
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+#options.headless=True'
+options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.add_argument("--no-sandbox")
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+
 
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
@@ -121,12 +123,18 @@ for tuplet in tuples:
         #<span class="hlFld-ContribAuthor">
         if re.search('^By .author', ult):
             for li in ul.find_all('li'):
+                print('AUT', li)
+                if re.search('^By ', li.text):
+                    continue
                 for a in li.find_all('a'):
                     rec['autaff'].append([a.text])
                     a.decompose()
                 rec['autaff'][-1].append(re.sub('^\((.*)\)$', r'\1', li.text.strip()))
         elif re.search('^Edited', ult):
             for li in ul.find_all('li'):
+                print('EDI', li)
+                if re.search('^Edited', li.text):
+                    continue
                 for a in li.find_all('a'):
                     rec['autaff'].append([a.text+ ' (Ed.)'])
                     a.decompose()
