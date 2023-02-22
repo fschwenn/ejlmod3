@@ -139,7 +139,7 @@ print(toclink)
 
 tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
 
-recs = []
+prerecs = []
 alldois = []
 for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
     for h3 in div.find_all('h3'):
@@ -158,22 +158,28 @@ for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
         rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
         rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
     if not rec['doi'] in alldois:
-        recs.append(rec)
+        prerecs.append(rec)
         alldois.append(rec['doi'])
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
     typecode = 'P'
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['doi']], [rec['artlink']]])
+    keepit = True
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['doi']], [rec['artlink']]])
     time.sleep(random.randint(70, 130))
     try:
         artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
-        ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
-                                            'citation_lastpage', 'citation_publication_date', 'citation_author',
-                                            'citation_author_institution', 'citation_author_orcid', 
-                                            'citation_author_email'])#'citation_pdf_url' does not resolve
-        rec['autaff'][0]
+        for span in artpage.body.find_all('span', attrs = {'class' : 'primary-heading'}):
+            if span.text.strip() == 'Cover Picture':
+                keepit = False
+        if keepit:
+            ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
+                                                'citation_lastpage', 'citation_publication_date', 'citation_author',
+                                                'citation_author_institution', 'citation_author_orcid', 
+                                                'citation_author_email'])#'citation_pdf_url' does not resolve
+            rec['autaff'][0]
     except:
         print('  ... try again in 30-90 s')
         rec['artlink'] = re.sub('doi\/', 'doi/ftr/', rec['artlink'])
@@ -188,6 +194,11 @@ for rec in recs:
             rec['p1'] = re.sub('.*, (.+?)\..*', r'\1', meta['content'].strip())
             rec['p1'] = re.sub('.*: (\d+)', r'\1', rec['p1'])
     ejlmod3.globallicensesearch(rec, artpage)
+    #cover picture
+    for span in artpage.body.find_all('span', attrs = {'class' : 'primary-heading'}):
+        if span.text.strip() == 'Cover Picture':
+            print('   skip Cover Picture')
+            keepit = False
     #ORCIDS etc.
     divs = artpage.body.find_all('div', attrs = {'class' : 'comma__list'})
     if len(divs) > 1:
@@ -273,8 +284,10 @@ for rec in recs:
     if not jnl in ['puz']:
         rec['tc'] = typecode
     else:
-        rec['tc'] = ''        
-    ejlmod3.printrecsummary(rec)
+        rec['tc'] = ''
+    if keepit:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
 
