@@ -149,17 +149,21 @@ def harvestissue(jnl, vol, issue):
         divs = artpage.find_all('div', attrs = {'class' : 'labeled'})
         if not len(divs):
              divs = artpage.find_all('div', attrs = {'role' : 'doc-biblioentry'})
+        if not len(divs):
+            for section in artpage.find_all('section', attrs = {'id'  : 'bibliography'}):
+                divs = section.find_all('div', attrs = {'role' : 'listitem'})
         for div in divs:
             for d2 in div.find_all('div', attrs = {'class' : 'label'}):
                 d2t = d2.text
                 d2.replace_with('[%s] ' % d2t)
             for a in div.find_all('a'):
-                at = a.text.strip()
-                ah = a['href']
-                if at == 'Crossref':
-                    a.replace_with(re.sub('.*doi.org\/', ', DOI: ', ah))
-                else:
-                    a.decompose()
+                if a.has_attr('href'):
+                    at = a.text.strip()
+                    ah = a['href']
+                    if at == 'Crossref':
+                        a.replace_with(re.sub('.*doi.org\/', ', DOI: ', ah))
+                    else:
+                        a.decompose()
             rec['refs'].append([('x', div.text.strip())])
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
