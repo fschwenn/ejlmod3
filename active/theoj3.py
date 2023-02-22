@@ -25,12 +25,11 @@ if jnl == 'joss':
 jnlfilename = 'theoj_%s_%s' % (jnl, ejlmod3.stampoftoday())
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/opt/google/chrome/google-chrome'
-#options.binary_location='/opt/google/chrome/chrome'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-#driver = uc.Chrome(version_main=103, options=options)
-driver = uc.Chrome(options=options)
+options.add_argument("--no-sandbox")
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 #check already done articles
