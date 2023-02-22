@@ -36,11 +36,12 @@ urltrunk = 'https://cdnsciencepub.com'
 tocurl = '%s/toc/%s/%s/%s' % (urltrunk, jnl, vol, isu)
 print("get table of content of %s%s.%s via %s " % (jnlname, vol, isu, tocurl))
 
+
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.add_argument("--no-sandbox")
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 driver.get(tocurl)
@@ -71,7 +72,7 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
     driver.get(rec['artlink'])
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'citation-content')))
+    #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'citation-content')))
     artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'dc.Date', 'dc.Identifier', 'dc.Language'])
     #abstract
