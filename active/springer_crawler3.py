@@ -160,7 +160,9 @@ def get_records(url):
     artlinks = []
     for (i, tocurl) in enumerate(list(pages.keys())):
         page = pages[tocurl]
+        foundsection = False
         for section in page.body.find_all('section', attrs = {'data-title' : 'book-toc'}):
+            foundsection = true
             for li in section.find_all('li', attrs = {'class' : 'c-card'}):
                 for h3 in li.find_all('h3', attrs = {'data-title' : 'part-title'}):
                     print('    ', h3.text.strip())
@@ -184,8 +186,24 @@ def get_records(url):
                                 else:
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
+        if not foundsection:
+            for h3 in page.body.find_all('h3', attrs = {'class' : 'c-card__title'}):
+                print('    ', h3.text.strip())
+                rec = {'jnl' : jnl, 'autaff' : [], 'note' : []}
+                rec['tit'] = h3.text.strip()
+                for a in h3.find_all('a'):
+                    if a.has_attr('href'):
+                        if re.search('https?:', a['href']):
+                            rec['artlink'] = a['href']
+                        else:
+                            rec['artlink'] = urltrunc + a['href']
+                        if rec['artlink'] in artlinks:
+                            print('   %s alredady in list' % (rec['artlink']))
+                        else:
+                            recs.append(rec)
+                            artlinks.append(rec['artlink'])            
         ejlmod3.printprogress('+', [[i+1, len(pages)], [tocurl], [len(recs)]])
-    return recs
+    return recs 
 
 
 
