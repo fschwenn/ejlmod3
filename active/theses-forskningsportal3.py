@@ -76,12 +76,13 @@ boring = ['Department of Biology', 'Department of Molecular Biology and Genetics
           'Section for Protein Science and Biotherapeutics', 'Software and Process Engineering',
           'Section for Architecture and Urban Design', 'Section for Media Technology - Campus Aalborg']
 
-#options = uc.ChromeOptions()
-options = webdriver.ChromeOptions() 
+
+options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/opt/google/chrome/google-chrome'
 options.add_argument('--headless')
-driver = uc.Chrome(options=options)
+options.binary_location='/usr/bin/chromium-browser'
+chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 def getdatafrommxdlink(rec):
     driver.get(rec['mxdlink'])
