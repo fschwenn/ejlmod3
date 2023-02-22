@@ -85,7 +85,8 @@ for issue in re.split(',', issues):
 recs = []
 for rec in prerecs:
     if not rec['note1'] in ['Commentaries', 'This Week in PNAS', 'News Feature', 'Retrospective',
-                            'Biological Sciences', 'Social Sciences']:
+                            'Biological Sciences', 'Social Sciences', 'Science and Culture',
+                            'QnAs', 'Opinion']:
         if not rec['note2'] in ['Biophysics and Computational Biology',
                                 'Chemistry']:
             rec['note'].append(rec['note2'])
@@ -98,6 +99,7 @@ for rec in prerecs:
                     rec['tit'] = a.text
                     rec['artlink'] = 'https://www.pnas.org' + a['href']
                 recs.append(rec)
+                print(rec['note1'], rec['note2'], rec['artlink'])
 
 print('kept %i of %i' % (len(recs), len(prerecs)))
 
@@ -108,6 +110,7 @@ for rec in recs:
     artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
                                         "citation_online_date", "citation_title"])
+    #print(artpage)
     #metadata in script
     for script in artpage.head.find_all('script'):
         if script.contents:
@@ -141,7 +144,7 @@ for rec in recs:
     #references
     for section in artpage.body.find_all('section', attrs = {'id' : 'bibliography'}):
         rec['refs'] = []
-        for div in section.find_all('div', attrs = {'role' : 'doc-biblioentry listitem'}):
+        for div in section.find_all('div', attrs = {'role' : ['doc-biblioentry listitem', 'listitem']}):
             for a in div.find_all('a'):
                 at = a.text.strip()
                 if at == 'Crossref':                    
