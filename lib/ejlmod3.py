@@ -34,6 +34,8 @@ except:
 host = os.uname()[1]
 if host == 'l00schwenn':
     qisbibclassifycommand = "/usr/bin/python3 /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
+elif host in ['inspire4', 'inspire4.desy.de']:
+    qisbibclassifycommand = "python /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
 else:
     qisbibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
@@ -1082,7 +1084,8 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Guest Editorial', 'Personalia, meetings, bibliography', 'Speaker',
             'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies',
             'Editorial Board', 'Content', 'General Chair', 'Table of Content',
-            'Alphabetical Index', 'Editorial Note', 'In Other Journals']
+            'Alphabetical Index', 'Editorial Note', 'In Other Journals', 'Keynote Speeches',
+            'Workshops and Tutorials', 'Cover Page']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1378,7 +1381,8 @@ def metatagcheck(rec, artpage, listoftags):
                 #abstract
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
-                           'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract']:
+                           'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract',
+                           'eprints.abstract_name']:
                     if len(meta['content']) > 12:
                         if meta.has_attr('xml:lang'):
                             abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
@@ -1587,7 +1591,7 @@ def metatagcheck(rec, artpage, listoftags):
                                 print('        ? citation_%s ?' % (key))
                         if pbnjt and pbnv and pbnfp:
                             pbn = '%s %s, %s' % (pbnjt, pbnv, pbnfp)
-                            repbn = extract_references_from_string(pbn, override_kbs_files={'journals': '/opt/invenio/etc/docextract/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
+                            repbn = extract_references_from_string(pbn, override_kbs_files={'journals': '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
                             if 'journal_reference' in list(repbn[0].keys()):
                                 if 'Physics' in repbn[0]['journal_title']:
                                     pbn = ''
