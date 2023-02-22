@@ -48,11 +48,25 @@ urltrunk = 'https://opg.optica.org/%s/issue.cfm?volume=%s&issue=%s' % (jnl, vol,
 print(urltrunk)
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+#options.headless=True
+#options.binary_location='/usr/bin/chromium-browser'
+#options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.add_argument("--no-sandbox")
+#options.add_argument("--incognito")
+#options.add_argument("--user-data-dir=/home/library/chrome")
+#options.add_argument("--disable-gpu")
+#options.add_argument("--disable-setuid-sandbox")
+#options.add_argument("--disable-extensions")
+#options.add_argument('--disable-application-cache')
+#options.add_argument('--disable-gpu')
+#options.add_argument("--no-sandbox")
+#options.add_argument("--disable-setuid-sandbox")
+#options.add_argument("--disable-dev-shm-usage")
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+#driver = uc.Chrome(options=options)
 
 driver.get(urltrunk)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -109,18 +123,36 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    try:
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+    except:
+        print('   try again in 60s...')
+        time.sleep(60)
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
     if len(artpage.find_all('meta')) < 10:
         print('  -- try again after 180 s  --  ')
         time.sleep(180)
-        driver.get(rec['artlink'])
-        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        try:
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
+        except:
+            print('   try again in 60s...')
+            time.sleep(60)
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         if len(artpage.find_all('meta')) < 10:
             print('  -- try again after 300 s  --  ')
             time.sleep(300)
-            driver.get(rec['artlink'])
-            artpage = BeautifulSoup(driver.page_source, features="lxml")
+            try:
+                driver.get(rec['artlink'])
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
+            except:
+                print('   try again in 60s...')
+                time.sleep(60)
+                driver.get(rec['artlink'])
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
         
         
     print('   read meta tags')
