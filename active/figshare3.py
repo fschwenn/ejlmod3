@@ -22,9 +22,10 @@ startdate = '%4d-%02d-%02d' % (now.year-1, now.month, now.day)
 srv = sys.argv[1]
 
 rpp = 200
-pages = 2
+pages = 2+2
 bunchsize = 100
 sleepingtime = 3
+skipalreadyharvested = True
 skipnonlistedcategories = True
 apiurl = "https://api.figshare.com/v2/articles/search"
 my_secret_token = "df88e4ebd43b823b945a7e6cd4809a579ba7dee9e60ac2e5a1c18874b36d67a128d8b8b447d01fcd521d44e2a8d7128a3bf3b1fb860fb6c1f4aaf77c43dfd0d7"
@@ -165,6 +166,9 @@ thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'wgtn' : 'Victoria U., Wellington',#no theses 
                          'lboro' : 'Loughborough U.'} 
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('figshare')
+
 ###formulate the search statements
 payloads = []
 #Preprint server TechRxiv
@@ -204,7 +208,7 @@ for (aff, payload) in payloads:
     payload['page_size'] = rpp
     for page in range(pages):
         payload['page'] = page+1
-        ejlmod3.printprogress('-', [[i, len(payloads)], [payload], [len(prerecs)]])
+        ejlmod3.printprogress('=', [[i, len(payloads)], [payload]])
         response = requests.post(apiurl, json=payload, headers={"authorization": auth}, timeout=120, verify=False)
         response.raise_for_status()  # will raise an exception if there's an error
         r = response.json()
@@ -214,8 +218,10 @@ for (aff, payload) in payloads:
                 rec['affiliation'] = aff
             if article['timeline']['firstOnline'][:10] > startdate:
                 if not article['url_public_api'] in articleurls:
-                    prerecs.append(rec)
-                    articleurls.append(article['url_public_api'] )
+                    if ejlmod3.checkinterestingDOI(article['url_public_api']):
+                        prerecs.append(rec)
+                        articleurls.append(article['url_public_api'] )
+        print('  %4i records so far' % (len(prerecs)))
         time.sleep(sleepingtime)
         if len(r) < rpp:
             break
@@ -226,6 +232,7 @@ recs = []
 for rec in prerecs:
     i += 1
     keepit = True
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['url_public_api']], [len(recs)]])
     artjson = requests.get(rec['url_public_api']).json()
     #submitter, degree, supervisor, department/
     submitter = ''
@@ -267,6 +274,7 @@ for rec in prerecs:
         if not artjson['defined_type_name'] in alloweditems:
             keepit = False
             print('  skip "%s"' % (artjson['defined_type_name']))
+            ejlmod3.adduninterestingDOI(rec['url_public_api'])
     #categories
     if 'categories' in list(artjson.keys()):
         for cat in artjson['categories']:
@@ -283,6 +291,7 @@ for rec in prerecs:
                 if skipnonlistedcategories:
                     keepit = False
                     print('  skip "%s"' % (cat['title']))
+                    ejlmod3.adduninterestingDOI(rec['url_public_api'])
     #authos
     if 'authors' in list(artjson.keys()):
         for author in artjson['authors']:
@@ -307,8 +316,14 @@ for rec in prerecs:
     #PID
     if 'doi' in list(artjson.keys()) and artjson['doi']:
         rec['doi'] = artjson['doi']
+        if skipalreadyharvested and rec['doi'] in alreadyharvested:
+            keepit = False
+            print('  %s already in backup' % (rec['doi']))
     if 'handle' in list(artjson.keys()) and artjson['handle']:
         rec['hdl'] = artjson['handle']
+        if skipalreadyharvested and rec['hdl'] in alreadyharvested:
+            keepit = False
+            print('  %s already in backup' % (rec['hdl']))
     #date
     if 'published_date' in list(artjson.keys()):
         rec['date'] = artjson['published_date']
@@ -326,7 +341,7 @@ for rec in prerecs:
         rec['link'] = artjson['url_public_html']
     if keepit:
         recs.append(rec)
-        ejlmod3.printprogress('-', [[i, len(prerecs)], list(rec.keys())])
+        ejlmod3.printrecsummary(rec)
     time.sleep(sleepingtime)
 
 numofbunches = (len(recs)-1) // bunchsize + 1
