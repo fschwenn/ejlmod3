@@ -126,4 +126,4 @@ for journal in crossref.body.find_all('journal'):
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
