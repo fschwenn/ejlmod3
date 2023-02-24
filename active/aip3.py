@@ -68,14 +68,12 @@ elif (jnl == 'pto'): #authors messy
 
 
 options = uc.ChromeOptions()
-options.headless=True
 options.add_argument('--headless')
 host = os.uname()[1]
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
+    #options.binary_location='/home/schwenn/chromedriver108.0.5359.71'
+    options.binary_location='/usr/bin/chromium'
+    options.add_argument("--no-sandbox")
     driver = uc.Chrome(version_main=109, options=options)
 else:
     options.binary_location='/usr/bin/chromium-browser'
