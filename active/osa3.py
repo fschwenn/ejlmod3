@@ -17,6 +17,7 @@ typecode = 'P'
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
+skipalreadyharvested = True
 cnum = False
 if (jnl == 'oe'): 
     jnlname = 'Opt.Express'
@@ -42,7 +43,6 @@ if len(sys.argv) > 4:
     jnlfilename += '_' + cnum
     typecode = 'C'
 
-
 urltrunk = 'https://www.osapublishing.org/%s/issue.cfm?volume=%s&issue=%s' % (jnl, vol, issue)
 urltrunk = 'https://opg.optica.org/%s/issue.cfm?volume=%s&issue=%s' % (jnl, vol, issue)
 print(urltrunk)
@@ -52,6 +52,7 @@ options = uc.ChromeOptions()
 #options.binary_location='/usr/bin/chromium-browser'
 #options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
 options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
 options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
@@ -75,8 +76,11 @@ time.sleep(10)
 
 
 done = ['https://www.osapublishing.org/josab/abstract.cfm?uri=josab-36-7-E112']
+if skipalreadyharvested:
+    for identifier in ejlmod3.getalreadyharvested(jnlfilename):
+        done.append(re.sub('\-\-$', '', identifier))
 (level0note, level1note) = (False, False)
-recs = []
+prerecs = []
 year = False
 for h2 in tocpage.find_all('h2', attrs = {'class' : 'heading-block-header'}):
     if re.search(' 20\d\d', h2.text):
@@ -104,8 +108,11 @@ for div in divs:
             for a in p.find_all('a'):
                 rec['tit'] = p.text.strip()
                 rec['artlink'] = 'https://opg.optica.org' + a['href']
-            if not rec['artlink'] in done:                
-                recs.append(rec)
+            if rec['artlink'] in done:
+                print('   %s in done' % (rec['artlink']))
+            else:
+                prerecs.append(rec)
+                rec['note'].append('URLDOC='+rec['artlink'])
                 done.append(rec['artlink'])
         #pages
         for p in div2.find_all('p', attrs = {'style' : 'color: #999'}):
@@ -118,11 +125,13 @@ for div in divs:
             rec['auts'] = []
             for aut in re.split('(,| and) ', p.text.strip()):
                 rec['auts'].append(re.sub('^and ', '', aut))
+time.sleep(5)
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']]])
     try:
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -209,8 +218,8 @@ for rec in recs:
             rec['refs'].append([('x', ref)])
     if not rec['autaff']:
         del rec['autaff']
+    recs.append(rec)
     ejlmod3.printrecsummary(rec)
-    time.sleep(40)
+    time.sleep(40-i/10)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
-driver.quit()
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)
