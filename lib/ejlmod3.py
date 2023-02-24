@@ -1123,7 +1123,8 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 rec['hidden'] = rec['pdf_url']
         #add doki file name
         if 'note' in rec:
-            rec['note'].append('DOKIFILE:'+jnlfilename)
+            if not 'DOKIFILE:'+jnlfilename in rec['note']:
+                rec['note'].append('DOKIFILE:'+jnlfilename)
         else:
             rec['note'] = ['DOKIFILE:'+jnlfilename]
         #QIS keywords
@@ -1204,10 +1205,12 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
             if qiskws:
                 if not 'note' in rec:
                     rec['note'] = []
-                rec['note'].append('%i QIS keywords found' % (len(qiskws)))
+                if not '%i QIS keywords found' % (len(qiskws)) in rec['note']:
+                    rec['note'].append('%i QIS keywords found' % (len(qiskws)))
                 print('   %i QIS keywords found' % (len(qiskws)))
                 for qiskw in qiskws:
-                    rec['note'].append(qiskw)
+                    if not qiskw in rec['note']:
+                        rec['note'].append(qiskw)
                 if 'fc' in rec:
                     if not 'k' in rec['fc']:
                         rec['fc'] += 'k'
@@ -1446,7 +1449,7 @@ def metatagcheck(rec, artpage, listoftags):
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName',
-                             'DC.contributor.author', 'dc.creator', 'dcterms.creator']:
+                             'DC.contributor.author', 'dc.creator', 'dcterms.creator', 'citation_authors']:
                     if 'autaff' in rec:
                         rec['autaff'].append([meta['content']])
                     else:
@@ -1943,6 +1946,6 @@ def getalreadyharvested(jnlfilename, years=3):
     filestosearch = '%s/*%s ' % (dokidir, filenametrunc)
     for i in range(years-1):
         filestosearch += '%s/%i/*%s ' % (dokidir, now.year-i-1, filenametrunc)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (filestosearch))))
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep URLDOC | sed 's/.*URLDOC=//' | sed 's/;//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), filenametrunc))
     return alreadyharvested
