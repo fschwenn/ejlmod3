@@ -363,7 +363,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
         for meta in page.find_all('meta', attrs = {'name' : 'citation_pdf_url'}):
             rec['pdf_url'] = meta['content']
             if jnl == 'ptep':
-                rec['p1'] = re.sub('.*\/20\d\d\/\d+\/(.*?)\/.*', r'\1', rec['citation_pdf_url'])
+                rec['p1'] = re.sub('.*\/20\d\d\/\d+\/(.*?)\/.*', r'\1', rec['pdf_url'])
         for abstract in page.find_all('section', attrs = {'class' : 'abstract'}):
             try:
                 fsunwrap(abstract)
