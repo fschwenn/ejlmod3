@@ -153,6 +153,7 @@ for rec in prerecs:
             sv = re.sub('Prof\. *', '', span.text.strip())
             sv = re.sub('Dr\. *', '', sv)
             sv = re.sub('h\.c\. *', '', sv)
+            sv = re.sub('Priv\.\-Doz\. *', '', sv)
             rec['supervisor'].append([sv])
     for tr in artpage.body.find_all('tr', attrs = {'class' : 'eprint-field-divisions'}):
         for a in tr.find_all('a'):
