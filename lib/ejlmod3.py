@@ -1426,7 +1426,7 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['doi'] = re.sub('.*doi:\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
                     elif re.search('DOI:10\.\d', meta['content']):
-                        rec['doi'] = re.sub(':\/(10.*)', r'\1', meta['content'])
+                        rec['doi'] = re.sub('.*:\/(10.*)', r'\1', meta['content'])
                         done.append(tag)
                     elif re.search('^10\.\d+\/', meta['content']):
                         rec['doi'] = meta['content']
@@ -1508,13 +1508,14 @@ def metatagcheck(rec, artpage, listoftags):
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
-                elif tag in ['citation_lastpage', 'bepress_citation_lastpage']:
+                elif tag in ['citation_lastpage', 'bepress_citation_lastpage', 'prism.endingPage']:
                     rec['p2'] = meta['content']
                     done.append(tag)
-                elif tag in ['citation_firstpage', 'bepress_citation_firstpage', 'DC.Identifier.pageNumber']:
+                elif tag in ['citation_firstpage', 'bepress_citation_firstpage', 'DC.Identifier.pageNumber',
+                             'prism.startingPage']:
                     rec['p1'] = meta['content']
                     done.append(tag)
-                elif tag in ['citation_issue']:
+                elif tag in ['citation_issue', 'prism.number']:
                     rec['issue'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_num_pages', 'DCTERMS.extent', 'eprints.pages', 'citation_pages']:
@@ -1523,11 +1524,11 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                     elif re.search('\d\d', meta['content']):
                         rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', meta['content'])
-                        done.append(tag)
+                        done.append(tag)                
                 elif tag in ['citation_year', 'Citation_Year']:
                     rec['year'] = meta['content']
                     done.append(tag)
-                elif tag in ['citation_volume']:
+                elif tag in ['citation_volume', 'prism.volume']:
                     rec['vol'] = meta['content']
                     done.append(tag)
                 #license
