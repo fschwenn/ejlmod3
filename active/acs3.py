@@ -1,7 +1,5 @@
 # -*- coding: UTF-8 -*-
-#!/usr/bin/python
 #program to harvest ACS journals
-#Claudflare!!!
 # FS 2020-12-04
 
 import sys
@@ -38,10 +36,10 @@ else:
     sys.exit(0)
 
 options = uc.ChromeOptions()
-options.headless=True
 options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
