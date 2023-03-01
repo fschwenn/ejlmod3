@@ -17,6 +17,8 @@ publisher = 'Cambridge University Press'
 tc = 'P'
 jid =  sys.argv[1]
 vol = sys.argv[2]
+skipalreadyharvested = True
+
 jnlfilename = 'cambridge'+jid + vol
 if len(sys.argv) > 3:
     iss = sys.argv[3]
@@ -73,6 +75,8 @@ elif jid == 'PHS':
 #elif jid == 'CPH':
 #    jnlname = 'Commun.Comput.Phys.'
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 if jid in ['PHS']:
     supertocurl = 'https://www.cambridge.org/core/journals/%s/all-issues' % (camjnlname)
@@ -122,7 +126,7 @@ for meta in toc.head.find_all('meta', attrs = {'property' : 'og:url'}):
                 print('check %i pages' % (numpages))
 
 note = ''
-recs = []
+prerecs = []
 #first run through TOC to get DOIs
 for i in range(numpages):
     toclink = '%s?pageNum=%i' % (baseurl, i+1)
@@ -159,9 +163,11 @@ for i in range(numpages):
                                               '10.1017/S1431927620001191',
                                               '10.1112/S0025579318000256']:
                                 continue
-                            if not note in ['Front Cover (OFC, IFC) and matter', 
+                            if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                                print('   %s already in backup' % (rec['hdl']))
+                            elif not note in ['Front Cover (OFC, IFC) and matter', 
                                         'Back Cover (OBC, IBC) and matter']:
-                                recs.append(rec)
+                                prerecs.append(rec)
                                 print(rec['doi'], rec['note'])
                         #real article link
                         for a2 in child.find_all('a', attrs = {'class' : 'part-link'}):
@@ -170,7 +176,7 @@ for i in range(numpages):
                                 rec['note'] = [ note ]
                                 if not note in ['Front Cover (OFC, IFC) and matter', 
                                                 'Back Cover (OBC, IBC) and matter']:
-                                    recs.append(rec)
+                                    prerecs.append(rec)
                                     print('?', rec['note'])
 
 
@@ -183,10 +189,11 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
        'Accept-Language': 'en-US,en;q=0.8',
        'Connection': 'keep-alive'}
 i = 0
-for rec in recs:    
+recs = []
+for rec in prerecs:    
     i += 1 
     req = urllib.request.Request(rec['artlink'], headers=hdr)
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
         time.sleep(8)
@@ -281,7 +288,11 @@ for rec in recs:
         for div2 in div.find_all('div', attrs = {'class' : 'margin-top'}):
             div2text = div2.text.strip()
             if re.search('creativecommons.org', div2text):
-                rec['licence'] = {'url' : re.sub('.*(http.*?creativecommons.*?0).*', r'\1', div2text)}
-    ejlmod3.printrecsummary(rec)
+                rec['licence'] = {'url' : re.sub('.*(http.*?creativecommons.*?0).*', r'\1', div2text)}                
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   already in backup')
+    else:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
