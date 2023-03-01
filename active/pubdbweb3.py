@@ -18,6 +18,7 @@ chunksize = 80
 rpp = 25
 #to avoid "too many results" split the timespan of the search
 maxtimespan = 5 * 999
+skipalreadyharvested = True
 
 confdict = {'12th International Conference on Elastic and Diffractive Scattering Forward Physics and QCD' : 'C07-05-21.2',
             '12th International Conference on Elastic and Diffractive Scattering: Forward Physics and QCD' : 'C07-05-21.2',
@@ -31,6 +32,10 @@ publisher = 'Deutsches Elektronen-Synchrotron'
 
 now = datetime.datetime.now()
 stampoftoday = '%4d-%02d-%02d' % (now.year, now.month, now.day)
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('desypubdb')
+
 
 #look for conference in INSPIRE
 def inspireconf(confsearch):
@@ -129,13 +134,7 @@ def getpersonalidentifiersfrompip(pip):
 #transform pubdb-MARC structure to INSPIRE (via ejlmod2)
 def tfstrip(x): return x.strip()
 def translatearticles(pubdbrecords):
-    done =  list(map(tfstrip,os.popen("grep '^3.*DOI' %s/backup/*desypubdb*doki |sed 's/.*=//'|sed 's/;//'" % (ejldir))))
-    done += list(map(tfstrip,os.popen("grep '^3.*DOI' %s/backup/%i/*desypubdb*doki |sed 's/.*=//'|sed 's/;//'" % (ejldir, ejlmod3.year()-1))))
-    #done += map(tfstrip,os.popen("grep '^3.*DOI' %s/onhold/*desypubdb*doki |sed 's/.*=//'|sed 's/;//'" % (ejldir)))
-    #done += map(tfstrip,os.popen("grep '^3.*DOI' %s/zu_punkten/*desypubdb*doki |sed 's/.*=//'|sed 's/;//'" % (ejldir)))
-    #done += map(tfstrip,os.popen("grep '^3.*DOI' %s/zu_punkten/enriched/*desypubdb*doki |sed 's/.*=//'|sed 's/;//'" % (ejldir)))
-    #print done
-    #done = [] #tempo
+    done = [] #tempo
     print('%i DOIs in done' % (len(done)))    
     recs = {}
     print('found %i records' % (len(pubdbrecords)))
@@ -404,8 +403,9 @@ def translatearticles(pubdbrecords):
                     role = 'reviewer'
             for sf in df.find_all('subfield', attrs = {'code' : '0'}):
                 if re.search('PIP', sf.text):
-                    print('can not get PIP via web')
-                    #marc += getpersonalidentifiersfrompip(sf.text)                        
+                    #print('can not get PIP via web')
+                    #marc += getpersonalidentifiersfrompip(sf.text)
+                    pass
             if role == 'editor':
                 marc.append(('e', 'ed.'))
             elif role == 'advisor':
@@ -435,11 +435,15 @@ def translatearticles(pubdbrecords):
             if confnote:
                 rec['note'].append(confnote)
                 rec['note'] += inspireconf(confsearch)
-        if section in recs:
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('   %s already in backup' % (rec['doi']))
+        elif section in recs:
             recs[section].append(rec)
+            ejlmod3.printrecsummary(rec)
         else:
             recs[section] = [rec]
-        print(rec)            
+            ejlmod3.printrecsummary(rec)
+#        print(rec)            
     return recs
     
 
