@@ -14,6 +14,10 @@ publisher = 'Brasilia U.'
 jnlfilename = 'THESES-BRASILIA-%s' % (ejlmod3.stampoftoday())
 rpp = 20
 numofpages = 1
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
@@ -29,17 +33,28 @@ for (dep, fc) in [('829', ''), ('5364', 'c'), ('817', 'm')]:
                 rec = {'tc' : 'T', 'jnl' : 'BOOK', 'autaff' : [], 'keyw' : []}
                 rec['link'] = 'https://repositorio.unb.br' + a['href']
                 rec['doi'] = '20.2000/BrasiliaU' + a['href']
-                rec['tit'] = a.text.strip()
-                if fc: rec['fc'] = fc
-                recs.append(rec)
+                if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                    pass
+                else:
+                    rec['tit'] = a.text.strip()
+                    if fc: rec['fc'] = fc
+                    recs.append(rec)
+        print('  %4i records so far' % (len(recs)))
             
 j = 0
 for rec in recs:
     j += 1
     ejlmod3.printprogress('-', [[j, len(recs)], [rec['link']]])
-    req = urllib.request.Request(rec['link'] + '?mode=full')
-    artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(5)
+    try:
+        req = urllib.request.Request(rec['link'] + '?mode=full')
+        artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        time.sleep(5)
+    except:
+        print('    try again in 120 seconds')
+        time.sleep(120)
+        req = urllib.request.Request(rec['link'] + '?mode=full')
+        artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        time.sleep(5)
     ejlmod3.metatagcheck(rec, artpage, ['citation_date', 'citation_author', 
                                         'citation_language', 'citation_pdf_url', "DC.subject"])
     rec['autaff'][-1].append(publisher)                        
