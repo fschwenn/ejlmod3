@@ -14,7 +14,7 @@ import time
 
 publisher = 'Southampton U.'
 skipalreadyharvested = True
-pages = 1
+pages = 2
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-SOUTHAMPTON-%s' % (ejlmod3.stampoftoday())
 prerecs = []
