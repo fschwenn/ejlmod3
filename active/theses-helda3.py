@@ -78,12 +78,8 @@ for (j, rec) in enumerate(prerecs):
     time.sleep(5)
     ejlmod3.metatagcheck(rec, artpage, ['citation_date', 'citation_author', 'DC.rights',
                                         'citation_language', 'citation_pdf_url',
-                                        'DC.identifier', 'DC.type'])
+                                        'DC.identifier', 'DC.type', 'DCTERMS.abstract'])
     rec['autaff'][-1].append(publisher)                        
-    #abstract
-    for meta in artpage.find_all('meta', attrs = {'name' : 'DCTERMS.abstract'}):
-        if meta.has_attr('xml:lang') and meta['xml:lang'] in ['eng', 'en_US']:
-            rec['abs'] = meta['content']
     #repair URN
     if 'urn' in rec:
         rec['urn'] = re.sub('–', '-', rec['urn'])
