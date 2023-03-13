@@ -19,6 +19,7 @@ stampofstartdate = '%4d-%02d-%02d' % (startdate.year, startdate.month, startdate
 publisher = 'Tokyo U.'
 verbose = True
 years = 2
+skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
 boring = ['journal article', 'conference paper', 'departmental bulletin paper', 'article',
@@ -31,6 +32,9 @@ boringfacs = ['110', '111', '112', '113', '114',
 boringfacs += ['1150910', '1150920', '1150620', '1150625', '1150920', '1151120', '1151420']
 interesting = ['doctoral thesis', 'thesis']
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('TOKYO_U')
+
 #tocurl = 'https://repository.dl.itc.u-tokyo.ac.jp/oai?verb=ListIdentifiers&metadataPrefix=oai_dc&from=' + stampofstartdate
 tocurl = 'https://repository.dl.itc.u-tokyo.ac.jp/oai?verb=ListRecords&from=' + stampofstartdate + '&until=' + ejlmod3.stampoftoday() + '&metadataPrefix=jpcoar_1.0'
 prerecs = {}
@@ -41,7 +45,12 @@ rec= {'identifier' : ''}
 while notcomplete:
     i += 1
     ejlmod3.printprogress('=', [[i, (cls-1)//100 + 1], [tocurl]])
-    tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+    try:
+        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+    except:
+        print('   try again after 60 seconds')
+        time.sleep(60)
+        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
     j = 0
     for record in tocpage.find_all('record'):
         j += 1
@@ -55,7 +64,7 @@ while notcomplete:
         #identifier
         for identifier in record.find_all('identifier'):
             rec['identifier'] = identifier.text
-        if ejlmod3.ckeckinterestingDOI(rec['identifier']):
+        if ejlmod3.checkinterestingDOI(rec['identifier']):
             keepit = False
             if verbose: print('   uninterestingDOI')
         ejlmod3.printprogress('-', [[100*(i-1)+j, cls], [rec['identifier']]])
@@ -65,6 +74,7 @@ while notcomplete:
             if category in boring:
                 if verbose: print('   skip "%s"' % (category))
                 keepit = False
+                ejlmod3.adduninterestingDOI(rec['identifier'])                
             elif category == 'thesis':
                 for dn in record.find_all('dcndl:degreename'):
                     dnt = dn.text
@@ -74,6 +84,7 @@ while notcomplete:
                     elif dnt in ['修士(工学)', '修士(理学)']:
                         if verbose: print('   skip "%s"' % (dnt))
                         keepit = False
+                        ejlmod3.adduninterestingDOI(rec['identifier'])
                     else:                        
                         category = 'thesis_' + dn.text
         if verbose: print('   category: '+category)
@@ -96,8 +107,14 @@ while notcomplete:
         #PIDs
         for pid in record.find_all('jpcoar:identifier', attrs = {'identifiertype' : 'HDL'}):
             rec['hdl'] = pid.text
+            if skipalreadyharvested and rec['hdl'] in alreadyharvested:
+                keepit = False
+                print('  already in backup')
         for pid in record.find_all('jpcoar:identifier', attrs = {'identifiertype' : 'DOI'}):
             rec['doi'] = pid.text
+            if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                keepit = False
+                print('  already in backup')
         for pid in record.find_all('jpcoar:identifier', attrs = {'identifiertype' : 'URI'}):
             rec['link'] = pid.text
         #Nippon Decimal Classification
@@ -110,6 +127,7 @@ while notcomplete:
             elif not ndt == '42':
                 if verbose: print('   skip NDC='+ndc.text)
                 keepit = False
+                ejlmod3.adduninterestingDOI(rec['identifier'])
         #pdf
         for jf in record.find_all('jpcoar:file'):
             for jm in jf.find_all('jpcoar:mimetype'):
@@ -123,7 +141,12 @@ while notcomplete:
         if keepit and 'link' in rec:
             if verbose: print(rec['link'])
             time.sleep(2)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            try:
+                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            except:
+                print('   wait 60s')
+                time.sleep(60)
+                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
             for pre in artpage.body.find_all('pre', attrs = {'class' : 'hide'}):
                 metadata = json.loads(pre.text)
                 #abstract
