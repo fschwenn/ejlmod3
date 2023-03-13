@@ -1457,7 +1457,7 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
                              'dc.contributor.advisor', 'eprints.referee_name',
-                             'eprints.thesis_advisor_name']:
+                             'eprints.thesis_advisor_name', 'eprints.tutors_name']:
                     if 'supervisor' in rec:
                         rec['supervisor'].append([meta['content']])
                     else:
@@ -1625,7 +1625,7 @@ def metatagcheck(rec, artpage, listoftags):
             rec['abs'] = abstracts[lang]
     elif len(abstracts.keys()) > 1:
         for lang in abstracts:
-            if lang in ['en', 'eng'] or re.search('^en_', lang):
+            if lang in ['en', 'eng'] or re.search('^en', lang):
                 rec['abs'] = abstracts[lang]
         if not 'abs' in rec:
             for lang in abstracts:
@@ -1693,7 +1693,7 @@ def addtoooldDOI(doi):
 
 
 #standard DSPace
-def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-description'):
+def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-description', alreadyharvested=[]):
     rehdl = re.compile('.*handle\/')
     reyear = re.compile('.*([12]\d\d\d).*')
     redegree = re.compile('rft.degree=')
@@ -1739,11 +1739,11 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     links.append(rec['link'])
                     if fakehdl:
                         rec['doi'] = '30.3000/' + re.sub('\W', '',  urltrunc) + rehdl.sub('/', a['href'])
-                        if checkinterestingDOI(rec['link']):
+                        if checkinterestingDOI(rec['link']) and not rec['doi'] in alreadyharvested:
                             recs.append(rec)
                     else:
                         rec['hdl'] = rehdl.sub('', a['href'])
-                        if checkinterestingDOI(rec['hdl']):
+                        if checkinterestingDOI(rec['hdl']) and not rec['hdl'] in alreadyharvested:
                             recs.append(rec)
     print('  [getdspacerecs] %i/%i' % (len(recs), len(divs)))
     return recs
