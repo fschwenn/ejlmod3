@@ -32,10 +32,11 @@ if host == 'l00schwenn':
 else:
     options = uc.ChromeOptions()
     options.headless=True
-    options.binary_location='/usr/bin/chromium-browser'
+#    options.binary_location='/usr/bin/chromium-browser'
     options.add_argument('--headless')
     #options.add_argument('--proxy-server=http://vpnbook:rxtasfh@fr1.vpnbook.com')
-    chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    #chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    chromeversion = 108
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
 
@@ -515,7 +516,7 @@ if __name__ == '__main__':
         ejlmod3.printprogress('###', [[i+1, len(numbers)], [singlenumber]])
         (recs, jnlfilename) = ieee(singlenumber)
 #        if host != 'l00schwenn':
-        ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
         if i+1 < len(numbers):
             time.sleep(120)
 
