@@ -1409,9 +1409,13 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content']))] ]
                     done.append(tag)
-                elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier', 'dc.identifier.uri']:
+                elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier',
+                             'dc.identifier.uri', 'eprints.id_number']:
                     if re.search('^(urn|URN):', meta['content']):
                         rec['urn'] = meta['content']
+                        done.append(tag)
+                    elif re.search('.*resolving.[a-]+\/urn:', meta['content']):
+                        rec['urn'] = re.sub('.*resolving.[a-]+\/', '', meta['content'])
                         done.append(tag)
                     elif re.search('^(uri|URI):', meta['content']):
                         rec['uri'] = meta['content']
@@ -1456,17 +1460,18 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['autaff'] = [[meta['content']]]
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
-                             'dc.contributor.advisor', 'eprints.referee_name',
+                             'dc.contributor.advisor', 'eprints.referee_name', 'eprints.supervisor_name',
                              'eprints.thesis_advisor_name', 'eprints.tutors_name']:
+                    sv = re.sub(' \(.*', '', re.sub(' \[.*', '', meta['content']))
                     if 'supervisor' in rec:
-                        rec['supervisor'].append([meta['content']])
+                        rec['supervisor'].append([sv])
                     else:
-                        rec['supervisor'] = [[meta['content']]]
+                        rec['supervisor'] = [[sv]]
                     done.append(tag)
                 elif tag in ['eprints.thesis_advisor_orcid']:
                     rec['supervisor'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
                     done.append(tag)
-                elif tag in ['eprints.thesis_advisor_email']:
+                elif tag in ['eprints.thesis_advisor_email', 'eprints.supervisor_id']:
                     if re.search('@', meta['content']):
                         rec['supervisor'][-1].append('EMAIL:' + meta['content'])
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
@@ -1720,9 +1725,9 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     rec['dep'] = div2.text.strip()
                 #some have infos in <span class="Z3988">
                 for span in div.find_all('span', attrs = {'class' : 'Z3988'}):
-                    infos = re.split('&', span['title'])
+                    rec['infos'] = re.split('&', span['title'])
                     rec['degrees'] = []
-                    for info in infos:
+                    for info in rec['infos']:
                         if redegree.search(info):
                             degree = redegree.sub('', info)
                             rec['degrees'].append(degree)
@@ -1737,7 +1742,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                 #construct link and HDL (or fakeDOI)
                 if keepit and not rec['link'] in links:
                     links.append(rec['link'])
-                    if fakehdl:
+                    if fakehdl and not 'doi' in rec:
                         rec['doi'] = '30.3000/' + re.sub('\W', '',  urltrunc) + rehdl.sub('/', a['href'])
                         if checkinterestingDOI(rec['link']) and not rec['doi'] in alreadyharvested:
                             recs.append(rec)
@@ -1821,6 +1826,7 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                     rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [],
                            'autaff' : [], 'degree' : [], 'fac' : []}
                     rec['hdl'] = thesis['handle']
+                    rec['thesis.metadata.keys'] = thesis['metadata'].keys()
                     j += 1
                     done = []
                     if not checkinterestingDOI(rec['hdl']):
@@ -1841,8 +1847,8 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                     rec['pdf_url'] = '%s/bitstreams/%s/download' % (urltrunc, thesis['uuid'])
                 ###
                 for key in thesis['metadata'].keys():
-#                    if key != 'dc.description.abstract':
-#                        print('  ->', key, thesis['metadata'][key][0]['value'])
+                    #if key != 'dc.description.abstract':
+                    #    print('  ->', key, thesis['metadata'][key][0]['value'])
                     #abstract
                     if key in ['dc.description.abstract']:
                         for abstract in thesis['metadata'][key]:
@@ -1910,7 +1916,8 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                             rec['tit'] = tit['value']
                         done.append(key)
                     #degree
-                    if key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type']:
+                    if key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
+                               'thesis.degree.name']:
                         for degree in thesis['metadata'][key]:
                             if degree['value'] in boring:
                                 keepit = False
@@ -1919,8 +1926,8 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
                     #keywords
-                    if key in ['dc.subject.rvm']:
-                        for keyw in thesis['metadata'][keyw]:
+                    if key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm']:
+                        for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
                 #resume
