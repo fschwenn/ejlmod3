@@ -68,6 +68,7 @@ def fsunwrap(tag):
 
 tocfile = '/tmp/%s.toc' % (jnlfilename)
 if not os.path.isfile(tocfile):
+    print(toclink)
     os.system('wget -q -O %s "%s"' % (tocfile, toclink))
 inf = open(tocfile, 'r')
 toc = BeautifulSoup(''.join(inf.readlines()), features="lxml")
