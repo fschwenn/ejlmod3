@@ -213,9 +213,13 @@ def getarticle(href, sec, subsec, p1):
                     if not re.search('ORCID', author) and re.search('@', emails[affs[affi]]):
                         author += ', EMAIL:%s' % (emails[affs[affi]])
                     affs[affi] = ''
+            if not re.search('EMAIL', author) and ('.+ .+@.+\.[a-z]', author):
+                print('--->', author)
+                author = re.sub('(.+) (.+@.+)', r'\1, EMAIL:\2', author)
+                print('  =>', author)
             #chinese name
             if re.search(' \(.+\)', author):
-                author = re.sub('(.*) *\((.*)\)(.*)', r'\1\3, CHINESENAME: \2', author)
+                author = re.sub('(.*) *\((.*)\)(.*)', r'\1\3, CHINESENAME: \2', author)                
             rec['auts'].append(author)                    
             for aff in affs:
                 if aff:
