@@ -2,18 +2,21 @@
 #harvest theses from RWTH Aachen U. 
 #FS: 2019-12-13
 
-
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
 
-publisher = 'RWTH Aachen U.'
 rg = '100'
 years = 2
+skipalreadyharvested = True
+
+publisher = 'RWTH Aachen U.'
 jnlfilename = 'THESES-AACHEN_%s' % (ejlmod3.stampoftoday())
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = {}
@@ -71,7 +74,13 @@ for fachgruppe in ['130000', '110000']:
                 rec['link'] = dct
         if int(rec['year']) > ejlmod3.year(backwards=years):
             recs[rec['doi']] = rec
-        ejlmod3.printrecsummary(rec)  
+        ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs.values(), publisher, jnlfilename)
+realrecs = []
+for doi in recs:
+    if not skipalreadyharvested or not doi in alreadyharvested:
+        realrecs.append(recs[doi])
+print(len(realrecs), '/', len(recs))
+
+ejlmod3.writenewXML(realrecs, publisher, jnlfilename)
 
