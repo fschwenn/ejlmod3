@@ -7,8 +7,12 @@ import ejlmod3
 publisher = 'Wien U.'
 jnlfilename = 'THESES-WIEN_%s' % ejlmod3.stampoftoday()
 pages = 3  # Change this variable to set the number of pages
+skipalreadyharvested = True
 
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    
 with Session() as session:
 
     recs = []
@@ -88,9 +92,17 @@ with Session() as session:
 
             # Add link
             rec['link'] = 'https://utheses.univie.ac.at/detail/' + article.get('id')
-
-            recs.append(rec)
-            ejlmod3.printrecsummary(rec)
+            if skipalreadyharvested:
+                if 'doi' in rec and rec['doi'] in alreadyharvested:
+                    print('  %s already in backup' % (rec['doi']))
+                elif 'urn' in rec and rec['urn'] in alreadyharvested:
+                    print('  %s already in backup' % (rec['urn']))
+                else:
+                    recs.append(rec)
+                    ejlmod3.printrecsummary(rec)
+            else:
+                recs.append(rec)
+                ejlmod3.printrecsummary(rec)
         sleep(5)
 
 
