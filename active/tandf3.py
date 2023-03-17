@@ -114,13 +114,16 @@ for (i, rec) in enumerate(prerecs):
     try:
         #driver.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi']))
         #apage = BeautifulSoup(driver.page_source, features="lxml")
-        apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi'])).text, features="lxml")
+        apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/full/%s' % (rec['doi'])).text, features="lxml")
+        time.sleep(random.randint(20,100))
+        rpage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi'])).text, features="lxml")
     except:
         print('try without references')
         time.sleep(random.randint(50,90))
         #driver.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi']))
         #apage = BeautifulSoup(driver.page_source, features="lxml")
         apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi'])).text, features="lxml")
+        rpage = apage
     if re.search('Cloudflare', apage.text):
         print('Cloudflare :(')
         sys.exit(0)
@@ -162,6 +165,9 @@ for (i, rec) in enumerate(prerecs):
                     fund.decompose()
                 #AFFILLIATION
                 rec['autaff'][-1].append(affspan.text.strip())
+    #abstract
+    for div in apage.body.find_all('div', attrs = {'class' : 'abstractInFull'}):
+        rec['abs'] = div.text.strip()
     #pages
     for span in apage.body.find_all('span', attrs = {'class' : 'contentItemPageRange'}):
         pages = re.sub('[Pp]ages? *', '', span.text).strip()
@@ -171,7 +177,7 @@ for (i, rec) in enumerate(prerecs):
             rec['p1'] = re.sub('Article: ', '', pages)
 
     #references
-    for ul in apage.body.find_all('ul', attrs = {'class' : 'references numeric-ordered-list'}):
+    for ul in rpage.body.find_all('ul', attrs = {'class' : 'references numeric-ordered-list'}):
         rec['refs'] = []
         for li in ul.find_all('li'):
             rdoi = ''
