@@ -5,6 +5,7 @@
 
 import sys
 import os
+import requests
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
@@ -21,14 +22,22 @@ jnlfilename = 'THESES-NEU-%s' % (ejlmod3.stampoftoday())
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
-                    
-hdr = {'User-Agent' : 'Magic Browser'}
+
+options = uc.ChromeOptions()
+options.headless=True
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+               
+#hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for (aff, depid) in departments:
     tocurl = 'https://repository.library.northeastern.edu/collections/neu:'+depid+'?utf8=%E2%9C%93&sort=date_ssi+desc&per_page=' + str(rpp) + '&utf8=%E2%9C%93&id=neu%3A' + depid + '&rows=' + str(rpp)
-    ejlmod3.printprogress("=", [[tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    ejlmod3.printprogress("=", [[tocurl]])    
+#    req = urllib.request.Request(tocurl, headers=hdr)
+    #req = requests.get(tocurl, verify=False)
+    driver.get(tocurl)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
     time.sleep(5)
     for h4 in tocpage.find_all('h4', attrs = {'class' : 'drs-item-title'}):
         for a in h4.find_all('a'):
@@ -38,13 +47,7 @@ for (aff, depid) in departments:
             if depid == '200':
                 rec['fc'] = 'm'
             prerecs.append(rec)
-
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-driver = uc.Chrome(version_main=chromeversion, options=options)
+    print('  %4i records so far' % (len(prerecs)))
 
 j = 0
 recs = []
