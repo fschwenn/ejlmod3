@@ -422,6 +422,7 @@ def writeXML(recs,dokfile,publisher):
                 xmlstring += marcxml('595', [('a', 'unknown language "%s"' % (rec['language']))])
         #ABSTRACT
         if 'abs' in rec:
+            rec['abs'] = re.sub('^ABSTRACT:?', '', rec['abs'])
             if len(rec['abs']) > 5:
                 try:
                     xmlstring += marcxml('520',[('a',rec['abs']), ('9',publisher)])
@@ -1394,7 +1395,7 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
-                             'doi', 'eprints.doi']:
+                             'doi', 'eprints.doi', 'eprints.doi_name']:
                     rec['doi'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_arxiv_id']:
@@ -1443,7 +1444,7 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                 #language
                 elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language',
-                             'dc.language.iso']:
+                             'dc.language.iso', 'eprints.language']:
                     rec['language'] = meta['content']
                     done.append(tag)
                 #collaboration
