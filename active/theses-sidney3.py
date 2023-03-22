@@ -16,6 +16,7 @@ jnlfilename = 'THESES-SIDNEY-%s' % (ejlmod3.stampoftoday())
 
 rpp = 100
 pages = 4
+skipalreadyharvested = True
         
 boring = ['Faculty of Medicine and Health, The University of Sydney School of Pharmacy',
           'Faculty of Arts and Social Sciences, School of Languages and Cultures',
@@ -75,7 +76,16 @@ boring = ['Faculty of Medicine and Health, The University of Sydney School of Ph
           'Faculty of Medicine and HealthNorthern Clinical School',
           'Faculty of Medicine and Health, Sydney Dental School',
           'The University of Sydney Business School, Institute of Transport and Logistics Studies (ITLS)',
-          'The University of Sydney School of Architecture, Design and Planning']
+          'The University of Sydney School of Architecture, Design and Planning',
+          'Faculty of Engineering, School of Project Management', 'Faculty of Engineering',
+          'Faculty of Medicine and HealthSydney Medical School',
+          'Faculty of Medicine and Health, The University of Sydney School of Medicine',
+          'Faculty of Arts and Social SciencesSchool of Economics']
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
@@ -84,10 +94,10 @@ for j in range(pages):
     ejlmod3.printprogress('=', [[j+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://ses.library.usyd.edu.au'):
+    for rec in ejlmod3.getdspacerecs(tocpage, 'https://ses.library.usyd.edu.au', alreadyharvested=alreadyharvested):
         if ejlmod3.checkinterestingDOI(rec['hdl']):
             prerecs.append(rec)
-    print('        %4i' % (len(prerecs)))
+    print('        %4i records so far' % (len(prerecs)))
     time.sleep(10)
 
 i = 0
@@ -95,7 +105,7 @@ recs = []
 for rec in prerecs:
     i += 1
     keepit = True
-    ejlmod3.printprogress('-', [[i, len(prerecs), len(recs)], [rec['link']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
         time.sleep(3)
