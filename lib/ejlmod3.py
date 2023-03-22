@@ -409,7 +409,7 @@ def writeXML(recs,dokfile,publisher):
             else:                
                 lang = rec['language']
             if lang:
-                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english', 'Inglés']:
+                if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english', 'Inglés', 'Undefined/Unknown']:
                     if lang in ['Português', 'Portugués']: lang = 'Portuguese'
                     elif lang == 'Deutsch': lang = 'German'
                     elif lang in [u'Française', u'Français']: lang = 'French'
@@ -1705,7 +1705,8 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
     redegree = re.compile('rft.degree=')
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
-    boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters', 'D.Ed.']
+    boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
+                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
