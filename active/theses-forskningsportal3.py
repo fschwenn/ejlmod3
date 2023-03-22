@@ -1,23 +1,23 @@
 # -*- coding: UTF-8 -*-
-##!/usr/bin/python
 #program to harvest theses from national repository forskningsportal.dk
 # FS 2022.07.16
+# FS 2023-03-17
 
 import sys
 import os
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import undetected_chromedriver as uc
 import re
 import ejlmod3
 import time
-import undetected_chromedriver as uc
 
 publisher = 'Danish National Research Database'
 jnlfilename = 'THESES-FORSKNINGSPORTAL-%s' % (ejlmod3.stampoftoday())
 pages = 20
+skipalreadyharvested = True
 boring = ['Department of Biology', 'Department of Molecular Biology and Genetics',
           'Department of Food Science', 'Department of Agroecology',
           'Department of Chemistry and Bioscience', 'Department of Civil Engineering'
@@ -75,14 +75,26 @@ boring = ['Department of Biology', 'Department of Molecular Biology and Genetics
           'Section for Microbial and Chemical Ecology', 'Section for Protein Chemistry and Enzyme Technology',
           'Section for Protein Science and Biotherapeutics', 'Software and Process Engineering',
           'Section for Architecture and Urban Design', 'Section for Media Technology - Campus Aalborg']
-
+boring += ['Business IT', 'Centre for Technology Entrepreneurship', 'Health',
+           'Bioinformatics Research Centre (BiRC)', 'Center for Quantitative Genetics and Genomics',
+           'Centre for Educational Development - CED', 'Department of Animal and Veterinary Sciences',
+           'Department of Clinical Medicine', 'VISION – Center for Visualizing Catalytic Processes',
+           'Water Technology & Processes', 'Wind Energy Systems Division',
+           'Department of Environmental and Resource Engineering', 'Department of Wind and Energy Systems',
+           'AI for the People', 'Astrophysics and Atmospheric Physics',
+           'Centre of Excellence for Silicon Photonics for Optical Communications',
+           'Cybersecurity Engineering', 'Embedded Systems Engineering', 'Geodesy and Earth Observation',
+           'Geomagnetism', 'Nanomaterials and Devices', 'Networks Technology and Service Platforms',
+           'Ultra-fast Optical Communication']
 
 options = uc.ChromeOptions()
-options.headless=True
 options.add_argument('--headless')
-options.binary_location='/usr/bin/chromium-browser'
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/opt/google/chrome/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 def getdatafrommxdlink(rec):
     driver.get(rec['mxdlink'])
@@ -107,8 +119,21 @@ def getdatafrommxdlink(rec):
             affiliation = []
             for level in ['mxd:level1', 'mxd:level2', 'mxd:level3']:
                 for saff in aff.find_all(level):
-                    affiliation.append(saff.text)
-                    rec['note'].append('%s:%s' % (level.upper(), saff.text))
+                    safft = saff.text.strip()
+                    affiliation.append(safft)
+                    if safft in ['Algorithms, Logic and Graphs', 'Department of Mathematical Sciences',
+                                 'Department of Mathematics']:
+                        rec['fc'] = 'm'
+                    elif safft in ['Computer Science', 'Department of Computer Science',
+                                   'Scientific Computing', 'Software Systems Engineering']:
+                        rec['fc'] = 'c'
+                    elif safft in ['Statistics and Data Analysis']:
+                        rec['fc'] = 's'
+                    elif safft in ['Quantum Physics and Information Techology']:
+                        rec['fc'] = 'k'
+                    elif safft not in ['Faculty of Science', 'Aalborg University',
+                                       'Aarhus University', 'Department of Physics and Astronomy']:
+                        rec['note'].append('%s:%s' % (level.upper(), safft))
             rec['autaff'][-1].append(', '.join(affiliation))
             for saff in affiliation:
                 if saff in boring:
@@ -126,7 +151,7 @@ def getdatafrommxdlink(rec):
             rec['isbn'] = isbn.text
         #DOI
         for doi in pbn.find_all('mxd:doi'):
-            rec['doi'] = doi.text
+            rec['doi'] = doi.text    
     #keywords
     for keyw in mxdpage.find_all('mxd:keyword'):
         rec['keyw'].append(keyw.text)
@@ -173,8 +198,9 @@ for page in tocpages:
                 rec['mxdlink'] = reclicksplit.sub(r'https://forskningsportal.dk/local/dki-cgi/ws/mxd/\1', div['onclick'])
                 rec['link'] = reclicksplit.sub(r'https://forskningsportal.dk/local/dki-cgi/ws/cris-link?src=au&id=\1', div['onclick'])
                 rec['tit'] = div.text
-                if ejlmod3.checkinterestingDOI(rec['mxdlink']):
+                if ejlmod3.checkinterestingDOI(rec['mxdlink']):                    
                     prerecs.append(rec)
+    print('  %4i records so far' % (len(prerecs)))
 
 #enrich records
 i = 0
@@ -183,12 +209,19 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     getdatafrommxdlink(rec)
-    if rec['keepit']:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   %s already in backup' % (rec['doi']))
+    elif skipalreadyharvested and 'isbn' in rec and rec['isbn'] in alreadyharvested:
+        print('   %s already in backup' % (rec['isbn']))
+    elif rec['keepit']:
+        if skipalreadyharvested and not 'doi' in rec and '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:]) in alreadyharvested:
+            print('   already in backup')
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['mxdlink'])
-    time.sleep(10)
+    time.sleep(6)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
