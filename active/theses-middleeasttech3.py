@@ -16,6 +16,7 @@ import undetected_chromedriver as uc
 from selenium.webdriver.remote.webdriver import By
 
 pages = 20
+skipalreadyharvested = True
 
 publisher = 'Middle East Tech. U., Ankara'
 jnlfilename = 'THESES-MiddleEastTechUAnkara-%s' % (ejlmod3.stampoftoday())
@@ -92,14 +93,17 @@ boringdegrees = ['M.S. - Master of Science', 'M.A. - Master of Arts', 'M.Arch. -
                  'Thesis (Ph.D.) -- Graduate School of Natural and Applied Sciences. Petroleum and Natural Gas Engineering.',
                  'Thesis (Ph.D.) -- Graduate School of Natural and Applied Sciences. Polymer Science and Technology.',
                  'The Center for Solar Energy Research and Applications (ODTÜ-GÜNAM) at Middle East Technical University partially funds the research presented here.',
-                 'Thesis (Ph.D.) -- Graduate School of Social Sciences. Mathematics and Science Education.']
+                 'Thesis (Ph.D.) -- Graduate School of Social Sciences. Mathematics and Science Education.',
+                 'M.C.P. - Master of City Planning']
 #driver
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/opt/google/chrome/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 driver.get(tocurl)
@@ -113,11 +117,12 @@ for page in range(pages):
             if ejlmod3.checkinterestingDOI(rec['hdl']):
                 rec['link'] = 'https://open.metu.edu.tr' + a['href']
                 rec['tit'] = a.text.strip()
-                prerecs.append(rec)
-                ejlmod3.uninterestingDOIS.append(rec['hdl'])
+                if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
+                    prerecs.append(rec)
     #next page
     for el in driver.find_elements(By.CLASS_NAME, "ui-paginator-next"):
         el.click()
+    print('  %4i records so far' % (len(prerecs)))
     time.sleep(10)
 
 i = 0
