@@ -128,18 +128,15 @@ boring = ['Education', 'Educational Leadership', 'Higher Education', 'Fine Arts'
           'Atmospheric Chemistry', 'Environmental Geology']
 reboring = re.compile('(Master of|Bachelor of|MS|BS|MA|BA|Psy\. D\.)', re.MULTILINE)
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
-if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+if skipalreadyharvested:    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 def get_sub_site(url, sess):
     #print("[%s] --> Harvesting data" % url)
-    pseudodoi = '20.2000/LINK/' + re.sub('\W', '', url[4:])
-    if url in alreadyharvested:
+    pseudodoi = '20.2000/LINK/' + re.sub('\W', '', url[4:])    
+    if pseudodoi in alreadyharvested:
         print('   already in backup')
         return
     rec: dict = {
@@ -153,10 +150,12 @@ def get_sub_site(url, sess):
     if resp.status_code != 200:
         print("[%s] --> Can't reach this site! Skipping..." % url)
         return
+    sleep(5)
 
     soup = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
     ejlmod3.metatagcheck(rec, soup, ['citation_date', 'citation_pdf_url',
                                      'citation_author', 'citation_author_institution', 'citation_author_orcid'])
+    rec['doi'] = pseudodoi
     # Get the title
     title_section = soup.find_all('h1', attrs={'class': 'red-text'})
     if len(title_section) == 1:
@@ -187,7 +186,8 @@ def get_sub_site(url, sess):
         for a in span.find_all('a'):
             subject = a.text.strip()
             if subject in ['Computer Engineering',
-                           'Computer Science']:
+                           'Computer Science',
+                           'Artificial Intelligence']:
                 rec['fc'] = 'c'
             elif subject in ['Theoretical Mathematics', 'Mathematics',
                              'Applied Mathematics']:
@@ -248,7 +248,8 @@ def get_sub_site(url, sess):
 options = uc.ChromeOptions()
 options.headless=True
 options.binary_location='/usr/bin/chromium-browser'
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 #chromeversion = 108
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -290,9 +291,8 @@ with Session() as session:
                 for article in li.find_all('h3', attrs={'class': 't-SearchResults-title'}):
                     #print(article.text.strip())
                     article_link: str = article.find_all('a')[0].get('href')
-                    ejlmod3.printprogress('-', [[i, numtheses], [article_link]])
+                    ejlmod3.printprogress('-', [[i, numtheses], [article_link], [len(recs)]])
                     get_sub_site('https://etd.ohiolink.edu%s' % article_link, session)
-                    sleep(5)
             else:
                 ejlmod3.printprogress('-', [[i, numtheses]])
         #ejlmod3.writenewXML(recs, publisher, jnlfilename+'TMP', retfilename='retfiles_special')
