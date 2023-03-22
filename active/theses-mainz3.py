@@ -22,7 +22,10 @@ recs = []
 
 rpp = 40
 pages = 3
+skipalreadyharvested = True
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 for page in range(pages):
     tocurl = 'https://openscience.ub.uni-mainz.de/simple-search?query=&filter_field_1=organisationalUnit&filter_type_1=equals&filter_value_1=FB+08+Physik%2C+Mathematik+u.+Informatik&filter_field_2=publicationType&filter_type_2=equals&filter_value_2=Dissertation&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(page*rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
@@ -37,7 +40,9 @@ for page in range(pages):
                 rec['tit'] = a.text.strip()
                 rec['hdl'] = re.sub('.*handle\/', '', a['href'])
                 rec['artlink'] = 'https://openscience.ub.uni-mainz.de' + a['href']
-                recs.append(rec)
+                if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
+                    recs.append(rec)
+    print('  %4i records so far'  %  (len(recs)))
     time.sleep(10)
 
 i = 0
