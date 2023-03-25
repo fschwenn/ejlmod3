@@ -15,6 +15,7 @@ import ssl
 
 rpp = 50
 pages = 10
+skipalreadyharvested = True
 
 publisher = 'Barcelona, Autonoma U.'
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -132,6 +133,10 @@ ctx.verify_mode = ssl.CERT_NONE
 
 prerecs = []
 jnlfilename = 'THESES-BarcelonaAutonomaU-%s' % (ejlmod3.stampoftoday())
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 for page in range(pages):
     tocurl = 'https://ddd.uab.cat/search?cc=tesis&ln=en&rg=' + str(rpp) + '&jrec=' + str(page*rpp+1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
@@ -261,8 +266,13 @@ for rec in prerecs:
                 rec['supervisor'].append(re.split(' *;;; *', sv))
                 print('sv->', sv)            
     if keepit:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+            print('   already in backup')
+        elif skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('   already in backup')
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
 
