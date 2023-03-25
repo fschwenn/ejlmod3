@@ -13,6 +13,7 @@ publisher = 'Carlos III U., Madrid'
 jnlfilename = 'THESES-CARLOS-%s' % (ejlmod3.stampoftoday())
 rpp = 100
 pages = 2
+skipalreadyharvested = True
 
 boring = ['Filología', 'Biología y Biomedicina', 'Arte', 'Derecho',
           'Filosofía', 'Historia del Arte', 'Historia',
@@ -22,6 +23,11 @@ boring = ['Filología', 'Biología y Biomedicina', 'Arte', 'Derecho',
           'Geografía', 'Materiales', 'Medicina', 'Medio Ambiente',
           'Literatura', 'Ingeniería Mecánica', 'Fusión',
           'Robótica e Informática Industrial']
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 def dspace_extract_links(content, prafix: str):
     soup = BeautifulSoup(index_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
@@ -53,30 +59,21 @@ with Session() as session:
                 print("[{}] --> Error: Can't reach this index page! Skipping this ".format(tocurl))
                 continue
 
-        v = 0
-        for link in dspace_extract_links(index_resp, 'https://e-archivo.uc3m.es'):
-            artlink = 'https://e-archivo.uc3m.es' + link.get('href')
-            if not ejlmod3.checkinterestingDOI(artlink):
-                print('[%s]     already identified as uninteresting' % (artlink + '?show=full'))
-                continue
-            else:
-                print("[%s] --> Harvesting data" % (artlink + '?show=full'))
-            rec: dict = {'tc': 'T', 'jnl': 'BOOK', 'autaff': [], 'supervisor': [], 'license': {},
-                         'link': artlink, 'note' : []}
-            try:
-                site_resp = session.get(artlink + '?show=full')
-                if site_resp.status_code != 200:
-                    print("[%s] --> Error: Can't open!")
-                    continue
-            except:
-                sleep(30)
-                site_resp = session.get(artlink + '?show=full')
-                if site_resp.status_code != 200:
-                    print("[%s] --> Error: Can't open!")
-                    continue
-
+        
+        tocpage = BeautifulSoup(index_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
+        prerecs = ejlmod3.getdspacerecs(tocpage, 'https://e-archivo.uc3m.es', alreadyharvested=alreadyharvested)
+        for (v, rec) in enumerate(prerecs):
+            artlink = rec['link'] + '?show=full'
+            ejlmod3.printprogress('-', [[v+1, len(prerecs)], [artlink], [len(recs)]])
             jump = False
-            soup = BeautifulSoup(site_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
+            try:
+                site_resp = session.get(artlink)
+                soup = BeautifulSoup(site_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
+            except:
+                print('  try again in 60s')
+                sleep(60)
+                site_resp = session.get(artlink)
+                soup = BeautifulSoup(site_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
             ejlmod3.metatagcheck(rec, soup, ['DC.creator', 'DCTERMS.issued', 'DC.rights', 'DC.subject', 'DC.title',
                                              'DC.identifier', 'DCTERMS.extent', 'DC.type', 'DC.language',
                                              'citation_pdf_url'])
@@ -138,12 +135,13 @@ with Session() as session:
                         if params.get('isAllowed')[0] == 'y':
                             rec['FFT'] = 'https://e-archivo.uc3m.es' + link[0].get('href')
             sleep(5)
-            v += 1
+#            v += 1
             #document type
             if 'PeerReviewed' in rec['note']:
                 jump = True
             if not jump:
                 recs.append(rec)
+                ejlmod3.printrecsummary(rec)
             else:
                 #print("[%s] --> Not a PhD theses! Skipping..." % ('https://e-archivo.uc3m.es' + link.get('href') + '?show=full'))
                 ejlmod3.adduninterestingDOI(artlink)
