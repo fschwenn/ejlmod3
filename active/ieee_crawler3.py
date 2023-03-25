@@ -303,7 +303,7 @@ def ieee(number):
             time.sleep(180)
             iref += 1
         hasreferencesection = False
-        ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink]])
+        ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink], [len(recs)]])
         if articlelink in alreadyharvested:
             print('   already in backup')
             continue
