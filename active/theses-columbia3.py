@@ -17,12 +17,16 @@ publisher = 'Columbia U.'
 jnlfilename = 'THESES-COLUMBIA-%s' % (ejlmod3.stampoftoday())
 
 rpp = 20
-deps = ['Applied+Physics+and+Applied+Mathematics', 'Mathematics', 'Physics']
+deps = ['Applied+Physics+and+Applied+Mathematics', 'Mathematics', 'Physics', 'Computer+Science']
+skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
-recs = []
+prerecs = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 for dep in deps:
     tocurl = 'https://academiccommons.columbia.edu/search?f%5Bdegree_grantor_ssim%5D%5B%5D=%28%22Columbia+University%22+OR+%22Teachers+College%2C+Columbia+University%22+OR+%22Union+Theological+Seminary%22+OR+%22Mailman+School+of+Public+Health%2C+Columbia+University%22%29&f%5Bdegree_level_name_ssim%5D%5B%5D=Doctoral&f%5Bdepartment_ssim%5D%5B%5D=' + dep + '&f%5Bgenre_ssim%5D%5B%5D=Theses&per_page=' + str(rpp) + '&sort=Published+Latest'
+    ejlmod3.printprogress('=', [[tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     time.sleep(2)
@@ -33,13 +37,16 @@ for dep in deps:
             rec['note'].append(re.sub('\W', ' ', dep))
             if dep == 'Mathematics':
                 rec['fc'] = 'm'
-            recs.append(rec)
+            elif dep == 'Computer+Science':
+                rec['fc'] = 'c'
+            prerecs.append(rec)
 
 #check individual thesis pages
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['link']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
         time.sleep(3)
@@ -65,6 +72,8 @@ for rec in recs:
                 dtt = child.text.strip()
             elif child.name == 'dd' and dtt == 'Thesis Advisors':
                 rec['supervisor'].append([child.text.strip()])
-    ejlmod3.printrecsummary(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
     
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
