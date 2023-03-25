@@ -23,21 +23,17 @@ years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 prerecs = []
 hdls = []
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 hdls += alreadyharvested
     
 for (ddc, fc) in [('530+Physik', ''),  ('510+Mathematik', 'm'), ('539+Moderne+Physik', ''),
@@ -49,7 +45,7 @@ for (ddc, fc) in [('530+Physik', ''),  ('510+Mathematik', 'm'), ('539+Moderne+Ph
     tocpage = BeautifulSoup(driver.page_source, features="lxml")
     #print(tocpage.text)
     time.sleep(3)
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://edoc.hu-berlin.de', divclass='ds-artifact-item'):
+    for rec in ejlmod3.getdspacerecs(tocpage, 'https://edoc.hu-berlin.de', divclass='ds-artifact-item', alreadyharvested=hdls):
         if fc: rec['fc'] = 'fc'
         rec['note'].append(ddc)
         if not rec['hdl'] in hdls:
