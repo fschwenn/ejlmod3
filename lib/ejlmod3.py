@@ -1395,13 +1395,13 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
-                             'doi', 'eprints.doi', 'eprints.doi_name']:
+                             'doi', 'eprints.doi', 'eprints.doi_name', 'eprints.own_doi']:
                     rec['doi'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_arxiv_id']:
                     rec['arxiv'] = meta['content']
                     done.append(tag)
-                elif tag in ['eprints.urn']:
+                elif tag in ['eprints.urn', 'eprints.own_urn']:
                     rec['urn'] = meta['content']
                     done.append(tag)
                 elif tag in ['citation_isbn']:
@@ -1462,7 +1462,8 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
                              'dc.contributor.advisor', 'eprints.referee_name', 'eprints.supervisor_name',
-                             'eprints.thesis_advisor_name', 'eprints.tutors_name']:
+                             'eprints.thesis_advisor_name', 'eprints.tutors_name', 'eprints.referee_one_name',
+                             'eprints.referee']:
                     sv = re.sub(' \(.*', '', re.sub(' \[.*', '', meta['content']))
                     if 'supervisor' in rec:
                         rec['supervisor'].append([sv])
@@ -1706,7 +1707,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
-                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil']
+                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
