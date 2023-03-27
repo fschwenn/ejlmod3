@@ -13,6 +13,7 @@ import time
 import ssl
 
 tmpdir = '/tmp'
+skipalreadyharvested = True
 
 def tfstrip(x): return x.strip()
 regexpref = re.compile('[\n\r\t]')
@@ -44,7 +45,9 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-    
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 print(urltrunk)
 try:
     tocpage = BeautifulSoup(urllib.request.urlopen(urltrunk, context=ctx), features="lxml")
@@ -54,7 +57,7 @@ except:
     time.sleep(180)
     tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(urltrunk), features="lxml")
 
-recs = []
+prerecs = []
 if jnl in ['pip', 'cip']:
     tables = tocpage.body.find_all('div', attrs = {'class' : ['obj_article_summary', 'article_summary_body']})
 elif jnl == 'eureka':
@@ -93,18 +96,21 @@ for table in tables:
             for a in h5.find_all('a'):
                 rec['artlink'] = a['href']
                 rec['tit'] = a.text.strip()
-    recs.append(rec)
+    prerecs.append(rec)
 
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
     autaff = False
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     artpage =  BeautifulSoup(urllib.request.urlopen(rec['artlink'], context=ctx), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['citation_date', 'citation_firstpage', 'citation_keywords', 'citation_doi',
                                         'citation_author', 'citation_author_institution', 'DC.Description', 'citation_reference',
                                         'citation_pdf_url'])
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        continue
     time.sleep(3)
     #volume and issue
     for meta in artpage.head.find_all('meta'):
@@ -172,5 +178,6 @@ for rec in recs:
             for p in div.find_all('p'):
                 rec['refs'].append([('x', p.text.strip())])
     ejlmod3.printrecsummary(rec)
+    recs.append(rec)
  
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
