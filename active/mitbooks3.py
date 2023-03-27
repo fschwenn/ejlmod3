@@ -21,10 +21,11 @@ serieses = [('MAT', 'm', 3), ('COM', 'c', 10), ('SCI057000', 'k', 1),
             ('SCI098000', 'a', 1), ('SCI040000', '', 1), ('SCI051000', '', 1),
             ('SCI103000', '', 1)]
 years = 2
+skipalreadyharvested = True
 
 #scan serieses
 linksdone = []
-recs = []
+prerecs = []
 i = 0
 for (series, fc, pages) in serieses:
     i += 1
@@ -44,17 +45,22 @@ for (series, fc, pages) in serieses:
                                        'tc' : 'B', 'jnl' : 'BOOK', 'auts' : [], 'date' : str(year), 'isbns' : []}
                                 if fc: rec['fc'] = fc
                                 if not a['href'] in linksdone:
-                                    recs.append(rec)
+                                    prerecs.append(rec)
                                     linksdone.append(a['href'])
                                     #print(' ', rec['tit'])
-        print('  %4i records so far' % (len(recs)))
+        print('  %4i records so far' % (len(prerecs)))
         time.sleep(10)
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 #scan individual book pages
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
+    keepit = True
+    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
     artreq = urllib.request.Request(rec['link'], headers={'User-Agent' : "Magic Browser"})
     artpage = BeautifulSoup(urllib.request.urlopen(artreq), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['og:title'])
@@ -70,6 +76,8 @@ for rec in recs:
         (isbn, ft) = ('', 'print')
         for li in ul.find_all('li', attrs = {'class' : 'sp__isbn13'}):
             isbn = li.text
+            if skipalreadyharvested and '20.2000/ISBNS/'+isbn in alreadyharvested:
+                keepit = False
         for li in ul.find_all('li', attrs = {'class' : 'sp__format'}):
             if li.text in ['eBook']:
                 ft = 'online'
@@ -84,7 +92,9 @@ for rec in recs:
     #pages
     for span in artpage.body.find_all('span', attrs = {'class' : 'sp__the-pages'}):
         rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', span.text)
-    ejlmod3.printrecsummary(rec)
+    if keepit:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
     time.sleep(4)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
