@@ -14,31 +14,50 @@ import time
 publisher = 'Sussex U.'
 hdr = {'User-Agent' : 'Magic Browser'}
 
-recs = []
+skipalreadyharvested = True
+boring = ['Media and Film', 'Management', 'Media and Cultural Studies', 'Accounting and finance',
+          'Accounting and Finance', 'American studies', 'Anthropology', 'Art History',
+          'Biochemistry', 'Biology', 'Chemistry', 'Development Studies', 'Economics', 'Education',
+          'Engineering', 'English', 'Genome stability', 'Geography', 'History',
+          'Institute of Development Studies', 'International Development', 'International Relations',
+          'Law', 'Life Sciences', 'Media and film', 'Music', 'Neuroscience', 'Philosophy',
+          'Politics', 'Psychology', 'Science policy research unit', 'Social work', 'Social Work',
+          'Sociology', '|SPRU - Science Policy Research Unit', 'SPRU - Science Policy Research Unit']
+prerecs = []
 jnlfilename = 'THESES-SUSSEX-%s' % (ejlmod3.stampoftoday())
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
-    for (fc, dep) in [('', 'd234'), ('m', 'd235')]:
-        tocurl = 'http://sro.sussex.ac.uk/view/divisions/%s/%i.html' % (dep, year)
-        print(tocurl)
+#    for (fc, dep) in [('', 'd234'), ('m', 'd235')]:
+#        tocurl = 'http://sro.sussex.ac.uk/view/divisions/%s/%i.html' % (dep, year)
+    tocurl = 'http://sro.sussex.ac.uk/view/type/thesis/%i.html' % (year)
+    print(tocurl)
+    try:
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
         time.sleep(2)
-        for p in tocpage.find_all('p'):
-            if re.search('PhD', p.text):
-                for a in p.find_all('a'):
-                    if a.has_attr('href'):
-                        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'note' : []}
-                        rec['tit'] = a.text.strip()
-                        rec['doi'] = '20.2000/UCLodon/' + re.sub('\D', '', a['href'])
-                        if fc: rec['fc'] = fc
-                        recs.append(rec)
-        print('  %4i records so far' % (len(recs)))
+    except:
+        continue
+    for p in tocpage.find_all('p'):
+        if re.search('PhD', p.text):
+            for a in p.find_all('a'):
+                if a.has_attr('href'):
+                    rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'note' : []}
+                    rec['tit'] = a.text.strip()
+                    rec['doi'] = '20.2000/UCLodon/' + re.sub('\D', '', a['href'])
+                    if ejlmod3.checkinterestingDOI(rec['doi']):
+                        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                            prerecs.append(rec)
+    print('  %4i records so far' % (len(prerecs)))
 
+recs = []
 i = 0
-for rec in recs:
+for rec in prerecs:
+    keepit = True
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['link']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
         time.sleep(10)
@@ -66,10 +85,20 @@ for rec in recs:
             #department
             elif meta['name'] == 'eprints.department':
                 dep = meta['content']
-                if dep == 'Astronomy':
+                if dep in boring:
+                    keepit = False
+                elif dep == 'Astronomy':
                     rec['fc'] = 'a'
-                else:
+                elif dep == 'Mathematics':                    
+                    rec['fc'] = 'm'
+                elif dep == 'Informatics':                    
+                    rec['fc'] = 'c'
+                elif not dep in ['Physics']:
                     rec['note'].append('DEP=' + dep)
-    ejlmod3.printrecsummary(rec)
+    if keepit:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+    else:
+        ejlmod3.adduninterestingDOI(rec['doi'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
