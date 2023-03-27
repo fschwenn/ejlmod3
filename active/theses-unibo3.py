@@ -11,7 +11,10 @@ import re
 import ejlmod3
 import time
 
+skipalreadyharvested = True
+
 publisher = 'Bologna U.'
+jnlfilename = 'THESES-UNIBO-%s' % (ejlmod3.stampoftoday())
 
 boring = ["Architettura", u"Traduzione, interpretazione e interculturalità",
           u'Automotive per una mobilità intelligente',
@@ -51,9 +54,11 @@ boring += ['BIO/10 Biochimica', 'MED/18 Chirurgia generale', 'ING-IND/08 Macchin
            "CHIM/12 Chimica dell'ambiente e dei beni culturali",
            'ING-IND/16 Tecnologie e sistemi di lavorazione']
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
+prerecs = []
 for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
-    prerecs = []
-    jnlfilename = 'THESES-UNIBO-%i-%s' % (year, ejlmod3.stampoftoday())
     tocurl = 'http://amsdottorato.unibo.it/view/year/%i.html' % (year)
     print(tocurl)
     hdr = {'User-Agent' : 'Magic Browser'}
@@ -81,61 +86,63 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             rec['artlink'] =  a['href']
             if keepit and ejlmod3.checkinterestingDOI(rec['artlink']):                
                 prerecs.append(rec)
-    i = 0
-    recs = []
-    for rec in prerecs:
-        keepit = True
-        i += 1
-        ejlmod3.printprogress('-', [[year], [i, len(prerecs)], [rec['artlink']], [len(recs)]])
+i = 0
+recs = []
+for rec in prerecs:
+    keepit = True
+    i += 1
+    ejlmod3.printprogress('-', [[year], [i, len(prerecs)], [rec['artlink']], [len(recs)]])
+    try:
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        time.sleep(3)
+    except:
         try:
+            print("retry %s in 180 seconds" % (rec['link']))
+            time.sleep(180)
             artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
-            time.sleep(3)
         except:
-            try:
-                print("retry %s in 180 seconds" % (rec['link']))
-                time.sleep(180)
-                artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
-            except:
-                print("no access to %s" % (rec['link']))
-                continue
-        ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'eprints.date', 'eprints.keywords', 'DC.identifier',
-                                            'DC.language', 'eprints.document_url', 'eprints.abstract'])
-        for meta in artpage.head.find_all('meta'):
-            if meta.has_attr('name') and meta.has_attr('content'):
-                #author
-                if meta['name'] == 'DC.creator':
-                    author = re.sub(' *\[.*', '', meta['content'])
-                    author = re.sub(' <\d.*', '', author)
-                    rec['autaff'] = [[ author ]]
-                    rec['autaff'][-1].append('Bologna U.')
-                #subject
-                elif meta['name'] == 'DC.subject':
-                    if meta['content'] in boring:
-                        keepit = False
-                    else:
-                        rec['note'].append(meta['content'])
-        #license            
-        for table in artpage.body.find_all('table', attrs = {'class' : 'ep_block'}):
-            for a in table.find_all('a'):
-                if a.has_attr('href') and re.search('creativecommons.org', a['href']):
-                    rec['license'] = {'url' : a['href']}
-        #DOI
-        if not 'doi' in rec:
-            for div in artpage.body.find_all('div', attrs = {'class' : 'altmetric-embed'}):
-                if div.has_attr('data-doi') and re.search('^10',  div['data-doi']):
-                    rec['doi'] = div['data-doi']
-        #subject
-        for div in artpage.body.find_all('div', attrs = {'class' : 'metadato_value'}):
-            for a in div.find_all('a'):
-                if a.has_attr('href') and re.search('view\/dottorati\/.', a['href']):
-                    subject = a.text
-                    if subject in boring:
-                        keepit = False
-                    else:
-                        rec['note'].append(subject)
-        if keepit:
+            print("no access to %s" % (rec['link']))
+            continue
+    ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'eprints.date', 'eprints.keywords', 'DC.identifier',
+                                        'DC.language', 'eprints.document_url', 'eprints.abstract'])
+    for meta in artpage.head.find_all('meta'):
+        if meta.has_attr('name') and meta.has_attr('content'):
+            #author
+            if meta['name'] == 'DC.creator':
+                author = re.sub(' *\[.*', '', meta['content'])
+                author = re.sub(' <\d.*', '', author)
+                rec['autaff'] = [[ author ]]
+                rec['autaff'][-1].append('Bologna U.')
+            #subject
+            elif meta['name'] == 'DC.subject':
+                if meta['content'] in boring:
+                    keepit = False
+                else:
+                    rec['note'].append(meta['content'])
+    #license            
+    for table in artpage.body.find_all('table', attrs = {'class' : 'ep_block'}):
+        for a in table.find_all('a'):
+            if a.has_attr('href') and re.search('creativecommons.org', a['href']):
+                rec['license'] = {'url' : a['href']}
+    #DOI
+    if not 'doi' in rec:
+        for div in artpage.body.find_all('div', attrs = {'class' : 'altmetric-embed'}):
+            if div.has_attr('data-doi') and re.search('^10',  div['data-doi']):
+                rec['doi'] = div['data-doi']
+    #subject
+    for div in artpage.body.find_all('div', attrs = {'class' : 'metadato_value'}):
+        for a in div.find_all('a'):
+            if a.has_attr('href') and re.search('view\/dottorati\/.', a['href']):
+                subject = a.text
+                if subject in boring:
+                    keepit = False
+                else:
+                    rec['note'].append(subject)
+    if keepit:
+        if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
-        else:
-            ejlmod3.adduninterestingDOI(rec['artlink'])
-    ejlmod3.writenewXML(recs, publisher, jnlfilename)
+    else:
+        ejlmod3.adduninterestingDOI(rec['artlink'])
+
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
