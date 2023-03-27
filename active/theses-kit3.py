@@ -14,14 +14,16 @@ import os
 publisher = 'KIT, Karlsruhe'
 jnlfilename = 'THESES-KIT-%s' % (ejlmod3.stampoftoday())
 pages = 4 
+skipalreadyharvested = True
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 prerecs = []
 for page in range(pages):
     tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,*&tab=kit&sortby=date&vid=KIT&facet=local5,include,istHochschulschrift&mfacet=local3,include,istFachPhys,1&mfacet=local3,include,istFachMath,1&mode=simple&offset=' + str(10*page) + '&fn=search'
@@ -98,6 +100,9 @@ for rec in prerecs:
                 isbn = re.sub('\-', '', re.sub('.*?(978.*[\dX]).*', r'\1', ide))
                 if not isbn in isbns:
                     isbns.append(isbn)
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   already in backup')
+        continue
     if 'doi' in rec:
         if re.search('^10.5445', rec['doi']):
             print('   checking primo-page')
