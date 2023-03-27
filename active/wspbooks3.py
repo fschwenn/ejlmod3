@@ -123,7 +123,7 @@ for tuplet in tuples:
         #<span class="hlFld-ContribAuthor">
         if re.search('^By .author', ult):
             for li in ul.find_all('li'):
-                print('AUT', li)
+#                print('AUT', li)
                 if re.search('^By ', li.text):
                     continue
                 for a in li.find_all('a'):
@@ -132,7 +132,7 @@ for tuplet in tuples:
                 rec['autaff'][-1].append(re.sub('^\((.*)\)$', r'\1', li.text.strip()))
         elif re.search('^Edited', ult):
             for li in ul.find_all('li'):
-                print('EDI', li)
+#                print('EDI', li)
                 if re.search('^Edited', li.text):
                     continue
                 for a in li.find_all('a'):
