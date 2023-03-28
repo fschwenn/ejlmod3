@@ -8,6 +8,7 @@ import getopt
 import sys
 import os
 import codecs
+import re
 import datetime
 import ejlmod3
 import undetected_chromedriver as uc
@@ -19,9 +20,9 @@ from time import sleep
 #driver = webdriver.PhantomJS()
 options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
@@ -32,6 +33,7 @@ recs = []
 
 rpp = 50
 pages = 2
+skipalreadyharvested = True
 
 boring = ['Facultad de Ciencias Químicas', 'Área de Ciencias Sociales y Humanidades',
           'Área Económico Administrativa', 'Área de Ciencias Sociales',
@@ -41,8 +43,10 @@ boring += ['Facultad de Economía', 'Facultad de Derecho y Ciencias Sociales',
            'nstituto de Ciencias de Gobierno y Desarrollo Estratégico<',
            'Facultad de Filosofía y Letras']
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+                                                   
 def get_sub_site(url):
-    global uninterestingDOIS
     keepit = True
     print('[%s] --> Harversting Data' % url)
     driver.get(url)
@@ -81,8 +85,9 @@ def get_sub_site(url):
                 rec['note'].append(label+': '+data)
 
     if keepit:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(url)
     return
@@ -102,6 +107,8 @@ for page in range(pages):
             if ejlmod3.checkinterestingDOI(url):
                 get_sub_site(url)
                 sleep(4)
+            else:
+                print('[%s] --> is uninteresting' % url)
     sleep(10)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
