@@ -81,7 +81,7 @@ for rec in prerecs:
                         else:
                             tabelle[span.text.strip()] = [span2.text.strip()]
     if 'Titel' in list(tabelle.keys()):
-        rec['tit'] = re.sub(' *\/ von.*', '', tabelle['Titel'][0])
+        rec['tit'] = re.sub(' *\/ (von|by).*', '', tabelle['Titel'][0])
     if 'Jahr' in list(tabelle.keys()):
         rec['year'] = tabelle['Jahr'][0]
     if 'Sprache' in list(tabelle.keys()):
