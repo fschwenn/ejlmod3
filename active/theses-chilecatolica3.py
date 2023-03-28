@@ -12,16 +12,20 @@ publisher = 'Chile U., Catolica'
 jnlfilename = 'THESES-CHILECATOLICA-%s' % (ejlmod3.stampoftoday())
 years = 3
 skiptooold = True
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 reorcid = re.compile('.*(\d\d\d\d\-\d\d\d\d\-\d\d\d\d\-\d\d\d.).*')
 with Session() as session:
     themes = [
         ('https://repositorio.uc.cl/assets/php/discovery.php?filtro=fq=dc.subject.dewey:Astronom%C3%ADa'
          '%20OR%20dc.subject.other:Astronom%C3%ADa%26fq=dc.type'
-         ':Tesis%26&valor=Astronom%C3%ADa&start=0&orden=asc&campus=Todos ', (ejlmod3.year()-2016)//2),
+         ':Tesis%26&valor=Astronom%C3%ADa&start=0&orden=asc&campus=Todos ', 5),
         ('https://repositorio.uc.cl/assets/php/discovery.php?filtro=fq=dc.subject.dewey:Matem%C3%A1ticas%20f%C3%ADsica'
          '%20y%20qu%C3%ADmica%20OR%20dc.subject.other:Matem%C3%A1ticas%20f%C3%ADsica%20y%20qu%C3%ADmica%26fq=dc.type'
-         ':Tesis%26&valor=Matem%C3%A1ticas%20f%C3%ADsica%20y%20qu%C3%ADmica&start=0&orden=asc&campus=Todos ', (ejlmod3.year()-2009)//2)        
+         ':Tesis%26&valor=Matem%C3%A1ticas%20f%C3%ADsica%20y%20qu%C3%ADmica&start=0&orden=asc&campus=Todos ', 9)        
     ]
     recs = []
     rpp = 20
@@ -44,6 +48,10 @@ with Session() as session:
                         if not ejlmod3.checknewenoughDOI(article.get('handle')):
                             print('[{}] --> too old'.format(sub_link))
                             continue
+                    elif skipalreadyharvested and article.get('handle') in alreadyharvested:
+                        print('[{}] --> already in backup'.format(sub_link))
+                        continue
+                            
                 else:
                     print('[{}] --> uninteresting'.format(sub_link))
                     continue
@@ -124,6 +132,7 @@ with Session() as session:
                 if keepit:
                     recs.append(rec)
             sleep(5)
+        print('  %4i records so far' % (len(rec)))
         sleep(5)
 
 
