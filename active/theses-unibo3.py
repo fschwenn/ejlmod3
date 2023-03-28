@@ -139,7 +139,11 @@ for rec in prerecs:
                 else:
                     rec['note'].append(subject)
     if keepit:
-        if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            pass
+        elif skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
+            pass
+        else:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
     else:
