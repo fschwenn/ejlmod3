@@ -1707,7 +1707,8 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
-                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s']
+                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s',
+                     'Masters']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
