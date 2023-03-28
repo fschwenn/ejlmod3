@@ -12,7 +12,7 @@ import time
 
 insttoskip = ['CDH', 'CDM', 'SV', 'SB/ISIC', 'SB/CIBM', 'STI/IBI-STI', 'STI/IMX/LMC', 'STI/IMX/SMAL',
               'IC/IINFCOM/CHILI', 'ENAC']
-reharvest = True
+reharvest = False
 
 #check already harvested
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
