@@ -454,20 +454,20 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-tennessee3.py']),
         (2, ['theses-queensukingston.py']),
         (2, ['theses-estadoriodejaneiro.py']),
-        (3, ['theses-georgiatech.py']),
+        (3, ['theses-georgiatech3.py']),
         (2, ['theses-marburg3.py']),
         (2, ['theses-salamanca3.py']),
-        (2, ['theses-kwazulu.py']),
-        (3, ['theses-guelph.py']),
+        (2, ['theses-kwazulu3.py']),
+        (3, ['theses-guelph3.py']),
         (1, ['theses-potsdam3.py']),
         (1, ['figshare3.py', 'techrxiv']),
         (1, ['theses-middleeasttech3.py']),
         (3, ['theses-wigner3.py']),
         (3, ['theses-zaragoza3.py']),
-        (3, ['theses-melbourne.py']),
+        (33333, ['theses-melbourne.py']),
         (1, ['theses-queensland3.py']),
         (3, ['theses-laval3.py']),
-        (3, ['theses-cyprus.py']),
+        (3, ['theses-cyprus3.py']),
         (2, ['theses-barcelonapolytech3.py']),
         (1, ['mitbooks3.py']),
         (2, ['theses-puebla3.py']),
@@ -565,8 +565,8 @@ listofcommands.append(['springer3.py', '-sftp'])
 prfil.write(' - springer3.py\n')
 #do always WSP or IOP or HINDWAI
 if (today.day % 3 == 0):
-    listofcommands.append(['wsp.xml2.py'])
-    prfil.write(' - wsp.xml2.py\n')
+    listofcommands.append(['wsp3.py'])
+    prfil.write(' - wsp3.py\n')
 elif (today.day % 3 == 1):
     listofcommands.append(['ieee_wrapper3XXX.py'])
     prfil.write(' - ieee_wrapper3XXX.py\n')
@@ -576,7 +576,7 @@ elif (today.day % 3 == 2):
 #harvest PubDB each week
 if (today.weekday() == 0):
     listofcommands.append(['pubdbweb3.py'])
-    prfil.write(' - pubdbweb.py\n')
+    prfil.write(' - pubdbweb3.py\n')
 #IOP books still old workflow, do IOP journals 6 times per week
 if (today.day % 7 == 0):
     listofcommands.append(['iop.stack.py'])
