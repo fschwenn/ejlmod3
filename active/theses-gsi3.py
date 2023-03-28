@@ -22,6 +22,7 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 recs = []
+dois = []
 for year in range(ejlmod3.year()-1, ejlmod3.year()+1):
     tocurl = 'https://repository.gsi.de/search?ln=de&cc=PhDThesis&p=260__c%3A' + str(year) + '&f=&action_search=Suchen&c=PhDThesis&c=&sf=&so=d&rm=&rg=200&sc=1&of=xm'
     time.sleep(2)
@@ -125,7 +126,11 @@ for year in range(ejlmod3.year()-1, ejlmod3.year()+1):
             elif skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
                 pass
             else:
-                ejlmod3.printrecsummary(rec)
-                recs.append(rec)
+                if rec['doi'] in dois:
+                    print('   already in list')
+                else:
+                    ejlmod3.printrecsummary(rec)
+                    recs.append(rec)
+                    dois.append(rec['doi'])
     
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
