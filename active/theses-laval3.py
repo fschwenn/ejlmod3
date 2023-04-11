@@ -19,12 +19,13 @@ jnlfilename = 'THESES-LAVAL-%s' % (ejlmod3.stampoftoday())
 
 rpp = 50
 years = [ejlmod3.year(), ejlmod3.year(backwards=1)]
+skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
@@ -131,6 +132,9 @@ boring += ['Doctorat en génie des mines',
            'Maîtrise en génie des mines',
            'Maîtrise en physique - physique médicale',
            'Faculté des sciences sociales']
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 recs = []
@@ -250,8 +254,9 @@ for year in years:
                         for keyw in thesis['metadata']['dc.subject.rvm']:
                             rec['keyw'].append(keyw['value'])
                     if keepit:
-                        recs.append(rec)
-                        ejlmod3.printrecsummary(rec)
+                        if not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
+                            recs.append(rec)
+                            ejlmod3.printrecsummary(rec)
         print('  %4i records so far' % (len(recs)))
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
