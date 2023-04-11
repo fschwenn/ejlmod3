@@ -10,7 +10,8 @@ import urllib.request, urllib.error, urllib.parse
 import time
 import os
 from bs4 import BeautifulSoup
-import cloudscraper
+#import cloudscraper
+import undetected_chromedriver as uc
 import random
 
 publisher = 'AGU'
@@ -39,7 +40,22 @@ elif (jnl == 'grl'):
     toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/19448007/%i/%s/%s' % (int(vol)+1895, vol, issue)
 
 
-scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
+#scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/chromium'
+    #options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+else:
+    options = uc.ChromeOptions()
+    options.headless=True
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
 
 if len(sys.argv) > 4:
     cnum = sys.argv[4]
@@ -56,7 +72,9 @@ print(toclink)
 #inf = open(tocfilename, 'r')
 #tocpage = BeautifulSoup(''.join(inf.readlines()))
 #inf.close()
-tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
+#tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
+driver.get(toclink)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 
 (note1, note2) = (False, False)
@@ -134,7 +152,9 @@ for rec in prerecs:
 #    inf = open(artfilename, 'r')
 #    artpage = BeautifulSoup(''.join(inf.readlines()))
 #    inf.close()
-    artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    driver.get(rec['artlink'])
+    artpage  = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_keywords', 'citation_firstpage',
                                         'citation_lastpage', 'citation_publication_date',
                                         'citation_author', 'citation_author_institution',
