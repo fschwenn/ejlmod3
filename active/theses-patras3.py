@@ -16,19 +16,22 @@ rpp = 100
 pages = 3
 years = 2
 skiptooold = True
+skipalreadyharvested = True
 
 # Initialize webdriver
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 departments = [('92cf5d27-5f6e-4960-802b-c6e5ad6802c6', ''),
                ('f07587d0-4696-4a7d-b2d4-c9035d9e6896', 'm'),
                ('0cd5ea47-d5bc-4fd4-adee-5e1d548e315c', 'c')]
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 i = 0 
@@ -52,7 +55,8 @@ for (dep, fc) in departments:
                         if skiptooold and not ejlmod3.checknewenoughDOI(rec['artlink']):
                             print('    %s too old' % (rec['artlink']))
                         else:
-                            prerecs.append(rec)
+                            if not identifier in ['6d918861-eb0d-489a-a24e-234668565039']:
+                                prerecs.append(rec)
         print('   %3i records so far' % (len(prerecs)))
         sleep(5)
     i += 1
@@ -88,7 +92,7 @@ for (i, rec) in enumerate(prerecs):
     rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
     if int(rec['year']) <= ejlmod3.year(backwards=years):
         ejlmod3.addtoooldDOI(rec['artlink'])
-    else:
+    elif not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
     sleep(5)
