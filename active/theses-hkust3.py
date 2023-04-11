@@ -14,17 +14,21 @@ import undetected_chromedriver as uc
 publisher = 'Hong Kong U. Sci. Tech.'
 
 pages = 1
+skipalreadyharvested = True
 
 jnlfilename = 'THESES-HongKongUSciTech-%s' % (ejlmod3.stampoftoday())
 
 options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-recs = []
+if skipalreadyharvested:    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
+prerecs = []
 for (dep, fc) in [('Computer+Science', 'c'), ('Physics', ''), ('Mathematics', 'm')]:
     for i in range(pages):
         tocurl = 'http://lbezone.ust.hk/rse/?paged=' + str(i+1) + '&s=%2A&sort=pubyear&order=desc&fq=degree_cc_Ph.D._ss_department_cc_' + dep + '&scopename=electronic-theses&show_result_ui=list'
@@ -45,12 +49,14 @@ for (dep, fc) in [('Computer+Science', 'c'), ('Physics', ''), ('Mathematics', 'm
                 rec['doi'] = '30.3000/HongKongUSciTech/' + re.sub('\W', '', a['href'][10:])
                 if fc:
                     rec['fc'] = fc
-                recs.append(rec)
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    prerecs.append(rec)
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -110,7 +116,9 @@ for rec in recs:
     rec['date'] = re.sub('.*THESIS *([12]\d\d\d).*', r'\1', divt)
     if re.search('\d pages', divt):
         rec['pages'] = re.sub('.*?(\d+) pages.*', r'\1', divt)   
-    ejlmod3.printrecsummary(rec)                                                               
+    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
