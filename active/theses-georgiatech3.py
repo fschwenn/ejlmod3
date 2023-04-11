@@ -16,14 +16,14 @@ publisher = 'Georgia Tech'
 jnlfilename = 'THESES-GEORGIATECH-%s' % (ejlmod3.stampoftoday())
 
 rpp = 50
-pages = 5+75+80
+pages = 5
 skipalreadyharvested = True
 
 boring = ['Electrical and Computer Engineering', 'Civil and Environmental Engineering',
           'Aerospace Engineering', 'Biology', 'Chemical and Biomolecular Engineering',
           'City and Regional Planning', 'Computational Science and Engineering',
           'Industrial and Systems Engineering', 'Interactive Computing', 'Music',
-          'Mechanical Engineering', 'Psychology', 'Public Policy', 'Architecture', 
+          'Mechanical Engineering', 'Psychology', 'Public Policy', 'Architecture',
           'Biomedical Engineering (Joint GT/Emory Department)', 'Chemistry and Biochemistry',
           'Economics', 'History, Technology and Society', 'International Affairs',
           'Building Construction', 'Business', 'Earth and Atmospheric Sciences',
@@ -74,7 +74,6 @@ for rec in prerecs:
             print("no access to %s" % (rec['link']))
             continue
 
-
     ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title','DCTERMS.issued', 'DC.subject',
                                         'DCTERMS.abstract', 'citation_pdf_url'])
     for tr in artpage.body.find_all('tr', attrs = {'class' : 'ds-table-row'}):
@@ -102,4 +101,4 @@ for rec in prerecs:
     else:
         ejlmod3.adduninterestingDOI(rec['hdl'])
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
