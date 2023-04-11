@@ -17,12 +17,19 @@ jnlfilename = 'THESES-StAndrewsU-%s' % (ejlmod3.stampoftoday())
 
 rpp = 20
 pages = 1
+skipalreadyharvested = True
 
 #bad certificate
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 hdr = {'User-Agent' : 'Magic Browser'}
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 deps = [('28', 'm'), ('129', ''), ('60', 'c')]
 recs = []
 i = 0
@@ -32,7 +39,7 @@ for (dep, fc) in deps:
         ejlmod3.printprogress('=', [[i*pages+page+1, len(deps)*pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        for rec in ejlmod3.getdspacerecs(tocpage, 'https://research-repository.st-andrews.ac.uk/'):
+        for rec in ejlmod3.getdspacerecs(tocpage, 'https://research-repository.st-andrews.ac.uk/', alreadyharvested=alreadyharvested):
             if fc: rec['fc'] = fc
             recs.append(rec)
         print('  %4i records do far' % (len(recs)))
@@ -55,7 +62,7 @@ for (i, rec) in enumerate(recs):
             print("   no access to %s" % (rec['link']))
             continue
     ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_author', 'citation_date',
-                                        'DCTERMS.abstract', 'citation_pdf_url'])
+                                        'DCTERMS.abstract', 'citation_pdf_url', 'DC.identifier'])
     rec['autaff'][-1].append(publisher)
     for tr in artpage.body.find_all('tr'):
         for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
