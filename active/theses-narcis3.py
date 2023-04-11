@@ -151,7 +151,41 @@ boringpublishers = ['Biomedical Signals and Systems; TechMed Centre',
                     'Tranzo, Scientific center for care and wellbeing', 'University of Humanistic Studies; A meaningful life in a just and caring society',
                     'Urban Planning and Transportation', 'Urologie; RS: MHeNs - R3 - Neuroscience', 'Urology',
                     'Verslaving; Tranzo, Scientific center for care and wellbeing', 'Video Coding & Architectures; Mobile Perception Systems Lab', 'Virology',
-                    'VUmc - School of Medical Sciences', 'VU University medical center', 'Water and Climate Risk', 'Youth & Media Entertainment (ASCoR, FMG)']
+                    'VUmc - School of Medical Sciences', 'VU University medical center', 'Water and Climate Risk', 'Youth & Media Entertainment (ASCoR, FMG)',
+                    'AIMMS; Medicinal chemistry', 'Biophotonics and Medical Imaging; LaserLaB - Biophotonics and Microscopy',
+                    'Center for Neurogenomics and Cognitive Research; Amsterdam Neuroscience - Neurodegeneration; Amsterdam Neuroscience - Cellular & Molecular Mechanisms',
+                    'Clinical Genetics', 'Department of Geo-information Processing; UT-I-ITC-ST Faculty of Geo-Information Science and Earth Observation',
+                    'Ethics, Law & Medical humanities; APH - Societal Participation & Health', 'Faculty of Behavioural and Movement Sciences',
+                    'Genetic Identification', 'Management and Organisation', 'Medical Microbiology & Infectious Diseases',
+                    'Membrane Science & Technology; MESA+ Institute', 'Multi-Modality Medical Imaging; TechMed Centre',
+                    'Nanobiophysics; MESA+ Institute; TechMed Centre',
+                    'Nutrition and Movement Sciences; RS: NUTRIM - R1 - Obesity, diabetes and cardiovascular health',
+                    'Photocatalytic Synthesis; MESA+ Institute', 'Product-Market Relations',
+                    'RS: Carim - V03 Regenerative and reconstructive medicine vascular disease; Vascular Surgery',
+                    'RS: GROW - R4 - Reproductive and Perinatal Medicine; Obstetrie & Gynaecologie',
+                    'School of Med. Physics and Eng. Eindhoven; EngD School AP; Eindhoven MedTech Innovation Center',
+                    'Surgical Robotics', 'Sustainable Process Engineering; Inorganic Membranes and Membrane Reactors',
+                    'University of Twente, Faculty of Geo-Information Science and Earth Observation (ITC)',
+                    'Amsterdam Interdisciplinary Centre for Emotion (AICE, Psychology, FMG)',
+                    'Analytical Chemistry and Forensic Science (HIMS, FNWI)',
+                    'Cardiologie; RS: Carim - H05 Gene regulation; RS: Carim - Blood', 'Civil Law',
+                    'Corporate Communication (ASCoR, FMG)', 'Periodontology', 'Preventive Dentistry',
+                    'Department of Technology Enhanced Learning and Innovation; RS-Theme Open Education',
+                    'Endodontology', 'Epidemiologie; RS: GROW - R1 - Prevention',
+                    'Family Medicine; RS: CAPHRI - R5 - Optimising Patient Care; Family Medicine',
+                    'Freshwater and Marine Ecology (IBED, FNWI)', 'Groninger Instituut voor Archeologie',
+                    'Homogeneous and Supramolecular Catalysis (HIMS, FNWI)', 'Integrated Circuit Design',
+                    'Maxillofacial Surgery (AMC); Oral Kinesiology', 'Maxillofacial Surgery (AMC); Oral Medicine',
+                    'Mechanics of Materials; Group Hoefnagels', 'Neurosurgery', 'Optima Grafische Communicatie',
+                    'Orale Kinesiologie (ORM, ACTA)', 'Oral Kinesiology; Orthodontics', 'Oral Kinesiology',
+                    'Oral Public Health', 'Orthopedie; RS: CAPHRI - R3 - Functioning, Participating and Rehabilitation',
+                    'RS: CAPHRI - R3 - Functioning, Participating and Rehabilitation',
+                    'RS: CAPHRI - R4 - Health Inequities and Societal Participation; Med Microbiol, Infect Dis & Infect Prev',
+                    'RS: CAPHRI - R4 - Health Inequities and Societal Participation; Sociale Geneeskunde',
+                    'RS: Carim - B03 Cell biochemistry of thrombosis and haemostasis',
+                    'RS: FdR IC Const. proc. rechtsorde; International and European Law; RS: FdR Institute MCfHR',
+                    'RS: FdR Institute METRO; Maastr Inst for Transnat Legal Research',
+                    'Sustainable Chemistry Industrial (HIMS, FNWI)']
 boringkeywords = ['Anxiety', 'Aquaculture and Fisheries', 'Aquacultuur en Visserij', 'biomarkers',
                   'Bio Process Engineering', 'Business Management & Organisation', 'Case study',
                   'circulaire economie', 'circular economy', 'Depression', 'duurzaamheid',
@@ -168,7 +202,28 @@ boringkeywords = ['Anxiety', 'Aquaculture and Fisheries', 'Aquacultuur en Visser
                   'sustainability', 'Wereldvoeding', 'climate change', 'Kennis',
                   'MPI series in Psycholinguistics', 'SDG 3 - Good Health and Well-being',
                   'Glomerulosclerosis', 'Proteinuria', 'Renal disease']
-
+boringinsts = ['Faculty of Medicine, Leiden University Medical Center (LUMC) Leiden University',
+               'Department of Social Psychology', 'Institute for Globalisation and International Regulation',
+               'Institute of Security and Global Affairs , Faculty of Governance and Global Affairs , Leiden University',
+               'Vascular Surgery', 'Obstetrie & Gynaecologie',
+               'Leiden Academic Centre for Drug Research (LACDR) , Faculty of Science , Leiden University',
+               'Leiden University Institute for History , Faculty of Humanities , Leiden University',
+               'Beukeboom lab - Evolutionary Genetics', 'CAPHRI - Functioning, Participating and Rehabilitation',
+               'Carim - Blood', 'Carim - Cell biochemistry of thrombosis and haemostasis', 'Civil Law',
+               'Department of Technology Enhanced Learning and Innovation',
+               'Eisel lab - Molecular Neurobiology and Neuroimmunology', 'Endodontology',
+               'Engineering Fluid Dynamics', 'Etienne group - Theoretical and Evolutionary Community Ecology',
+               'Faculty of Archaeology , Leiden University', 'Groningen Institute of Archeology', 
+               'Faculty of Medicine, Leiden University Medical Center (LUMC) , Leiden University', 'Family Medicine',               
+               'Institute of Biology Leiden (IBL) , Faculty of Science , Leiden University',
+               'Institute of Political Science , Faculty of Social and Behavioural Sciences , Leiden University',
+               'Institute of Public Administration , Faculty of Governance and Global Affairs , Leiden University',
+               'Institute of Public Law , Faculty of Law , Leiden University', 'Sociale Geneeskunde',
+               'Leiden Institute of Chemistry (LIC) , Faculty of Science , Leiden University',
+               'Leiden Institute of Education and Child Studies , Faculty of Social and Behavioural Sciences , Leiden University',
+               'Maastricht Centre for Human Rights', 'Maastr Inst for Transnat Legal Research',
+               'Med Microbiol, Infect Dis & Infect Prev', 'Neurosurgery', 'Oral Kinesiology', 'Oral Medicine',
+               'Oral Public Health', 'Orthodontics', 'Periodontology', 'Preventive Dentistry', 'Psychometrics and Statistics']
 #check individual pages of bunch of records
 def processrecs(recs, bunchcounter):
     i = 0
@@ -216,10 +271,11 @@ def processrecs(recs, bunchcounter):
                 elif tht == 'Thesis advisor':
                     rec['supervisor'] = [[sv] for sv in re.split('; *', tdt)]
                 elif tht == 'Publication':
-                    rec['link'] = tdt
-                    if not 'hdl' in list(rec.keys()) and not 'doi' in list(rec.keys()):
-                        if re.search('\/handle\/\d', rec['link']):
-                            rec['hdl'] = re.sub('.*handle\/', '', rec['link'])
+                    for a in td.find_all('a'):                        
+                        rec['link'] = a['href']
+                        if not 'hdl' in list(rec.keys()) and not 'doi' in list(rec.keys()):
+                            if re.search('\/handle\/\d', rec['link']):
+                                rec['hdl'] = re.sub('.*handle\/', '', rec['link'])
                 elif tht == 'Publisher':
                     realpublisher = tdt
                     if realpublisher in boringpublishers:
@@ -233,6 +289,35 @@ def processrecs(recs, bunchcounter):
                 req = urllib.request.Request(rec['link'], headers=hdr)
                 origpage = BeautifulSoup(urllib.request.urlopen(req))
                 ejlmod3.metatagcheck(rec, origpage, ['citation_pdf_url', 'citation_isbn', 'citation_doi'])
+                institution = False
+                for dl in origpage.find_all('dl', attrs = {'title' : 'Awarding Institution'}):
+                    for dd in dl.find_all('dd'):
+                        institution = dd.text.strip()
+                if not institution:
+                    for li in origpage.find_all('dl', attrs = {'class' : 'department'}):
+                        institution = li.text.strip()    
+                if not institution:
+                    for a in origpage.find_all('a', attrs = {'rel' : 'Organisation'}):
+                        institution = a.text.strip()    
+                if not institution:
+                    prev = ''
+                    for dl in origpage.find_all('dl', attrs = {'id' : 'metadata'}):
+                        for child in dl.childen:
+                            try:
+                                if prev == 'Faculty':
+                                    institution = child.text
+                                else:
+                                    prev = child.text
+                            except:
+                                pass
+                if institution:
+                    institution = re.sub('  +', ' ', re.sub('[\n\r\t]', ' ', institution))
+                    #print('   INSTITUTION:::'+institution)
+                    if institution in boringinsts:
+                        keepit = False
+                        print('   skip "%s"' % (institution))
+                    else:
+                        rec['note'].append('INSTITUTION:::'+institution)
             except:
                 print('    could not find PDF')
             if not 'FFT' in list(rec.keys()):
