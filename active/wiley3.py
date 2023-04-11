@@ -202,9 +202,9 @@ for rec in prerecs:
                                                 'citation_author_email'])#'citation_pdf_url' does not resolve
             rec['autaff'][0]
     except:
-        print('  ... try again in 30-90 s')
+        print('  ... try again in 90-190 s')
         rec['artlink'] = re.sub('doi\/', 'doi/ftr/', rec['artlink'])
-        time.sleep(random.randint(30,90))
+        time.sleep(random.randint(90,190))
         #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
         driver.get(rec['artlink'])
         artpage  = BeautifulSoup(driver.page_source, features="lxml")
