@@ -233,6 +233,6 @@ else:
         if harvestarticle(jnl, rec, i, len(prerecs), len(recs)):
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
-        if i %10 == 0:
+        if i % 5 == 0:
             ejlmod3.writenewXML(recs, publisher, jnlfilename)
     ejlmod3.writenewXML(recs, publisher, jnlfilename)
