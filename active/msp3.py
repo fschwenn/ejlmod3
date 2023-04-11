@@ -65,10 +65,8 @@ for jnl in list(journals.keys()):
             jnlfilename = 'msp_%s%s.%s' % (jnl, vol, iss)
         #check whether file already exists
         goahead = True
-        for ordner in ['/', '/zu_punkten/', '/zu_punkten/enriched/', 
-                       '/backup/', '/backup/%i/' % (lastyear), 
-                       '/backup/%i/' % (llastyear), '/onhold/']:
-            if os.path.isfile(ejldir + ordner + jnlfilename + '.doki') or os.path.isfile(ejldir + ordner + 'LABS_'+jnlfilename + '.doki'):
+        for ordner in ['/backup/', '/backup/%i/' % (lastyear), '/backup/%i/' % (llastyear)]:
+            if os.path.isfile(ejldir + ordner + jnlfilename + '.doki') or os.path.isfile(ejldir + ordner + 'LABS_'+jnlfilename + '.doki') or os.path.isfile(ejldir + ordner + 'JSONL_'+jnlfilename + '.doki'):
                 print('    Datei %s exisitiert bereit in %s' % (jnlfilename, ordner))
                 goahead = False
         if not goahead:
