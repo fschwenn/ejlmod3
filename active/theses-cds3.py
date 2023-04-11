@@ -3,7 +3,6 @@
 #FS: 2022-09-27
 
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
@@ -17,7 +16,11 @@ publisher = 'CERN'
 rpp = 20
 pages = 100
 targetnumberoftheses = 20
+skipalreadyharvested = True
 jnlfilename = 'THESES-CDS-%s' % (ejlmod3.stampoftoday())
+
+if skipalreadyharvested:    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
@@ -43,6 +46,8 @@ for page in range(pages):
         for df in record.find_all('datafield', attrs = {'tag' : '024', 'ind1' : '7'}):
             for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
                 rec['doi'] = sf.text.strip()
+                if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                    keepit = False
         #reportnumber
         for df in record.find_all('datafield', attrs = {'tag' : ['037', '088']}):
             for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
