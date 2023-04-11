@@ -706,10 +706,15 @@ def writeXML(recs,dokfile,publisher):
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['hidden']))])
         #LINK
         if 'link' in rec:
-            if re.search('^http', rec['link']):
+            parsedlink = urllib.parse.urlparse(rec['link'])
+            if parsedlink.scheme and parsedlink.netloc and parsedlink.path:
                 xmlstring += marcxml('8564',[('u', re.sub(' ', '%20', rec['link']))])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['link']))])
+            #if re.search('^http', rec['link']):
+            #    xmlstring += marcxml('8564',[('u', re.sub(' ', '%20', rec['link']))])
+            #else:
+            #    xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['link']))])
         #LICENSE
         if 'license' in rec and not 'licence' in rec:
             rec['licence'] = rec['license']
@@ -1111,7 +1116,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
         if 'doi' in rec and 'link' in rec:
             if re.search('^10\.\d+', rec['doi']):
                 del(rec['link'])
-        elif not 'doi' in rec or rec['doi'][0] != '1':
+        elif not 'doi' in rec or not rec['doi'] or not rec['doi'][0] != '1':
             if 'artlink' in rec and not 'link' in rec:
                 rec['link'] = rec['artlink']
         #open access fulltext
@@ -1386,7 +1391,7 @@ def metatagcheck(rec, artpage, listoftags):
                 if tag in ['abstract', 'citation_abstract', 'dc.description', 'dc.Description', 'DC.description', 'DC.Description',
                            'dcterms.abstract', 'DCTERMS.abstract','twitter:description', 'og:description', 'eprints.abstract',
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract',
-                           'eprints.abstract_name']:
+                           'eprints.abstract_name', 'dcterms.description']:
                     if len(meta['content']) > 12:
                         if meta.has_attr('xml:lang'):
                             abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
@@ -1395,14 +1400,14 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
-                             'doi', 'eprints.doi', 'eprints.doi_name', 'eprints.own_doi']:
-                    rec['doi'] = meta['content']
+                             'doi', 'eprints.doi', 'eprints.doi_name', 'eprints.own_doi', 'eprints.related_doi']:
+                    rec['doi'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_arxiv_id']:
-                    rec['arxiv'] = meta['content']
+                    rec['arxiv'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['eprints.urn', 'eprints.own_urn']:
-                    rec['urn'] = meta['content']
+                    rec['urn'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_isbn']:
                     if 'isbns' in rec:
@@ -1413,28 +1418,28 @@ def metatagcheck(rec, artpage, listoftags):
                 elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier',
                              'dc.identifier.uri', 'eprints.id_number']:
                     if re.search('^(urn|URN):', meta['content']):
-                        rec['urn'] = meta['content']
+                        rec['urn'] = meta['content'].strip()
                         done.append(tag)
                     elif re.search('.*resolving.[a-]+\/urn:', meta['content']):
                         rec['urn'] = re.sub('.*resolving.[a-]+\/', '', meta['content'])
                         done.append(tag)
                     elif re.search('^(uri|URI):', meta['content']):
-                        rec['uri'] = meta['content']
+                        rec['uri'] = meta['content'].strip()
                         done.append(tag)
                     elif re.search('handle.net\/', meta['content']):
-                        rec['hdl'] = re.sub('.*handle.net\/', '', meta['content'])
+                        rec['hdl'] = re.sub('.*handle.net\/', '', meta['content']).strip()
                         done.append(tag)
                     elif re.search('doi.org\/10', meta['content']):
-                        rec['doi'] = re.sub('.*doi.org\/(10.*)', r'\1', meta['content'])
+                        rec['doi'] = re.sub('.*doi.org\/(10.*)', r'\1', meta['content']).strip()
                         done.append(tag)
-                    elif re.search('doi:10\.\d', meta['content']):
-                        rec['doi'] = re.sub('.*doi:\/(10.*)', r'\1', meta['content'])
+                    elif re.search('(doi|DOI):10\.\d', meta['content']):
+                        rec['doi'] = re.sub('.*(doi|DOI):(10.*)', r'\1', meta['content']).strip()
                         done.append(tag)
                     elif re.search('DOI:10\.\d', meta['content']):
-                        rec['doi'] = re.sub('.*:\/(10.*)', r'\1', meta['content'])
+                        rec['doi'] = re.sub('.*:\/(10.*)', r'\1', meta['content']).strip()
                         done.append(tag)
                     elif re.search('^10\.\d+\/', meta['content']):
-                        rec['doi'] = meta['content']
+                        rec['doi'] = meta['content'].strip()
                         done.append(tag)
                     elif re.search('^978', meta['content']):
                         if 'isbns' in rec:
@@ -1453,7 +1458,7 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
-                             'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName',
+                             'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName', 'dcterms.creator',
                              'DC.contributor.author', 'dc.creator', 'dcterms.creator', 'citation_authors']:
                     if 'autaff' in rec:
                         rec['autaff'].append([meta['content']])
@@ -1511,7 +1516,7 @@ def metatagcheck(rec, artpage, listoftags):
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
                              'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued',
-                             'eprints.datestamp', 'DC.issued']:
+                             'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
@@ -1708,7 +1713,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
                      'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s',
-                     'Masters']
+                     'Masters', 'Mgr.', 'Bc.', 'RNDr.', 'Doctor+of+Musical+Arts']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
@@ -1734,9 +1739,16 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     for info in rec['infos']:
                         if redegree.search(info):
                             degree = redegree.sub('', info)
-                            rec['degrees'].append(degree)
                             if degree in boringdegrees:
                                 keepit = False
+                            elif degree == 'Computer+Science':
+                                rec['fc'] = 'c'
+                            elif degree == 'Mathematics':
+                                rec['fc'] = 'm'
+                            elif degree == 'Astronomy+and+Astrophysics':
+                                rec['fc'] = 'a'
+                            else:
+                                rec['degrees'].append(degree)
                         elif relicense.search(info):
                             rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
                         elif redate.search(info):
