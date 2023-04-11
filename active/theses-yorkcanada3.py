@@ -16,19 +16,24 @@ import json
 
 rpp = 10
 pages = 1+1
+skipalreadyharvested = True
 
 publisher = 'York U., Canada'
 
 jnlfilename = 'THESES-YorkCanada-%s' % (ejlmod3.stampoftoday())
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 recs = []
-for dep in ['27569', '28582']:
+for dep in ['27569', '28582', '38508']:
     for page in range(pages):        
         tocurl = 'https://yorkspace.library.yorku.ca/xmlui/handle/10315/' + dep + '/discover?rpp=' + str(rpp) + '&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
         ejlmod3.printprogress("=", [[dep], [page+1, pages], [tocurl]])
@@ -41,9 +46,11 @@ for dep in ['27569', '28582']:
             time.sleep(180)
             driver.get(tocurl)
             tocpage = BeautifulSoup(driver.page_source, features="lxml")
-        for rec in ejlmod3.getdspacerecs(tocpage, 'https://yorkspace.library.yorku.ca'):
+        for rec in ejlmod3.getdspacerecs(tocpage, 'https://yorkspace.library.yorku.ca', alreadyharvested=alreadyharvested):
             if dep == '27569':
                 rec['fc'] = 'm'
+            elif dep == '38508':
+                rec['fc'] = 'c'
             recs.append(rec)
 
 i = 0
