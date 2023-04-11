@@ -14,6 +14,7 @@ import time
 publisher = 'UPenn, Philadelphia'
 pages = 6
 years = 2
+skipalreadyharvested = True
 boring = ['City & Regional Planning', 'Romance Languages', 'Cell & Molecular Biology',
           'History of Art', 'Applied Economics', 'Accounting', 'Africana Studies', 'Anthropology', 'Architecture',
           'Art & Archaeology of Mediterranean World', 'Biochemistry & Molecular Biophysics', 'Bioengineering',
@@ -34,6 +35,9 @@ jnlfilename = 'THESES-UPENN-%s' % (ejlmod3.stampoftoday())
 
 basetocurl = 'https://repository.upenn.edu/edissertations/index.'
 tocextension = 'html'
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 date = False
@@ -63,9 +67,9 @@ for i in range(pages):
                         rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : []}
                         for a in child.find_all('a'):                    
                             rec['tit'] = a.text.strip()
-                            rec['artlink'] = a['href']
+                            rec['link'] = a['href']
                             a.replace_with('')
-                        if ejlmod3.checkinterestingDOI(rec['artlink']):
+                        if ejlmod3.checkinterestingDOI(rec['link']):
                             prerecs.append(rec)
     print('  ', len(prerecs))
     tocextension = '%i.html' % (i+2)
@@ -75,14 +79,14 @@ recs = []
 for rec in prerecs:
     keepit = True
     i += 1
-    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
         time.sleep(3)
     except:
-        print("retry %s in 180 seconds" % (rec['artlink']))
+        print("retry %s in 180 seconds" % (rec['link']))
         time.sleep(180)
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['description', 'bepress_citation_author', 'bepress_citation_pdf_url', 'bepress_citation_doi',
                                         'bepress_citation_online_date'])
     #supervisor
@@ -113,9 +117,10 @@ for rec in prerecs:
     if keepit:
         if len(rec['autaff'][-1]) == 1:
             rec['autaff'][-1].append(publisher)
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if not skipalreadyharvested or not '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:]) in alreadyharvested:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
-        ejlmod3.adduninterestingDOI(rec['artlink'])
+        ejlmod3.adduninterestingDOI(rec['link'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
