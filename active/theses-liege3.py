@@ -16,15 +16,18 @@ pages = 1
 rpp = 10
 years = 2
 skiptooold = True
+skipalreadyharvested = True
 
 jnlfilename = 'THESES-LIEGE-%s' % (ejlmod3.stampoftoday())
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 for (degree, authority1) in [('PhD', 'DSO%2FF03'), ('Habilitation', 'DSO%2FF04')]:
@@ -52,7 +55,7 @@ for (degree, authority1) in [('PhD', 'DSO%2FF03'), ('Habilitation', 'DSO%2FF04')
                             rec['fc'] = fc
                         if skiptooold and not ejlmod3.checknewenoughDOI(rec['hdl']):
                             print('    %s too old ' % (rec['hdl']))
-                        else:
+                        elif not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
                             prerecs.append(rec)
             print('    %3i records so far' % (len(prerecs)))
 
