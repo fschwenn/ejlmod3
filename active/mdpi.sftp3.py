@@ -231,7 +231,7 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artfilename']], [len(recs)]])
     keepit = True
-    inf = codecs.EncodedFile(codecs.open(rec['artfilename'], mode='rb'), 'utf8')
+    inf = open(rec['artfilename'], mode='r')
     article = BeautifulSoup(''.join(inf.readlines()), features="lxml")
     inf.close()
     for meta in article.find_all('article-meta'):
