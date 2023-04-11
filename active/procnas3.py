@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-##!/usr/bin/python
+#!/usr/bin/python
 #program to harvest Proc.Nat.Acad.Sci.
 # FS 2019-07-17
 # Cloudflare -> need for newer OpenSSL -> run on HAL
@@ -12,6 +12,7 @@ import ejlmod3
 import time
 import json
 import cloudscraper
+import undetected_chromedriver as uc
 
 
 
@@ -22,14 +23,34 @@ jnlfilename = 'procnas%s.%s' % (vol, re.sub(',', '_', issues))
 jnlname = 'Proc.Nat.Acad.Sci.'
 
 scraper = cloudscraper.create_scraper()
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/chromium'
+    #options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+else:
+    options = uc.ChromeOptions()
+    options.headless=True
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+driver.implicitly_wait(60)
+driver.set_page_load_timeout(30)
+
 prerecs = []
 artlinks = []
 for issue in re.split(',', issues):
     (note1, note2) = (False, False)
     tocurl = 'https://www.pnas.org/content/%s/%s' % (vol, issue)
     ejlmod3.printprogress('=', [[issue, issues], [tocurl]])
-    tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
-
+    #tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
+    driver.get(tocurl)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        
     for contdiv in tocpage.body.find_all('div', attrs = {'class' : 'toc__body'}):
         for section in contdiv.children:
             try:
@@ -107,7 +128,9 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
-    artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    driver.get(rec['artlink'])
+    artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
                                         "citation_online_date", "citation_title"])
     #print(artpage)
