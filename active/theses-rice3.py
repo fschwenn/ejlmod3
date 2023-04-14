@@ -27,10 +27,9 @@ boring = ['Humanities', 'History', 'Chemistry', 'Biochemistry+and+Cell+Biology',
 
 # Initilize Webdriver
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 if skipalreadyharvested:
@@ -85,6 +84,7 @@ def get_subsite(rec):
 
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
+    sleep(10)
     return
 
 for page in range(pages):
@@ -96,7 +96,6 @@ for page in range(pages):
     # Get all the articles
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://scholarship.rice.edu'):
         get_subsite(rec)
-        sleep(10)
     sleep(10)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
