@@ -1,17 +1,24 @@
 # -*- coding: UTF-8 -*-
 #program to harvest PDe Gruyter Book series
 # FS 2016-01-03
-# FS 2023-02-08
+# FS 2023-04-14
 
 import os
 import ejlmod3
 import re
 import sys
+#import unicodedata
+#import string
 import urllib.request, urllib.error, urllib.parse
 import time
-import undetected_chromedriver as uc
 
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+
+
 
 urltrunc = 'https://www.degruyter.com'
 publisher = 'De Gruyter'
@@ -19,12 +26,7 @@ publisher = 'De Gruyter'
 serial = sys.argv[1]
 skipalreadyharvested = True
 
-options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-driver = uc.Chrome(version_main=chromeversion, options=options)
+
 
 
 jnlfilename = 'dg' + serial + ejlmod3.stampoftoday()
@@ -33,27 +35,37 @@ if serial == 'GSTMP':
     tocurl = 'https://www.degruyter.com/view/serial/GSTMP-B?contents=toc-59654'
     tocurl = 'https://www.degruyter.com/serial/GSTMP-B/html#volumes'
 
+print(tocurl)
+
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-print(tocurl)
+options = uc.ChromeOptions()
+options.binary_location='/opt/google/chrome/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
+driver.implicitly_wait(30)
 driver.get(tocurl)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
-print(tocpage.text)
+tocpage = BeautifulSoup(driver.page_source, features='lxml')
+
 #get volumes
 recs = []
 i = 0
+#divs = tocpage.body.find_all('div', attrs = {'class' : 'cover-image'})
+#divs = tocpage.body.find_all('h4', attrs = {'class' : 'resultTitle'})
 divs = tocpage.body.find_all('div', attrs = {'class' : 'resultTitle'})
 for div in divs:
     for a in div.find_all('a'):
         i += 1
         rec = {'tc' : 'B', 'jnl' : jnl, 'auts' : []}
         rec['artlink'] = urltrunc + a['href']
-        ejlmod3.printprogress('-', [[i, len(divs)], [rec['artlink']]])
+        ejlmod3.printprogress('-', [[i, len(divs)], [rec['artlink']], [len(recs)]])
         #DOI
-        rec['doi'] = re.sub('.*doi\/(10.1515.*)\/html', r'\1', rec['artlink'])        
-        if skipalreadyharvested and 'doi' in alreadyharvested:
+        rec['doi'] = re.sub('.*doi\/(10.1515.*)\/html', r'\1', rec['artlink'])
+        if skipalreadyharvested and rec['doi'] in alreadyharvested:
+            print('  %s already in backup' % (rec['doi']))
             continue
         #get details
         artfilename = '/tmp/dg%s' % (re.sub('[\(\)\/]', '_', rec['doi']))
@@ -61,7 +73,7 @@ for div in divs:
             time.sleep(10)
             os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, rec['artlink']))
         inf = open(artfilename, 'r')
-        volpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+        volpage = BeautifulSoup(''.join(inf.readlines()), features='lxml')
         inf.close()
         ejlmod3.metatagcheck(rec, volpage, ['citation_title', 'citation_keywords', 'citation_isbn',
                                             'citation_publication_date', 'dc.identifier',
@@ -131,6 +143,6 @@ for div in divs:
             recs.append(rec)
         else:
             print('  no date!')
-            ejlmod3.printrec(rec)
+            print(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
