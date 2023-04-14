@@ -13,8 +13,11 @@ import ejlmod3
 import time
 
 publisher = 'UMass Amherst'
+jnlfilename = 'THESES-UMassAmherst-%s' % (ejlmod3.stampoftoday())
+
 pages = 1
 years = 2
+skipalreadyharvested = True
 boring = ['Afro-American Studies', 'Animal Biotechnology & Biomedical Sciences', 'Anthropology',
           'Biomedical Engineering', 'Chemical Engineering', 'Chemistry', 'Civil and Environmental Engineering',
           'Civil Engineering', 'Communication Disorders', 'Communication', 'Comparative Literature',
@@ -52,10 +55,11 @@ boring = ['Afro-American Studies', 'Animal Biotechnology & Biomedical Sciences',
           'Teacher Education and Curriculum Studies; Language, Literacy, & Culture',
           'Teacher Education and Curriculum Studies', 'Teacher Education']
 
-jnlfilename = 'THESES-UMassAmherst-%s' % (ejlmod3.stampoftoday())
-
 basetocurl = 'https://scholarworks.umass.edu/dissertations_2/index.'
 tocextension = 'html'
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 date = False
@@ -108,6 +112,8 @@ for rec in prerecs:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['description', 'bepress_citation_author', 'bepress_citation_pdf_url', 'bepress_citation_doi',
                                         'bepress_citation_online_date'])
+    if 'doi' in rec:
+        rec['doi'] = re.sub('.*doi.org\/', '', rec['doi'])
     #supervisor
     for div in artpage.body.find_all('div', attrs = {'id' : 'advisor1'}):
         for p in div.find_all('p'):
@@ -131,7 +137,7 @@ for rec in prerecs:
         for p in div.find_all('p'):
             rec['keyw'] = re.split(' *\| *', p.text.strip())
     #department
-    for div in artpage.body.find_all('div', attrs = {'id' : 'department'}):
+    for div in artpage.body.find_all('div', attrs = {'id' : 'department'}):        
         for p in div.find_all('p'):
             department = p.text.strip()
             if department in boring:
@@ -155,9 +161,12 @@ for rec in prerecs:
         rec['license'] = {'url' : link['href']}
     if keepit:
         if len(rec['autaff'][-1]) == 1:
-            rec['autaff'][-1].append(publisher)
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+            rec['autaff'][-1].append(publisher)            
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('   %s already in backup' % (rec['doi']))
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
