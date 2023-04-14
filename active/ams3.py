@@ -27,6 +27,7 @@ if len(sys.argv) > 3:
 else:
     jnlfilename += '_%s' % (ejlmod3.stampoftoday())
 
+skipalreadyharvested = True
     
 
 
@@ -92,6 +93,8 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
+if skipalreadyharvested:    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 #check embargo time
 if 'embargo' in jnldict[jrnid]:
@@ -174,7 +177,8 @@ for (i, artlink) in enumerate(artlinks):
                         a.replace_with(' '+rdoi+' ')
                 for li in ul.find_all('li'):
                     rec['refs'].append([('x', li.text)])
-    ejlmod3.printrecsummary(rec)
-    recs.append(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
