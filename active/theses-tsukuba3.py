@@ -20,18 +20,22 @@ from selenium.webdriver.firefox.options import Options
 import requests
 
 rpp = 20
+skipalreadyharvested = True
 
 publisher = 'Tsukuba U.'
+jnlfilename = 'THESES-TSUKUBA-%s' % (ejlmod3.stampoftoday())
+
 #driver
 options = uc.ChromeOptions()
 options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 #driver.implicitly_wait(30)
 
-recs = []
-jnlfilename = 'THESES-TSUKUBA-%s' % (ejlmod3.stampoftoday())
+prerecs = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 deps = [('253', 1), ('250', 1), ('254', 3)]
 for (dep, pages) in deps:
     for i in range(pages):
@@ -47,15 +51,17 @@ for (dep, pages) in deps:
                 rec['doi'] = '30.3000/Tsukuba' + a['href'] 
                 recid = int(re.sub('\D', '', a['href']))
                 rec['note'].append('DOI guessed from theses ID: 10.15068/%010i' % (recid))
-                recs.append(rec)            
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    prerecs.append(rec)            
         time.sleep(4)
-        print('  %4i records so far' % (len(recs)))
+        print('  %4i records so far' % (len(prerecs)))
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
     disstyp = False
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
+    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
     driver.get(rec['link'])
     artpage = BeautifulSoup(driver.page_source, features="lxml")
     for span in artpage.find_all('span', attrs = {'class' : 'pull-right'}):
@@ -135,6 +141,12 @@ for rec in recs:
                 else:
                     rec['auts'] = [ subentry['creatorName'] ]
         rec['aff'] = [publisher]
-    ejlmod3.printrecsummary(rec)
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   %s already in backup' % (rec['doi']))
+    elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+        print('   %s already in backup' % (rec['hdl']))
+    else:        
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
