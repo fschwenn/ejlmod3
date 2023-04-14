@@ -12,35 +12,29 @@ import random
 import datetime
 
 publisher = 'PLOS'
-chunksize = 100
+chunksize = 30
 #threshold for html harvest
 years = 2
 #API harvest
 rpp = 200
-daystocheck = 130
+daystocheck = 150
 wheretosearch = 'abstract' # everywhere? title?
 
-reharvest = False #whether to reharvest stuff, we already have in the backup
+skipalreadyharvested = True
 
 ejldir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 #avoid douple harvesting
 dois = ["10.1371/journal.pone.0271462", "10.1371/journal.pone.0222371", "10.1371/journal.pone.0223636", "10.1371/journal.pone.0220237", "10.1371/journal.pone.0207827", "10.1371/journal.pone.0210817", "10.1371/journal.pone.0229382", "10.1371/journal.pone.0193785", "10.1371/journal.pone.0215287", "10.1371/journal.pone.0200910", "10.1371/journal.pone.0186624", "10.1371/journal.pone.0195494", "10.1371/journal.pone.0188398", "10.1371/journal.pone.0166011", "10.1371/journal.pone.0175876", "10.1371/journal.pone.0170920", "10.1371/journal.pone.0159898", "10.1371/journal.pone.0197735", "10.1371/journal.pone.0169832", "10.1371/journal.pone.0182779", "10.1371/journal.pone.0163241", "10.1371/journal.pone.0182130", "10.1371/journal.pone.0131184", "10.1371/journal.pone.0133679", "10.1371/journal.pone.0115993", "10.1371/journal.pone.0109507", "10.1371/journal.pone.0108482", "10.1371/journal.pone.0106368", "10.1371/journal.pone.0078114", "10.1371/journal.pone.0085777", "10.1371/journal.pone.0054165", "10.1371/journal.pone.0056086", "10.1371/journal.pone.0064694", "10.1371/journal.pone.0046428", "10.1371/journal.pone.0069469", "10.1371/journal.pone.0040689", "10.1371/journal.pone.0047523", "10.1371/journal.pone.0031929", "10.1371/journal.pone.0097107", "10.1371/journal.pone.0020721", "10.1371/journal.pone.0030136", "10.1371/journal.pone.0024330", "10.1371/journal.pone.0013061", "10.1371/journal.pone.0002052"]
 
-if not reharvest:
-    def tfstrip(x): return x.strip()
-    for ordner in [ejldir, os.path.join(ejldir, str(ejlmod3.year(backwards=1)))]:
-        print('check', ordner)
-        dois += list(map(tfstrip,os.popen("grep '^3.*DOI' %s/*plosone*doki |sed 's/.*=//'|sed 's/;//'" % (ordner))))
-print(len(dois), 'DOIs in done')
-            
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('plosone')
 
 boring = ['Behavioral and social aspects of health', 'Biomarkers', 'Educational attainment', 'Health care facilities', 'Hospitals', 'Lymphocytes', 'Marine fish', 'Myocardial infarction', 'Neurons', 'Obesity', 'Prostate cancer', 'Psychological stress', 'Social communication', 'Social media', 'Teeth', 'Trees', 'Urine', 'Cancers and neoplasms', 'Cancer treatment', 'Cardiovascular disease risk', 'Diagnostic medicine', 'DNA extraction', 'Drug therapy', 'Genomics', 'Musculoskeletal mechanics', 'Pregnancy', 'Prosocial behavior', 'Psychometrics', 'Respiratory infections', 'Blood', 'Diet', 'Infants', 'Inflammation', 'Intensive care units', 'Medical devices and equipment', 'SARS CoV 2', 'Economic development', 'Mental health and psychiatry', 'Psychological attitudes', 'Diabetes mellitus', 'Food', 'Polymerase chain reaction', 'Surgical and invasive medical procedures', 'Sports', 'Pandemics', 'Virus testing', 'Body weight', 'Finance', 'Emotions', 'COVID 19', 'Medical risk factors', 'Antibiotic resistance', 'Antibiotics', 'Bioinformatics', 'Biological locomotion', 'Biomaterial implants', 'Biomechanics', 'Bionanotechnology', 'Biophysical simulations', 'Biophysics', 'Biosphere', 'Biostatistics', 'Evolutionary biology', 'Evolutionary developmental biology', 'Biochemical simulations', 'Biodiversity', 'Biopsy', 'Biosynthesis', 'Chronobiology', 'Bioacoustics', 'Bioluminescence', 'Clinical medicine', 'Dehydration (medicine)', 'Lysis (medicine)', 'Medical personnel', 'Oral medicine', 'Medical dialysis', 'Medical implants', 'Medical journals', 'Sports and exercise medicine', 'Traditional medicine', 'Electronic medical records', 'Medicine and health sciences', 'Traditional Chinese medicine', 'Critical care and emergency medicine', 'Chemical dissociation', 'Chemistry', 'Chemokines', 'Chemoradiotherapy', 'Organic chemistry', 'Soil chemistry', 'Biochemical simulations', 'Chemical elements', 'Chemical synthesis', 'Electrochemistry', 'Environmental health', 'Health care sector', 'Health education and awareness', 'Health systems strengthening', 'Mental health therapies', 'Oral health', 'Child health', 'Health care providers', 'Health economics', 'Health informatics', 'Health insurance', 'Health care policy', 'Medicine and health sciences', 'Allied health care professionals', 'Public and occupational health', 'Socioeconomic aspects of health', 'Colorimetric protein concentration assays', 'G protein coupled receptors', 'Lipoproteins', 'Metalloproteases', 'Serine proteases', 'Serum proteins', 'Yellow fluorescent protein', 'C-reactive proteins', 'Environmental protection', 'Antisocial behavior', 'Psychological and psychosocial issues', 'Social discrimination', 'Social epidemiology', 'Social geography', 'Social mobility', 'Social play', 'Social psychology', 'Social stratification', 'Social distancing', 'Social networks', 'Animal sociality', 'Social influence', 'Social systems', 'Social theory', 'Neuropsychological testing', 'Clinical psychology', 'Enzymes', 'Escherichia coli', 'Cancer epidemiology', 'Head and neck cancers', 'Rectal cancer', 'Bladder cancer', 'Colorectal cancer', 'Renal cancer', 'Cancer risk factors', 'Breast cancer', 'Cancer detection and diagnosis', 'Type 2 diabetes', 'Urban environments', 'Variant genotypes', 'Video games', 'Ocean temperature', 'HIV diagnosis and management', 'Economic impact analysis', 'Environmental economics', 'Urban economics', 'Economic growth', 'Economic models', 'Experimental economics', 'Econometrics', 'Economics', 'Vitamin D', 'Cytoskeleton', 'Gene regulation', 'Genetically modified animals', 'MicroRNAs', 'T cells', 'Heart rate', 'Hippocampus', 'Human learning', 'Human mobility', 'Agricultural soil science', 'Algae', 'Archaeology', 'Fish physiology', 'Flowering plants', 'DNA-binding proteins', 'DNA damage', 'DNA repair', 'Drosophila melanogaster', 'Brain mapping', 'Breathing', 'Cell cultures', 'Cell differentiation', 'Cell migration', 'Cerebellum', 'Cerebral arteries', 'Chondrocytes']
 boring += ['Air pollution', 'Allergies', 'Alzheimer&apos;s disease', 'B cells', 'Blood pressure', 'Bone deformation', 'Bone fracture', 'Cell disruption', 'Cell membranes', 'Cell polarity', 'Cell staining', 'Cell swimming', 'Cellulose', 'Diarrhea', 'DNA cloning', 'DNA methylation', 'DNA-RNA hybridization', 'Drag', 'Drug delivery', 'Drug dependence', 'Drug discovery', 'Drug interactions', 'Eye diseases', 'Grasslands', 'Mining engineering', 'Proteases', 'Protein domains', 'Protein folding', 'Protein sequencing', 'Protein structure comparison', 'Protein structure databases', 'Protein structure determination', 'Protein structure networks', 'Protein structure prediction', 'Protein structure', 'Prussian blue staining', 'Pseudomonas aeruginosa', 'Pseudomonas syringae', 'Rivers', 'RNA alignment', 'RNA structure', 'Water columns', 'Water pollution', 'Water quality', 'Water resources', 'Adenosine', 'Adenosine triphosphatase', 'Adenylyl cyclase', 'ADP-ribosylation', 'Agricultural irrigation', 'Agricultural workers', 'Amyloid proteins', 'Amyotrophic lateral sclerosis', 'Animal antennae', 'Animal behavior', 'Animal flight', 'Animal migration', 'Animal navigation', 'Animal wings', 'Antibacterials', 'Antibody isotype determination', 'Antibody isotypes', 'Antibody therapy', 'Antifreeze proteins', 'Antifungals', 'Antigen-presenting cells', 'Antigens', 'Antioxidants', 'Antioxidant therapy', 'Antipsychotics', 'Antitoxins', 'Aorta', 'Bacillus', 'Bacillus subtilis', 'Bacterial biofilms', 'Bacterial pathogens', 'Bacteria', 'Bamboo', 'Biocatalysis', 'Bioceramics', 'Biochemical cofactors', 'Bioengineering', 'Biofilms', 'Biomaterials', 'Biosensors', 'Biotin', 'Bird eggs', 'Bird flight', 'Blood donors', 'Blood flow', 'Blood transfusion', 'Blood volume', 'Body limbs', 'Bone and joint mechanics', 'Bone and mineral metabolism', 'Bone density', 'Bone imaging', 'Botulinum toxin', 'Botulism', 'Cardiac atria', 'Cardiac electrophysiology', 'Cardiac muscles', 'Cardiac surgery', 'Cardiac transplantation', 'Cardiac ventricles', 'Cardiology', 'Cardiomyopathies', 'Cardiovascular anatomy', 'Cardiovascular diseases', 'Cardiovascular imaging', 'Cell binding assay', 'Cell binding', 'Cell cycle and cell division', 'Cell enumeration techniques', 'Cell growth', 'Cell metabolism', 'Cell phones', 'Cellular structures and organelles', 'Central nervous system', 'Cerebrospinal fluid', 'Chickens', 'Chikungunya virus', 'Coronary heart disease', 'Corpus callosum', 'Cytoplasm', 'DNA structure', 'DNA', 'Endoscopy', 'Enzyme assays', 'Enzyme-linked immunoassays', 'Enzyme structure', 'Epidemiology', 'Health care', 'Hemoglobin', 'Histology', 'Multiple sclerosis', 'Muscle analysis', 'Muscle contraction', 'Muscular dystrophies', 'Parkinson disease', 'Pediatrics', 'Protein complexes', 'Protein denaturation', 'Protein expression', 'Protein extraction', 'Protein interaction networks', 'Protein interactions', 'Protein kinases', 'Protein-protein interactions', 'Protein secretion', 'Protein synthesis', 'Respiratory physiology', 'Schistosoma mansoni', 'Schizophrenia', 'Single nucleotide polymorphisms', 'Single strand conformational polymorphism analysis', 'Sjogren syndrome', 'Skeletal joints', 'Skin anatomy', 'Skin physiology', 'Skin tissue', 'Species diversity', 'Species interactions', 'Toxicity', 'Transfer RNA', 'Trehalose', 'Urban infrastructure', 'Uric acid', 'Vaccines', 'Vegetable oils', 'Vegetables', 'Veins', 'Viral persistence and latency', 'Viral replication', 'Vitamin E', 'Volcanic ashes', 'Volcanic eruptions', 'Volcanic rocks', 'Volcanoes', 'Weather stations', 'Weather', 'Wetlands', 'Wheat', 'White blood cells', 'Wildfires', 'Xylose', 'Zebrafish', 'Zika virus', 'Lung and intrathoracic tumors']
@@ -48,7 +42,7 @@ boring += ['Abdomen', 'Academic skills', 'Acetic acid', 'Acidic amino acids', 'A
 boring += ['Mutagenesis', 'Mutation detection', 'Myelin sheath', 'Myofilaments', 'Myopia', 'Naphthalenes', 'National security', 'Natural disasters', 'Natural history of disease', 'Necrotic cell death', 'Neurorehabilitation', 'Neuroscience', 'Neutron scattering', 'Nicotine replacement therapy', 'Norovirus', 'Nurses', 'Nursing science', 'Nutrient and storage proteins', 'Oceanography', 'Odorants', 'Oligopolies', 'Oncogenes', 'Oncology', 'Optic neuropathy', 'Organic solvents', 'Osteoblast differentiation', 'Osteoblasts', 'Osteology', 'Osteoporosis', 'Otolaryngological procedures', 'Otorhinolaryngology', 'Outer membrane proteins', 'Outpatients', 'Pain sensation', 'Paints', 'Pakistan', 'Paleooceanography', 'Parasite evolution', 'Parasitism', 'Pathogen motility', 'Pathogens', 'Pediatrics', 'Pest control', 'Pets and companion animals', 'Phase II clinical investigation', 'Phase III clinical investigation', 'Phase IV clinical investigation', 'Phenylalanine', 'Phospholipids', 'Physical fitness', 'Pigeons', 'Pilot whales', 'Plankton', 'Plant cell walls', 'Planting', 'Plant tissues', 'Plasmodium falciparum', 'Pneumococcus', 'Pneumoconioses', 'Pneumonitis', 'Political geography', 'Pollen', 'Pollution', 'Precambrian supereon', 'Precision agriculture', 'Primates', 'Probiotics', 'Protein denaturation', 'Protein expression', 'Protein extraction', 'Protein interaction networks', 'Protein kinases', 'Protein metabolism', 'Protein-protein interactions', 'Protein secretion', 'Protein synthesis', 'Proteus vulgaris', 'Psychological rehabilitation', 'Psychoses', 'Puberty', 'Pyrococcus', 'Pyruvate', 'Regional geography', 'Riboflavin', 'Ribosomal RNA', 'Ribosomes', 'Salmon', 'Schizophrenia', 'Sciatic nerves', 'Sex determination', 'Sexual reproduction', 'Sharks', 'Skeletal muscles', 'Skin physiology', 'Skin tumors', 'Slavic people', 'Slovakian people', 'Smoking legislation', 'Smooth muscle cells', 'Social security system', 'Sociology', 'Soil ecology', 'Soil salinity', 'Soil-transmitted helminthiases', 'Soleus muscles', 'Spermatogonia', 'Sperm head', 'Stem cells', 'Stem cell therapy', 'Systole', 'Systolic pressure', 'Tanzania', 'Taxes', 'Tissue engineering', 'Tobacco', 'Toddlers', 'Transfer RNA', 'Triceps', 'Trichomes', 'Tyrosine kinases', 'Tyrosine', 'Ubiquitin ligases', 'Uric acid', 'Veterinary diseases', 'Viable cell counting', 'Vitamin A', 'Vitamins', 'War and civil unrest', 'White blood cells', 'Wildfires', 'Xylose', 'Zebrafish', 'Zebras', 'Zika virus', 'Adenosine triphosphatase', 'African American people', 'Agricultural irrigation', 'Airports', 'Altruistic behavior', 'Amhara people', 'Anesthesia', 'Aneurysms', 'Animal antennae', 'Animal behavior', 'Animal migration', 'Animal models', 'Animal wings', 'Aquaculture', 'Asthma', 'Atherosclerosis', 'Bacterial biofilms', 'Bacteria', 'Bioenergetics', 'Biological data management', 'Blood counts', 'Bone and mineral metabolism', 'Breast tissue', 'Cannabinoids', 'Cannabis', 'Cardiac atria', 'Cardiomyopathies', 'Cardiovascular imaging', 'Cognitive impairment', 'Cognitive science']
 boring += ['Dengue virus', 'Depolarization', 'DNA', 'DNA transcription', 'Drug-drug interactions', 'Drug research and development', 'Dutch people', 'Ebola virus', 'Echocardiography', 'Economic agents', 'Economic analysis', 'El Niño-Southern Oscillation', 'Enzyme assays', 'Enzyme-linked immunoassays', 'Epithelium', 'Ethnicities', 'Fisheries', 'Genetic networks', 'Health statistics', 'Hemodynamics', 'Hemoglobin', 'Heparin', 'Hepatocellular carcinoma', 'Histidine', 'HIV epidemiology', 'Inflammatory diseases', 'Kidney stones', 'Leaf veins', 'Malarial parasites', 'Malaria', 'Maternal mortality', 'Mitochondrial DNA', 'Mosquitoes', 'Moths and butterflies', 'Muscle analysis', 'Muscle cells', 'Muscle contraction', 'Muscular dystrophies', 'Musculoskeletal system', 'Non-small cell lung cancer', 'Parasitic diseases', 'Pediatric infections', 'Plant breeding', 'Plant pathogens', 'Plant pathology', 'Plants', 'Prefrontal cortex', 'Protein complexes', 'Protein translation', 'Psychology', 'Radiology and imaging', 'Respiratory analysis', 'Respiratory physiology', 'Retail', 'Retinal detachment', 'Sexual and gender issues', 'Smoking habits', 'Social welfare', 'Viral disease diagnosis', 'Vitamin E', 'Wildlife', 'Agriculture', 'Agronomy', 'Alcohol consumption', 'Alcohols', 'Antibody therapy', 'Antiretroviral therapy', 'Body mass index', 'Metabolomics', 'Psycholinguistics', 'Social sciences', 'Biometrics', 'Blood flow', 'Caenorhabditis elegans', 'Clinical trials', 'Crime', 'Health care', 'Traumatic brain injury', 'DNA structure', 'Mycobacterium tuberculosis', 'Osteoarthritis', 'Physiotherapy', 'Psychophysics', 'Cerebrospinal fluid', 'Wound healing', 'Protective clothing', 'Prosthetics', 'Electroencephalography', 'Traffic safety', 'Liver and spleen scan', 'Intracellular receptors', 'Amoebas', 'Beluga whales', 'Intracellular receptors', 'Linguistic morphology', 'Monsoons', 'Muscle fibers', 'Staphylococcus aureus', 'Surgeons', 'Microsurgery']
 boring += ['5-bisphosphate carboxylase oxygenase', 'Bladder', 'Blood plasma', 'Cataract surgery', 'Catheters', 'Ecological niches', 'Ecosystems', 'Herbivory', 'Horses', 'Larvae', 'Music perception', 'Oysters', 'Retina', 'Young adults']
-boring += ['Abdominal muscles', 'Adolescents', 'Agarose gel electrophoresis', 'Aquatic insects', 'Biocompatibility', 'Blood-brain barrier', 'Cell physiology', 'Epidermis', 'Fatty liver', 'Goldfish', 'Middle ear', 'Plant fossils', 'Plant-herbivore interactions', 'Plant hormones', 'Plant physiology', 'Trachea']
+boring += ['Abdominal muscles', 'Adolescents', 'Agarose gel electrophoresis', 'Aquatic insects', 'Biocompatibility', 'Blood-brain barrier', 'Cell physiology', 'Epidermis', 'Fatty liver', 'Goldfish', 'Middle ear', 'Plant fossils', 'Plant-herbivore interactions', 'Plant hormones', 'Plant physiology', 'Trachea', 'Ophthalmology', 'Urology', 'Theoretical biology', 'Evolutionary genetics', 'Evolutionary immunology', 'Birds', 'Caribbean', 'Coral reefs', 'Employment', 'Eye movements', 'Hearing', 'Marketing', 'Phylogenetic analysis', 'Phylogeography', 'Rabbits', 'Surface water', 'Swine', 'T cell receptors', 'Team behavior', 'Tuberculosis', 'Wolves']
 
 
 prerecs = []
@@ -56,24 +50,25 @@ now = datetime.datetime.now()
 startdate = now + datetime.timedelta(days=-daystocheck)
 startstamp = '%4d-%02d-%02d' % (startdate.year, startdate.month, startdate.day)
 i = 0
-for qiskeyword in ["quantum computing", "quantum computer", "qubit", "quantum information", "quantum algorithm", "qudit",
-                   "variational quantum", "quantum circuit", "quantum device", "quantum sensing", "quantum sensor",
-                   "quantum communication", "quantum error correction", "quantum key distribution",
-                   "quantum photonic integrated circuits", 'IBMQ', 'Qiskit', 'noisy intermediate-scale quantum', 'transmon']:
+qiskeywords = ["quantum computing", "quantum computer", "qubit", "quantum information", "quantum algorithm", "qudit",
+               "variational quantum", "quantum circuit", "quantum device", "quantum sensing", "quantum sensor",
+               "quantum communication", "quantum error correction", "quantum key distribution",
+               "quantum photonic integrated circuits", 'IBMQ', 'Qiskit', 'noisy intermediate-scale quantum', 'transmon']
+for qiskeyword in qiskeywords:
     i += 1
 #    tocurl = 'https://journals.plos.org/plosone/search?unformattedQuery=abstract%3A%22%22' + qiskeyword + '%22%22&q=abstract%3A%22%22' + qiskeyword + '%22%22&sortOrder=DATE_NEWEST_FIRST&utm_content=b&utm_campaign=ENG-467'
     apiurl = 'https://api.plos.org/search?q=' + wheretosearch + ':%22' + qiskeyword + '%22%20and%20journal:%22PLoS%20ONE%22%20and%20publication_date:[' + startstamp + 'T00:00:00Z%20TO%20' + ejlmod3.stampoftoday() + 'T23:59:59Z]&fl=id,publication_date&rows=' + str(rpp) + '&wt=xml'
-    ejlmod3.printprogress('=', [[i, len(qiskeyword), qiskeyword], [apiurl]])
+    ejlmod3.printprogress('=', [[i, len(qiskeywords), qiskeyword], [apiurl]])
     driver.get(apiurl)
     apipages = [BeautifulSoup(driver.page_source, features="lxml")]
     time.sleep(random.randint(10,15))
     for result in apipages[0].find_all('result'):
         numfound = int(result['numfound'])
-        pages = (numfound-1)//rpp + 1
+        pages = (numfound-1)//rpp + 1 
         print('   numfound = ', numfound)
         for page in range(pages-1):
             nexturl = apiurl + '&start=' + str(1+rpp*(page+1))
-            ejlmod3.printprogress('=', [[i, len(qiskeyword), qiskeyword], [page+1, pages], [nexturl]])
+            ejlmod3.printprogress('=', [[i, len(qiskeywords), qiskeyword], [page+1, pages], [nexturl]])
             driver.get(nexturl)
             apipages.append(BeautifulSoup(driver.page_source, features="lxml"))
             time.sleep(random.randint(10,15))
@@ -86,7 +81,8 @@ for qiskeyword in ["quantum computing", "quantum computer", "qubit", "quantum in
                 rec['date'] = date.text
             if not rec['doi'] in dois and ejlmod3.checkinterestingDOI(rec['doi']):
                 dois.append(rec['doi'])
-                prerecs.append(rec)
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    prerecs.append(rec)
         print('   %4i records so far' % (len(prerecs)))
 
 baseurls = []
@@ -128,13 +124,15 @@ for (sec, baseurl, pages, fc) in baseurls:
                     newdois.append(rec['doi'])
                     if not rec['doi'] in dois and ejlmod3.checkinterestingDOI(rec['doi']):
                         dois.append(rec['doi'])
-                        prerecs.append(rec)
+                        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                            prerecs.append(rec)
         print('   %4i records so far' % (len(prerecs)))
         if not newdois:
             break
         time.sleep(random.randint(3,7))
 
 recs = []
+actualchunk = []
 for (i, rec) in enumerate(prerecs):
     keepit = True
     arturl = 'https://journals.plos.org/plosone/article?id=' + rec['doi']
@@ -175,13 +173,17 @@ for (i, rec) in enumerate(prerecs):
     time.sleep(random.randint(4,8))
     if keepit:
         ejlmod3.printrecsummary(rec)
-        recs.append(rec)        
+        recs.append(rec)
+        actualchunk.append(rec)
+        if len(actualchunk) == chunksize:
+            jnlfilename = 'plosone_%s_%03i' % (ejlmod3.stampoftoday(), len(recs)//chunksize)
+            ejlmod3.writenewXML(actualchunk, publisher, jnlfilename)
+            actualchunk = []
     else:
-        ejlmod3.adduninterestingDOI(rec['doi'])    
+        ejlmod3.adduninterestingDOI(rec['doi'])
 
-numofchunks = (len(recs)-1) // chunksize + 1
-for chunk in range(numofchunks):
-    jnlfilename = 'plosone_%s_%03i' % (ejlmod3.stampoftoday(), chunk+1)
-    ejlmod3.writenewXML(recs[chunk*chunksize:(chunk+1)*chunksize], publisher, jnlfilename')
+if actualchunk:
+    jnlfilename = 'plosone_%s_%03i' % (ejlmod3.stampoftoday(), len(recs)//chunksize+1)
+    ejlmod3.writenewXML(actualchunk, publisher, jnlfilename)
 
 driver.quit()
