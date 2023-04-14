@@ -406,7 +406,7 @@ def writeXML(recs,dokfile,publisher):
                             lang = languages.get(part3=rec['language']).name
                         except:
                             lang = False
-            else:                
+            else:
                 lang = rec['language']
             if lang:
                 if not lang in ['English', u'Inglês', 'eng', 'Inglese', 'Anglais', 'english', 'Inglés', 'Undefined/Unknown']:
@@ -571,7 +571,7 @@ def writeXML(recs,dokfile,publisher):
                 liste.append(('c',rec['p1p22']))
             if 'vol2' in rec: liste.append(('v',rec['vol2']))
             if 'issue2' in rec: liste.append(('n',rec['issue2']))
-            if 'cnum' in rec: 
+            if 'cnum' in rec:
                 if re.search('^C\d\d\-\d\d\-\d\d$', rec['cnum']) or re.search('^C\d\d\-\d\d\-\d\d\.\d+$',rec['cnum']):
                     liste.append(('w',rec['cnum']))
                 else:
@@ -693,7 +693,7 @@ def writeXML(recs,dokfile,publisher):
                 if re.search('%', rec['FFT']):
                     xmlstring += marcxml('FFT',[('a', rec['FFT']), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
                 else:
-                    xmlstring += marcxml('FFT',[('a', urllib.parse.quote(rec['FFT'], safe='/:=?&')), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])                    
+                    xmlstring += marcxml('FFT',[('a', urllib.parse.quote(rec['FFT'], safe='/:=?&')), ('d','Fulltext'), ('t','INSPIRE-PUBLIC')])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['FFT']))])
         elif 'hidden' in rec:
@@ -994,7 +994,7 @@ def writeXML(recs,dokfile,publisher):
             if 'note' in rec:
                 rec['note'] += rec['notes']
             else:
-                rec['note'] = rec['note']                
+                rec['note'] = rec['notes']
         if 'note' in rec:
             if not 'fc' in rec:
                 for comment in rec['note']:
@@ -1505,7 +1505,7 @@ def metatagcheck(rec, artpage, listoftags):
                              'dcterms.title', 'eprints.title_name']:
                     rec['tit'] = meta['content']
                     done.append(tag)
-                elif tag in ['DC.Title.Alternative']:
+                elif tag in ['DC.Title.Alternative', 'DCTERMS.alternative']:
                     if 'otits' in rec:
                         rec['otits'].append(meta['content'])
                     else:
@@ -1536,7 +1536,7 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                     elif re.search('\d\d', meta['content']):
                         rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', meta['content'])
-                        done.append(tag)                
+                        done.append(tag)
                 elif tag in ['citation_year', 'Citation_Year']:
                     rec['year'] = meta['content']
                     done.append(tag)
@@ -1579,7 +1579,7 @@ def metatagcheck(rec, artpage, listoftags):
                     reference = [('x', meta['content'])]
                     if re.search('citation_.*=.*citation_.*=', meta['content']):
                         (pbnjt, pbnv, pbnfp, pbnlp) = ('', '', '', '')
-                        for part in re.split('; *citation_', re.sub('^citation_', '',  meta['content'])):                        
+                        for part in re.split('; *citation_', re.sub('^citation_', '',  meta['content'])):
                             pparts = re.split(' *=', part)
                             key = pparts[0]
                             val = '='.join(pparts[1:])
@@ -1618,7 +1618,7 @@ def metatagcheck(rec, artpage, listoftags):
                                 if pbnlp:
                                     pbn += '-' + pbnlp
                             if pbn:
-                                reference.append(('s', pbn))                               
+                                reference.append(('s', pbn))
                     if 'refs' in rec:
                         rec['refs'].append(reference)
                     else:
@@ -1630,7 +1630,7 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec[tag] = ['%s:::%s' % (tag, meta['content'])]
                     done.append(tag)
-                    
+
     #abstract (if theere are several in different languages)
     if len(abstracts.keys()) == 1:
         for lang in abstracts:
@@ -1797,13 +1797,13 @@ for ordner in ['/afs/desy.de/user/l/library/proc', '/afs/desy.de/user/l/library/
     grepout = os.popen("grep 'http.*:\/\/' %s/th*y|sed 's/\.py.*http.*\/\//;;;/'" % (ordner)).read()
     for line in re.split('\n', grepout):
         if re.search(';;;', line):
-            parts = re.split(';;;', line)            
+            parts = re.split(';;;', line)
             program = re.sub('.*\/', '', parts[0])
             url = getbaseurl(parts[1])
             if url and not url in dedicated:
                 if re.search('\.', url) and not url in ['doi.org', 'creativecommons.org']:
                     dedicated[url] = program
-                    #print('%-30s %s' % (program, url))                
+                    #print('%-30s %s' % (program, url))
 def dedicatedharvesterexists(url):
     if url[:4] == 'http':
         url = getbaseurl(url)
