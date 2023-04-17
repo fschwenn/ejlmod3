@@ -1475,7 +1475,7 @@ def metatagcheck(rec, artpage, listoftags):
                     else:
                         rec['supervisor'] = [[sv]]
                     done.append(tag)
-                elif tag in ['eprints.thesis_advisor_orcid']:
+                elif tag in ['eprints.thesis_advisor_orcid', 'eprints.supervisors_orcid']:
                     rec['supervisor'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
                     done.append(tag)
                 elif tag in ['eprints.thesis_advisor_email', 'eprints.supervisor_id']:
@@ -1705,15 +1705,19 @@ def addtoooldDOI(doi):
 
 
 #standard DSPace
-def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-description', alreadyharvested=[]):
+def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-description', alreadyharvested=[], boringdegrees=[]):
     rehdl = re.compile('.*handle\/')
     reyear = re.compile('.*([12]\d\d\d).*')
     redegree = re.compile('rft.degree=')
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
-    boringdegrees = ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
-                     'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s',
-                     'Masters', 'Mgr.', 'Bc.', 'RNDr.', 'Doctor+of+Musical+Arts']
+    boringdegrees += ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
+                      'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s',
+                      'Masters', 'Mgr.', 'Bc.', 'RNDr.', 'Doctor+of+Musical+Arts', 'Master+of+Arts+%28M.A.%29',
+                      'Master+of+Education+%28M.Ed.%29', 'Master+of+Environment+and+Sustainability+%28M.E.S.%29',
+                      'Master+of+Fine+Arts+%28M.F.A.%29', 'Master+of+Laws+%28LL.M.%29', 'Master+of+Nursing+%28M.N.%29',
+                      'Master+of+Public+Health+%28M.P.H.%29', 'Master+of+Science+%28M.Sc.%29',
+                      'Master+of+Veterinary+Science+%28M.Vet.Sc.%29', 'MS', 'MFA', 'MA']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
