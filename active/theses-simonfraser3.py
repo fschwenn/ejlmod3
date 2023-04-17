@@ -19,7 +19,10 @@ recs = []
 prerecs = []
 jnlfilename = 'THESES-SIMONFRASER-%s' % (ejlmod3.stampoftoday())
 pages = 1
+skipalreadyharvested = True
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 for (dep, fc, aff) in [('30012', 'c', publisher), ('30034', 'm', publisher), ('30038', '', 'Simon Fraser U.')]:
     for page in range(pages):
@@ -34,7 +37,8 @@ for (dep, fc, aff) in [('30012', 'c', publisher), ('30034', 'm', publisher), ('3
                 rec['doi'] = '20.2000/SimonFraser' + a['href']
                 if fc: rec['fc'] = fc
                 if ejlmod3.checkinterestingDOI(rec['doi']):
-                    prerecs.append(rec)
+                    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                        prerecs.append(rec)
 
 i = 0
 for rec in prerecs:
