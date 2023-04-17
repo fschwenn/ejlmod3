@@ -11,7 +11,7 @@ import ejlmod3
 import time
 
 ejldir = '/afs/desy.de/user/l/library/dok/ejl'
-pagemax = 2+3
+pagemax = 2+3-3
 years = 2*10
 
 journals = {'arima' : {'publisher' : 'African Society in Digital Science',
@@ -95,7 +95,7 @@ for (k, journal) in enumerate(journals):
         time.sleep(5)
 
 ouf = open('episciences.log', 'w')
-reconf = re.compile('(orkshop|chool|roceedings|olloquium)')
+reconf = re.compile('(orkshop|chool|roceedings|olloquium|onference)')
 #harvest individual volumes
 for (i, journal, jnlfilename, tocurl) in todo:
     ejlmod3.printprogress('=', [[i, len(todo)], [tocurl]])
@@ -134,12 +134,12 @@ for (i, journal, jnlfilename, tocurl) in todo:
                 rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', pbn)
             if re.search('olume (\d+)', pbn):
                 rec['vol'] = re.sub('.*olume (\d+).*', r'\1', pbn)
-            elif re.search('[vV]ol\. *\d:\d+', pbn):
-                rec['vol'] = re.sub('.*[vV]o\. *(d+).*', r'\1', pbn)
-                rec['issue'] = re.sub('[vV]ol\. *\d:(\d+).*', r'\1', pbn)
-            elif re.search('[Vv]ol\. *\d,? no. \d+', pbn):
-                rec['vol'] = re.sub('.*[vV]o\. *(d+).*', r'\1', pbn)
-                rec['issue'] = re.sub('[vV]ol\. *\d+,? no. (\d+).*', r'\1', pbn)
+            elif re.search('[vV]ol\. *\d+:\d+', pbn):
+                rec['vol'] = re.sub('.*[vV]ol\. *(d+).*', r'\1', pbn)
+                rec['issue'] = re.sub('.*[vV]ol\. *\d+:(\d+).*', r'\1', pbn)
+            elif re.search('[Vv]ol\. *\d+,? *no\.? *\d+', pbn):
+                rec['vol'] = re.sub('.*[vV]ol\. *(\d+).*', r'\1', pbn)
+                rec['issue'] = re.sub('.*[vV]ol\. *\d+,? *no\.? *(\d+).*', r'\1', pbn)
             if re.search('ssue (\d+)', pbn):
                 rec['issue'] = re.sub('.*ssue (\d+).*', r'\1', pbn)
             if reconf.search(pbn) or reconf.search(volname):
@@ -150,8 +150,13 @@ for (i, journal, jnlfilename, tocurl) in todo:
                 #print('[%s] -> C' % (volname))
 
         #haendisch
-        if journal == 'arima' and 'vol' in rec and rec['vol'] in ['11', '13', '14', '6', '8']:
+        if journal == 'arima' and 'vol' in rec and rec['vol'] in ['11', '13', '14', '6', '8',    '3', '5', '9']:
             rec['tc'] = 'C'
+        elif journal == 'dmtcs' and 'vol' in rec and 'issue' in rec:
+            if rec['vol'] == '22' and rec['issue'] == '3':
+                rec['tc'] = 'C'
+            elif rec['vol'] == '19' and rec['issue'] == '4':
+                rec['tc'] = 'C'
         #source
         for div in artpage.body.find_all('div', attrs = {'class' : 'small'}):
             if re.search('Source *:', div.text):
