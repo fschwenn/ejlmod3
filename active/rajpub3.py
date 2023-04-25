@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/python
 #program to harvest Khalsa Publications
 # FS 2022-09-29
 
@@ -15,6 +14,7 @@ publisher = 'Khalsa Publications'
 
 jnl = sys.argv[1]
 issuenumber = sys.argv[2]
+skipalreadyharvested = True
 
 if jnl == 'jap':
     jnlname = 'J.Adv.Phys.'
@@ -29,18 +29,22 @@ except:
     time.sleep(180)
     tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
 
-recs = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnl)
+
+prerecs = []
 for div in tocpage.find_all('h3', attrs = {'class' : 'title'}):
     for a in div.find_all('a'):
         rec = {'jnl': jnlname, 'tc' : 'P', 'autaff' : [], 'keyw' : []}
         rec['tit'] = a.text.strip()
         rec['artlink'] = a['href']
-        recs.append(rec)
+        prerecs.append(rec)
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         time.sleep(3)
@@ -59,8 +63,10 @@ for rec in recs:
                 br.replace_with('_TRENNER_')
             div2t = re.sub('\. *\[(\d+)\] ', r'._TRENNER_[\1] ', div2.text)
             for ref in re.split('_TRENNER_', div2t):
-                rec['refs'].append([('x', ref)])    
-    ejlmod3.printrecsummary(rec)
+                rec['refs'].append([('x', ref)])
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        recs.append(rec)
+        ejlmod3.printrecsummary(rec)
 
 if 'issue' in rec:
     jnlfilename = '%s%s.%s_%s' % (jnl, rec['vol'], rec['issue'], ejlmod3.stampoftoday())
