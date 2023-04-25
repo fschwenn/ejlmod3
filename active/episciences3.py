@@ -11,8 +11,8 @@ import ejlmod3
 import time
 
 ejldir = '/afs/desy.de/user/l/library/dok/ejl'
-pagemax = 2+3-3
-years = 2*10
+pagemax = 2
+years = 2
 
 journals = {'arima' : {'publisher' : 'African Society in Digital Science',
                        'jnl' : 'ARIMA',
@@ -148,15 +148,6 @@ for (i, journal, jnlfilename, tocurl) in todo:
             elif reconfname.search(pbn) or reconfname.search(volname):
                 rec['tc'] = 'C'
                 #print('[%s] -> C' % (volname))
-
-        #haendisch
-        if journal == 'arima' and 'vol' in rec and rec['vol'] in ['11', '13', '14', '6', '8',    '3', '5', '9']:
-            rec['tc'] = 'C'
-        elif journal == 'dmtcs' and 'vol' in rec and 'issue' in rec:
-            if rec['vol'] == '22' and rec['issue'] == '3':
-                rec['tc'] = 'C'
-            elif rec['vol'] == '19' and rec['issue'] == '4':
-                rec['tc'] = 'C'
         #source
         for div in artpage.body.find_all('div', attrs = {'class' : 'small'}):
             if re.search('Source *:', div.text):
@@ -176,7 +167,7 @@ for (i, journal, jnlfilename, tocurl) in todo:
             break
         time.sleep(5)
     if not tooold:
-        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+        ejlmod3.writenewXML(recs, publisher, jnlfilename)
     time.sleep(60)
 ouf.close()
             
