@@ -10,14 +10,18 @@ import re
 import ejlmod3
 import time
 
+pages = 5
+skipalreadyharvested = True
 
 publisher = 'Cardiff U.'
+jnlfilename = 'THESES-CARDIDFF-%s' % (ejlmod3.stampoftoday())
 
 hdr = {'User-Agent' : 'Magic Browser'}
-jnlfilename = 'THESES-CARDIDFF-%s' % (ejlmod3.stampoftoday())
 recs = []
 
-pages = 5
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 for page in range(pages):
     tocurl = 'https://orca.cardiff.ac.uk/cgi/search/archive/advanced?exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Csubjects%3Asubjects%3AANY%3AEQ%3AQ1+QA+QB+QC%7Ctype%3Atype%3AANY%3AEQ%3Athesis%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&_action_search=1&order=-date%2Fcreators_name%2Ftitle&screen=Search&cache=15457074&search_offset=' + str(page*20)
 
@@ -31,7 +35,9 @@ for page in range(pages):
                 rec['link'] = a['href']
                 rec['tit'] = a.text.strip()
                 rec['doi'] = '20.2000/Cardiff/'+re.sub('\D', '', a['href'])
-                recs.append(rec)
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    recs.append(rec)
+    print('  %4i records so far' % (len(recs)))
     time.sleep(5)
 
 i = 0
