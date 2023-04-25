@@ -9,9 +9,9 @@ import re
 import sys
 import unicodedata
 import string
-import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
 
 
 tmpdir = '/tmp'
@@ -66,23 +66,33 @@ def fsunwrap(tag):
         print('    fsunwrap-form-problem')
     return tag
 
-tocfile = '/tmp/%s.toc' % (jnlfilename)
-if not os.path.isfile(tocfile):
-    print(toclink)
-    os.system('wget -q -O %s "%s"' % (tocfile, toclink))
-inf = open(tocfile, 'r')
-toc = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-inf.close()
+#tocfile = '/tmp/%s.toc' % (jnlfilename)
+#if not os.path.isfile(tocfile):
+#    print(toclink)
+#    os.system('wget -q -O %s "%s"' % (tocfile, toclink))
+#inf = open(tocfile, 'r')
+#toc = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+#inf.close()
+options = uc.ChromeOptions()
+options.add_argument('--headless')
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+print(toclink)
+driver.get(toclink)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
+time.sleep(3)
 
 #check licence
 licenseurl =False
-for a in toc.body.find_all('a'):
+for a in tocpage.body.find_all('a'):
     if a.has_attr('href') and re.search('creativecommons.org', a['href']):
         licenseurl = a['href']
 
 recs = []
 (noteA, noteB) = ('', '')
-for tag in toc.body.find_all():
+for tag in tocpage.body.find_all():
     if tag.name == 'h2' and tag.has_attr('class') and tag['class'] == ['header-bar', 'header-dark-gray', 'no-corner', 'clear', 'subject']:
         noteA = tag.text
         ejlmod3.printprogress('=', [[noteA]])
@@ -120,14 +130,17 @@ for tag in toc.body.find_all():
                         rec['FFT'] = '%s/doi/pdf/%s' % (urltrunc, rec['doi'])
             rec['p1'] = re.sub('.*\.', '', rec['doi'])\
             #check abstract page
-            absfile = '/tmp/%s.abs' % (re.sub('\/', '_', rec['doi']))
-            if not os.path.isfile(absfile):
-                time.sleep(23)
-                os.system('wget -q -O %s "%s"' % (absfile, abslink))
-                print('     wget', abslink)
-            inf = open(absfile, 'r')
-            abspage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-            inf.close()
+            #absfile = '/tmp/%s.abs' % (re.sub('\/', '_', rec['doi']))
+            #if not os.path.isfile(absfile):
+            #    time.sleep(23)
+            #    os.system('wget -q -O %s "%s"' % (absfile, abslink))
+            #    print('     wget', abslink)
+            #inf = open(absfile, 'r')
+            #abspage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+            #inf.close()
+            driver.get(abslink)
+            abspage = BeautifulSoup(driver.page_source, features='lxml')
+            time.sleep(5)
             #abstract
             for div in abspage.body.find_all('div', attrs = {'class' : 'NLM_abstract'}):
                 for p in div.find_all('p'):
@@ -189,13 +202,17 @@ for tag in toc.body.find_all():
             #if jnl == 'jpsj':
             if True:
                 reffile = '/tmp/%s.ref' % (re.sub('\/', '_', rec['doi']))
-                if not os.path.isfile(reffile):
-                    time.sleep(23)
-                    os.system('wget -q -O %s "%s"' % (reffile, reflink))
-                    print('     wget', reflink)
-                inf = open(reffile, 'r')
-                ref = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-                inf.close()
+                #if not os.path.isfile(reffile):
+                #    time.sleep(23)
+                #    os.system('wget -q -O %s "%s"' % (reffile, reflink))
+                #    print('     wget', reflink)
+                #inf = open(reffile, 'r')
+                #ref = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+                #inf.close()
+                ejlmod3.printprogress(' ', [[reflink]])
+                driver.get(reflink)
+                ref = BeautifulSoup(driver.page_source, features="lxml")
+                time.sleep(5)
                 for li in ref.find_all('li'):                
                     if li.has_attr('id'):
                         iref = [('o', li['id'])]
