@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 lastyear = ejlmod3.year(backwards=1)
 llastyear = ejlmod3.year(backwards=2)
+skipalreadyharvested = True
 
 
 ejldir = '/afs/desy.de/user/l/library/dok/ejl'
@@ -68,11 +69,14 @@ def tryeucllidnumber(rec):
                     print('   ->', euclid)          
     return 
 
-recs = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('projecteuclid')
+
+prerecs = []
 if jnl in list(journals.keys()):
     publisher = journals[jnl][1]
     jnlname = journals[jnl][0]
-    jnlfilename = 'projecteuclid_%s%s.%s' % (jnl, vol, iss)
+    jnlfilename = 'projecteuclid_%s%s.%s_%s' % (jnl, vol, iss, ejlmod3.stampoftoday())
     tocurl = 'https://projecteuclid.org/journals/%s/volume-%s/issue-%s' % (journals[jnl][2], vol, iss)
     #tocurl = 'https://projecteuclid.org/proceedings/geometry-integrability-and-quantization/Proceedings-of-the-Twenty-Second-International-Conference-on-Geometry-Integrability/toc/10.7546/giq-22-2021' #C20-06-08.6
     print('={ %s }={ %s }=' % (jnlname, tocurl))
@@ -92,14 +96,16 @@ if jnl in list(journals.keys()):
                     rec['tit'] = span.text.strip()
                     if not rec['tit'] in ['Editorial Board', 'Table of Contents',
                                           'Front Matter', 'Back Matter', 'Preface']:
-                        recs.append(rec)
+                        prerecs.append(rec)
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']), features="lxml")
+        time.sleep(2)
     except:
         print("retry '%s' in 180 seconds" % (rec['artlink']))
         time.sleep(180)
@@ -133,7 +139,9 @@ for rec in recs:
             for li2 in li.find_all('li', attrs = {'class' : 'googleScholar'}):
                 li2.decompose()
             rec['refs'].append([('x', re.sub('[\n\t\r]', ' ', li.text.strip()))])
-    ejlmod3.printrecsummary(rec)
-    tryeucllidnumber(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        tryeucllidnumber(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
