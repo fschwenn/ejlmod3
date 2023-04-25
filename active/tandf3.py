@@ -109,7 +109,7 @@ for adoi in page.body.find_all('a'):
     prerecs.append(rec)
 recs = []
 for (i, rec) in enumerate(prerecs):
-    time.sleep(random.randint(60,200))
+    time.sleep(random.randint(30,170))
     ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['doi']]])
     try:
         #driver.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi']))
