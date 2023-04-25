@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/python
 #program to harvest Andromeda-journals
 # FS 2015-02-11
 # FS 2022-09-29
@@ -15,11 +14,12 @@ import time
 pdfdir = '/afs/desy.de/group/library/publisherdata/pdf'
 tmpdir = '/tmp'
 
-publisher = 'Andromda'
+publisher = 'Andromeda'
 typecode = 'P'
 
 jnl = sys.argv[1]
 issuenumber = sys.argv[2]
+skipalreadyharvested = True
 
 if jnl == 'lhep':
     jnlname = 'LHEP'
@@ -35,6 +35,9 @@ elif jnl == 'acp':
     tocurl = ' http://main.andromedapublisher.com/ACP/' + issuenumber
     typecode = 'C'
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnl)
+
 print(tocurl)
 try:
     tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
@@ -44,20 +47,20 @@ except:
     time.sleep(180)
     tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
 
-recs = []
+prerecs = []
 for div in tocpage.find_all('div', attrs = {'class' : 'title'}):
     for a in div.find_all('a'):
         rec = {'jnl': jnlname, 'tc' : typecode, 'autaff' : [], 'keyw' : []}
         rec['tit'] = a.text.strip()
         rec['artlink'] = a['href']
-        recs.append(rec)
+        prerecs.append(rec)
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
-        print(rec['artlink'])
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         time.sleep(3)
     except:
@@ -96,7 +99,9 @@ for rec in recs:
                 rec['doi'] = re.sub(' .*', '', rec['doi'])
                 os.system('cp /tmp/%s.%s.%i.pdf %s/10.31526/%s' % (rec['jnl'], ejlmod3.stampoftoday() ,i, pdfdir, re.sub('\/', '_', rec['doi'])))
         inf.close()
-    ejlmod3.printrecsummary(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 
 if recs:
