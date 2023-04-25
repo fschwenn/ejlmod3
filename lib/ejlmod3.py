@@ -1028,7 +1028,7 @@ def writeXML(recs,dokfile,publisher):
                 rec['fc'] = ''
             for fc in jnltofc[rec['jnl']]:
                 print('  FC:', rec['jnl'], fc)
-                if not fc in ['fc']:
+                if not fc in rec['fc']:
                     rec['fc'] += fc
         if 'fc' in rec:
             for fc in rec['fc']:
@@ -1516,7 +1516,8 @@ def metatagcheck(rec, artpage, listoftags):
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
                              'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued',
-                             'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum']:
+                             'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum',
+                             'DC.Date.Creation_of_intellectual_content']:
                     rec['date'] = meta['content']
                     done.append(tag)
                 #pubnote
@@ -1708,7 +1709,7 @@ def addtoooldDOI(doi):
 def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-description', alreadyharvested=[], boringdegrees=[]):
     rehdl = re.compile('.*handle\/')
     reyear = re.compile('.*([12]\d\d\d).*')
-    redegree = re.compile('rft.degree=')
+    redegree = re.compile('.*rft.degree=')
     redate = re.compile('rft.date=')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     boringdegrees += ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
@@ -1742,7 +1743,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     rec['degrees'] = []
                     for info in rec['infos']:
                         if redegree.search(info):
-                            degree = redegree.sub('', info)
+                            degree = redegree.sub('', re.sub('[\n\t\r]', '', info)).strip()
                             if degree in boringdegrees:
                                 keepit = False
                             elif degree == 'Computer+Science':
