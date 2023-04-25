@@ -335,12 +335,12 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
             print('  skip %s' % (note))
             continue
         try:
-            time.sleep(27)
+            time.sleep(37)
             req = urllib.request.Request(artlink, headers=hdr)
             page = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
         except:
-            print("retry in 180 seconds")
-            time.sleep(180)
+            print("retry in 280 seconds")
+            time.sleep(280)
             req = urllib.request.Request(artlink, headers=hdr)
             page = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
         rec = {'issue' : issue, 'vol' : vol, 'jnl' : jnlname, 'note' : [], 'tc' : typecode,
