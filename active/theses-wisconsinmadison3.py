@@ -14,7 +14,6 @@ jnlfilename = 'THESES-WISCONSINMADISON-%s' % (ejlmod3.stampoftoday())
 
 # Initialize webdriver
 options = uc.ChromeOptions()
-options.headless=True
 options.binary_location='/opt/google/chrome/google-chrome'
 #options.binary_location='/opt/google/chrome/chrome'
 options.add_argument('--headless')
@@ -25,7 +24,13 @@ driver = uc.Chrome(options=options)
 recs = []
 
 departments = [(5, 'Physics', '', 'Wisconsin U., Madison'),
-               (3, 'Mathematics', 'm', 'Wisconsin U., Madison, Math. Dept.')]
+               (3, 'Mathematics', 'm', 'Wisconsin U., Madison, Math. Dept.'),
+               (1, 'Statistics', 's', publisher),
+               (2, 'Computer+Sciences', 'c', publisher)]
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 def get_author(header):
     name, forename, author = header[0].find_all('span', attrs={'class', 'author'})[0].text.replace('\n', '').split(',')
@@ -35,6 +40,9 @@ def get_author(header):
 
 def get_sub_side(link, fc, aff):
     rec = {'keyw' : [], 'note' : []}
+    rec['doi'] = '20.2000/WisconsinMadison/' + re.sub('\W', '', link[31:])
+    if skipalreadyharvested and rec['doi'] in alreadyharvested:
+        return
     print("[" + link + "] --> Harvesting Data")
     driver.get(link)
     page_source = driver.page_source
@@ -70,7 +78,6 @@ def get_sub_side(link, fc, aff):
         rec['supervisor'] = [['']]
     rec['link'] = link
     rec['jnl'] = 'BOOK'
-    rec['doi'] = '20.2000/WisconsinMadison/' + re.sub('\W', '', link[31:])
     rec['tc'] = 'T'
 
     if fc:
