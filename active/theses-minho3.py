@@ -14,26 +14,43 @@ urllib3.disable_warnings()
 publisher = 'Minho U.'
 rpp = 50
 pages = 4
+skipalreadyharvested = True
+jnlfilename = 'THESES-MINHO-%s' % (ejlmod3.stampoftoday())
 
-reboring = re.compile('(Administração|Ambiental|Arqueologia|Arquitectura|Biologia|Biológica|Biological|Biológicas|Biology|Biomédica|Biomédicas|Celular|Células|Chemical|Civil|Clínica|Criança|Cultura|Curricular|Design|Educação|Educativa|Empresariais|Ensino|Escolar|Especial|Especialidade|Estratégica|Filosofia|Geografia|Geologia|Gestão|História|Humana|Infância|Infantil|Jurídicas|Lazer|Líderes|Linguagem|Linguística|Literatura|Marketing|Medicina|Molecular|Planeamento|Polímeros|Política|Políticas|Psicologia|Públicas|Química|Recreação|Regenerativa|Regional|Saúde|Social|Sociedade|Sociologia|Têxtil)')
+reboring = re.compile('(Administração|Ambiental|Arqueologia|Arquitectura|Biologia|Biológica|Biological|Biológicas|Biology|Biomédica|Biomédicas|Celular|Células|Chemical|Civil|Clínica|Criança|Cultura|Curricular|Design|Educação|Educativa|Empresariais|Ensino|Escolar|Especial|Especialidade|Estratégica|Filosofia|Geografia|Geologia|Gestão|História|Humana|Infância|Infantil|Jurídicas|Lazer|Líderes|Linguagem|Linguística|Literatura|Marketing|Medicina|Molecular|Planeamento|Polímeros|Política|Políticas|Psicologia|Públicas|Química|Recreação|Regenerativa|Regional|Saúde|Social|Sociedade|Sociologia|Têxtil|Diseases)')
 refcc = re.compile('(Computer Science|Informática|Informatics)')
 refcm = re.compile('(Matemática|Mathematics)')
 refcq = re.compile('Física')
 
 recs = []
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 def get_sub_site(url, session_var):
-    if ejlmod3.checkinterestingDOI(url):
+    if skipalreadyharvested and re.sub('.*handle\/', '', url) in alreadyharvested:
+        print('[%s] already in backup' % url)        
+        return
+    elif ejlmod3.checkinterestingDOI(url):
         print('[%s] --> Harvesting data' % url)
     else:
+        print('[%s] uninteresting' % url)        
         return
+        
     rec = {'tc': 'T', 'autaff': [], 'license': {}, 'keyw': [], 'link': url, 'jnl': 'BOOK', 'supervisor' : []}
+    try:
+        site_resp = session_var.get(url, verify=False)
 
-    site_resp = session_var.get(url, verify=False)
+        if site_resp.status_code != 200:
+            print('[%s] --> Error: Can\'t open page')
+            return
+    except:
+        sleep(20)
+        site_resp = session_var.get(url, verify=False)
 
-    if site_resp.status_code != 200:
-        print('[%s] --> Error: Can\'t open page')
-        return
+        if site_resp.status_code != 200:
+            print('[%s] --> Error: Can\'t open page')
+            return
 
     artpage = BeautifulSoup(site_resp.content.decode('utf-8'), 'lxml')
     ejlmod3.metatagcheck(rec, artpage, ['DC.date', 'DCTERMS.abstract', 'DC.subject', 'DC.title', 'citation_date',
@@ -103,6 +120,5 @@ for page in range(pages):
             if link.get('href').find('handle') != -1 and len(link.get('href')) <= 20:
                 get_sub_site('https://repositorium.sdum.uminho.pt{}'.format(link.get('href')), session)
 
-jnlfilename = 'THESES-MINHO-%s' % (ejlmod3.stampoftoday())
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
