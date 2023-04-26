@@ -275,7 +275,7 @@ def concert(rawrecs):
         #license
         for lic in wsprecord.find_all('license'):
             lict = lic.text.strip()
-            if re.search('CC', lict):
+            if re.search('CC\-BY', lict):
                 stat = re.sub('.*(CC.*\d).*', r'\1', lict)
                 stat = re.sub('\)', '', stat)
                 stat = re.sub(' ', '-', stat)
