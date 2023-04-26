@@ -1091,7 +1091,7 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Changes to the Editorial Board', 'Preface', 'Obituary', 'Foreword', 'Replies',
             'Editorial Board', 'Content', 'General Chair', 'Table of Content',
             'Alphabetical Index', 'Editorial Note', 'In Other Journals', 'Keynote Speeches',
-            'Workshops and Tutorials', 'Cover Page']
+            'Workshops and Tutorials', 'Cover Page', 'Plenary Panel']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
