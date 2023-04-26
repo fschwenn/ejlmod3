@@ -93,7 +93,7 @@ if skipalreadyharvested:
     filestosearch = '%s/*%s*doki ' % (dokidir, jnl)
     for i in range(3-1):
         filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, jnl)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep pubs.aip.org | sed 's/^_..//' | sed 's/..$//' " % (filestosearch))))
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep pubs.aip.org | sed 's/^I..//' | sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), jnl))
     if len(alreadyharvested) > 2:
         print('[%s, ..., %s]' % (alreadyharvested[0], alreadyharvested[-1]))
@@ -184,28 +184,32 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
         if child.name in ['h4', 'h3', 'h5', 'h6', 'h2']: 
             sections[child.name] = child.text.strip()
             lev = int(child.name[1])-2
-            print(lev*'#', child.text.strip())
-        elif child.name == 'section':
-            print('section')
+            print(lev*'#', sections[child.name])
+        elif child.name in ['section', 'div']:
             for child2 in child.contents:
                 if type(child2) == type(child):
+                    #print('~', child2.name)
                     if child2.name in ['h3', 'h4', 'h5', 'h6']:
-                        sections[child2.name] = child.text.strip()
+                        sections[child2.name] = child2.text.strip()
                         lev = int(child2.name[1])-2
-                        print(lev*'*', child2.text.strip())
+                        print(lev*'*', sections[child2.name])
                     elif child2.name in ['section', 'div']:
                         for h in child2.find_all('h5'):
                             if h.has_attr('data-level'):
                                 sections[h.name] = h.text.strip()
                                 lev = int(h.name[1])-2
-                                print(lev*'*', h.text.strip())
+                                print(lev*'@', sections[h.name])
                         for a in child2.find_all('a', attrs = {'class' : 'viewArticleLink'}):
                             href = 'https://pubs.aip.org' + a['href']
-                            print(' - ', href)
                             #articleID is not on indiviual article page (sic!)
                             p1 = re.sub('.*\/(\d\d+)\/.*', r'\1', href)
-                            tocheck.append((href, p1, sections.values()))
+                            if not skipalreadyharvested or not href in alreadyharvested:
+                                tocheck.append((href, p1, list(sections.values())))
+                                print(' + ', href)
+                            else:
+                                print(' - ', href)
 
+time.sleep(10)                                
 random.shuffle(tocheck)
 recs = []
 i = 0
@@ -214,11 +218,12 @@ for (href, p1, secs) in tocheck:
     if href in ['/doi/full/10.1063/1.5019809']:
         print('skip %s' % (href))
     else:
-        ejlmod3.printprogress('-', [[i, len(tocheck)], [href, p1]])
+        ejlmod3.printprogress('-', [[i, len(tocheck)], secs, [href, p1]])
         keepit = True
         for sec in secs:
-            if sec in ['From the Editor', "Readers' Forum", 'Issues and Events', 'Books',
-                       'New Products', 'Obituaries', 'Quick Study', 'Back Scatter']:
+            if sec.upper() in ['FROM THE EDITOR', "READERS' FORUM", 'ISSUES AND EVENTS', 'BOOKS',
+                               'NEW PRODUCTS', 'OBITUARIES', 'QUICK STUDY', 'BACK SCATTER',
+                               'BACK OF THE ENVELOPE', 'BOOK REVIEWS', 'READERS’ FORUM']:
                 print('     skip "%s"' % (sec))
                 keepit = False
         if keepit:
