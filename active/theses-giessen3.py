@@ -103,7 +103,7 @@ for rec in prerecs:
         recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
-    if i % 10 == 0:
+    if i % 5 == 0:
         ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
 
