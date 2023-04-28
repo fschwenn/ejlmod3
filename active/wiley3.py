@@ -15,11 +15,14 @@ import undetected_chromedriver as uc
 import random
 
 publisher = 'WILEY'
+
+skipalreadyharvested = True
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
 year = sys.argv[4]
 jnlfilename = re.sub('\/','-',jnl+vol+'.'+issue)
+donepath = '/afs/desy.de/group/library/publisherdata/wiley/done'
 #harvested vi desydoc
 if   (jnl == 'annphys'):
     issn = '1521-3889'
@@ -125,6 +128,12 @@ elif (jnl == 'mop'):
     jnlname = 'Microw.Opt.Technol.Lett.'
 
     
+if skipalreadyharvested:
+    alldois = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alldois = []
+
+
 #scraper = cloudscraper.create_scraper()
 host = os.uname()[1]
 if host == 'l00schwenn':
@@ -156,7 +165,6 @@ print(toclink)
 driver.get(toclink)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 prerecs = []
-alldois = []
 for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
     for h3 in div.find_all('h3'):
         tit = h3.text.strip()
@@ -313,5 +321,5 @@ for rec in prerecs:
         recs.append(rec)
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
-
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+        ejlmod3.writenewXML(recs, publisher, jnlfilename + '_' + ejlmod3.stampoftoday())
+os.system('touch %s/%s' % (donepath, jnlfilename))
