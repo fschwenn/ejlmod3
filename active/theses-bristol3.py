@@ -4,7 +4,6 @@
 
 import os
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
@@ -14,8 +13,10 @@ import time
 
 jnlfilename = 'THESES-BRISTOL-%s' % (ejlmod3.stampoftoday())
 
-years = [ejlmod3.year(), ejlmod3.year(1)]
+years = [ejlmod3.year(), ejlmod3.year(backwards=1)]
 rpp = 50
+skipalreadyharvested = True
+pages = 5
 publisher = 'Bristol U.'
 boringdeps = ['School of Geographical Sciences', 'Bristol Composites Institute (ACCIS)', 'Bristol Dental School',
               'Bristol Medical School (PHS)', 'Bristol Medical School', 'Bristol Medical School (THS)',
@@ -54,7 +55,8 @@ boringdeps = ['School of Geographical Sciences', 'Bristol Composites Institute (
               'Health Sciences Faculty Office', 'Transnational Modernisms Research Cluster',
               'School of Arts', 'School of Civil, Aerospace and Mechanical Engineering']
 
-
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
@@ -82,8 +84,11 @@ for year in years:
                     rec['link'] = a['href']
                     rec['tit'] = a.text.strip()
                     rec['doi'] = '20.2000/Bristol/' + re.sub('\W', '', a['href'])[41:]
-                    if ejlmod3.checkinterestingDOI(rec['doi']):
+                    if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                        print('  %s already in backup' % (rec['doi']))
+                    elif ejlmod3.checkinterestingDOI(rec['doi']):
                         prerecs.append(rec)
+        print('  %4i records so far'  % (len(prerecs)))
 
 i = 0
 recs = []
@@ -114,6 +119,10 @@ for rec in prerecs:
             rec['note'].append(dep)
             if re.search('Math', dep):
                 rec['fc'] = 'm'
+            elif dep == 'Quantum Engineering Centre for Doctoral Training (EPSRC)':
+                rec['fc'] = 'k'
+            elif dep == 'Department of Computer Science':
+                rec['fc'] = 'c'
     #author
     for ul in artpage.find_all('ul', attrs = {'class' : 'relations persons'}):
         rec['autaff'] = [[ ul.text.strip(), publisher ]]
