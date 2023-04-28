@@ -3,8 +3,6 @@ import os
 import ejlmod3
 import re
 import sys
-#import unicodedata
-#import string
 import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
@@ -316,6 +314,7 @@ filestodo = []
 
 ftp = FTP("ftp.wspc.com.sg")
 ftp.login("inspire", "Ins!539Ws%")
+ftp.cwd('journals')
 files = ftp.nlst()  #list of the zip.files
 numofskipped = 0
 for filename in files:
