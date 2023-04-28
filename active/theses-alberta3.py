@@ -12,7 +12,10 @@ import ejlmod3
 import time
 
 publisher = 'Alberta U.'
+jnlfilename = 'THESES-ALBERTA-%s' % (ejlmod3.stampoftoday())
+
 pages = 100
+skipalreadyharvested = True
 
 boringdegrees = ['Master of Science', 'Master of Arts/Master of Library and Information Studies',
                  'Master of Arts', 'Master of Education', 'Master of Nursing', 'Master of Laws',
@@ -78,7 +81,9 @@ boringdepartments = ['Department of Civil and Environmental Engineering',
                      'Medical Science - Shantou Biomedical Engineering',
                      'Medical Sciences-Radiology and Diagnostic Imaging']
 
-jnlfilename = 'THESES-ALBERTA-%s' % (ejlmod3.stampoftoday())
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 recs = []
@@ -164,8 +169,9 @@ for rec in prerecs:
                 rec['doi'] = '20.2000/Alberta/' + re.sub('.*items\/', '', rec['artlink'])
                 rec['link'] = rec['artlink']
             if not rec['doi'] in dois:
-                dois.append(rec['doi'])
-                ejlmod3.printrecsummary(rec)
-                recs.append(rec)
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    dois.append(rec['doi'])
+                    ejlmod3.printrecsummary(rec)
+                    recs.append(rec)
                 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
