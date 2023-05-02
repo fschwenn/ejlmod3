@@ -42,7 +42,7 @@ def get_records(url):
     try:
         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(url)
         pages = {url : BeautifulSoup(page, features="lxml")}
-        time.sleep(3)
+        time.sleep(7)
     except:
         print(('failed to open %s' % (url)))
         sys.exit(0)
@@ -97,13 +97,18 @@ def get_records(url):
     if len(numpag) > 0:
         if re.search('^\d+$', numpag[0].string):
             for i in range(int(numpag[0].string)):
-#                try:
-                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
-                    if not tocurl in list(pages.keys()):
-                        print(tocurl)
+                tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
+                if not tocurl in list(pages.keys()):
+                    print(tocurl)
+                    try:
                         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
                         pages[tocurl] = BeautifulSoup(page, features="lxml")
-                        time.sleep(3)
+                        time.sleep(7)
+                    except:
+                        time.sleep(20)
+                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
+                        pages[tocurl] = BeautifulSoup(page, features="lxml")
+                        time.sleep(10)
 #                except:
 #                    tocurl = '%s/page=%i' % (url, i+1) 
 #                    if not tocurl in list(pages.keys()):
@@ -124,7 +129,7 @@ def get_records(url):
                         print(tocurl)
                         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
                         pages[tocurl] = BeautifulSoup(page, features="lxml")
-                        time.sleep(3)
+                        time.sleep(10)
 #                except:
 #                    tocurl = '%s?page=%i' % (url, i+1)
 #                    if not tocurl in list(pages.keys()):
@@ -231,8 +236,14 @@ for rec in recs:
     if len(sys.argv) > 6:
         rec['fc'] = sys.argv[6]
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
-    artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
-    time.sleep(5)
+    try:
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        time.sleep(10)
+    except:
+        print('  wait 120s to try again')
+        time.sleep(120)
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        time.sleep(20)
     ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_lastpage', 'citation_doi', 'citation_author',
                                         'citation_author_institution', 'citation_author_email', 'citation_author_orcid',
                                         'description', 'dc.description', 'citation_cover_date'])
@@ -249,7 +260,7 @@ for rec in recs:
         abstract = ''
         for p in section.find_all('p'):
             abstract += p.text.strip() + ' '
-        if not 'abs' in list(rec.keys()) or len(abstract) > len(rec['abs']):
+        if not 'abs' in rec or len(abstract) > len(rec['abs']):
             rec['abs'] = abstract
     #Keywords
     for div in artpage.body.find_all('div', attrs = {'class' : 'KeywordGroup'}):
