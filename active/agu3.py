@@ -19,6 +19,7 @@ tc = 'P'
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
+skipalreadyharvested = True
 
 if   (jnl == 'jgrsp'):
     jnlname = 'J.Geophys.Res.Space Phys.'
@@ -60,9 +61,9 @@ else:
 if len(sys.argv) > 4:
     cnum = sys.argv[4]
     tc = 'C'
-    jnlfilename = '%s%s.%s_%s' % (jnl, vol, issue, cnum)
+    jnlfilename = '%s%s.%s_%s_%s' % (jnl, vol, issue, cnum, ejlmod3.stampoftoday())
 else:
-    jnlfilename = '%s%s.%s' % (jnl, vol, issue)
+    jnlfilename = '%s%s.%s_%s' % (jnl, vol, issue, ejlmod3.stampoftoday())
 
 print(toclink)
 #tocpage = BeautifulSoup(urllib2.build_opener(urllib2.HTTPCookieProcessor).open(toclink))
@@ -76,6 +77,8 @@ print(toclink)
 driver.get(toclink)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 (note1, note2) = (False, False)
 prerecs = []
@@ -113,8 +116,11 @@ for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items
                                 rec['note'].append(note1)
                             if note2:
                                 rec['note'].append(note2)
-                            print('    a)', rec['doi'])
-                            prerecs.append(rec)
+                            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                                print('    a)', rec['doi'])
+                                prerecs.append(rec)
+                            else:
+                                print('      ', rec['doi'])
                 elif child2.name == 'a':
                     if child2.has_attr('class') and ('issue-item__title' in child2['class'] or 'issue-item__title visitable' in child2['class']):
                         rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : issue, 'year' : '%i' % (int(vol)+1895),
@@ -128,8 +134,11 @@ for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items
                                 rec['note'].append(note1)
                             if note2:
                                 rec['note'].append(note2)
-                            print('    b)', rec['doi'])
-                            prerecs.append(rec)
+                            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                                print('    b)', rec['doi'])
+                                prerecs.append(rec)
+                            else:
+                                print('      ', rec['doi'])
 
 
 
@@ -159,6 +168,7 @@ for rec in prerecs:
                                         'citation_lastpage', 'citation_publication_date',
                                         'citation_author', 'citation_author_institution',
                                         'citation_author_orcid', 'citation_author_email'])
+    ejlmod3.globallicensesearch(rec, artpage)
     #articleID
     if not 'p1' in list(rec.keys()):
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
@@ -208,6 +218,5 @@ for rec in prerecs:
     else:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
-
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+        ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
