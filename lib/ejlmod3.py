@@ -910,7 +910,7 @@ def writeXML(recs,dokfile,publisher):
                 marc = '700'
         #REFERENCES
         if 'refs' in rec:
-            print(' extracting %i refs for record %i of %i' % (len(rec['refs']),i,len(recs)))
+            #print(' extracting %i refs for record %i of %i' % (len(rec['refs']),i,len(recs)))
             for ref in rec['refs']:
                 #print '  ->  ', ref
                 if len(ref) == 1 and ref[0][0] == 'xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX':
@@ -1092,7 +1092,7 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Editorial Board', 'Content', 'General Chair', 'Table of Content', 'Keynote',
             'Alphabetical Index', 'Editorial Note', 'In Other Journals', 'Keynote Speeches',
             'Workshops and Tutorials', 'Cover Page', 'Plenary Panel', 'Book Reviews',
-            'Half Title Page']
+            'Half Title Page', 'Plenary/Invited Speech']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1394,10 +1394,13 @@ def metatagcheck(rec, artpage, listoftags):
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract',
                            'eprints.abstract_name', 'dcterms.description']:
                     if len(meta['content']) > 12:
+                        abstract = re.sub('^ABSTRACT:?', '', meta['content'])                        
                         if meta.has_attr('xml:lang'):
-                            abstracts[meta['xml:lang']] = re.sub('^ABSTRACT', '', meta['content'])
-                        else:
-                            abstracts[''] = re.sub('^ABSTRACT', '', meta['content'])
+                            if not meta['xml:lang'] in abstracts or len(abstract) > len(abstracts[meta['xml:lang']]):
+                                abstracts[meta['xml:lang']] = abstract
+                        else:                            
+                            if not '' in abstracts or len(abstract) > len(abstracts['']):
+                                abstracts[''] = abstract
                         done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
