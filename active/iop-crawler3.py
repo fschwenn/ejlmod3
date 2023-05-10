@@ -21,15 +21,14 @@ regexpdxdoi = re.compile('http...dx.doi.org.')
 host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=106, options=options)
+    options.binary_location='/usr/bin/chromium'
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
     options = uc.ChromeOptions()
-    options.headless=True
     options.binary_location='/usr/bin/chromium-browser'
     options.add_argument('--headless')
-    chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
     driver.implicitly_wait(30)
 
@@ -322,4 +321,4 @@ if len(vols) == 1:
 else:
     iopf = 'iopcrawl.' + re.sub(' ', '', jnl) + '.' + '_'.join(voliss)
 
-ejlmod3.writenewXML(recs, publisher, iopf)
+ejlmod3.writenewXML(recs, publisher, iopf, retfilename='retfiles_special')
