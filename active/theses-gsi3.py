@@ -20,6 +20,9 @@ uninteresting = ['Von Materie zu Materialien und Leben', 'Krebsforschung']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested += ejlmod3.getalreadyharvested('THESES-FRANKFURT') 
+    alreadyharvested += ejlmod3.getalreadyharvested('THESES-HEIDELBERG')
+    alreadyharvested += ejlmod3.getalreadyharvested('THESES-TUD')
 
 recs = []
 dois = []
@@ -126,11 +129,12 @@ for year in range(ejlmod3.year()-1, ejlmod3.year()+1):
             elif skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
                 pass
             else:
-                if rec['doi'] in dois:
+                if 'doi' in rec and rec['doi'] in dois:
                     print('   already in list')
                 else:
                     ejlmod3.printrecsummary(rec)
                     recs.append(rec)
-                    dois.append(rec['doi'])
+                    if 'doi' in rec:
+                        dois.append(rec['doi'])
     
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
