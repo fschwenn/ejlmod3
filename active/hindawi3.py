@@ -29,7 +29,7 @@ jids = {'AA' : 'Adv.Astron.',
         'IJMMS' : 'Int.J.Math.Math.Sci.',
         'QUE' : 'Quantum Eng.',
         'JAM' : 'J.Appl.Math.'}
-
+jids['LPB'] = 'Laser Part.Beams'
 
 ###clean formulas in tag
 def cleanformulas(tag):
