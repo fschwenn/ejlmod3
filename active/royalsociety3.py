@@ -23,6 +23,14 @@ from bs4 import BeautifulSoup
 import cloudscraper
 
 
+import undetected_chromedriver as uc
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+#options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 publisher = 'Royal Society'
 jnl = sys.argv[1]
 vol = sys.argv[2]
@@ -49,14 +57,15 @@ toclink = "%s/%s/%s/" % (urltrunk, re.sub('^[A-Z]', '', vol), issue)
 print("%s%s, Issue %s" %(jnlname,vol,issue))
 print("get table of content... from %s" % (toclink))
 
-scraper = cloudscraper.create_scraper()
+#scraper = cloudscraper.create_scraper()
+#tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml)"
 
 #driver = webdriver.PhantomJS()
 #driver.implicitly_wait(300)
-#driver.get(toclink)
-#tocpage = BeautifulSoup(driver.page_source, features="lxml")
+driver.get(toclink)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
-tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
+
 
 recs = []
 divs = tocpage.body.find_all('div', attrs = {'class' : 'issue-item'})
@@ -82,15 +91,15 @@ for (i, div) in enumerate(divs):
     try:
         try:
             time.sleep(30)
-            #driver.get(artlink)
-            #artpage = BeautifulSoup(driver.page_source, features="lxml")
-            artpage = BeautifulSoup(scraper.get(artlink).text, features="lxml")
+            driver.get(artlink)
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
+            #artpage = BeautifulSoup(scraper.get(artlink).text, features="lxml")
         except:
             print('    - wait 5 minutes -')
             time.sleep(300)
-            #driver.get(artlink)
-            #artpage = BeautifulSoup(driver.page_source, features="lxml")
-            artpage = BeautifulSoup(scraper.get(artlink).text, features="lxml")
+            driver.get(artlink)
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
+            #artpage = BeautifulSoup(scraper.get(artlink).text, features="lxml")
         #meta
         ejlmod3.metatagcheck(rec, artpage, ['dc.Subject', 'dc.Date'])
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'dc.Type'}):
@@ -136,15 +145,15 @@ for (i, div) in enumerate(divs):
     try:
         time.sleep(30)
         try:
-            #driver.get(re.sub('\/doi\/', '/doi/references/', artlink))
-            #refpage = BeautifulSoup(driver.page_source, features="lxml")
-            refpage = BeautifulSoup(scraper.get(re.sub('\/doi\/', '/doi/references/', artlink)).text, features="lxml")
+            driver.get(re.sub('\/doi\/', '/doi/references/', artlink))
+            refpage = BeautifulSoup(driver.page_source, features="lxml")
+            #refpage = BeautifulSoup(scraper.get(re.sub('\/doi\/', '/doi/references/', artlink)).text, features="lxml")
         except:
             print('    - wait 5 minutes -')
             time.sleep(300)
-            #driver.get(re.sub('\/doi\/', '/doi/references/', artlink))
-            #refpage = BeautifulSoup(driver.page_source, features="lxml")
-            refpage = BeautifulSoup(scraper.get(re.sub('\/doi\/', '/doi/references/', artlink)).text, features="lxml")
+            driver.get(re.sub('\/doi\/', '/doi/references/', artlink))
+            refpage = BeautifulSoup(driver.page_source, features="lxml")
+            #refpage = BeautifulSoup(scraper.get(re.sub('\/doi\/', '/doi/references/', artlink)).text, features="lxml")
         rec['refs'] = []
         for div in refpage.body.find_all('div', attrs = {'class' : 'article__references'}):
             for li in div.find_all('li'):
