@@ -82,7 +82,7 @@ for page in range(pages):
         os.system('wget -q -O  %s "%s"' % (tocfilename, tocurl))
         time.sleep(5)
     inf = open(tocfilename, 'r')
-    tocpage = BeautifulSoup(''.join(inf.readlines()))
+    tocpage = BeautifulSoup(''.join(inf.readlines()), features='lxml')
     inf.close()
     prerecs += ejlmod3.getdspacerecs(tocpage,  'https://repository.lib.ncsu.edu', fakehdl=True, alreadyharvested=alreadyharvested, boringdegrees=boringdegrees)
     print('   %i recs so far' % (len(prerecs)))
@@ -98,7 +98,7 @@ for rec in prerecs:
         os.system('wget -q -O %s "%s"' % (artfilename, rec['link']))
         time.sleep(5)
     inf = open(artfilename, 'r')
-    artpage = BeautifulSoup(''.join(inf.readlines()))
+    artpage = BeautifulSoup(''.join(inf.readlines()), features='lxml')
     inf.close()
     ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title', 'DCTERMS.issued',
                                         'DC.subject', 'citation_pdf_url', 'DCTERMS.abstract'])
