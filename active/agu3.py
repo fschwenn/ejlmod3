@@ -15,6 +15,7 @@ import undetected_chromedriver as uc
 import random
 
 publisher = 'AGU'
+bunchsize = 10
 tc = 'P'
 jnl = sys.argv[1]
 vol = sys.argv[2]
@@ -218,5 +219,5 @@ for rec in prerecs:
     else:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
-        ejlmod3.writenewXML(recs, publisher, jnlfilename)
+        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
 
