@@ -16,6 +16,7 @@ rpp = 50
 startyear = ejlmod3.year(backwards=2)
 stopyear = ejlmod3.year()
 pages = 10
+skipalreadyharvested = True
 
 boring = ['Criminology and Criminal Justice', 'Psychology', 'Higher and Postsecondary Education', 'Biomedical Informatics',
           'International Letters and Cultures', 'Agribusiness', 'Anthropology',
@@ -57,6 +58,9 @@ boring = ['Criminology and Criminal Justice', 'Psychology', 'Higher and Postseco
           'Social Work', 'Spanish', 'Speech and hearing science', 'Speech and Hearing Science', 'Statistics',
           'Sustainability', 'Sustainable Engineering', 'Systems engineering', 'Systems Engineering', 'Theater',
           'Theatre', 'Transportation', 'Urban planning', 'Urban Planning']
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -158,8 +162,13 @@ for rec in prerecs:
         del(rec['link'])
     #add to list
     if keepit:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('  %s already in backup' % (rec['doi']))
+        elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+            print('  %s already in backup' % (rec['hdl']))
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
