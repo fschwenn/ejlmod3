@@ -14,6 +14,7 @@ import undetected_chromedriver as uc
 
 publisher = 'OSA Publishing'
 typecode = 'P'
+bunchsize = 10
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
@@ -37,7 +38,7 @@ else:
     print(' do not know "%s"' % (jnl))
     sys.exit(0)
     
-jnlfilename = 'OSA_%s%s.%s' % (jnl, vol, issue)
+jnlfilename = 'OSA_%s%s.%s_%s' % (jnl, vol, issue, ejlmod3.stampoftoday())
 if len(sys.argv) > 4:
     cnum = sys.argv[4]
     jnlfilename += '_' + cnum
@@ -53,7 +54,7 @@ options = uc.ChromeOptions()
 #options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
 options.binary_location='/usr/bin/google-chrome'
 #options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
+#     options.add_argument('--headless')
 options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
 #options.add_argument("--user-data-dir=/home/library/chrome")
@@ -221,5 +222,7 @@ for rec in prerecs:
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
     time.sleep(40-i/10)
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
 
-    ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+    
