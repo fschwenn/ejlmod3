@@ -25,7 +25,7 @@ tmppath = publisherpath + '/tmp'
 
 def tfstrip(x): return x.strip()
 
-chunksize = 100
+chunksize = 100+900
 numberofissues = 4
 
 publisher = 'MDPI'
