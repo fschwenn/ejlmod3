@@ -63,7 +63,7 @@ for rec in recs:
             continue
     #title
     for h1 in artpage.body.find_all('h1'):
-        rec['tit'] = re.sub('(.*) \/ .*', r'\1', h1.text.strip())
+        rec['tit'] = re.sub('(.*) \/ .*', r'\1',  re.sub('\/ *$', '', h1.text.strip()))
     for tr in artpage.body.find_all('tr'):
         tht = False
         for th in tr.find_all('th'):
