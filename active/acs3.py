@@ -35,13 +35,24 @@ else:
     print(' unknown journal "%s"' % (jnl))
     sys.exit(0)
 
-options = uc.ChromeOptions()
-options.binary_location='/usr/bin/chromium-browser'
-options.binary_location='/usr/bin/google-chrome'
-options.add_argument('--headless')
-chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-driver = uc.Chrome(version_main=chromeversion, options=options)
-
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/chromium'
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+    tmpdir = '/home/schwenn/tmp'
+else:
+    options = uc.ChromeOptions()
+    options.headless=True
+#    options.binary_location='/usr/bin/chromium-browser'
+    options.add_argument('--headless')
+    #chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    chromeversion = 108
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+    tmpdir = '/tmp'
 
 
 tocurl = 'https://pubs.acs.org/toc/%s/%s/%s' % (jnl, vol, iss)
