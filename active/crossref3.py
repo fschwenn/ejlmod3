@@ -6,13 +6,17 @@
 import sys
 import ejlmod3
 import re
+import os
 from bs4 import BeautifulSoup
+import urllib.request, urllib.error, urllib.parse
 
 infilename = sys.argv[1]
+tmpdir = '/afs/desy.de/user/l/library/tmp'
 
 inf = open(infilename, mode='r')
 crossref = BeautifulSoup(''.join(inf.readlines()), features="lxml")
 inf.close()
+hdr = {'User-Agent' : 'Magic Browser'}
 
 jnlfilename =  re.sub('.*\/', '', infilename)
 jnlfilename =  re.sub('.xml', '', jnlfilename)
@@ -58,6 +62,7 @@ for journal in crossref.body.find_all('journal'):
         if jtit in ['Acta Physica Polonica B', 'Acta Physica Polonica B Proceedings Supplement']:
             for doi_data in journal_article.find_all('doi_data'):
                 for resource in doi_data.find_all('resource'):
+                    rec['aid'] = re.sub('.*=', '', resource.text)
                     rec['p1'] = re.sub('.*A', '', resource.text)
                     for last_page in journal_article.find_all('last_page'):
                         rec['pages'] = last_page.text
@@ -70,20 +75,22 @@ for journal in crossref.body.find_all('journal'):
         if jiss: rec['issue'] = jiss
         if jdate: rec['date'] = jdate
         if jtit == 'Acta Physica Polonica A':
-            rec['jnl'] = 'Acta Phys.Polon.'
-            rec['vol'] = 'A' + rec['vol']
+            rec['jnl'] = 'Acta Phys.Polon.A'
+            #rec['vol'] = 'A' + rec['vol']
         elif jtit == 'Acta Physica Polonica B':
-            rec['jnl'] = 'Acta Phys.Polon.'
+            rec['jnl'] = 'Acta Phys.Polon.B'
             rec['licence'] = {'statement' : 'CC-BY-4.0'}
             rec['FFT'] = 'https://www.actaphys.uj.edu.pl/R/%s/%s/%s/pdf' % (rec['vol'], rec['issue'], rec['p1'])
-            rec['vol'] = 'B' + rec['vol']
-            if  rec['vol'] == 'B52' and rec['issue'] == '8':
+            rec['FFT'] = 'https://www.actaphys.uj.edu.pl/fulltext?series=Reg&vol=%s&aid=%s' % (rec['vol'], rec['aid'])
+            #rec['vol'] = 'B' + rec['vol']
+            if  rec['vol'] == '52' and rec['issue'] == '8':
                 rec['cnum'] = 'C21-01-07'
                 rec['tc'] = 'C'
         elif jtit == 'Acta Physica Polonica B Proceedings Supplement':
             rec['jnl'] = 'Acta Phys.Polon.Supp.'
             rec['licence'] = {'statement' : 'CC-BY-4.0'}
             rec['FFT'] = 'https://www.actaphys.uj.edu.pl/S/%s/%s/%s/pdf' % (rec['vol'], rec['issue'], rec['p1'])
+            rec['FFT'] = 'https://www.actaphys.uj.edu.pl/fulltext?series=Sup&vol=%s&aid=%s-%s' % (rec['vol'], rec['issue'], rec['p1orig'])
             if  rec['vol'] == '15' and rec['issue'] == '1':
                 rec['cnum'] = 'C21-09-20.10'
                 rec['FFT'] = 'https://www.actaphys.uj.edu.pl/S/%s/%s/pdf' % (rec['vol'], re.sub('.*\.', '', rec['doi']))
@@ -123,6 +130,50 @@ for journal in crossref.body.find_all('journal'):
                 for doi in citation.find_all('doi'):
                     ref += ', DOI: %s' % (doi.text)
                 rec['refs'].append([('x', ref)])
+        #abstract
+        abspage = False
+        absdict = False
+        keywdict = False
+        if jtit == 'Acta Physica Polonica A':
+            abspage = 'http://przyrbwn.icm.edu.pl/APP/SPIS/a%s-%s.html' % (rec['vol'], rec['issue'])
+        elif jtit == 'Acta Physica Polonica B':
+            abspage = 'https://www.actaphys.uj.edu.pl/index_n.php?I=R&V=%s&N=%s' % (rec['vol'], rec['issue'])
+        elif jtit == 'Acta Physica Polonica B Proceedings Supplement':
+            abspage = 'https://www.actaphys.uj.edu.pl/index_n.php?I=S&V=%s&N=%s' % (rec['vol'], rec['issue'])
+        if abspage:
+            absfile = os.path.join(tmpdir, re.sub('\W', '', abspage))
+            if not os.path.isfile(absfile):
+                os.system('wget -q -O %s "%s"' % (absfile, abspage))
+            if not absdict:
+                inf = open(absfile, 'r')
+                abssoup = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+                inf.close()
+                absdict = {}
+                keywdict = {}
+                if jtit == 'Acta Physica Polonica A':
+                    for a in abssoup.find_all('a'):
+                        if a.text.strip() == 'abstract':
+                            req = urllib.request.Request(re.sub('^..', 'http://przyrbwn.icm.edu.pl/APP', a['href']), headers=hdr)
+                            artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+                            text = re.sub('[\n\t\r]', '   ', artpage.text.strip())
+                            adoi = re.sub('.*DOI:(10.12693.*?) .*', r'\1', text)
+                            abstract = re.sub('.*Full Text PDF *(.*?) *DOI:10.12693.*', r'\1', text)
+                            absdict[adoi] = abstract
+                            if re.search('topics:', text):
+                                keywdict[adoi] = re.split(', ', re.sub('.*topics: *', '', text))                            
+                else:    
+                    for div in abssoup.find_all('div', attrs = {'class' : 'art'}):
+                        for p in div.find_all('p'):
+                            if p.text.strip() == 'abstract':
+                                p.decompose()
+                            elif re.search('doi.org\/10.5506', p.text):
+                                adoi = re.sub('.*org\/', '', p.text.strip())
+                        for div2 in div.find_all('div', attrs = {'class' : 'abstract'}):
+                            absdict[adoi] = div2.text.strip()
+            if rec['doi'] in absdict:
+                rec['abs'] = absdict[rec['doi']]
+            if keywdict and rec['doi'] in keywdict:
+                rec['abs'] = keywdict[rec['doi']]
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
 
