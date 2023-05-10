@@ -14,6 +14,9 @@ import ejlmod3
 import shutil
 import pysftp
 
+skipalreadyharvested = True
+
+
 iopdirtmp = '/afs/desy.de/group/library/publisherdata/iop/tmp'
 iopdirraw = '/afs/desy.de/group/library/publisherdata/iop/raw'
 iopdirdone = '/afs/desy.de/group/library/publisherdata/iop/done'
@@ -24,6 +27,8 @@ ftpdir = "/afs/desy.de/group/library/preprints/incoming/IOP"
 from refextract import extract_references_from_string
 from extract_jats_references3 import jatsreferences
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('iop')
 
 #ISSN to journal name
 jnl = {'1538-3881': ['Astron.J.', '', '', 'P'],
@@ -686,7 +691,11 @@ for issn in os.listdir(iopdirtmp):
                         for artid in os.listdir(os.path.join(iopdirtmp, issn, vol, isu)):
                             if re.search('\d', artid):
                                 rec = convertarticle(issn, vol, isu, artid)
-                                if rec: recs.append(rec)
+                                if rec:
+                                    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+                                        print('    %s already in backup' % (rec['doi']))
+                                    else:
+                                        recs.append(rec)
                 if recs:
                     if issn in list(jnl.keys()):
                         if 'vol' in list(recs[0].keys()):
