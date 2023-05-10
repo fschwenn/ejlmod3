@@ -33,7 +33,7 @@ for jnl in list(journals.keys()):
     #all issues page
     print('===[ %s | %s | %s ]===' % (jnl, jnlname, url))
     todo = []
-    page = BeautifulSoup(urllib.request.urlopen(url))
+    page = BeautifulSoup(urllib.request.urlopen(url), features='lxml')
     issuelinks = []
     for a in page.find_all('a', attrs = {'class' : 'about'}):
         if a.has_attr('href') and re.search('\d.*index\.xhtml', a['href']):
@@ -73,7 +73,7 @@ for jnl in list(journals.keys()):
             continue
         print(' file: ', jnlfilename)
         time.sleep(2)
-        tocpage = BeautifulSoup(urllib.request.urlopen(link))
+        tocpage = BeautifulSoup(urllib.request.urlopen(link), features='lxml')
         for table in tocpage.body.find_all('table', attrs = {'id' : 'toc-area'}):
             for a in table.find_all('a', attrs = {'class' : 'title'}):
                 rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'year' : year, 'autaff' : []}
@@ -86,7 +86,7 @@ for jnl in list(journals.keys()):
             k += 1
             print('---{ %s (%i/%i) }---{ %i/%i }---{ %i/%i }---{ %s }---' % (jnl, j, len(list(journals.keys())), i, len(todo), k, len(recs), rec['artlink']))
             time.sleep(3)
-            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']))
+            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']), features='lxml')
             ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_author', 'citation_author_institution',
                                                 'citation_firstpage', 'citation_lastpage', 'citation_pdf_url',
                                                 'citation_publication_date', 'citation_doi'])
