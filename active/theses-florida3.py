@@ -17,7 +17,8 @@ from selenium.webdriver.support import expected_conditions as EC
 publisher = 'Florida U.'
 
 rpp = 24
-pages = 15
+pages = 15+40
+skipalreadyharvested = True
 startyear = ejlmod3.year(backwards=1)
 stopyear = ejlmod3.year()
 boring = ['aerodynamics', 'birds', 'disease', 'religion', 'archaeology', 'hormones',
@@ -122,27 +123,26 @@ boring += ['Plant Pathology Thesis, Ph.D.', 'Animal Sciences Thesis, Ph.D.', 'Ar
            'Anthropology Thesis, Ph.D.', 'Chemical Engineering Thesis, Ph.D.', 'Epidemiology Thesis, Ph.D.',
            'Genetics and Genomics Thesis, Ph.D.', 'Geology Thesis, Ph.D.', 'Linguistics Thesis, Ph.D.',
            'Music Education Thesis, Ph.D.', 'Romance Languages Thesis, Ph.D.', 'Sociology Thesis, Ph.D.',
-           'Wildlife Ecology and Conservation Thesis, Ph.D.', 'Business',
-           'Business Administration dissertation, D.B.A.',
+           'Wildlife Ecology and Conservation Thesis, Ph.D.', 'Business', 'Theatre',
+           'Sustainable Development Practice field practicum report, M.D.P.',
+           'Business Administration dissertation, D.B.A.', 'Theatre and Dance',
            'Sustainable Development Practice field practicum report M.D.P.']
 
 
 jnlfilename = 'THESES-FloridaU-%s' % (ejlmod3.stampoftoday())
 
-try:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    driver = uc.Chrome(version_main=103, options=options)
-except:
-    print('try again')
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.add_argument('--headless')
-    #driver = uc.Chrome(version_main=99, options=options)
-    driver = uc.Chrome(options=options)
+options = uc.ChromeOptions()
+#options.add_argument('--headless')
+options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 prerecs = []
+uninteresting = []
+backup = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 for page in range(pages):
     tocurl = 'https://ufdc.ufl.edu/results?datehi=' + str(stopyear) + '-31-12&datelo=' + str(startyear) + '-01-01&filter=type%3Atheses&sort=desc&page=' + str(page+1)
@@ -150,21 +150,35 @@ for page in range(pages):
     try:
         driver.implicitly_wait(60)
         driver.get(tocurl)
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_container__2e-2g')))
+        #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_container__2e-2g')))
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_title__31xSy')))
+        time.sleep(5)
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
-        sections = tocpage.find_all('article', attrs = {'class' : 'BriefView_container__2e-2g'})
+        #print(tocpage)
+        sections = tocpage.find_all('article')
         for section in sections:
-            for div in section.find_all('div', attrs = {'class' : 'BriefView_title__1OtwX'}):
-                for a in div.find_all('a'):
-                    rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [], 'restricted' : False, 'autaff' : []}
-                    rec['link'] =  'https://ufdc.ufl.edu' + a['href']
-                    #marc xml works only for some records
-                    rec['artlink'] =  re.sub('^\/(..)(..)(..)(..)(..)\/(.*)\/citation', r'https://ufdcimages.uflib.ufl.edu/\1/\2/\3/\4/\5/\6/marc.xml', a['href'])
-                    rec['doi'] = '20.2000/FloridaU' + re.sub('\/citation', '', a['href'])
-                    if ejlmod3.checkinterestingDOI(rec['doi']):
-                        prerecs.append(rec)
+            for div in section.find_all('div'):
+                if div.has_attr('class') and re.search('BriefView_title__', div['class'][0]):
+                    for a in div.find_all('a'):
+                        rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [], 'restricted' : False, 'autaff' : []}
+                        rec['link'] =  'https://ufdc.ufl.edu' + a['href']
+                        #marc xml works only for some records
+                        rec['artlink'] =  re.sub('^\/(..)(..)(..)(..)(..)\/(.*)\/citation', r'https://ufdcimages.uflib.ufl.edu/\1/\2/\3/\4/\5/\6/marc.xml', a['href'])
+                        rec['doi'] = '20.2000/FloridaU' + re.sub('\/citation', '', a['href'])
+                        if ejlmod3.checkinterestingDOI(rec['doi']):
+                            if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                                backup.append(rec['doi'])
+                            else:
+                                prerecs.append(rec)
+                                print('  - ', rec['doi'])
+                        else:
+                            uninteresting.append(rec['doi'])
+        print('\n  %4i records so far (%4i uninteresting, %4i already in backup)\n' % (len(prerecs), len(uninteresting), len(backup)))
     except:
         print(' could not load "%s"' % (tocurl))
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        print(tocpage.text)
         break
     time.sleep(10)
 
@@ -258,9 +272,13 @@ for rec in prerecs:
         print('     try', rec['link'])
         try:
             driver.get(rec['link'])
-            WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'my-3')))
+            #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'my-3')))
             artpage = BeautifulSoup(driver.page_source, features="lxml")
             #print(artpage)
+
+
+            #scheiss JavaScript
+            
             #print(artpage.text)
             time.sleep(5)
             #title
@@ -302,6 +320,7 @@ for rec in prerecs:
                 for span in div.find_all('span'):
                     spant = span.text.strip()
                     if re.search('Major department: ', spant):
+                        print(artpage)
                         dep = re.sub('Major department: ', '', spant)
                         dep = re.sub('\.$', '', dep).strip()
                         if dep in boring:
@@ -322,10 +341,11 @@ for rec in prerecs:
                                 keepit = False
                                 print('   skip "%s"' % (subject))                                
                             else:
-                                rec['note'].append(subject)                                
-            if not 'tit' in list(rec.keys()) or not rec['autaff']:
+                                rec['note'].append(subject)     
+            ejlmod3.printrecsummary(rec)                           
+            if not 'tit' in rec or not rec['autaff']:
                 embargo = True
-                print('    failed')
+                print('    failed to extract author or title')
         except:
             embargo = True
             print('    failed')
