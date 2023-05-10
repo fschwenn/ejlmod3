@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-#!/usr/bin/python
 #program to harvest Proc.Nat.Acad.Sci.
 # FS 2019-07-17
 # Cloudflare -> need for newer OpenSSL -> run on HAL
@@ -33,7 +32,6 @@ if host == 'l00schwenn':
     driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
     options = uc.ChromeOptions()
-    options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -129,10 +127,18 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
     #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
-                                        "citation_online_date", "citation_title"])
+    try:
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
+                                            "citation_online_date", "citation_title"])
+    except:
+        print('... try again in 120s')
+        time.sleep(120)
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        ejlmod3.metatagcheck(rec, artpage, ["citation_firstpage", "citation_pdf_url", "citation_doi",
+                                            "citation_online_date", "citation_title"])        
     #print(artpage)
     #metadata in script
     for script in artpage.head.find_all('script'):
