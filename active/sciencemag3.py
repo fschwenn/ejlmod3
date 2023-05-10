@@ -17,7 +17,8 @@ jnl = sys.argv[1]
 year = sys.argv[2]
 skipalreadyharvested = True
 rpp = 100
-pages = 4
+pages = 3
+bunchsize = 10
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium-browser'
@@ -233,6 +234,5 @@ else:
         if harvestarticle(jnl, rec, i, len(prerecs), len(recs)):
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
-        if i % 5 == 0:
-            ejlmod3.writenewXML(recs, publisher, jnlfilename)
-    ejlmod3.writenewXML(recs, publisher, jnlfilename)
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+
