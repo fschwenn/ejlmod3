@@ -17,6 +17,7 @@ regexpref = re.compile('[\n\r\t]')
 publisher = 'AIP'
 typecode = 'P'
 skipalreadyharvested = True
+bunchsize = 10
 jnl = sys.argv[1]
 vol = sys.argv[2]
 jnlfilename = jnl+vol+'_'+ejlmod3.stampoftoday()
@@ -40,7 +41,7 @@ elif (jnl == 'ltp'):
     jnlname2 = 'Fiz.Nizk.Temp.'
 elif (jnl == 'php'):
     jnlname = 'Phys.Plasmas'
-elif (jnl == 'adva'):
+elif jnl in ['adva', 'adv']:
     jnlname = 'AIP Adv.'
 elif (jnl == 'aipconf') or (jnl == 'aipcp') or (jnl == 'apc'):
     jnlname = 'AIP Conf.Proc.'
@@ -172,8 +173,8 @@ boring = ['ADVANCED MATERIALS AND NANOTECHNOLOGY FOR SUSTAINABLE ENERGY AND ENVI
           'COMMENTS', 'BIOLOGICAL MOLECULES AND NETWORKS', 'PHONONIC, ACOUSTIC, AND THERMAL PROPERTIES',
           'BIOPHYSICS, BIOIMAGING, AND BIOSENSORS', 'POLYMERS AND SOFT MATTER']
 boring += ['FROM THE EDITOR', "READERS' FORUM", 'ISSUES AND EVENTS', 'BOOKS',
-           'NEW PRODUCTS', 'OBITUARIES', 'QUICK STUDY', 'BACK MATTER',
-           'BACK OF THE ENVELOPE', 'BOOK REVIEWS', 'READERS’ FORUM',
+           'NEW PRODUCTS', 'OBITUARIES', 'QUICK STUDY', 'BACK MATTER', 'NOTES AND DISCUSSIONS',
+           'BACK OF THE ENVELOPE', 'BOOK REVIEWS', 'READERS’ FORUM', 'AWARDS',
            'ANNOUNCEMENTS', 'EDITORIALS', 'EDITORIAL', 'TUTORIAL', 'PERSPECTIVES']
 
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
@@ -327,12 +328,12 @@ for (href, p1, secs) in tocheck:
         rec = getarticle(href, secs, p1)
         if rec['autaff']:
             recs.append(rec)
-            ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
 print('%i records for %s' % (len(recs), jnlfilename))
 #if not recs:
 #    print(tocpage.text)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+#ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 driver.quit()
 
 
