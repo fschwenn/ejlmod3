@@ -216,7 +216,7 @@ def ieee(number):
     refsdict = manager.dict()
     urltrunc = "http://ieeexplore.ieee.org"
     #get name of journal
-    if number[0] == 'C': 
+    if number[0] in ['C', 'N']: 
         #toclink = "/xpl/mostRecentIssue.jsp?punumber=%s&rowsPerPage=2000" % (number[1:])        
         toclink = "/xpl/conhome/%s/proceeding?rowsPerPage=%i" % (number[1:], articlesperpage)
         tc = 'C'
@@ -335,7 +335,7 @@ def ieee(number):
                 if gdm['sections']['references'] in ['true', 'True']:
                     hasreferencesection = True
         if 'publicationTitle' in gdm:
-            if number[0] == 'C':
+            if number[0] in ['C', 'N']:
                 jnlname = 'BOOK'
                 tc = 'C'
             else:
@@ -353,23 +353,24 @@ def ieee(number):
                 if 'orcid' in author:
                     autaff.append('ORCID:'+author['orcid'])
                 rec['autaff'].append(autaff)
-        if jnlname in ['IEEE Trans.Magnetics', 'IEEE Trans.Appl.Supercond.', 'IEEE J.Sel.Top.Quant.Electron.',
-                       'IEEE Trans.Instrum.Measur.', 'IEEE J.Quant.Electron.']:
-            if 'externalId' in gdm:
-                rec['p1'] = gdm['externalId']
-            elif 'articleNumber' in gdm:
-                rec['p1'] = gdm['articleNumber']
+        if number[0] != 'N':
+            if jnlname in ['IEEE Trans.Magnetics', 'IEEE Trans.Appl.Supercond.', 'IEEE J.Sel.Top.Quant.Electron.',
+                           'IEEE Trans.Instrum.Measur.', 'IEEE J.Quant.Electron.']:
+                if 'externalId' in gdm:
+                    rec['p1'] = gdm['externalId']
+                elif 'articleNumber' in gdm:
+                    rec['p1'] = gdm['articleNumber']
+                else:
+                    rec['p1'] = gdm['startPage']
+                    rec['p2'] = gdm['endPage']
             else:
-                rec['p1'] = gdm['startPage']
-                rec['p2'] = gdm['endPage']
-        else:
-            if 'endPage' in gdm:
-                rec['p1'] = gdm['startPage']
-                rec['p2'] = gdm['endPage']
-            elif 'externalId' in gdm:
-                rec['p1'] = gdm['externalId']
-            else:
-                rec['p1'] = gdm['articleNumber']
+                if 'endPage' in gdm:
+                    rec['p1'] = gdm['startPage']
+                    rec['p2'] = gdm['endPage']
+                elif 'externalId' in gdm:
+                    rec['p1'] = gdm['externalId']
+                else:
+                    rec['p1'] = gdm['articleNumber']
         if gdm['isFreeDocument']:
             rec['FFT'] = urltrunc + gdm['pdfPath']
         rec['tit'] = gdm['formulaStrippedArticleTitle']
@@ -378,7 +379,8 @@ def ieee(number):
         ## mistake in metadata
         if re.search('\d+ pp', gdm['startPage']):
             rec['pages'] = re.sub(' .*', '', gdm['startPage'])
-            rec['p1'] = str(int(gdm['endPage']) - int(rec['pages']) + 1)            
+            if number[0] != 'N':
+                rec['p1'] = str(int(gdm['endPage']) - int(rec['pages']) + 1)            
         else:
             try:
                 rec['pages'] = int(re.sub(' .*', '', gdm['endPage'])) - int(gdm['startPage']) + 1
@@ -496,7 +498,8 @@ def ieee(number):
 
 if __name__ == '__main__':
     usage = """
-        python ieee_crawler.py Cpunumber|isnumber [cnum]
+        python ieee_crawler.py Cpunumber|isnumber|Npunumber [cnum] 
+        use Npunumber if no pagination
     """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "")
