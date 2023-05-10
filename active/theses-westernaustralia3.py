@@ -12,24 +12,28 @@ import undetected_chromedriver as uc
 
 
 pages = 1
+skipalreadyharvested = True
 
 publisher = 'Western Australia U.'
 jnlfilename = 'THESES-WESTERN-AUSTRALIA-%s' % (ejlmod3.stampoftoday())
 
 options = uc.ChromeOptions()
-options.headless=True
-options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/google-chrome'
 options.add_argument('--headless')
-chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-    
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 recs = []
 
 
 def get_sub_site(url):
     rec = {'link': url, 'tc': 'T', 'jnl': 'BOOK', 'autaff' : [], 'keyw' : [], 'supervisor' : []}
     if not ejlmod3.checkinterestingDOI(url):
+        return
+    elif skipalreadyharvested and '20.2000/WesternAustralia/'+re.sub('.*\/', '', url) in alreadyharvested:
         return
     print(url)
     driver.get(url)
@@ -96,9 +100,10 @@ def get_sub_site(url):
             pdf_link = "https://research-repository.uwa.edu.au%s" % pdf_link_section[0].get('href')
 
             rec['hidden'] = pdf_link
-
-    ejlmod3.printrecsummary(rec)
-    recs.append(rec)
+    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+    sleep(5)
 
 
 for page in range(pages):
@@ -113,7 +118,6 @@ for page in range(pages):
         if len(article_link_box) == 1:
             if article_link_box[0].get('href') is not None:
                 get_sub_site(article_link_box[0].get('href'))
-        sleep(5)
     sleep(5)
 
 
