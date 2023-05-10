@@ -73,7 +73,7 @@ multwords += [['quantum', 'computing'], ['quantum', 'key', 'distribution'],
 dedicatedharvester = ['alabama', 'alberta', 'arizona-diss', 'asu', 'barcelona',
                       'baylor', 'bayreuth', 'bielefeld', 'brown', 'caltech', 'cambridge', 'cardiff',
                       'charles-prague', 'colorado', 'columbia-diss', 'cornell', 'dortmund-diss',
-                      'durham', 'ethz', 'florida', 'freiburg-diss', 'gatech', 'glasgow',
+                      'durham', 'ethz', 'freiburg-diss', 'gatech', 'glasgow',
                       'goettingen', 'guelph', 'harvard', 'helsinki', 'heid-diss', 'hokkaido',
                       'houston', 'humboldt-diss', 'jhu', 'ksu', 'ku', 'liverpool',
                       'lmu-germany', 'louisville', 'lsu-diss', 'lund', 'manchester', 'mcgill', 'melbourne',
@@ -87,7 +87,7 @@ dedicatedharvester = ['alabama', 'alberta', 'arizona-diss', 'asu', 'barcelona',
 dedicatedaffiliations = ['Imperial College London', 'University of Edinburgh',
                          'University College London (University of London)',
                          "King's College London (University of London)", 'University of Manchester']
-dedicatedsuboptimalharvester = ['eth', 'fsu', 'karlsruhe-diss', 'stanford', 'texas', 'thueringen', 'thueringen-diss']
+dedicatedsuboptimalharvester = ['eth', 'fsu', 'karlsruhe-diss', 'stanford', 'texas', 'thueringen', 'thueringen-diss', 'florida']
 nodedicatedharvester = ['aberdeen', 'ankara', 'arkansas', 'bremen', 'brazil', 'bu',  'clemson', 'colo-mines','colostate',
                         'darmstadt', 'darmstadt2', 'delaware', 'duquesne', 'ethos', 'fiu', 'georgia-state', 
                         'groningen','iowa', 'jairo', 'jamescook', 'lehigh', 'liberty', 'macquarie-phd',
