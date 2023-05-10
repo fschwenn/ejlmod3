@@ -17,11 +17,12 @@ import random
 publisher = 'WILEY'
 
 skipalreadyharvested = True
+bunchsize = 10
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
 year = sys.argv[4]
-jnlfilename = re.sub('\/','-',jnl+vol+'.'+issue)
+jnlfilename = re.sub('\/','-',jnl+vol+'.'+issue+'_'+ejlmod3.stampoftoday())
 donepath = '/afs/desy.de/group/library/publisherdata/wiley/done'
 #harvested vi desydoc
 if   (jnl == 'annphys'):
@@ -321,5 +322,5 @@ for rec in prerecs:
         recs.append(rec)
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
-        ejlmod3.writenewXML(recs, publisher, jnlfilename + '_' + ejlmod3.stampoftoday())
+        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
 os.system('touch %s/%s' % (donepath, jnlfilename))
