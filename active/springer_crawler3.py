@@ -23,15 +23,27 @@ issue = sys.argv[4]
 #cnum = sys.argv[5]
 #fc = sys.argv[6]
 
-urltrunc = 'https://link.springer.com'
+boring = ['Editorial', 'Comment', 'Q&A', 'News & Views', 'Obituary',
+          'News Q&A', 'Correspondence', 'News And Views', 'Career Q&A',
+          'Career News', 'Outlook', 'Technology Feature', 'Book Review', 'Obituary', 'News',
+          'Books And Arts', 'World View', 'Seven Days', 'Career Column', 'Career Brief',
+          'research-highlight', 'Research Highlight', 'Research Briefing', 'Meeting Report',
+          'Futures', 'Where I Work', 'Books & Arts', 'Expert Recommendation', 'Measure for Measure',
+          'News Round-up', 'News & Views', 'Q&a', 'q-and-a', 'Nature Index', 'nature-index',
+          'News and views', 'Career Feature', 'News and Views']
 
-jnlfilename = re.sub(' ', '_', "%s%s.%s" % (jnl,vol,issue))
+if re.search('springer', toclink):
+    urltrunc = 'https://link.springer.com'
+else:
+    urltrunc = 'https://www.nature.com'
+
+jnlfilename = re.sub(' ', '_', "%s%s.%s" % (jnl, vol, issue))
 if len(sys.argv) > 5:
     cnum = sys.argv[5]
     jnlfilename += '_' + cnum
 
 
-print("%s %s, Issue %s" %(jnl,vol,issue))
+print("%s %s, Issue %s" % (jnl, vol, issue))
 print("get table of content... from %s" % (toclink))
 
 
@@ -214,12 +226,14 @@ def get_records(url):
 
 
 
-recs = get_records(toclink)
+prerecs = get_records(toclink)
 i = 0
-for rec in recs:
-    i += 1    
+recs = []
+for rec in prerecs:
+    i += 1
+    keepit = True
     if not 'artlink' in rec:
-        ejlmod3.printprogress('-', [[i, len(recs)]])
+        ejlmod3.printprogress('-', [[i, len(prerecs)], [len(recs)]])
         ejlmod3.printrecsummary(rec)
         continue
     if issue != '0':
@@ -235,7 +249,7 @@ for rec in recs:
         rec['tc'] = 'P'
     if len(sys.argv) > 6:
         rec['fc'] = sys.argv[6]
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         time.sleep(10)
@@ -246,7 +260,14 @@ for rec in recs:
         time.sleep(20)
     ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_lastpage', 'citation_doi', 'citation_author',
                                         'citation_author_institution', 'citation_author_email', 'citation_author_orcid',
-                                        'description', 'dc.description', 'citation_cover_date'])
+                                        'description', 'dc.description', 'citation_cover_date', 'citation_article_type'])
+    #article type
+    if 'citation_article_type' in rec:
+        for at in rec['citation_article_type']:
+            if at[24:] in boring:
+                keepit = False                
+            elif not at[24:] in ['Article', 'Letter', 'Review Article', 'Publisher Correction']:
+                rec['note'].append(at)
     #date
     if not 'date' in list(rec.keys()):
         for  meta in artpage.head.find_all('meta', attrs = {'name' : 'citation_publication_date'}):
@@ -267,7 +288,7 @@ for rec in recs:
         rec['keyw'] = []
         for span in div.find_all('span', attrs = {'class' : 'Keyword'}):
             rec['keyw'].append(span.text.strip())
-    if not 'keyw' in recs:
+    if not 'keyw' in rec:
         rec['keyw'] = []
         for li in artpage.body.find_all('li', attrs = {'class' : 'c-article-subject-list__subject'}):
             rec['keyw'].append(li.text.strip())            
@@ -335,7 +356,10 @@ for rec in recs:
             for div in artpage.body.find_all('div', attrs = {'class' : 'section__content'}):
                 for p in div.find_all('p'):
                     rec['abs'] = p.text.strip()
-    ejlmod3.printrecsummary(rec)
+    if keepit:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+        
 
                 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
