@@ -15,7 +15,7 @@ import time
 
 publisher = 'NARCIS'
 jnlfilename = 'THESES-NARCIS-%s' % (ejlmod3.stampofnow())
-bunchlength = 100
+bunchlength = 1000
 
 boringpublishers = ['Biomedical Signals and Systems; TechMed Centre',
                     'TechMed Centre; Biomedical Signals and Systems',
