@@ -54,7 +54,7 @@ options = uc.ChromeOptions()
 #options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
 options.binary_location='/usr/bin/google-chrome'
 #options.binary_location='/usr/bin/chromium-browser'
-#     options.add_argument('--headless')
+options.add_argument('--headless')
 options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
 #options.add_argument("--user-data-dir=/home/library/chrome")
