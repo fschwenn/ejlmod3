@@ -68,6 +68,10 @@ for rec in prerecs:
     for meta in artpage.head.find_all('meta', attrs = {'name' : 'eprints.pure_uuid'}):
         rec['uuid'] = meta['content']
         rec['doi'] = '20.2000/southampton/' + meta['content']
+    #DOI
+    for meta in artpage.head.find_all('meta', attrs = {'name' : 'eprints.id_number'}):
+        if meta['content'][:7] == '10.5258':
+            rec['doi'] = meta['content']
     #license
     for div in artpage.body.find_all('div', attrs = {'class' : 'uos-eprints-fileblock-line'}):
         if re.search('under [lL]icense', div.text):
