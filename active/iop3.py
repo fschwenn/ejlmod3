@@ -69,7 +69,7 @@ jnl = {'1538-3881': ['Astron.J.', '', '', 'P'],
        '0034-4885': ['Rept.Prog.Phys.', '', '', 'PR'],
        '1361-6633': ['Rept.Prog.Phys.', '', '', 'PR'],
        '1674-4527': ['Res.Astron.Astrophys.', '', '', 'P'],
-       '0036-0279': ['Russ.Math.Surveys', '', '', 'P'],
+       '0036-0279': ['Russ.Math.Surveys', '', '', 'P'], # last issue: Vol. 77, Number 2, April 2022.; now onliy original version Usp.Mat.Nauk via mathnet.ru
        '0953-2048': ['Supercond.Sci.Technol.', '', '', 'P']}
 jnl['2516-1067'] = ['Plasma Res.Express', '', '', 'P'] #Plasma Research Express#yepp
 jnl['2632-2153'] = ['Mach.Learn.Sci.Tech.', '', '', 'P'] #Machine Learning: Science and Technology#yepp
