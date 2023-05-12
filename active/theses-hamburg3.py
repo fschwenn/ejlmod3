@@ -17,6 +17,7 @@ jnlfilename = 'THESES-HAMBURG-%s' % (ejlmod3.stampoftoday())
 pages = 3
 skipalreadyharvested = True
 rpp = 50
+years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
 
@@ -42,7 +43,9 @@ for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
                     rec['fc'] = 'c'
                 for a in td.find_all('a'):
                     rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
-                    prerecs.append(rec)
+                    if ejlmod3.checknewenoughDOI(rec['artlink']):
+                        prerecs.append(rec)
+        print('  %4i records so far' % (len(prerecs)))
 
 for (i, rec) in enumerate(prerecs):
     ejlmod3.printprogress("-", [[i+1, len(prerecs)], [rec['artlink']], [len(recs)]])
@@ -69,6 +72,9 @@ for (i, rec) in enumerate(prerecs):
 #                    rec['supervisor'].append([re.sub(' *\(.*', '', meta['content'])])
     if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
         print('    already in backup')
+    elif 'date' in rec and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+        print('    too old')
+        ejlmod3.addtoooldDOI(rec['artlink'])
     else:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
