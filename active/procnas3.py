@@ -145,7 +145,11 @@ for rec in recs:
         if script.contents:
             scriptt = re.sub('.*?= *(\{.*?);.*', r'\1', re.sub('[\n\t]', '', script.contents[0].strip()))
             if re.search('^\{', scriptt):
-                metadata = json.loads(scriptt)
+                try:
+                    metadata = json.loads(scriptt)
+                    print("  could  not load JSON")
+                except:
+                    metadata = {}
                 if 'page' in metadata:
                     print("   metadata in JSON found")
                     if 'pageInfo' in metadata['page']:
