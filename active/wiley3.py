@@ -323,4 +323,4 @@ for rec in prerecs:
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
         ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
-os.system('touch %s/%s' % (donepath, jnlfilename))
+os.system('touch %s/%s' % (donepath, jnlfilename[:-11]))
