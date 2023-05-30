@@ -99,7 +99,7 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.']),
-                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.']),
+                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
                   ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.']),
                   ('i', ['IEEE Instrum.Measur.Mag.', 'IEEE Sensors J.', 'IEEE Trans.Circuits Theor.', 'IEEE Trans.Instrum.Measur.', 'Instruments', 'Instrum.Exp.Tech.', 'JAIS', 'JINST', 'Meas.Tech.', 'Measur.Sci.Tech.', 'Metrologia', 'Microscopy Microanal.', 'Rad.Det.Tech.Meth.', 'Rev.Sci.Instrum.', 'Sensors', 'J.Astron.Telesc.Instrum.Syst.', 'EPJ Tech.Instrum.'])]
@@ -710,7 +710,10 @@ def writeXML(recs,dokfile,publisher):
         if 'link' in rec:
             parsedlink = urllib.parse.urlparse(rec['link'])
             if parsedlink.scheme and parsedlink.netloc and parsedlink.path:
-                xmlstring += marcxml('8564',[('u', re.sub(' ', '%20', rec['link']))])
+                link = re.sub(' ', '%20', rec['link'])
+                link = re.sub('\\\:', ':', link)
+                link = re.sub('\\\%', '%', link)
+                xmlstring += marcxml('8564',[('u', link)])
             else:
                 xmlstring += marcxml('595', [('a', 'invalid link "%s"' % (rec['link']))])
             #if re.search('^http', rec['link']):
@@ -1104,7 +1107,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('Workshops'), re.compile('^In [mM]emory'), re.compile(' [bB]irthday'),
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
                      re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:'),
-                     re.compile('occasion of.* anniversary')]
+                     re.compile('occasion of.* anniversary'), re.compile('^[A-Z][a-z]+ Calendar$')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
@@ -1414,13 +1417,13 @@ def metatagcheck(rec, artpage, listoftags):
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract',
                            'eprints.abstract_name', 'dcterms.description']:
                     if len(meta['content']) > 12:
-                        abstract = re.sub('^ABSTRACT:?', '', meta['content'])                        
+                        abstract = re.sub('^ABSTRACT:?', '', meta['content'])                          
                         if meta.has_attr('xml:lang'):
-                            if not meta['xml:lang'] in abstracts or len(abstract) > len(abstracts[meta['xml:lang']]):
-                                abstracts[meta['xml:lang']] = abstract
-                        else:                            
-                            if not '' in abstracts or len(abstract) > len(abstracts['']):
-                                abstracts[''] = abstract
+                            language = meta['xml:lang']
+                        else:
+                            language = 'en'
+                        if not language in abstracts or len(abstract) > len(abstracts[language]):
+                            abstracts[language] = abstract
                         done.append(tag)
                 #persistant identifiers
                 elif tag in ['bepress_citation_doi', 'citation_doi', 'Citation_DOI_Number', 'DC.Identifier.doi',  'DC.Identifier.DOI',
@@ -1507,7 +1510,8 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['supervisor'][-1].append('EMAIL:' + meta['content'])
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
                              'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
-                    rec['autaff'][-1].append(meta['content'])
+                    if not meta['content'] in rec['autaff'][-1]:
+                        rec['autaff'][-1].append(meta['content'])
                     done.append(tag)
                 elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email', 'eprints.creators_id',
                              'eprints.creators_email']:
