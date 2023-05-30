@@ -74,15 +74,17 @@ def fsunwrap(tag):
 #toc = BeautifulSoup(''.join(inf.readlines()), features="lxml")
 #inf.close()
 options = uc.ChromeOptions()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 print(toclink)
+driver.get(urltrunc)
+time.sleep(10)
 driver.get(toclink)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
-time.sleep(3)
+time.sleep(13)
 
 #check licence
 licenseurl =False
