@@ -164,18 +164,26 @@ cnopts.hostkeys = None
 srv = pysftp.Connection(host="download.mdpi.com", username="mdpi_public_ftp", password="j7kzfbf9RDiJnEuX", port=9922, cnopts=cnopts)
 srv.cwd('MDPI_corpus')
 srv.cwd(jnl)
+issueslocal = []
 if jnl in ['proceedings', 'psf']:
     iss = 'volume-%02i/%s-%02i-%02i.tar' % (int(volume), jnl, int(volume), int(issue))
     print('get %s from ftp://download.mdpi.com' % (iss))
     localfilename = '%s/%s' % (tmppath, re.sub('.*\/', '', iss))
-    srv.get(iss, localfilename)
-    issueslocal.append(localfilename)
+    try:
+        srv.get(iss, localfilename)
+        issueslocal.append(localfilename)
+    except:
+        print('\ncould not download %s' % (iss))
+        if 'volume-%02i' % (int(volume)) in  srv.listdir():
+            print('availabe issues in volume-%02i:' % (int(volume)), srv.listdir('volume-%02i' % (int(volume))))
+        else:
+            print('availabe volumes:', srv.listdir())
+        sys.exit(0)
 else:
     issuesonserver = []
     for vol in srv.listdir():
         for iss in srv.listdir(vol):
             issuesonserver.append('%s/%s' % (vol, iss))
-    issueslocal = []
     for iss in issuesonserver[-numberofissues:]:
         print('get %s from ftp://download.mdpi.com' % (iss))
         localfilename = '%s/%s' % (tmppath, re.sub('.*\/', '', iss))
