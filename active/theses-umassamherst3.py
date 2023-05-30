@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'UMass Amherst'
 jnlfilename = 'THESES-UMassAmherst-%s' % (ejlmod3.stampoftoday())
@@ -58,6 +59,13 @@ boring = ['Afro-American Studies', 'Animal Biotechnology & Biomedical Sciences',
 basetocurl = 'https://scholarworks.umass.edu/dissertations_2/index.'
 tocextension = 'html'
 
+options = uc.ChromeOptions()
+options.binary_location = '/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/chromium'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
@@ -72,7 +80,6 @@ for i in range(pages):
     except:
         print("retry %s in 180 seconds" % (tocurl))
         time.sleep(180)
-        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
     for div in tocpage.body.find_all('div'):
         if div.has_attr('class') and re.search('locks', div['class'][0]):
             for child in div.children:
@@ -130,6 +137,23 @@ for rec in prerecs:
                         rec['autaff'][-1].append(re.sub('.*orcid.*?\/', 'ORCID:', p.text.strip()))
                     else:
                         rec['autaff'][-1].append('ORCID:'+p.text.strip())
+                if rec['autaff'][0][0] == ',':
+                    orcidlink = re.sub('ORCID:', 'https://orcid.org/', rec['autaff'][-1][-1])
+                    print('   try to get author name from %s' % (orcidlink))
+                    driver.get(orcidlink)
+                    orcidpage = BeautifulSoup(driver.page_source, features="lxml")
+                    author = ''
+                    for meta in orcidpage.head.find_all('meta', attrs = {'property' : 'profile:last_name'}):
+                        author = meta['content']
+                    for meta in orcidpage.head.find_all('meta', attrs = {'property' : 'profile:first_name'}):
+                        author += ', ' + meta['content']
+                    if author:
+                        rec['autaff'][0][0] = author
+                        print('\n   got author name "%s" from ORCID page\n' % (author))
+                    else:
+                        rec['autaff'][0][0] = 'Doe, John'
+                        print('\n   could not get author name from ORCID page\n')
+                    time.sleep(10)
             else:
                 print(div)
     #keywords
