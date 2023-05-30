@@ -55,7 +55,7 @@ for tr in tocpage.body.find_all('tr'):
             rec['FFT'] = 'http://www.ino.tifr.res.in/ino/' + a['href']
             rec['link'] = 'http://www.ino.tifr.res.in/ino/' + a['href']
             rec['doi'] = '20.2000/' + a['href'][:-4]
-        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
             recs.append(rec)
             ejlmod3.printrecsummary(rec)
 
