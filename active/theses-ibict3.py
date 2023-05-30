@@ -15,6 +15,7 @@ startyear = ejlmod3.year(backwards=1)
 stopyear =  ejlmod3.year()
 
 subject = sys.argv[1]
+skipalreadyharvested = True
 
 filters = {'physics' : (2, 'dc.subject.por.fl_str_mv%3A%22F%C3%ADsica%22', ''),
            'comp' : (2, 'dc.publisher.program.fl_str_mv%3A%22Ci%C3%AAncias%2Bda%2BComputa%C3%A7%C3%A3o%2Be%2BMatem%C3%A1tica%2BComputacional%22', 'c'),
@@ -37,8 +38,11 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('THESES')
+
 numberofpages = filters[subject][0]
-recs = []
+prerecs = []
 for i in range(numberofpages):
     tocurl = 'http://bdtd.ibict.br/vufind/Search/Results?filter%5B%5D=format%3A%22doctoralThesis%22&filter%5B%5D=' + filters[subject][1] + '&filter%5B%5D=publishDate%3A%22%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D%22&lookfor=%2A%3A%2A&type=AllFields&page=' + str(i+1)
     ejlmod3.printprogress('=', [[i+1, numberofpages], [tocurl]])
@@ -53,13 +57,15 @@ for i in range(numberofpages):
             rec['doi'] = '20.2000/IBICT/' + re.sub('\W', '', a['href'][15:])
             if filters[subject][2]:
                 rec['fc'] = filters[subject][2]
-        recs.append(rec)
+        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+            prerecs.append(rec)
         
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         req = urllib.request.Request(rec['artlink'], headers=hdr)
         artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
@@ -132,6 +138,8 @@ for rec in recs:
                                              'citation_keywords', 'citation_date', 'DC.identifier'])
     else:
         rec['link'] = rec['artlink']        
-    ejlmod3.printrecsummary(rec)
+    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
