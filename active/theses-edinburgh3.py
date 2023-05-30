@@ -69,7 +69,7 @@ for rec in recs:
     #            rec['supervisor'].append([td.text.strip()])
     ejlmod3.printrecsummary(rec)
     time.sleep(1)
-    if i%20 == 0:
-        ejlmod3.writenewXML(recs[:i], publisher, jnlfilename, retfilename='retfiles_special')
+#    if i%20 == 0:
+#        ejlmod3.writenewXML(recs[:i], publisher, jnlfilename)#, retfilename='retfiles_special')
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
