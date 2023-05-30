@@ -11,6 +11,7 @@ import re
 import ejlmod3
 import time
 
+skipalreadyharvested = True
 numofpages = 5
 
 publisher = 'Rochester Inst. Tech.'
@@ -36,6 +37,10 @@ reboring = re.compile('\((BS|M.Arch.|MFA|MS)\)')
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 jnlfilename = 'THESES-RochesterInstTech-%s' % (ejlmod3.stampoftoday())
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 for i in range(numofpages):
     if i == 0:
         tocurl = 'https://scholarworks.rit.edu/theses/index.html'
@@ -122,8 +127,9 @@ for rec in prerecs:
     if keepit:
         if not 'doi' in recs:
             rec['doi'] = '20.2000/RochesterInstTech/%s' % (re.sub('\D', '', rec['link']))
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
 
