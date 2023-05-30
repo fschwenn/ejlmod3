@@ -46,11 +46,10 @@ if host == 'l00schwenn':
     tmpdir = '/home/schwenn/tmp'
 else:
     options = uc.ChromeOptions()
-    options.headless=True
-#    options.binary_location='/usr/bin/chromium-browser'
+#    options.headless=True
+    options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
-    #chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    chromeversion = 108
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
 
