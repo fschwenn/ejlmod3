@@ -21,8 +21,12 @@ jnlfilename = 'THESES-FRANKFURT-%s' % (ejlmod3.stampoftoday())
 hdr = {'User-Agent' : 'Magic Browser'}
 pages = 3
 rpp = 10
+skipalreadyharvested = True
 
-recs = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
+prerecs = []
 for (institute, fc) in [('Physik', ''), ('Informatik', 'c'), ('Mathematik', 'm'),
                         ('Frankfurt+Institute+for+Advanced+Studies+(FIAS)', ''),
                         ('Informatik+und+Mathematik', 'cm'),
@@ -41,15 +45,16 @@ for (institute, fc) in [('Physik', ''), ('Informatik', 'c'), ('Mathematik', 'm')
                 rec['tit'] = a.text.strip()
                 if fc:
                     rec['fc'] = fc
-                recs.append(rec)
-        print('   %4i records so far' % (len(recs)))
+                prerecs.append(rec)
+        print('   %4i records so far' % (len(prerecs)))
 
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
     time.sleep(3)
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     req = urllib.request.Request(rec['artlink'], headers=hdr)
     artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DC.description', 'citation_pdf_url',
@@ -78,6 +83,8 @@ for rec in recs:
             #number of pages
             elif tht in ['Pagenumber:', 'Page Number:']:
                 rec['pages'] = re.sub('\D*(\d+).*', r'\1', tdt)
-    ejlmod3.printrecsummary(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
