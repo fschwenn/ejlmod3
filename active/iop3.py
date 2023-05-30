@@ -708,7 +708,10 @@ for issn in os.listdir(iopdirtmp):
                     print(' ')
                     if not issn in list(jnlskip.keys()):
                         ejlmod3.writenewXML(recs, publisher, iopf)
-                print('\n   %s with %i records\n' % (iopf, len(recs)))
+                    print('\n   %s with %i records\n' % (iopf, len(recs)))
+                else:
+                    print('\n   no records\n')
+                    
 
     
 #if everything went fine, move the files to done
