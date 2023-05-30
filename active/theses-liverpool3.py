@@ -15,6 +15,8 @@ import time
 publisher = 'U. Liverpool (main)'
 hdr = {'User-Agent' : 'Magic Browser'}
 
+skipalreadyharvested = True
+
 departmentstoskip = ["Chemistry", "Archaeology, Classics and Egyptology", "Archaeology",  "Architecture",  "Biochemistry",
                      "Biological Sciences",  "Biology",  "Biostatistics",  "Business Administration",
                      "Cellular & Molecular Physiology",  "Cellular and Molecular Physiology",
@@ -103,13 +105,18 @@ departmentstoskip = ["Chemistry", "Archaeology, Classics and Egyptology", "Archa
                      "Philosophy", "Primary Care & Mental Health", "Public Health and Policy",
                      "School of Electrical Engineering, Electronics and Computer Science",
                      "School of Histories, Languages and Culture", "School of Law and Social Justice",
-                     "School of Medicine", "Stem Cells & Regenerative Med", "Women&apos;s Health"]
+                     "School of Medicine", "Stem Cells & Regenerative Med", "Women&apos;s Health",
+                     'Cardiovascular & Metabolic Medicine', 'Equine Clinical Sciences',
+                     'Infection Biology & Microbiomes', 'Cardiovascular Science',
+                     'Department of Clinical Infection, Microbiology & Immunology']
 
 
 reboring = re.compile('(Master of Philosophy|Doctor of Business Administration|Doctor of Education thesis|Doctor of Dental Science|Doctor of Medicine|Doctor of Clinical Psychology)')
+prerecs = []
+jnlfilename = 'THESES-LIVERPOOL-%s' % (ejlmod3.stampoftoday())
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
-    prerecs = []
-    jnlfilename = 'THESES-LIVERPOOL-%s_%i' % (ejlmod3.stampoftoday(), year)
     tocurl = 'https://livrepository.liverpool.ac.uk/view/doctype/thesis/%i.html' % (year)
     print(tocurl)
     req = urllib.request.Request(tocurl, headers=hdr)
@@ -126,8 +133,8 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
                     rec['note'] = [ pt ]
                     prerecs.append(rec)
 
-    recs = []
-    for (i, rec) in enumerate(prerecs):
+recs = []
+for (i, rec) in enumerate(prerecs):
         keepit = True
         ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
         try:
@@ -170,10 +177,11 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
         if keepit:
             if not 'doi' in rec:
                 rec['doi'] = '20.2000/Liverpool/' + re.sub('\D', '', a['href'])
-            recs.append(rec)
-            rec['autaff'][-1].append(publisher)
-            ejlmod3.printrecsummary(rec)
+            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:    
+                recs.append(rec)
+                rec['autaff'][-1].append(publisher)
+                ejlmod3.printrecsummary(rec)
         else:
             ejlmod3.adduninterestingDOI(rec['link'])
-    ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
