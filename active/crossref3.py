@@ -90,7 +90,8 @@ for journal in crossref.body.find_all('journal'):
             rec['jnl'] = 'Acta Phys.Polon.Supp.'
             rec['licence'] = {'statement' : 'CC-BY-4.0'}
             rec['FFT'] = 'https://www.actaphys.uj.edu.pl/S/%s/%s/%s/pdf' % (rec['vol'], rec['issue'], rec['p1'])
-            rec['FFT'] = 'https://www.actaphys.uj.edu.pl/fulltext?series=Sup&vol=%s&aid=%s-%s' % (rec['vol'], rec['issue'], rec['p1orig'])
+            rec['p1orig'] = re.sub('.*\.', '', rec['doi'])
+            rec['FFT'] = 'https://www.actaphys.uj.edu.pl/fulltext?series=Sup&vol=%s&aid=%s' % (rec['vol'], rec['p1orig'])
             if  rec['vol'] == '15' and rec['issue'] == '1':
                 rec['cnum'] = 'C21-09-20.10'
                 rec['FFT'] = 'https://www.actaphys.uj.edu.pl/S/%s/%s/pdf' % (rec['vol'], re.sub('.*\.', '', rec['doi']))
