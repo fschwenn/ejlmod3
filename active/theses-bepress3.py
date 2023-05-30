@@ -97,7 +97,7 @@ boring += ['Business and Information Systems', 'Chemical and Biomolecular Engine
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested('THESES')
 
-bibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/HEPont.rdf "
+bibclassifycommand = "python /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/HEPont.rdf "
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
 tmpdir = '/afs/desy.de/user/l/library/tmp'
 
