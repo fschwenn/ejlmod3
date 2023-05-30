@@ -18,6 +18,7 @@ publisher = 'U. Waterloo (main)'
 jnlfilename = 'THESES-WATERLOO-%s' % (ejlmod3.stampoftoday())
 rpp = 100
 pages = 3
+skipalreadyharvested = True
 
 boring = ['School+of+Public+Health+and+Health+Systems', 'Kinesiology',
           'Health+Studies+and+Gerontology+%28Aging%2C+Health%2C+and+Well-Being%29',
@@ -36,6 +37,8 @@ boring += ['Mechanical+Engineering', 'Mechanical+Engineering+%28Nanotechnology%2
            'Mechanical+and+Mechatronics+Engineering']
 
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
           
 
 #bad certificate
@@ -69,7 +72,8 @@ for page in range(pages):
                 elif degree in ['Applied+Mathematics+%28Quantum+Information%29']:
                     rec['fc'] = 'km'
         if keepit and ejlmod3.checkinterestingDOI(rec['hdl']):
-            recs.append(rec)
+            if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
+                recs.append(rec)
         else:
             ejlmod3.adduninterestingDOI(rec['hdl'])
     print('    %4i records so far' % (len(recs)))
