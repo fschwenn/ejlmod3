@@ -22,6 +22,7 @@ hdr = {'User-Agent' : 'Magic Browser'}
 
 rpp = 20
 pages = 20
+skipalreadyharvested = True
 boringinstitutes = ['E360', 'E017', 'E017', 'E105', 'E120', 'E163', 'E164', 'E165',
                     'E186', 'E187', 'E188', 'E194', 'E259', 'E311', 'E315', 'E322',
                     'E330', 'E317', 'E166', 'E253', 'E192', 'E193', 'E280', 'E251',
@@ -37,8 +38,11 @@ boringinstitutes = ['E360', 'E017', 'E017', 'E105', 'E120', 'E163', 'E164', 'E16
 
 boringdegrees = ['Diploma']
 
-prerecs = []
 hdls = []
+if skipalreadyharvested:
+    hdls += ejlmod3.getalreadyharvested(jnlfilename)
+
+prerecs = []
 for page in range(pages):
     tocurl = 'https://repositum.tuwien.at/handle/20.500.12708/5?sort_by=2&order=DESC&offset=' + str(page*rpp) + '&rpp=' + str(rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
