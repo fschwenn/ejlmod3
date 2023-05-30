@@ -170,6 +170,11 @@ def get_sub_site(url, sess):
     link_section = soup.find_all('a', attrs={'title': 'permanent link to this ETD'})
     if len(link_section) == 1:
         rec['link'] = link_section[0].get('href')
+        pseudodoi = '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:])    
+        if pseudodoi in alreadyharvested:
+            print('   already in backup')
+            return
+        rec['doi'] = pseudodoi
 
     # Get the pdf-link
     pdf_section = soup.find_all('a', attrs={'class': 'doc-link'})
@@ -185,6 +190,7 @@ def get_sub_site(url, sess):
     for span in soup.find_all('span', attrs={'id': 'P10_SUBJECTS'}):
         for a in span.find_all('a'):
             subject = a.text.strip()
+            print('  [%s]' % (subject))
             if subject in ['Computer Engineering',
                            'Computer Science',
                            'Artificial Intelligence']:
@@ -246,7 +252,8 @@ def get_sub_site(url, sess):
     return
 
 options = uc.ChromeOptions()
-options.headless=True
+#options.headless=True
+options.add_argument('--headless')
 options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/google-chrome'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -279,12 +286,14 @@ with Session() as session:
                             #print('      ', subject)
                             if subject in boring:
                                 keepit = False
+                                #print('  skip subject "%s"' % (subject))
                                 break
             if keepit:
                 for p in li.find_all('p', attrs = {'class' : 't-SearchResults-degree'}):
                     #print('         ', p.text.strip())
                     if reboring.search(p.text):
                         keepit = False
+                        #print('  skip "%s"' % (p.text))
 #                    else:
 #                        print(p.text.strip())
             if keepit:
