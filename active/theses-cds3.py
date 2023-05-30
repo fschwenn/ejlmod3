@@ -15,9 +15,35 @@ urllib3.disable_warnings()
 publisher = 'CERN'
 rpp = 20
 pages = 100
+maxtries = 4
 targetnumberoftheses = 20
 skipalreadyharvested = True
 jnlfilename = 'THESES-CDS-%s' % (ejlmod3.stampoftoday())
+
+expdict = {'CMS' : 'CERN-LHC-CMS', 'CMS---CERN LHC' : 'CERN-LHC-CMS',
+           'ATLAS' : 'CERN-LHC-ATLAS',
+           'LHCb' : 'CERN-LHC-LHCb',
+           'ALPHA AD-5' : 'CERN-ALPHA',
+           'SHip' : 'CERN-SPS-SHIP',
+           'COMPASS NA58' : 'CERN-NA-058',
+           'TOTEM' : 'CERN-LHC-TOTEM',
+           'ALICE' : 'CERN-LHC-ALICE',
+           'SHINE NA61' : 'CERN-NA-061',
+           'NA62' : 'CERN-NA-062',
+           'nTOF' : 'CERN-nTOF',
+           'ISOLTRAP' : 'CERN-ISOLTRAP',
+           'RD39' : 'CERN-RD-039',
+           'RD42' : 'CERN-RD-042',
+           'RD44' : 'CERN-RD-044',
+           'RD45' : 'CERN-RD-045',
+           'RD46' : 'CERN-RD-046',
+           'RD48' : 'CERN-RD-048',
+           'RD49' : 'CERN-RD-049',
+           'RD50' : 'CERN-RD-050',
+           'RD51' : 'CERN-RD-051',
+           'RD52' : 'CERN-RD-052',
+           'RD53' : 'CERN-RD-053'}
+
 
 if skipalreadyharvested:    
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
@@ -28,8 +54,15 @@ listofunknownsexps = []
 for page in range(pages):
     tocurl = 'https://cds.cern.ch/search?jrec=' + str(page*rpp+1) + '&ln=en&p=037__a%3ACERN-THESIS-*+502__a%3Aphd+not+035__9%3Ainspire&action_search=Search&op1=a&m1=a&p1=&f1=&c=CERN+Document+Server&sf=year&so=d&rm=&rg=' + str(rpp) + '&sc=1&of=xm'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    tocpage = False
+    for j in range(maxtries):
+        if not tocpage:
+            try:
+                req = urllib.request.Request(tocurl, headers=hdr)
+                tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+            except:
+                print(' try again (%i/%i)' % (j+2, maxtries))
+                time.sleep(10)
     i = 0
     for record in tocpage.find_all('record'):
         i += 1
@@ -117,32 +150,8 @@ for page in range(pages):
                     rec['fc'] = 'xe'
                 elif exp in ['nTOF', 'ISOLTRAP', 'ISOL']:
                     rec['fc'] = 'x'
-                elif exp in ['CMS', 'CMS---CERN LHC']:
-                    rec['exp'] = 'CERN-LHC-CMS'
-                elif exp == 'ATLAS':
-                    rec['exp'] = 'CERN-LHC-ATLAS'
-                elif exp == 'LHCb':
-                    rec['exp'] = 'CERN-LHC-LHCb'
-                elif exp == 'ALPHA AD-5':
-                    rec['exp'] = 'CERN-ALPHA'
-                elif exp == 'SHip':
-                    rec['exp'] = 'CERN-SPS-SHIP'
-                elif exp == 'COMPASS NA58':
-                    rec['exp'] = 'CERN-NA-058'
-                elif exp == 'TOTEM':
-                    rec['exp'] = 'CERN-LHC-TOTEM'
-                elif exp == 'ALICE':
-                    rec['exp'] = 'CERN-LHC-ALICE'
-                elif exp == 'SHINE NA61':
-                    rec['exp'] = 'CERN-NA-061'
-                elif exp == 'NA62':
-                    rec['exp'] = 'CERN-NA-062'
-                elif exp == 'nTOF':
-                    rec['exp'] = 'CERN-nTOF'
-                elif exp == 'ISOLTRAP':
-                    rec['exp'] = 'CERN-ISOLTRAP'
-                elif exp == 'RD50':
-                    rec['exp'] = 'CERN-RD-050'
+                if exp in expdict:
+                    rec['exp'] = expdict[exp]
                 else:
                     if not exp in listofunknownsexps:
                         listofunknownsexps.append(exp)
