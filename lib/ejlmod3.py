@@ -99,7 +99,7 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.']),
-                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy']),
+                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
                   ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.']),
                   ('i', ['IEEE Instrum.Measur.Mag.', 'IEEE Sensors J.', 'IEEE Trans.Circuits Theor.', 'IEEE Trans.Instrum.Measur.', 'Instruments', 'Instrum.Exp.Tech.', 'JAIS', 'JINST', 'Meas.Tech.', 'Measur.Sci.Tech.', 'Metrologia', 'Microscopy Microanal.', 'Rad.Det.Tech.Meth.', 'Rev.Sci.Instrum.', 'Sensors', 'J.Astron.Telesc.Instrum.Syst.', 'EPJ Tech.Instrum.'])]
@@ -1098,7 +1098,7 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Alphabetical Index', 'Editorial Note', 'In Other Journals', 'Keynote Speeches',
             'Workshops and Tutorials', 'Cover Page', 'Plenary Panel', 'Book Reviews',
             'Half Title Page', 'Plenary/Invited Speech', 'Table of Contents', 'Information and Announcements',
-            'Editorial —How to write a good letter for EPL']
+            'Editorial —How to write a good letter for EPL', 'Calendar of events']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1438,9 +1438,9 @@ def metatagcheck(rec, artpage, listoftags):
                     done.append(tag)
                 elif tag in ['citation_isbn']:
                     if 'isbns' in rec:
-                        rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content']))])
+                        rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content'].strip()))])
                     else:
-                        rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content']))] ]
+                        rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content'].strip()))] ]
                     done.append(tag)
                 elif tag in ['dc.identifier', 'dc.Identifier', 'DC.identifier', 'DC.Identifier',
                              'dc.identifier.uri', 'eprints.id_number']:
@@ -1448,7 +1448,7 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['urn'] = meta['content'].strip()
                         done.append(tag)
                     elif re.search('.*resolving.[a-]+\/urn:', meta['content']):
-                        rec['urn'] = re.sub('.*resolving.[a-]+\/', '', meta['content'])
+                        rec['urn'] = re.sub('.*resolving.[a-]+\/', '', meta['content'].strip())
                         done.append(tag)
                     elif re.search('^(uri|URI):', meta['content']):
                         rec['uri'] = meta['content'].strip()
@@ -1470,74 +1470,74 @@ def metatagcheck(rec, artpage, listoftags):
                         done.append(tag)
                     elif re.search('^978', meta['content']):
                         if 'isbns' in rec:
-                            rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content']))])
+                            rec['isbns'].append([('a', re.sub('[^X\d]', '', meta['content'].strip()))])
                         else:
-                            rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content']))] ]
+                            rec['isbns'] = [ [('a', re.sub('[^X\d]', '', meta['content'].strip()))] ]
                         done.append(tag)
                 #language
                 elif tag in ['citation_language', 'dc.language', 'dc.Language', 'DC.language', 'DC.Language', 'language',
                              'dc.language.iso', 'eprints.language']:
-                    rec['language'] = meta['content']
+                    rec['language'] = meta['content'].strip()
                     done.append(tag)
                 #collaboration
                 elif tag in ['citation_collaboration']:
-                    rec['col'] = meta['content']
+                    rec['col'] = meta['content'].strip()
                     done.append(tag)
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName', 'dcterms.creator',
                              'DC.contributor.author', 'dc.creator', 'dcterms.creator', 'citation_authors']:
                     if 'autaff' in rec:
-                        rec['autaff'].append([meta['content']])
+                        rec['autaff'].append([meta['content'].strip()])
                     else:
-                        rec['autaff'] = [[meta['content']]]
+                        rec['autaff'] = [[meta['content'].strip()]]
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
                              'dc.contributor.advisor', 'eprints.referee_name', 'eprints.supervisor_name',
                              'eprints.thesis_advisor_name', 'eprints.tutors_name', 'eprints.referee_one_name',
                              'eprints.referee']:
-                    sv = re.sub(' \(.*', '', re.sub(' \[.*', '', meta['content']))
+                    sv = re.sub(' \(.*', '', re.sub(' \[.*', '', meta['content'].strip()))
                     if 'supervisor' in rec:
                         rec['supervisor'].append([sv])
                     else:
                         rec['supervisor'] = [[sv]]
                     done.append(tag)
                 elif tag in ['eprints.thesis_advisor_orcid', 'eprints.supervisors_orcid']:
-                    rec['supervisor'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
+                    rec['supervisor'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content'].strip()))
                     done.append(tag)
                 elif tag in ['eprints.thesis_advisor_email', 'eprints.supervisor_id']:
                     if re.search('@', meta['content']):
-                        rec['supervisor'][-1].append('EMAIL:' + meta['content'])
+                        rec['supervisor'][-1].append('EMAIL:' + meta['content'].strip())
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
                              'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
-                    if not meta['content'] in rec['autaff'][-1]:
-                        rec['autaff'][-1].append(meta['content'])
+                    if not meta['content'].strip() in rec['autaff'][-1]:
+                        rec['autaff'][-1].append(meta['content'].strip())
                     done.append(tag)
                 elif tag in ['citation_author_email', 'citation_editor_email', 'eprints.contact_email', 'eprints.creators_id',
                              'eprints.creators_email']:
                     if re.search('@', meta['content']):
-                        rec['autaff'][-1].append('EMAIL:' + meta['content'])
+                        rec['autaff'][-1].append('EMAIL:' + meta['content'].strip())
                         done.append(tag)
                 elif tag in ['citation_author_orcid', 'citation_editor_orcid', 'eprints.creators_orcid', 'eprints.creators_orcid']:
-                    rec['autaff'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content']))
+                    rec['autaff'][-1].append('ORCID:' + re.sub('.*\/', '', meta['content'].strip()))
                     done.append(tag)
                 elif tag in ['citation_editor']:
                     if 'autaff' in rec:
-                        rec['autaff'].append([meta['content'].title() + ' (Ed.)'])
+                        rec['autaff'].append([meta['content'].strip().title() + ' (Ed.)'])
                     else:
-                        rec['autaff'] = [[meta['content'].title() + ' (Ed.)']]
+                        rec['autaff'] = [[meta['content'].strip().title() + ' (Ed.)']]
                     done.append(tag)
                 #title
                 elif tag in ['bepress_citation_title', 'Citation_Article_Title', 'citation_title', 'eprints.title',
                              'twitter:title', 'dc.title', 'dc.Title', 'DC.title', 'DC.Title', 'og:title',
                              'dcterms.title', 'eprints.title_name']:
-                    rec['tit'] = meta['content']
+                    rec['tit'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['DC.Title.Alternative', 'DCTERMS.alternative']:
                     if 'otits' in rec:
-                        rec['otits'].append(meta['content'])
+                        rec['otits'].append(meta['content'].strip())
                     else:
-                        rec['otits'] = [meta['content']]
+                        rec['otits'] = [meta['content'].strip()]
                     done.append(tag)
                 #date
                 elif tag in ['dc.date', 'dc.Date', 'DC.date', 'DC.Date.created', 'bepress_citation_date',
@@ -1546,69 +1546,69 @@ def metatagcheck(rec, artpage, listoftags):
                              'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued',
                              'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum',
                              'DC.Date.Creation_of_intellectual_content']:
-                    rec['date'] = meta['content']
+                    rec['date'] = meta['content'].strip()
                     done.append(tag)
                 #pubnote
                 elif tag in ['citation_lastpage', 'bepress_citation_lastpage', 'prism.endingPage']:
-                    rec['p2'] = meta['content']
+                    rec['p2'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_firstpage', 'bepress_citation_firstpage', 'DC.Identifier.pageNumber',
                              'prism.startingPage']:
-                    rec['p1'] = meta['content']
+                    rec['p1'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_issue', 'prism.number']:
-                    rec['issue'] = meta['content']
+                    rec['issue'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_num_pages', 'DCTERMS.extent', 'eprints.pages', 'citation_pages']:
                     if re.search('^d+$', meta['content']):
-                        rec['pages'] = meta['content']
+                        rec['pages'] = meta['content'].strip()
                         done.append(tag)
                     elif re.search('\d\d', meta['content']):
-                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', meta['content'])
+                        rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', meta['content'].strip())
                         done.append(tag)
                 elif tag in ['citation_year', 'Citation_Year']:
-                    rec['year'] = meta['content']
+                    rec['year'] = meta['content'].strip()
                     done.append(tag)
                 elif tag in ['citation_volume', 'prism.volume']:
-                    rec['vol'] = meta['content']
+                    rec['vol'] = meta['content'].strip()
                     done.append(tag)
                 #license
                 elif tag in ['dc.rights', 'DC.rights', 'DC.Rights', 'DCTERMS.URI', 'dc.rights.uri', 'dc:rights']:
                     if re.search('creativecommons.org', meta['content']):
-                        rec['license'] = {'url' : meta['content']}
+                        rec['license'] = {'url' : meta['content'].strip()}
                         done.append(tag)
                     elif re.search('^cc_[a-z][a-z].*', meta['content']):
-                        rec['license'] = {'statement' : re.sub('_', '-', meta['content'].upper())}
+                        rec['license'] = {'statement' : re.sub('_', '-', meta['content'].strip().upper())}
                         done.append(tag)
                 #link
                 elif tag in ['citation_public_url']:
-                    rec['link'] =  meta['content']
+                    rec['link'] =  meta['content'].strip()
                 #keywords
                 elif tag in ['Citation_Keyword', 'citation_keywords', 'dc.keywords', 'dc.subject',
                              'dc.Subject', 'DC.subject', 'DC.Subject', 'keywords', 'eprints.keywords',
                              'keywords', 'dc:subject', 'eprints.keywords_name', 'prism.keyword']:
                     if 'keyw' in rec:
-                        if not meta['content'] in rec['keyw']:
-                            rec['keyw'].append(meta['content'])
+                        if not meta['content'].strip() in rec['keyw']:
+                            rec['keyw'].append(meta['content'].strip())
                     else:
-                        rec['keyw'] = re.split('; ', meta['content'])
+                        rec['keyw'] = re.split('; ', meta['content'].strip())
                     done.append(tag)
                 #fulltext
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
                     if not re.search('[aA]bstract', meta['content']):
-                        rec['pdf_url'] = meta['content']
+                        rec['pdf_url'] = meta['content'].strip()
                     done.append(tag)
                 #object type
                 elif tag in ['DC.type', 'dc.type', 'dc.Type', 'DC.Type']:
-                    rec['note'].append(meta['content'])
+                    rec['note'].append(meta['content'].strip())
                     done.append(tag)
                 #references
                 elif tag in ['citation_reference']:
                     done.append(tag)
-                    reference = [('x', meta['content'])]
+                    reference = [('x', meta['content'].strip())]
                     if re.search('citation_.*=.*citation_.*=', meta['content']):
                         (pbnjt, pbnv, pbnfp, pbnlp) = ('', '', '', '')
-                        for part in re.split('; *citation_', re.sub('^citation_', '',  meta['content'])):
+                        for part in re.split('; *citation_', re.sub('^citation_', '',  meta['content'].strip())):
                             pparts = re.split(' *=', part)
                             key = pparts[0]
                             val = '='.join(pparts[1:])
@@ -1655,9 +1655,9 @@ def metatagcheck(rec, artpage, listoftags):
                 #get special tag
                 else:
                     if tag in rec:
-                        rec[tag].append('%s:::%s' % (tag, meta['content']))
+                        rec[tag].append('%s:::%s' % (tag, meta['content'].strip()))
                     else:
-                        rec[tag] = ['%s:::%s' % (tag, meta['content'])]
+                        rec[tag] = ['%s:::%s' % (tag, meta['content'].strip())]
                     done.append(tag)
 
     #abstract (if theere are several in different languages)
@@ -1696,7 +1696,7 @@ def writeretrival(jnlfilename, retfilename='retfiles'):
         retfiles.close()
 
 #uninteresting DOIs
-inf = open('/afs/desy.de/user/l/library/dok/ejl/uninteresting.dois', 'r')
+inf = open('/afs/desy.de/user/l/library/lists/uninteresting.dois', 'r')
 uninterestingDOIS = []
 #newuninterestingDOIS = []
 for line in inf.readlines():
@@ -1708,7 +1708,7 @@ def checkinterestingDOI(doi):
     else:
         return True
 def adduninterestingDOI(doi):
-    ouf = open('/afs/desy.de/user/l/library/dok/ejl/uninteresting.dois', 'a')
+    ouf = open('/afs/desy.de/user/l/library/lists/uninteresting.dois', 'a')
     ouf.write(doi + '\n')
     ouf.close()
     return
@@ -1746,7 +1746,8 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                       'Master+of+Education+%28M.Ed.%29', 'Master+of+Environment+and+Sustainability+%28M.E.S.%29',
                       'Master+of+Fine+Arts+%28M.F.A.%29', 'Master+of+Laws+%28LL.M.%29', 'Master+of+Nursing+%28M.N.%29',
                       'Master+of+Public+Health+%28M.P.H.%29', 'Master+of+Science+%28M.Sc.%29',
-                      'Master+of+Veterinary+Science+%28M.Vet.Sc.%29', 'MS', 'MFA', 'MA']
+                      'Master+of+Veterinary+Science+%28M.Vet.Sc.%29', 'MS', 'MFA', 'MA', 'A.Mus.D.', 'Ed.D.',
+                      'M.F.A.', 'M.L.A.']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
