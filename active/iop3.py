@@ -168,6 +168,8 @@ srv = pysftp.Connection(host="collection-service.iop.org", username="inspire_hep
 for datei in srv.listdir():
     if datei in done:
         print('%s already in done' % (datei))
+    elif re.sub('_content.zip', '.wo_pdf.tar.gz', datei) in done:
+        print('%s already in done (without PDFs)' % (datei))
     else:
         todo.append(datei)
         print('downloading %s ...' % (datei))
