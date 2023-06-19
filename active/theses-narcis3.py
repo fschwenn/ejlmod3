@@ -224,6 +224,7 @@ boringinsts = ['Faculty of Medicine, Leiden University Medical Center (LUMC) Lei
                'Maastricht Centre for Human Rights', 'Maastr Inst for Transnat Legal Research',
                'Med Microbiol, Infect Dis & Infect Prev', 'Neurosurgery', 'Oral Kinesiology', 'Oral Medicine',
                'Oral Public Health', 'Orthodontics', 'Periodontology', 'Preventive Dentistry', 'Psychometrics and Statistics']
+boringdois = ['10.48273']
 #check individual pages of bunch of records
 def processrecs(recs, bunchcounter):
     i = 0
@@ -324,6 +325,9 @@ def processrecs(recs, bunchcounter):
                 rec['link'] = rec['artlink']
         if not 'doi' in list(rec.keys()) and not 'isbn' in list(rec.keys()) and not 'urn' in list(rec.keys()) and not 'hdl' in list(rec.keys()):
             rec['doi'] = '20.2001/NARCIS/' + re.sub('\W', '', rec['artlink'])
+        if re.sub('\/.*', '', rec['doi']) in boringdois:
+            keepit = False
+            print('   skip "%s"' % (rec['doi']))            
         if keepit:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
