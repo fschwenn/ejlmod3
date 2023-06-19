@@ -43,7 +43,8 @@ jnldict = {'annphys' : [['1521-3889'], '10.1002/andp', 'Annalen Phys.'],
            'adma' : [['1521-4095'], '10.1002/adma', 'Adv.Mater.'],
            'xrs' : [['1097-4539'], '10.1002/', 'X Ray Spectrom.'],
            'qj' : [['1477-870X'], '10.1002/qj', 'Q.J.R.Meteorol.Soc.'],
-           'mop' : [['1098-2760'], '10.1002/mop', 'Microw.Opt.Technol.Lett.']}
+           'mop' : [['1098-2760'], '10.1002/mop', 'Microw.Opt.Technol.Lett.'],
+           'ntls' : [['26986248'], '10.1002/ntls', 'Natural Sci.']}
 issntojnl = {}
 for j in jnldict:
     for issn in jnldict[j][0]:
