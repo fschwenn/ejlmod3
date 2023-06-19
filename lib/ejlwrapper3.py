@@ -111,7 +111,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['mdpi.sftp3.py', 'nanomaterials']),
         (12, ['annualreview3.py', 'arnps', pryear-1950]),
         (12, ['annualreview3.py', 'araa', pryear-1962]),
-        (1, ['royalsociety3.py', 'prs', pryear-1544, (pryear-1834)*12+prmonth]),
+        (1, ['royalsociety3XXX.py', 'prs', pryear-1544, (pryear-1834)*12+prmonth]),
         (1, ['actapolytechnica3.py']),
         (2, ['oxfordjournals3.py', 'pasj', pryear-1948, prsixth]),
         (1, ['oxfordjournals3.py', 'ptep', pryear, prmonth]),
@@ -525,6 +525,10 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-boston3.py']),
         (1, ['theses-westernontario3.py']),
         (1, ['mdpi.sftp3.py', 'astronomy']),
+        (1, ['figshare3.py', 'mq']),
+        (1, ['figshare3.py', 'hammer']),
+        (1, ['figshare3.py', 'wellington']),
+        (2, ['theses-michoacan3.py']),
         #
         (1, ['theses-tokyo3.py']),
         (1, ['theses-cds3.py'])]
@@ -561,6 +565,7 @@ for entrynumber in range(len(jnls)):
 #do Springer each day
 listofcommands.append(['springer3.py', '-sftp'])
 prfil.write(' - springer3.py\n')
+
 #do always WSP or IOP or HINDWAI
 if (today.day % 3 == 0):
     listofcommands.append(['wsp3.py'])
