@@ -9,30 +9,62 @@ jnlfilename = 'THESES-ILLINOIS-%s' % (ejlmod3.stampoftoday())
 recs = []
 
 skipalreadyharvested = True
-pages = 1
+tocpages = 1
 
-boring = ['M.S.', 'M.A.', 'MS', 'MA']
+boring = []
+for deg in ['M.S.', 'M.A.', 'MS', 'MA', 'A.Mus.D.', 'Ed.D.', 'M.S.', 'M.F.A.', 'M.L.A.', 'J.S.D.', 'M.U.P.']:
+    boring.append('thesis.degree.name:::' + deg)
+for disc in ['Animal Sciences', 'Chemistry', 'Education', 'Aerospace Engineering',
+             'Crop Sciences', 'Natural Res & Env Sciences', 'Nutritional Sciences',
+             'Portuguese', 'Psychology', 'Systems & Entrepreneurial Engr', 'Agricultural & Applied Econ',
+             'Agricultural & Biological Engr', 'Anthropology', 'Architecture', 'Atmospheric Sciences',
+             'Biochemistry', 'Bioengineering', 'Biology', 'Biophysics & Quant Biology',
+             'Cell and Developmental Biology', 'Chemical Engineering', 'Civil Engineering', 'Communications and Media',
+             'Community Health', 'Curriculum and Instruction', 'Ecol, Evol, Conservation Biol', 'Economics',
+             'Educational Psychology', 'Educ Policy, Orgzn & Leadrshp', 'English', 'Entomology', 'Geography',
+             'Geology', 'Human Dvlpmt & Family Studies', 'Industrial Engineering', 'Kinesiology',
+             'Library & Information Science', 'Linguistics', 'Materials Science & Engr', 'Mechanical Engineering',
+             'Molecular & Integrative Physi', 'Musicology', 'Music', 'Neuroscience', 'Plant Biology',
+             'Regional Planning', 'Social Work', 'Spanish', 'VMS - Pathobiology',
+             'Advertising', 'AfricanStudies', 'ArtandDesign', 'ArtEducation', 'ArtHistory', 'Bioinformatics',
+             'Biophysics&ComputnlBiology', 'BusinessAdministration', 'ClassicalPhilology', 'Communication',
+             'ComparativeLiterature', 'E.AsianLanguages&Cultures', 'EAsianLanguages&Cultures',
+             'EnvironEngrinCivilEngr', 'EuropeanUnionStudies', 'FoodScience&HumanNutrition', 'FoodScience', 'French',
+             'History', 'HumanRes&IndustrialRels', 'HumanResourceEducation', 'InformationSciences',  'Theatre',
+              'LandscapeArchitecture', 'LatinAmericanStudies', 'Microbiology', 'MusicEducation',
+             'NaturalResourcesandEnvironmentalSciences', 'Philosophy', 'PoliticalScience', 
+             'Recreation,Sport,andTourism', 'Sociology', 'Speech&HearingScience', 'Statistics',
+             'TeachingofEnglishSecLang', 'VMS-ComparativeBiosciences', 'VMS-VeterinaryClinicalMedcne',
+             'Accountancy', 'AgriculturalandAppliedEconomics', 'BiophysicsandQuantitativeBiology', 'Communications',
+             'EastAsianLanguagesandCultures', 'EdOrganizationandLeadership', 'EducationalPolicyStudies', 'Finance',
+             'German', 'HumanDevelopmentandFamilyStudies', 'Italian', 'Law', 'SlavicLanguages&Literature',
+             'SpecialEducation', 'UrbanPlanning',
+             'Agr&ConsumerEconomics', 'ChemicalPhysics', 'CivilandEnvironmentalEngineering',
+             'EducationPolicyStudies', 'EnvironScienceinCivilEngr', 'HumanResourcesandIndustrialRelations',
+             'PsychologyPsychology', 'SlavicLanguages&Literature', 'SpanishLinguistics',
+             'CommunicationsandMediaStudies', 'ComparativeandWorldLiterature', 'Human&CommunityDevelopment',
+             'LibraryandInformationScience', 'MolecularandIntegrativePhysiology',
+             'NaturalResourcesandEnvironmentalScience', 'Recreation,SportandTourism', 'SpeechCommunication']:
+    boring.append('thesis.degree.discipline:::' + re.sub('\s', '', disc))
 
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 def get_sub_site(url, fc, sess, aff):
     if ejlmod3.checkinterestingDOI(url):
-        print('[{}] --> Harvesting Data'.format(url))
+        print('  [{}] --> Harvesting Data'.format(url))
     else:
-        print('[{}]'.format(url))
+        print('  [{}]'.format(url))
         return
     rec = {'tc': 'T', 'jnl': 'BOOK', 'note' : []}
     keepit = True
 
     if fc: rec['fc'] = fc
 
-    sleep(4)
+    sleep(5)
     resp = sess.get(url)
 
     # Check if site correctly loaded
@@ -41,17 +73,38 @@ def get_sub_site(url, fc, sess, aff):
         return
 
     artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
-    ejlmod3.metatagcheck(rec, artpage, ['dc.contributor.advisor', 'dc.description.abstract', 
+    ejlmod3.metatagcheck(rec, artpage, ['dc.contributor.advisor', 'dc.description.abstract',
                                         'dc.identifier.uri', 'dc.rights', 'citation_title', 'citation_author',
                                         'citation_keywords', 'citation_pdf_url', 'citation_public_url',
-                                        'thesis.degree.name', 'citation_publication_date'])
+                                        'thesis.degree.name', 'citation_publication_date',
+                                        'thesis.degree.discipline'])
     if 'thesis.degree.name' in rec:
-        for degree in rec['thesis.degree.name']:
+        for d in rec['thesis.degree.name']:
+            degree = re.sub('[\n\r\t\s]', '', d)
             if degree in boring:
                 keepit = False
-                print('\n~~~ skip %s ~~~\n' % (degree))
-            elif not degree in ['PhD', 'PHD', 'Ph.D.']:
+                print('     ~~~ skip %s ~~~' % (degree))
+            elif not degree in ['thesis.degree.name:::PhD',
+                                'thesis.degree.name:::PHD',
+                                'thesis.degree.name:::Ph.D.']:
                 rec['note'].append(degree)
+    if 'thesis.degree.discipline' in rec:
+        for d in rec['thesis.degree.discipline']:
+            disc = re.sub('[\n\r\t\s]', '', d)
+            if disc in boring:
+                keepit = False
+                print('     ~~~ skip %s ~~~' % (disc))
+            elif disc == 'thesis.degree.discipline:::Astronomy':
+                rec['fc'] = 'a'
+            elif disc in ['thesis.degree.discipline:::Mathematics',
+                          'thesis.degree.discipline:::AppliedMathematics']:
+                rec['fc'] = 'm'
+            elif disc in ['thesis.degree.discipline:::Informatics',
+                          'thesis.degree.discipline:::ComputerScience']:
+                rec['fc'] = 'c'
+            elif not disc in ['thesis.degree.discipline:::Physics',
+                              'thesis.degree.discipline:::Nuclear,Plasma,RadiolgcEngr']:
+                rec['note'].append(disc)
     # Add the aff
     if not 'autaff' in rec or not rec['autaff']:
         for h4 in artpage.find_all('h4', attrs = {'class' : 'creators'}):
@@ -66,10 +119,19 @@ def get_sub_site(url, fc, sess, aff):
 #    rec['hidden'] = rec['pdf_url']
 #    rec.pop('pdf_url')
     rec['link'] = url
-    if rec['hdl'] in alreadyharvested:
+    pseudodoi = '20.2000/LINK/' + re.sub('\W', '', url[4:])
+    if 'hdl' in rec and rec['hdl'] in alreadyharvested:
         print('   %s already in backup' % (rec['hdl']))
         if not keepit:
-            ejlmod3.adduninterestingDOI(url)            
+            ejlmod3.adduninterestingDOI(url)
+    elif 'doi' in rec and rec['doi'] in alreadyharvested:
+        print('   %s already in backup' % (rec['doi']))
+        if not keepit:
+            ejlmod3.adduninterestingDOI(url)
+    elif pseudodoi in alreadyharvested:
+        print('   %s already in backup' % (pseudodoi))
+        if not keepit:
+            ejlmod3.adduninterestingDOI(url)
     elif keepit:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
@@ -78,17 +140,21 @@ def get_sub_site(url, fc, sess, aff):
 
 
 publisher = 'Illinois U., Urbana (main)'
-departments = [('Dept.+of+Physics', 'Illinois U., Urbana', ''),
-               ('Dept.+of+Computer+Science', 'Illinois U., Urbana (main)', 'c'),
-               ('Dept.+of+Mathematics', 'Illinois U., Urbana, Math. Dept.', 'm'),
-               ('Dept.+of+Astronomy', 'Illinois U., Urbana, Astron. Dept.', 'a')]
+departments = [('Dept.+of+Astronomy', 'Illinois U., Urbana, Astron. Dept.', 'a', tocpages),
+               ('Dept.+of+Physics', 'Illinois U., Urbana', '', tocpages),
+               ('Dept.+of+Computer+Science', 'Illinois U., Urbana (main)', 'c', tocpages),
+               ('Dept.+of+Mathematics', 'Illinois U., Urbana, Math. Dept.', 'm', tocpages),
+               ('all', 'Illinois U., Urbana (main)', '', tocpages*125)]
 rpp = 25
 
+reallinks = []
 with Session() as session:
-    for (dep, aff, fc) in departments:
+    for (dep, aff, fc, pages) in departments:
         for page in range(pages):
-            tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3A' + dep + '&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&fq%5B%5D=metadata_dc_type.keyword%3AThesis&q=&sort=metadata_dc_date_issued.sort&start=' + str(rpp*page)
-            tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&fq%5B%5D=k_unit_titles%3A' + dep + '&start=' + str(rpp*page)
+            if dep == 'all':
+                tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&&start=' + str(rpp*(page+110+110))
+            else:
+                tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&fq%5B%5D=k_unit_titles%3A' + dep + '&start=' + str(rpp*page)
             ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
             index_resp = session.get(tocurl)
 
@@ -96,15 +162,19 @@ with Session() as session:
                 print("Can't reach this page:", tocurl)
                 continue
 
-            link_box = BeautifulSoup(index_resp.content.decode('utf-8'), 'lxml').find_all('div', attrs={'class': 'media-body'})
+            link_box = BeautifulSoup(index_resp.content.decode('utf-8'), 'lxml').find_all('div', attrs={'class': 'flex-grow-1'})
             #tocpage = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
             #print(tocpage.text)
             #link_box = tocpage.find_all('div', attrs={'class': 'media-body'})
-            for box in link_box:
+            for (j, box) in enumerate(link_box):
                 link = box.find_all('a')
                 if len(link) == 1:
-                    get_sub_site("https://www.ideals.illinois.edu" + link[0].get('href'), fc, session, aff)
+                    reallink = link[0].get('href')
+                    ejlmod3.printprogress('-', [[dep], [page+1, pages], [j+1, len(link_box)]])
+                    if not reallink in reallinks:
+                        get_sub_site(reallink, fc, session, aff)
+                        reallinks.append(reallink)
+            print('\n  %4i records so far\n' % (len(recs)))
             sleep(4)
-        sleep(4)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
