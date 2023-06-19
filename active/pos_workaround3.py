@@ -22,7 +22,8 @@ skipalreadyharvested = True
 ppdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 
 publisher = 'SISSA'
-jnlfilename = 'pos_%s_prae' % (vol)
+jnlfilename = 'pos_%s' % (vol)
+jnlfilename = 'pos_%s_%s' % (vol, ejlmod3.stampoftoday())
 
 tocurl = 'https://pos.sissa.it/%s/' % (nr)
 tocpage = BeautifulSoup(urllib.request.urlopen(tocurl), features="lxml")
