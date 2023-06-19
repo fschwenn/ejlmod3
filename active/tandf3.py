@@ -22,6 +22,7 @@ publisher = 'Taylor and Francis'
 jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
+skipalreadyharvested = True
 
 if   (jnl == 'tnst20'):
     jnlname = 'J.Nucl.Sci.Tech.'
@@ -58,6 +59,8 @@ else:
     jnlfilename = "%s.%s.%s" % (jnl, vol, issue)
 
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 #options = uc.ChromeOptions()
 #options.headless=True
 #options.binary_location='/usr/bin/chromium-browser'
@@ -106,7 +109,9 @@ for adoi in page.body.find_all('a'):
         tc = ''
     rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'issue' : issue, 'autaff' : [], 'note' : []}
     rec['doi'] = re.sub('.*\/(10\..*)', r'\1', adoi['href'])
-    prerecs.append(rec)
+    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        prerecs.append(rec)
+        
 recs = []
 for (i, rec) in enumerate(prerecs):
     time.sleep(random.randint(30,170))
