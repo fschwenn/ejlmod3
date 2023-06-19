@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'U. Giessen (main)'
 jnlfilename = 'THESES-GIESSEN-%s' % (ejlmod3.stampoftoday())
@@ -30,20 +31,48 @@ hdr = {'User-Agent' : 'Magic Browser'}
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/chromium'
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+else:
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+
 prerecs = []
 for page in range(pages):
     tocurl = 'https://jlupub.ub.uni-giessen.de/browse?rpp=' + str(rpp) + '&offset=' + str(rpp*page) + '&etal=-1&sort_by=2&type=type&value=doctoralThesis&order=DESC'
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://jlupub.ub.uni-giessen.de', fakehdl=True):
-        doi = re.sub('.*pub\/', '10.22029/jlupub-', rec['link'])
-        if skipalreadyharvested and doi in alreadyharvested:
-            print('  %s already in backup' % (doi))
-        elif ejlmod3.checkinterestingDOI(doi):
-            prerecs.append(rec)
-        else:
-            print('  %s uninteresting' % (doi))            
+    skip = False
+    try:
+        req = urllib.request.Request(tocurl, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    except:
+        try:
+            time.sleep(1)
+            driver.get(tocurl)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        except:
+            try:
+                time.sleep(100)
+                driver.get(tocurl)
+                tocpage = BeautifulSoup(driver.page_source, features="lxml")
+            except:
+                skip = True
+    if not skip:
+        for rec in ejlmod3.getdspacerecs(tocpage, 'https://jlupub.ub.uni-giessen.de', fakehdl=True):
+            doi = re.sub('.*pub\/', '10.22029/jlupub-', rec['link'])
+            if skipalreadyharvested and doi in alreadyharvested:
+                print('  %s already in backup' % (doi))
+            elif ejlmod3.checkinterestingDOI(doi):
+                prerecs.append(rec)
+            else:
+                print('  %s uninteresting' % (doi))            
     print('  %4i records so far' % (len(prerecs)))
     time.sleep(20)
 
@@ -103,8 +132,6 @@ for rec in prerecs:
         recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
-    if i % 5 == 0:
-        ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
