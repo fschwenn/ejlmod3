@@ -27,7 +27,7 @@ import undetected_chromedriver as uc
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
 options.binary_location='/usr/bin/google-chrome'
-options.add_argument('--headless')
+#options.add_argument('--headless')
 #options.add_argument('--no-sandbox')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -63,15 +63,24 @@ print("get table of content... from %s" % (toclink))
 
 #driver = webdriver.PhantomJS()
 #driver.implicitly_wait(300)
-driver.get(toclink)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
-
+driver.get(urltrunk)
+time.sleep(10)
+try:
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    time.sleep(10)
+except:
+    time.sleep(10)
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
 
 
 recs = []
 divs = tocpage.body.find_all('div', attrs = {'class' : 'issue-item'})
 for (i, div) in enumerate(divs):
     rec = {'jnl' : jnlname, 'tc' : 'P', 'vol' : vol, 'issue' : issue, 'autaff' : [], 'autaff2' : []}
+    artlink = False
     for h5 in div.find_all('h5', attrs = {'class' : 'issue-item__title'}):
         for a in h5.find_all('a'):
             artlink = "%s%s" % ('https://royalsocietypublishing.org', a['href'])
@@ -88,6 +97,8 @@ for (i, div) in enumerate(divs):
     for ul in div.find_all('ul', attrs = {'aria-label' : 'author'}):
         for li in ul.find_all('li'):
             rec['autaff'].append([li.text.strip()])
+    if not artlink:
+        continue
     #details from article page
     try:
         try:
@@ -169,8 +180,8 @@ for (i, div) in enumerate(divs):
                 rec['refs'].append([('x', lit)])
     except:
         print('    ...could not get reference page ...')
-
-    ejlmod3.printrecsummary(rec)
-    recs.append(rec)
+    if 'doi' in rec:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
