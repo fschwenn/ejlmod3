@@ -118,7 +118,7 @@ for rec in prerecs:
     if not 'abs' in list(rec.keys()) and 'absel' in list(rec.keys()):
         rec['abs'] = rec['absel']
     #pseudodoi
-    if not 'hdl' in list(rec.keys()) and not 'doi' in list(rec.keys()):
+    if not 'hdl' in rec and not 'doi' in rec:
         rec['doi'] = '20.2000/Didktorika/' + re.sub('\D', '', rec['artlink'])
         rec['link'] = rec['artlink']
     if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
