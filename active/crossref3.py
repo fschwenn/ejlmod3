@@ -106,7 +106,8 @@ for journal in crossref.body.find_all('journal'):
                 rec['year'] = year.text
         #title
         for titles in journal_article.find_all('titles'):
-            for title in titles.find_all('title'): rec['tit'] = title.text
+            for title in titles.find_all('title'):
+                rec['tit'] = re.sub('\\\[\(\)]', '$', title.text)
         #authors
         for contributors in journal_article.find_all('contributors'):
             rec['autaff'] = []
