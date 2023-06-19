@@ -12,6 +12,7 @@ import time
 import undetected_chromedriver as uc
 import random
 import datetime
+import json
 regexpref = re.compile('[\n\r\t]')
 
 publisher = 'AIP'
@@ -185,7 +186,7 @@ print(urltrunk)
 driver.get(urltrunk)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
-def getarticle(artlink, secs, p1):
+def getarticle(artlink, secs):
     try:
         driver.get(artlink)
         artpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -204,7 +205,7 @@ def getarticle(artlink, secs, p1):
             artpage = BeautifulSoup(driver.page_source, features="lxml")
             artpage.body.find_all('div')            
     rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : iss, 'tc' : typecode, 'keyw' : [],
-           'note' : [artlink], 'p1' : p1}
+           'note' : [artlink]}
     emails = {}
     if cnum:
         rec['cnum'] = cnum
@@ -237,6 +238,15 @@ def getarticle(artlink, secs, p1):
     #abstract
     for section in artpage.body.find_all('section', attrs = {'class' : 'abstract'}):
         rec['abs'] = section.text.strip()
+    #article ID
+    for script in artpage.find_all('script', attrs = {'type' : 'application/ld+json'}):
+        scriptt = re.sub('[\n\t]', '', script.contents[0].strip())
+        metadata = json.loads(scriptt)
+        if 'pageStart' in metadata:
+            rec['p1'] = metadata['pageStart']
+        if jnl in ['pto']:
+            if 'pageEnd' in metadata:
+                rec['p2'] = metadata['pageEnd']
     #ORCIDs
     orcids = {}
     for div in artpage.body.find_all('div', attrs = {'class' : 'al-author-name'}):
@@ -250,16 +260,17 @@ def getarticle(artlink, secs, p1):
                     orcids[name] = orcid
                     #print('         ', name, orcid)
     #combine ORCID with affiliations
-    newautaff = []
-    for aa in rec['autaff']:
-        name = re.sub('(.*), (.*)', r'\2 \1', aa[0])
-        if name in orcids:            
-            newautaff.append([aa[0], orcids[name]] + aa[1:])
-            #print('   %s -> orcid.org/%s' % (name, orcids[name]))
-        else:
-            newautaff.append(aa)
-    rec['autaff'] = newautaff
-                    
+    if 'autaff' in rec:
+        newautaff = []
+        for aa in rec['autaff']:
+            name = re.sub('(.*), (.*)', r'\2 \1', aa[0])
+            if name in orcids:            
+                newautaff.append([aa[0], orcids[name]] + aa[1:])
+                #print('   %s -> orcid.org/%s' % (name, orcids[name]))
+            else:
+                newautaff.append(aa)
+        rec['autaff'] = newautaff
+                        
         
     
     #references
@@ -299,8 +310,6 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
                                 print(lev*'@', sections[h.name])
                         for a in child2.find_all('a', attrs = {'class' : 'viewArticleLink'}):
                             href = 'https://pubs.aip.org' + a['href']
-                            #articleID is not on indiviual article page (sic!)
-                            p1 = re.sub('.*\/(\d\d+)\/.*', r'\1', href)
                             if not skipalreadyharvested or not href in alreadyharvested:
                                 secs = list(sections.values())                               
                                 keepit = True
@@ -308,7 +317,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
                                     if sec.upper() in boring:
                                         keepit = False
                                 if keepit:
-                                    tocheck.append((href, p1, secs))
+                                    tocheck.append((href, secs))
                                     print(' + ', href)
                                 else:
                                     print(' - ', href)
@@ -319,14 +328,14 @@ time.sleep(10)
 random.shuffle(tocheck)
 recs = []
 i = 0
-for (href, p1, secs) in tocheck:
+for (href, secs) in tocheck:
     i += 1
     if href in ['/doi/full/10.1063/1.5019809']:
         print('skip %s' % (href))
     else:
-        ejlmod3.printprogress('-', [[i, len(tocheck)], secs, [href, p1]])
-        rec = getarticle(href, secs, p1)
-        if rec['autaff']:
+        ejlmod3.printprogress('-', [[i, len(tocheck)], secs, [href]])
+        rec = getarticle(href, secs)
+        if 'autaff' in rec and rec['autaff']:
             recs.append(rec)
             ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
 print('%i records for %s' % (len(recs), jnlfilename))
