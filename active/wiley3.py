@@ -127,6 +127,10 @@ elif (jnl == 'mop'):
     issn = '1098-2760'
     doitrunk = '10.1002/mop'
     jnlname = 'Microw.Opt.Technol.Lett.'
+elif (jnl == 'ntls'):
+    issn = '2698-6248'
+    doitrunk = '10.1002/ntls'
+    jnlname = 'Natural Sci.'
 
     
 if skipalreadyharvested:
