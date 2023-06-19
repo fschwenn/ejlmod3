@@ -270,11 +270,18 @@ def ieee(number):
             links = headline.find_all('a')
             if links:
                 for a in links:
-                    #print a
-                    #if a.text == 'View more':
-                    link = a['href']
-                    if not link in ['/document/8733895/']:
-                        articlelinks.append(urltrunc+link)
+                    if a.text.strip() in ['Title Page I', 'Title Page II',
+                                          'Title Page III', 'Title Page IV',
+                                          'Copyright', 'Table of Contents',
+                                          'Message from the AI4I 2022 General Co-Chairs',
+                                          'Message from the AI4I 2022 Program Co-Chairs']:
+                        notproperarticles += 1
+                    else:
+                        #print a
+                        #if a.text == 'View more':
+                        link = a['href']
+                        if not link in ['/document/8733895/']:
+                            articlelinks.append(urltrunc+link)
             else:
                 #print ' not an article: %s' % (headline.text.strip())
                 notproperarticles += 1
