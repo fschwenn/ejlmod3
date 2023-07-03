@@ -325,7 +325,7 @@ def processrecs(recs, bunchcounter):
                 rec['link'] = rec['artlink']
         if not 'doi' in list(rec.keys()) and not 'isbn' in list(rec.keys()) and not 'urn' in list(rec.keys()) and not 'hdl' in list(rec.keys()):
             rec['doi'] = '20.2001/NARCIS/' + re.sub('\W', '', rec['artlink'])
-        if re.sub('\/.*', '', rec['doi']) in boringdois:
+        if 'doi' in rec and re.sub('\/.*', '', rec['doi']) in boringdois:
             keepit = False
             print('   skip "%s"' % (rec['doi']))            
         if keepit:
