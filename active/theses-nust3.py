@@ -9,20 +9,26 @@ import re
 import ejlmod3
 import time
 
-
 publisher = 'Norwegian U. Sci. Tech.'
-rpp = 20
+jnlfilename = 'THESES-NUST-%s' % (ejlmod3.stampoftoday())
 
+rpp = 20
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+    
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
-jnlfilename = 'THESES-NUST-%s' % (ejlmod3.stampoftoday())
 for dep in ['2425196', '227485', '227491', '227496']:
     tocurl = 'https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/' + dep + '/browse?resetOffset=true&sort_by=2&order=DESC&rpp=%i&type=type&value=Doctoral+thesis' % (rpp)
     ejlmod3.printprogress('=', [[dep], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     time.sleep(2)
-    recs += ejlmod3.getdspacerecs(tocpage, 'https://ntnuopen.ntnu.no')
+    recs += ejlmod3.getdspacerecs(tocpage, 'https://ntnuopen.ntnu.no', alreadyharvested=alreadyharvested)
 
 j = 0
 for rec in recs:
