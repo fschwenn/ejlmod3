@@ -19,6 +19,7 @@ publisher = 'AIP'
 typecode = 'P'
 skipalreadyharvested = True
 bunchsize = 10
+extrabreakafterrecords = 90
 jnl = sys.argv[1]
 vol = sys.argv[2]
 jnlfilename = jnl+vol+'_'+ejlmod3.stampoftoday()
@@ -33,7 +34,7 @@ if   (jnl == 'rsi'):
     jnlname = 'Rev.Sci.Instrum.'
 elif (jnl == 'jmp'):
     jnlname = 'J.Math.Phys.'
-elif (jnl == 'chaos'):
+elif (jnl == 'cha'):
     jnlname = 'Chaos'
 elif (jnl == 'ajp'):
     jnlname = 'Am.J.Phys.'
@@ -63,7 +64,7 @@ elif (jnl == 'jvb'):
 elif (jnl == 'aqs'):
     jnlname = 'AVS Quantum Sci.'
 elif (jnl == 'app'):
-    jnlname = 'APL Photonics?'
+    jnlname = 'APL Photon.'
 elif (jnl == 'sci'):
     jnlname = 'Scilight?'
 elif (jnl == 'pto'): #authors messy
@@ -93,8 +94,14 @@ if skipalreadyharvested:
     dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
     now = datetime.datetime.now()
     filestosearch = '%s/*%s*doki ' % (dokidir, jnl)
+    if jnl == 'apc':
+        filestosearch += '%s/*%s*doki ' % (dokidir, 'aipcp')
+        filestosearch += '%s/*%s*doki ' % (dokidir, 'aipconf')
     for i in range(3-1):
         filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, jnl)
+        if jnl == 'apc':
+            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, 'aipcp')
+            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, 'aipconf')
     alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep pubs.aip.org | sed 's/^I..//' | sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), jnl))
     if len(alreadyharvested) > 2:
@@ -282,8 +289,8 @@ def getarticle(artlink, secs):
         for div2 in div.find_all('div', attrs = {'class' : 'ref-content'}):
             rec['refs'].append([('x', div2.text.strip())])
     
-    ejlmod3.printrecsummary(rec)
-    time.sleep(random.randint(30,90))
+    ejlmod3.printrecsummary(rec)    
+    time.sleep(random.randint(30,90))    
     return rec
                 
 sections = {}
@@ -338,6 +345,9 @@ for (href, secs) in tocheck:
         if 'autaff' in rec and rec['autaff']:
             recs.append(rec)
             ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
+            if len(recs) % extrabreakafterrecords == 0:
+                print('  --> extra break to stay under the radar <--')
+                time.sleep(700)
 print('%i records for %s' % (len(recs), jnlfilename))
 #if not recs:
 #    print(tocpage.text)
