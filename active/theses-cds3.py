@@ -152,6 +152,8 @@ for page in range(pages):
                     rec['fc'] = 'x'
                 if exp in expdict:
                     rec['exp'] = expdict[exp]
+                elif exp == 'Not applicable':
+                    pass
                 else:
                     if not exp in listofunknownsexps:
                         listofunknownsexps.append(exp)
