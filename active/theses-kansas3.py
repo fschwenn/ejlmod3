@@ -13,7 +13,7 @@ import ejlmod3
 import time
 
 publisher = 'Kansas State U.'
-pages = 40
+pages = 40+60
 skipalreadyharvested = True
 
 rejectwords = []
