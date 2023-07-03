@@ -88,7 +88,7 @@ for (i, tr) in enumerate(trs):
                 if re.search('behalf of', meta['content']):
                     col = re.sub('.*behalf of ', '', meta['content'])
                     col = re.sub('^the ', '', col)
-                    col = re.sub(' [Cc]ollaboration,?$', '', col)
+                    col = re.sub(' [Cc]ollaborations?,?$', '', col)
                     rec['col'].append(col)
                 else:
                     mc = re.sub(',$', '', meta['content'])
