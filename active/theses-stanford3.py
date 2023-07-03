@@ -16,9 +16,13 @@ hdr = {'User-Agent' : 'Magic Browser'}
 
 pages = 1
 recordsperpage = 50
+skipalreadyharvested = True
 
 recs = []
 jnlfilename = 'THESES-STANFORD-%s' % (ejlmod3.stampoftoday())
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 for page in range(pages):
     tocurl = 'https://searchworks.stanford.edu/?f[genre_ssim][]=Thesis%2FDissertation&f[stanford_dept_sim][]=Department+of+Physics&page=' + str(page) + '&per_page=' + str(recordsperpage)
     print(tocurl)
@@ -37,7 +41,9 @@ for page in range(pages):
             for a in div.find_all('a'):
                 if a.has_attr('href') and re.search('purl.stanford', a['href']):
                     rec['link'] = a['href']
-            recs.append(rec)
+            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                recs.append(rec)
+    print('  %4i records so far' % (len(recs)))
 
 i = 0
 for rec in recs:
