@@ -19,7 +19,7 @@ jnlfilename = 'THESES-GIESSEN-%s' % (ejlmod3.stampoftoday())
 
 rpp = 100
 skipalreadyharvested = True
-pages = 5
+pages = 5-1
 boring = ['FB 08 - Biologie und Chemie', 'FB 03 - Sozial- und Kulturwissenschaften',
           'FB 09 - Agrarwissenschaften, Ökotrophologie und Umweltmanagement',
           'FB 10 - Veterinärmedizin', 'FB 11 - Medizin', 'FB 02 - Wirtschaftswissenschaften',
