@@ -178,10 +178,11 @@ def get_records(url):
     for (i, tocurl) in enumerate(list(pages.keys())):
         page = pages[tocurl]
         foundsection = False
+        print(foundsection)
         for section in page.body.find_all('section', attrs = {'data-title' : 'book-toc'}):
-            foundsection = true
-            for li in section.find_all('li', attrs = {'class' : 'c-card'}):
+            for li in section.find_all('li', attrs = {'class' : 'c-card'}):                
                 for h3 in li.find_all('h3', attrs = {'data-title' : 'part-title'}):
+                    foundsection = True
                     print('    ', h3.text.strip())
                     note = h3.text.strip()
                     for h4 in li.find_all('h4'):
@@ -204,7 +205,7 @@ def get_records(url):
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
         if not foundsection:
-            for h3 in page.body.find_all('h3', attrs = {'class' : 'c-card__title'}):
+            for h3 in page.find_all('h3', attrs = {'class' : 'c-card__title'}):
                 print('    ', h3.text.strip())
                 rec = {'jnl' : jnl, 'autaff' : [], 'note' : []}
                 rec['tit'] = h3.text.strip()
@@ -245,6 +246,8 @@ for rec in prerecs:
     if len(sys.argv) > 5:
         rec['cnum'] = cnum
         rec['tc'] = 'C'
+    elif vol == '0' or jnl == 'BOOK':
+         rec['tc'] = 'S'
     else:
         rec['tc'] = 'P'
     if len(sys.argv) > 6:
