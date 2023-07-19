@@ -32,7 +32,17 @@ boring = ['School+of+Public+Health+and+Health+Systems', 'Kinesiology',
           'School+of+Public+Health+Sciences', 'Sustainability+Management',
           'System+Design+Engineering', 'Systems+Design+Engineering', 'Actuarial+Science',
           'Biology+%28Water%29', 'Biology', 'Geography+%28Water%29',
-          'Geography+and+Environmental+Management', 'Geography', 'Accounting', 'Economics+%28Appplied+Economics%29', 'Economics', 'English+%28Literary+Studies%29', 'English+%28Rhetoric+and+Communication+Design%29', 'English+Language+and+Literature', 'Environment%2C+Resources+and+Sustainability+Studies+%28Social+and+Ecological%0D%0A++++++++++Sustainability%29', 'Germanic+and+Slavic+Studies', 'German', 'History', 'Management+Sciences', 'Pharmacy', 'Philosophy', 'Religious+Studies', 'School+of+Accounting+and+Finance', 'School+of+Environment%2C+Resources+and+Sustainability', 'School+of+Optometry+and+Vision+Science', 'School+of+Pharmacy', 'Social+and+Ecological+Sustainability+%28Water%29', 'Social+and+Ecological+Sustainability', 'Statistics+%28Biostatistics%29', 'Vision+Science', 'French+Studies', 'Sociology+and+Legal+Studies', 'Sociology']
+          'Geography+and+Environmental+Management', 'Geography', 'Accounting',
+          'Economics+%28Appplied+Economics%29', 'Economics', 'English+%28Literary+Studies%29',
+          'English+%28Rhetoric+and+Communication+Design%29', 'English+Language+and+Literature',
+          'Environment%2C+Resources+and+Sustainability+Studies+%28Social+and+Ecological%0D%0A++++++++++Sustainability%29',
+          'Germanic+and+Slavic+Studies', 'German', 'History', 'Management+Sciences',
+          'Pharmacy', 'Philosophy', 'Religious+Studies', 'School+of+Accounting+and+Finance',
+          'School+of+Environment%2C+Resources+and+Sustainability',
+          'School+of+Optometry+and+Vision+Science', 'School+of+Pharmacy',
+          'Social+and+Ecological+Sustainability+%28Water%29',
+          'Social+and+Ecological+Sustainability', 'Statistics+%28Biostatistics%29',
+          'Vision+Science', 'French+Studies', 'Sociology+and+Legal+Studies', 'Sociology']
 boring += ['Mechanical+Engineering', 'Mechanical+Engineering+%28Nanotechnology%29',
            'Mechanical+and+Mechatronics+Engineering']
 
