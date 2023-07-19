@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
 
 rpp = 20
 skipalreadyharvested = True
@@ -22,6 +23,10 @@ if skipalreadyharvested:
 
 recs = []
 hdr = {'User-Agent' : 'Magic Browser'}
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 deps = [('29', 'Warsaw U., Inst. Math. Mech.', 'math'), ('5', 'Warsaw U.', 'phys')]
 
@@ -29,7 +34,7 @@ for (depnr, aff, subject) in deps:
     tocurl = 'https://depotuw.ceon.pl/handle/item/' + depnr + '/discover?sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp)
     print(tocurl)
     req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
     time.sleep(3)
     for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-title'}):
         for a in div.find_all('a'):
@@ -48,7 +53,8 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         time.sleep(4)
     except:
         try:
