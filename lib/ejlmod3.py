@@ -1395,6 +1395,7 @@ def globallicensesearch(rec, artpage):
 #gets informations from meta tags of webpage
 #needs a list of tags to look for (as meta-tags are not as standardized as one would wish)
 checkedmetatags = {}
+recommacommma = re.compile('(.*?,.*?),.*')
 def metatagcheck(rec, artpage, listoftags):
     global checkedmetatags
     for tag in listoftags:
@@ -1486,11 +1487,14 @@ def metatagcheck(rec, artpage, listoftags):
                 #author
                 elif tag in ['bepress_citation_author', 'citation_author', 'Citation_Author', 'eprints.creators_name',
                              'dc.Creator', 'DC.creator', 'DC.Creator', 'DC.Creator.PersonalName', 'dcterms.creator',
-                             'DC.contributor.author', 'dc.creator', 'dcterms.creator', 'citation_authors']:
+                             'DC.contributor.author', 'dc.creator', 'dcterms.creator', 'citation_authors', 'author']:
+                    aut = meta['content'].strip()
+                    if recommacommma.search(aut):
+                        aut = recommacommma.sub(r'\1', aut)
                     if 'autaff' in rec:
-                        rec['autaff'].append([meta['content'].strip()])
+                        rec['autaff'].append([aut])
                     else:
-                        rec['autaff'] = [[meta['content'].strip()]]
+                        rec['autaff'] = [[aut]]
                     done.append(tag)
                 elif tag in ['DC.contributor.advisor', 'DC.contributor', 'eprints.supervisors_name',
                              'dc.contributor.advisor', 'eprints.referee_name', 'eprints.supervisor_name',
