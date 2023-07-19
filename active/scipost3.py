@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 regexpsubm1 = re.compile('[sS]ubmissions')
 regexpsubm2 = re.compile('.*\/(\d\d\d\d\.\d\d\d\d\d).*')
+skipalreadyharvested = True
 
 publisher = 'SciPost Fundation'
 jnl = sys.argv[1]
@@ -49,7 +50,10 @@ elif (jnl == 'spsln'):
         if len(sys.argv) > 3:
             cnum = sys.argv[3]
 jnlfilename += '_'+ejlmod3.stampoftoday()
-        
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 #elif (jnl == 'spscb'):
 #    jnlname = 'SciPost ???'
 #    urltrunk = 'https://scipost.org/SciPostPhysCodeb' 
@@ -76,7 +80,7 @@ jnlfilename += '_'+ejlmod3.stampoftoday()
 
 print("get table of content... from %s" % (toclink))
 tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
-recs = []
+prerecs = []
 
 if (jnl == 'spsln') and (len(sys.argv) > 2):
     for a in tocpage.body.find_all('a'):
@@ -85,7 +89,7 @@ if (jnl == 'spsln') and (len(sys.argv) > 2):
             rec['artlink'] = 'https://scipost.org' + a['href']
             if len(sys.argv) > 3:
                 rec['cnum'] = cnum
-            recs.append(rec)
+            prerecs.append(rec)
 else:    
     #divs = tocpage.body.find_all('div', attrs = {'class' : 'card card-grey card-publication'})
     divs = tocpage.body.find_all('div', attrs = {'class' : ['card', 'card-gray', 'card-publication']})
@@ -116,10 +120,11 @@ else:
         for p in div.find_all('p', attrs = {'class' : 'card-text text-muted'}):
             rec['year'] = re.sub('.*\((20\d\d)\).*', r'\1', re.sub('[\n\t]', '', p.text.strip()))
         #article page
-        recs.append(rec)
-    
-for (i, rec) in enumerate(recs):
-    ejlmod3.printprogress('-', [[i+1, len(recs)], [rec['artlink']]])
+        prerecs.append(rec)
+
+recs = []
+for (i, rec) in enumerate(prerecs):
+    ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['artlink']], [len(recs)]])
     time.sleep(3)
     artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']), features="lxml")
     ejlmod3.globallicensesearch(rec, artpage)
@@ -174,7 +179,9 @@ for (i, rec) in enumerate(recs):
         pt = p.text.strip()
         if re.search('[Cc]ollaboration', pt):
             rec['col'] = pt
-    ejlmod3.printrecsummary(rec)
+    if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
   
