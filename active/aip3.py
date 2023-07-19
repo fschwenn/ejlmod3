@@ -271,7 +271,7 @@ def getarticle(artlink, secs):
         newautaff = []
         for aa in rec['autaff']:
             name = re.sub('(.*), (.*)', r'\2 \1', aa[0])
-            if name in orcids:            
+            if name in orcids and orcids[name]:            
                 newautaff.append([aa[0], orcids[name]] + aa[1:])
                 #print('   %s -> orcid.org/%s' % (name, orcids[name]))
             else:
@@ -289,7 +289,8 @@ def getarticle(artlink, secs):
         for div2 in div.find_all('div', attrs = {'class' : 'ref-content'}):
             rec['refs'].append([('x', div2.text.strip())])
     
-    ejlmod3.printrecsummary(rec)    
+    ejlmod3.printrecsummary(rec)
+    #print('AUTAFF', rec['autaff'])
     time.sleep(random.randint(30,90))    
     return rec
                 
@@ -344,7 +345,7 @@ for (href, secs) in tocheck:
         rec = getarticle(href, secs)
         if 'autaff' in rec and rec['autaff']:
             recs.append(rec)
-            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
             if len(recs) % extrabreakafterrecords == 0:
                 print('  --> extra break to stay under the radar <--')
                 time.sleep(700)
