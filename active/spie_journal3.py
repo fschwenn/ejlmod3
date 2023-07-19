@@ -47,11 +47,11 @@ def spie(jnl, vol, iss):
         print('  get [%i/%i] %s' % (i, len(recs), rec['artlink']))
         try:
             time.sleep(20)
-            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400))
+            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
         except:
             print('retry %s in 5 minutes' % (rec['artlink']))
             time.sleep(300)
-            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400))
+            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
         for meta in artpage.head.find_all('meta'):
             if meta.has_attr('name'):
                 if meta['name'] == 'citation_author':
