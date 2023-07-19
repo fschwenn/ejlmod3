@@ -14,7 +14,7 @@ import time
 publisher = "King's Coll. London"
 jnlfilename = 'THESES-KINGS_COLLEGE-%s' % (ejlmod3.stampoftoday())
 
-rpp = 50
+#rpp = 50
 pages = 4
 skipalreadyharvested = True
 boring = ['Social Genetic & Developmental Psychiatry', 'Global Health & Social Medicine',
@@ -58,7 +58,9 @@ boring = ['Social Genetic & Developmental Psychiatry', 'Global Health & Social M
           "Paediatric Allergy", "Paediatrics", "Periodontology", "PET Imaging Centre Facility", 
           "Middle Eastern Studies", "Midwifery", "Molecular Haematology", "Oral Immunology", 
           "King's Centre for Global Health & Health Partnerships", 'Vascular Risk & Surgery',
-          'Randall Centre of Cell & Molecular Biophysics', 'Surgical & Interventional Engineering']
+          'Randall Centre of Cell & Molecular Biophysics', 'Surgical & Interventional Engineering',
+          'Languages, Literatures and Cultures', 'Cancer Imaging', 'Management Services',
+          'Immunology & Microbial Sci School Office']
 
 hdr = {'User-Agent' : 'Magic Browser'}
 
@@ -68,28 +70,33 @@ if skipalreadyharvested:
 prerecs = []
 #first get links of year pages
 for page in range(pages):
-    tocurl = 'https://kclpure.kcl.ac.uk/portal/en/theses/search.html?search=&field=all&ordering=studentThesisOrderByAwardYear&pageSize=' + str(rpp) + '&page=' + str(page) + '&type=%2Fdk%2Fatira%2Fpure%2Fstudentthesis%2Fstudentthesistypes%2Fstudentthesis%2Fdoc%2Fdsc&type=%2Fdk%2Fatira%2Fpure%2Fstudentthesis%2Fstudentthesistypes%2Fstudentthesis%2Fdoc%2Fphd&descending=true'
+    #tocurl = 'https://kclpure.kcl.ac.uk/portal/en/theses/search.html?search=&field=all&ordering=studentThesisOrderByAwardYear&pageSize=' + str(rpp) + '&page=' + str(page) + '&type=%2Fdk%2Fatira%2Fpure%2Fstudentthesis%2Fstudentthesistypes%2Fstudentthesis%2Fdoc%2Fdsc&type=%2Fdk%2Fatira%2Fpure%2Fstudentthesis%2Fstudentthesistypes%2Fstudentthesis%2Fdoc%2Fphd&descending=true'
+    tocurl = 'https://kclpure.kcl.ac.uk/portal/en/studentTheses/?format=&type=%2Fdk%2Fatira%2Fpure%2Fstudentthesis%2Fstudentthesistypes%2Fstudentthesis%2Fdoc%2Fphd&nofollow=true&ordering=awardDate&descending=true&page=' + str(page)
+
+    
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     year = False
-    for ol in tocpage.body.find_all('ol', attrs = {'class' : 'portal_list'}):
-        for li in ol.find_all('li'):
+    #for ol in tocpage.body.find_all('ol', attrs = {'class' : 'portal_list'}):
+    for ul in tocpage.body.find_all('ul', attrs = {'class' : 'list-results'}):
+        for li in ul.find_all('li'):
             if li.has_attr('class'):
-                if 'portal_list_item_group' in li['class']:
-                    year = li.text.strip()
-                elif 'portal_list_item' in li['class']:
-                    rec = {'tc' : 'T', 'jnl' : 'BOOK', 'keyw' : [], 'supervisor' : [], 'note' : []}
-                    for h2 in li.find_all('h2'):
-                        for a in h2.find_all('a'):
+#                if 'portal_list_item_group' in li['class']:
+#                    year = li.text.strip()
+                if 'list-result-item' in li['class']:
+                    rec = {'tc' : 'T', 'jnl' : 'BOOK', 'keyw' : [], 'supervisor' : [], 'note' : [], 'autaff' : []}
+                    for h3 in li.find_all('h3'):
+                        for a in h3.find_all('a'):
                             rec['link'] = a['href']
                             rec['tit'] = a.text.strip()
-                            rec['year'] = year
-                            rec['date'] = year
+#                            rec['year'] = year
+#                            rec['date'] = year
                             rec['doi'] = '20.2000/KINGsCOLLEGE/' + re.sub('.*\/(.*).html', r'\1', a['href'])[-60:]
                     if ejlmod3.checkinterestingDOI(rec['doi']):
                         if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
                             prerecs.append(rec)
+    print('  %4i records so far' % (len(prerecs)))
     time.sleep(5)
 
 
@@ -110,32 +117,40 @@ for rec in prerecs:
         except:
             print("no access to %s" % (rec['link']))
             continue
-    for tr in artpage.body.find_all('tr'):
-        for th in tr.find_all('th'):
-            tht = th.text.strip()
-        for td in tr.find_all('td'):
-            #supervisor
-            if tht == 'Supervisors/Advisors':
-                for span in td.find_all('span'):
-                    rec['supervisor'].append([span.text.strip()])
+    #date
+    for span in artpage.body.find_all('span', attrs = {'class' : 'date'}):
+        rec['date'] = span.text.strip()
     #department
     for li in artpage.body.find_all('li', attrs = {'class' : 'department'}):
         dep = li.text.strip()
         if dep in boring:
             keepit = False
             print('   skip', dep)
-        else:
+        elif dep == 'Mathematics':
+            rec['fc'] = 'm'
+        elif not dep in ['Physics']:
             rec['note'].append(dep)
     #abstract
-    for div in artpage.body.find_all('div', attrs = {'class' : 'textblock'}):
-        rec['abs'] = div.text.strip()
+    for div in artpage.body.find_all('div', attrs = {'class' : 'content-content'}):
+        for h3 in div.find_all('h3'):
+            if re.search('bstract', h3.text):
+                h3.decompose()
+                rec['abs'] = div.text.strip()
     #author
-    for p in artpage.body.find_all('p', attrs = {'class' : 'persons'}):
-        rec['autaff'] = [[ p.text.strip(), publisher ]]
+    for ul in artpage.body.find_all('ul', attrs = {'class' : 'relations persons'}):
+        for li in ul.find_all('li'):
+            rec['autaff'].append([ li.text.strip(), publisher ])
     #FFT
-    for li in artpage.body.find_all('li', attrs = {'class' : 'available'}):
-        for a in li.find_all('a'):
-            rec['hidden'] = a['href']
+    for ul in artpage.body.find_all('ul', attrs = {'class' : 'documents'}):
+        for a in ul.find_all('a'):
+            if a.has_attr('href') and a['href'][-4:] == '.pdf':
+                rec['hidden'] = 'https://kclpure.kcl.ac.uk' + a['href']
+    #supervisor
+    for tr in artpage.body.find_all('tr'):
+        for th in tr.find_all('th'):
+            if re.search('Supervisor', th.text):
+                for span in tr.find_all('span'):
+                    rec['supervisor'].append([span.text.strip()])
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
