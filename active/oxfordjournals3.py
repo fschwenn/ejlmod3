@@ -91,6 +91,8 @@ elif (jnl == 'astrogeo'):
     jnlname = 'Astron.Geophys.'
 elif (jnl == 'integrablesystems'):
     jnlname = 'J.Integrab.Syst.'
+elif (jnl == 'mam'):
+    jnlname = 'Microscopy Microanal.'
     
 else:
     print('Dont know journal %s!' % (jnl))
