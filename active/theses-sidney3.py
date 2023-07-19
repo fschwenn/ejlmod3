@@ -6,6 +6,7 @@
 import sys
 import os
 import urllib.request, urllib.error, urllib.parse
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
@@ -87,13 +88,21 @@ if skipalreadyharvested:
 else:
     alreadyharvested = []
 
-hdr = {'User-Agent' : 'Magic Browser'}
+hdr = {'User-Agent' : 'Magic Browser'} 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 prerecs = []
 for j in range(pages):
     tocurl = 'https://ses.library.usyd.edu.au/handle/2123/35/browse?rpp=' + str(rpp) + '&sort_by=3&type=dateissued&offset=' + str(j*rpp) + '&etal=-1&order=DESC'
     ejlmod3.printprogress('=', [[j+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    #req = urllib.request.Request(tocurl, headers=hdr)
+    #tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    driver.get(tocurl)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://ses.library.usyd.edu.au', alreadyharvested=alreadyharvested):
         if ejlmod3.checkinterestingDOI(rec['hdl']):
             prerecs.append(rec)
@@ -107,13 +116,17 @@ for rec in prerecs:
     keepit = True
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+        driver.get(rec['link'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(3)
     except:
         try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            print("retry %s in 18 seconds" % (rec['link']))
+            time.sleep(18)
+            #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            driver.get(rec['link'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
             print("no access to %s" % (rec['link']))
             continue
