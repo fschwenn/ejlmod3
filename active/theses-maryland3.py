@@ -63,6 +63,10 @@ for rec in recs:
     for div in artpage.body.find_all('div', attrs = {'class' : 'simple-item-view-advisor'}):
         for p in div.find_all('div'):
             rec['supervisor'].append([ re.sub('^Dr. ', '', p.text.strip()) ])
+    for div in artpage.body.find_all('div', attrs = {'class' : 'simple-view-element'}):
+        for a in div.find_all('a'):
+            if a.has_attr('href') and re.search('10.13016\/', a['href']):
+                rec['doi'] = re.sub('.*(10.13016\/.*)', r'\1', a['href'])
     ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
