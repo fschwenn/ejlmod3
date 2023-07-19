@@ -7,12 +7,12 @@
 import sys
 import os
 import urllib.request, urllib.error, urllib.parse
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
 import ssl
-
 
 
 numofpages = 1
@@ -31,6 +31,13 @@ ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
@@ -41,14 +48,18 @@ for page in range(pages):
     tocurl = 'https://www.osti.gov/search/sort:publication_date%20desc/publish-date-start:01/01/' + str(startyear) + '/publish-date-end:31/12/2050/product-type:Thesis/Dissertation/page:' + str(page+1)
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     try:
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        #req = urllib.request.Request(tocurl, headers=hdr)
+        #tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(10)
     except:
         print('    try again in 180s')
         time.sleep(180)
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        #req = urllib.request.Request(tocurl, headers=hdr)
+        #tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(10)
     for h2 in tocpage.body.find_all('h2', attrs = {'class' : 'title'}):
         for a in h2.find_all('a'):
@@ -65,13 +76,17 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(5)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['artlink']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+            #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
             print("no access to %s" % (rec['artlink']))
             continue
