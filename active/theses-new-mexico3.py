@@ -65,18 +65,21 @@ def get_sub_site(url, fc, aff):
             rec['tit'] = str(title[0].text)
 
     # Extract author
-    author_section = soup.find_all('p', attrs={'class': 'author'})
-    if len(author_section) == 1:
-        author_link = author_section[0].a
-        author_query = urllib.parse.parse_qsl(urllib.parse.urlsplit(author_link.get('href')).query)
-        if len(author_query) == 3:
-            first_name_raw, name_raw = author_query[0][1].split("\" ")
-            first_name = first_name_raw.split(':"')[1]
-            last_name = name_raw.split(':"')[1]
+    try:
+        author_section = soup.find_all('p', attrs={'class': 'author'})
+        if len(author_section) == 1:
+            author_link = author_section[0].a
+            author_query = urllib.parse.parse_qsl(urllib.parse.urlsplit(author_link.get('href')).query)
+            if len(author_query) == 3:
+                first_name_raw, name_raw = author_query[0][1].split("\" ")
+                first_name = first_name_raw.split(':"')[1]
+                last_name = name_raw.split(':"')[1]
 
-            first_name = first_name[0:len(first_name)]
-            last_name = last_name[0:len(last_name)-1]
-            rec['autaff'] = [[ last_name + ", " + first_name, aff ]]
+                first_name = first_name[0:len(first_name)]
+                last_name = last_name[0:len(last_name)-1]
+                rec['autaff'] = [[ last_name + ", " + first_name, aff ]]
+    except:
+        ejlmod3.metatagcheck(rec, soup, ['author', 'keywords', 'bepress_citation_pdf_url'])
 
     # Extract Publication date
     for date_section in soup.find_all('div', attrs={'id': 'publication_date'}):
