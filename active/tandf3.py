@@ -8,7 +8,7 @@ import os
 import sys
 import ejlmod3
 import re
-#import undetected_chromedriver as uc
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import time
 import cloudscraper
@@ -61,17 +61,17 @@ else:
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
-#options = uc.ChromeOptions()
-#options.headless=True
-#options.binary_location='/usr/bin/chromium-browser'
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
 #options.add_argument('--headless')
-#driver = uc.Chrome(version_main=103, options=options)
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 tocurl = 'http://www.tandfonline.com/toc/%s/%s/%s' % (jnl, vol, issue)
 print('get table of content from', tocurl)
-#driver.get(tocurl)
-#page = BeautifulSoup(driver.page_source, features="lxml")
+driver.get(tocurl)
+page = BeautifulSoup(driver.page_source, features="lxml")
 hdr = {'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0',
        'Accept' : 'test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
        'Referer' : 'http://www.google.com/',
@@ -83,12 +83,12 @@ for dm in ["google.com", "mozilla.com", "df.eu"]:
     for k in cookies2:
         cookies[k] = cookies2[k]
 #print(cookies)
-session = requests.session()
-session.get('http://www.desy.de', headers = hdr, cookies=cookiecache.flatten_cookies(cookies))
+#session = requests.session()
+#session.get('http://www.desy.de', headers = hdr, cookies=cookiecache.flatten_cookies(cookies))
 #scraper = cloudscraper.create_scraper(sess=session)
 
-scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
-page = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
+#scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
+#page = BeautifulSoup(scraper.get(tocurl).text, features="lxml")
               
 #get year
 for div in page.body.find_all('div', attrs = {'class' : 'hd prevNextLink'}):
@@ -117,17 +117,20 @@ for (i, rec) in enumerate(prerecs):
     time.sleep(random.randint(30,170))
     ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['doi']]])
     try:
-        #driver.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi']))
-        #apage = BeautifulSoup(driver.page_source, features="lxml")
-        apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/full/%s' % (rec['doi'])).text, features="lxml")
+        driver.get('http://www.tandfonline.com/doi/full/%s' % (rec['doi']))
+        apage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(random.randint(20,100))
-        rpage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi'])).text, features="lxml")
+        driver.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi']))
+        rpage = BeautifulSoup(driver.page_source, features="lxml")
+        #apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/full/%s' % (rec['doi'])).text, features="lxml")
+        time.sleep(random.randint(20,100))
+        #rpage = BeautifulSoup(scraper.get('http://www.tandfonline.com/doi/ref/%s' % (rec['doi'])).text, features="lxml")
     except:
         print('try without references')
         time.sleep(random.randint(50,90))
-        #driver.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi']))
-        #apage = BeautifulSoup(driver.page_source, features="lxml")
-        apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi'])).text, features="lxml")
+        driver.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi']))
+        apage = BeautifulSoup(driver.page_source, features="lxml")
+        #apage = BeautifulSoup(scraper.get('http://www.tandfonline.com/full/ref/%s' % (rec['doi'])).text, features="lxml")
         rpage = apage
     if re.search('Cloudflare', apage.text):
         print('Cloudflare :(')
