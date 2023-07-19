@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #harvest theses from NARCIS
 #FS: 2019-09-15
+#
+# As of 3 July 2023, the NARCIS website was taken offline and the NARCIS service ended.
 
 import getopt
 import sys
