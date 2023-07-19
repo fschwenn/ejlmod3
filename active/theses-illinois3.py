@@ -152,7 +152,7 @@ with Session() as session:
     for (dep, aff, fc, pages) in departments:
         for page in range(pages):
             if dep == 'all':
-                tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&&start=' + str(rpp*(page+110+110))
+                tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&&start=' + str(rpp*page)
             else:
                 tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&fq%5B%5D=k_unit_titles%3A' + dep + '&start=' + str(rpp*page)
             ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
@@ -177,4 +177,4 @@ with Session() as session:
             print('\n  %4i records so far\n' % (len(recs)))
             sleep(4)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
