@@ -154,7 +154,7 @@ if skipalreadyharvested:
     alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
     print('%i records in backup' % (len(alreadyharvested)))
 
-problematiclinks = ['https://escholarship.org/uc/item/3hv4z0z8', 'https://escholarship.org/uc/item/5gw3v7bf', 'https://escholarship.org/uc/item/69m6205w', 'https://escholarship.org/uc/item/49q2s5km', 'https://escholarship.org/uc/item/4xn23688', 'https://escholarship.org/uc/item/8tj5d61d', 'https://escholarship.org/uc/item/28w4j5xc', 'https://escholarship.org/uc/item/6972h04z', 'https://escholarship.org/uc/item/8w73232j']
+problematiclinks = ['https://escholarship.org/uc/item/3hv4z0z8', 'https://escholarship.org/uc/item/5gw3v7bf', 'https://escholarship.org/uc/item/69m6205w', 'https://escholarship.org/uc/item/49q2s5km', 'https://escholarship.org/uc/item/4xn23688', 'https://escholarship.org/uc/item/8tj5d61d', 'https://escholarship.org/uc/item/28w4j5xc', 'https://escholarship.org/uc/item/6972h04z', 'https://escholarship.org/uc/item/8w73232j', 'https://escholarship.org/uc/item/6cq1w35k', 'https://escholarship.org/uc/item/6ng5b9p6']
 #problematiclinks = []
 hdr = {'User-Agent' : 'Magic Browser'}
 campi = {'ucla' : 'UCLA, Los Angeles (main)', 'ucd' : 'UC, Davis (main)',
@@ -266,6 +266,8 @@ for rec in recs:
             #scriptt = re.sub('[\n\t]', '', script.text.strip())
             scriptt = re.sub('[\n\t]', '', script.contents[0].strip())
             scriptt = re.sub('.*window.jscholApp_initialPageData *= *(\{.*\}).*', r'\1', scriptt)
+            if not re.search('abstract.*authors', scriptt):
+                scriptt = False
         else:
             scriptt = False
         if scriptt:
