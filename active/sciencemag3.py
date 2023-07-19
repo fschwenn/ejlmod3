@@ -62,7 +62,7 @@ def getdone():
         reg = re.compile('sciadv(\d+)\.(\d+)')
     ejldir = '/afs/desy.de/user/l/library/dok/ejl'
     issues = []
-    for directory in [ejldir+'/onhold', ejldir+'/zu_punkten/enriched', ejldir+'/backup', ejldir+'/backup/' + str(ejlmod3.year(backwards=1))]:
+    for directory in [ejldir+'/backup', ejldir+'/backup/' + str(ejlmod3.year(backwards=1))]:
         for datei in os.listdir(directory):
             if reg.search(datei):
                 regs = reg.search(datei)
