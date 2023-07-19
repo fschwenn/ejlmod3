@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
 
 publisher = 'Rio de Janeiro State U.'
 jnlfilename = 'THESES-RioDeJaneiroStateU-%s' % (ejlmod3.stampoftoday())
@@ -21,6 +22,11 @@ skipalreadyharvested = True
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for (fc, depno) in [('', '3687'), ('m', '3696'), ('c', '3702'), ('c', '18054')]:
@@ -28,7 +34,7 @@ for (fc, depno) in [('', '3687'), ('m', '3696'), ('c', '3702'), ('c', '18054')]:
         tocurl = 'https://www.bdtd.uerj.br:8443/handle/1/' + depno + '/browse?type=dateissued&sort_by=2&order=DESC&rpp=' + str(rpp) + '&etal=-1&null=&offset=' + str(rpp*page) 
         ejlmod3.printprogress("=", [[depno], [page+1, pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         for tr in tocpage.body.find_all('tr'):
             for td in tr.find_all('td', attrs = {'headers' : 't3'}):
                 rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'autaff' : [], 'note' : [], 'keyw' : []}
@@ -47,14 +53,17 @@ recs = []
 for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
-    try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+    try:        
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         time.sleep(3)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['link']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+            req = urllib.request.Request(rec['link'], headers=hdr)
+            artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+
         except:
             print("no access to %s" % (rec['link']))
             continue
