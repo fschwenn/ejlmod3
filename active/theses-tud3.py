@@ -12,9 +12,9 @@ import ejlmod3
 import time
 
 publisher = 'Tech. U., Dortmund (main)'
-jnlfilename = 'THESES-TUD-%sD' % (ejlmod3.stampoftoday())
+jnlfilename = 'THESES-TUD-%s' % (ejlmod3.stampoftoday())
 skipalreadyharvested = True
-years = 2+10
+years = 2
 
 recs = []
 hdr = {'User-Agent' : 'Magic Browser'}
