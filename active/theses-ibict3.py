@@ -57,8 +57,8 @@ for i in range(numberofpages):
             rec['doi'] = '20.2000/IBICT/' + re.sub('\W', '', a['href'][15:])
             if filters[subject][2]:
                 rec['fc'] = filters[subject][2]
-        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
-            prerecs.append(rec)
+            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                prerecs.append(rec)
         
 
 i = 0
