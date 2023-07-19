@@ -157,6 +157,16 @@ for (i, artlink) in enumerate(artlinks):
     rec = {'jnl' : jnldict[jrnid]['tit'], 'tc' : 'P', 'year' : year, 
            'vol' : vol, 'issue' : iss, 'auts' : [], 'note' : [ note ],
            'link' : artlink}
+    if note in ['ASTROPHYSICS AND COSMOLOGY']:
+        rec['fc'] = 'a'
+    elif note in ['CONDENSED MATTER']:
+        rec['fc'] = 'f'
+    elif note in ['INSTRUMENTS AND METHODS OF INVESTIGATION']:
+        rec['fc'] = 'i'
+    elif note in ['Mathematical physics', 'Partial Differential Equations']:
+        rec['fc'] = 'm'
+    elif note in ['Particle acceleration']:
+        rec['fc'] = 'b'
     #rec['cnum'] = 'C10-11-01'
     try:
         articlepage = BeautifulSoup(urllib.request.urlopen(artlink), features="lxml")
