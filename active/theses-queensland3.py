@@ -309,10 +309,17 @@ j = 0
 for rec in recs:
     j += 1
     ejlmod3.printprogress("-", [[j, len(recs)], [rec['artlink']]])
-    driver.get(rec['artlink'])
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
-    time.sleep(5)
+    try:
+        driver.get(rec['artlink'])
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        time.sleep(5)
+    except:
+        print('  try again in 30s')
+        driver.get(rec['artlink'])
+        #WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        time.sleep(30)
     ejlmod3.metatagcheck(rec, artpage, ['citation_abstract', 'citation_date', 'citation_title',
                                         'citation_keywords', 'citation_authors', 'citation_doi'])
     rec['autaff'][-1].append(publisher)
