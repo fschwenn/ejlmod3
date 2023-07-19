@@ -66,7 +66,7 @@ if skipalreadyharvested:
 #get ORCID from author search page
 def getorcid(a):
     #print '{', 'https://repositorio.ul.pt' + a['href'], '}'
-    authorpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open('https://repositorio.ul.pt' + a['href']))
+    authorpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open('https://repositorio.ul.pt' + a['href']), features='lxml')
     for span in authorpage.find_all('span'):
         spant = span.text.strip()
         #print spant
@@ -112,7 +112,7 @@ for rec in prerecs:
     keepit = True
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']))
+        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features='lxml')
         time.sleep(3)
     except:
         try:
