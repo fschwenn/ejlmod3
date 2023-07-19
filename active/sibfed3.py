@@ -125,6 +125,8 @@ for rec in prerecs:
                             author = rec['autaff'][-1]
                             rec['autaff'][-1] = [author[0], 'EMAIL:'+autaff]
                             rec['autaff'][-1] += author[1:]
+                        else:
+                            rec['autaff'].append([autaff])
                             
                 #keywords
                 elif dtt == 'Keywords':
