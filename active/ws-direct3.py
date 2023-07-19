@@ -32,6 +32,8 @@ elif re.search('mpl',url):
     jnlname = 'Mod.Phys.Lett.'
 elif re.search('rast',url):
     jnlname = 'Rev.Accel.Sci.Tech.'
+elif re.search('rmp',url):
+    jnlname = 'Rev.Math.Phys.'
 elif re.search('\/ijqi\/',url):
     jnlname = 'Int.J.Quant.Inf.'
 elif re.search('\/ijbc\/',url):
