@@ -117,6 +117,27 @@ skipalreadyharvested = True
 publisher = 'oatd.org'
 jnlfilename = 'THESES-OATD_%s__%s-%s' % (ejlmod3.stampoftoday(), startsearch, stopsearch)
 
+
+
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    #options.binary_location='/usr/bin/chromium'
+    options.binary_location='/usr/bin/google-chrome'
+    #options.add_argument('--headless')
+    #options.add_argument('--no-sandbox')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+else:
+    options = uc.ChromeOptions()
+    options.headless=True
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+driver.get('https://oatd.org/')
+
+
 comment = Comment('Kommentar')
 #check already harvested
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
@@ -148,22 +169,6 @@ prerecs = []
 dois = []
 date = 'pub_dt:[' + startyear + '-01-01T00:00:00Z TO ' + stopyear + '-01-01T00:00:00Z]'
 
-host = os.uname()[1]
-if host == 'l00schwenn':
-    options = uc.ChromeOptions()
-    options.binary_location='/usr/bin/chromium'
-    #options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
-else:
-    options = uc.ChromeOptions()
-    options.headless=True
-    options.binary_location='/usr/bin/google-chrome'
-    options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
-           
 driver.implicitly_wait(60)
 driver.set_page_load_timeout(30)
 for search in searches[startsearch:stopsearch]:
