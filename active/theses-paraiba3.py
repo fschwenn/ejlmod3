@@ -100,7 +100,7 @@ for rec in prerecs:
         if meta.has_attr('name'):
             #supervisor
             if meta['name'] == 'DC.contributor':
-                if not meta.has_attr('xml:lang'):
+                if not meta.has_attr('xml:lang') and not re.search('http:', meta['content']):
                     rec['supervisor'].append([meta['content']])
             #department
             elif meta['name'] == 'DC.publisher':
