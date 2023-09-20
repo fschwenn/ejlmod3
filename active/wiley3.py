@@ -131,6 +131,15 @@ elif (jnl == 'ntls'):
     issn = '2698-6248'
     doitrunk = '10.1002/ntls'
     jnlname = 'Natural Sci.'
+elif (jnl == 'apxr'):
+    issn = '2751-1200'
+    doitrunk = '10.1002/apxr'
+    jnlname = 'Adv.Phys.Res.'
+elif (jnl == 'cjoc'):
+    issn = '1614-7065'
+    doitrunk = '10.1002/cjoc'
+    jnlname = 'Chin.J.Chem.'
+    
 
     
 if skipalreadyharvested:
