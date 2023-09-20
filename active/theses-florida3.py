@@ -134,9 +134,11 @@ jnlfilename = 'THESES-FloridaU-%s' % (ejlmod3.stampoftoday())
 options = uc.ChromeOptions()
 #options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
-#options.binary_location='/usr/bin/chromium'
+options.binary_location='/usr/bin/chromium'
+options.add_argument("--enable-javascript")
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
+driver.implicitly_wait(60)
 
 prerecs = []
 uninteresting = []
@@ -144,14 +146,15 @@ backup = []
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
+driver.get('https://ufdc.ufl.edu/')
+time.sleep(120)
 for page in range(pages):
     tocurl = 'https://ufdc.ufl.edu/results?datehi=' + str(stopyear) + '-31-12&datelo=' + str(startyear) + '-01-01&filter=type%3Atheses&sort=desc&page=' + str(page+1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        driver.implicitly_wait(60)
         driver.get(tocurl)
         #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_container__2e-2g')))
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_title__31xSy')))
+#        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_title__31xSy')))
         time.sleep(5)
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
         #print(tocpage)
@@ -165,6 +168,15 @@ for page in range(pages):
                         #marc xml works only for some records
                         rec['artlink'] =  re.sub('^\/(..)(..)(..)(..)(..)\/(.*)\/citation', r'https://ufdcimages.uflib.ufl.edu/\1/\2/\3/\4/\5/\6/marc.xml', a['href'])
                         rec['doi'] = '20.2000/FloridaU' + re.sub('\/citation', '', a['href'])
+                        rec['tit'] = a.text.strip()
+                        for p in section.find_all('p'):
+                            spans = p.find_all('span')
+                            spant = spans[0].text.strip()
+                            if spant == 'Creator:':
+                                rec['autaff'] = [[ spans[1].text.strip(), publisher ]]
+                            elif spant == 'Publication Date:':
+                                rec['date'] = spans[1].text.strip()
+
                         if ejlmod3.checkinterestingDOI(rec['doi']):
                             if skipalreadyharvested and rec['doi'] in alreadyharvested:
                                 backup.append(rec['doi'])
@@ -279,7 +291,7 @@ for rec in prerecs:
 
             #scheiss JavaScript
             
-            #print(artpage.text)
+            print(artpage.text)
             time.sleep(5)
             #title
             for h1 in artpage.find_all('h1'):
