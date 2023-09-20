@@ -47,6 +47,7 @@ tmpdir = '/afs/desy.de/user/l/library/tmp'
 #
 journalskb = '/opt/invenio/etc/docextract/journal-titles-inspire.kb'
 journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'
+journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.py3.kb'
 
 retfiles_path = '/afs/desy.de/user/l/library/proc/retinspire'
 now = datetime.datetime.now()
@@ -95,13 +96,14 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
 fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW']),
-                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups']),
+                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
-                  ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.']),
+                  ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.']),
                   ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
-                  ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.']),
+                  ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.']),
+                  ('cm', ['ACM Commun.Comp.Alg.', 'ACM Trans.Math.Software']),
                   ('i', ['IEEE Instrum.Measur.Mag.', 'IEEE Sensors J.', 'IEEE Trans.Circuits Theor.', 'IEEE Trans.Instrum.Measur.', 'Instruments', 'Instrum.Exp.Tech.', 'JAIS', 'JINST', 'Meas.Tech.', 'Measur.Sci.Tech.', 'Metrologia', 'Microscopy Microanal.', 'Rad.Det.Tech.Meth.', 'Rev.Sci.Instrum.', 'Sensors', 'J.Astron.Telesc.Instrum.Syst.', 'EPJ Tech.Instrum.'])]
 #rearrange the lists into a dictionary
 jnltofc = {}
@@ -426,6 +428,7 @@ def writeXML(recs,dokfile,publisher):
         if 'abs' in rec:
             rec['abs'] = re.sub('^ABSTRACT:?', '', rec['abs'])
             if len(rec['abs']) > 5:
+                rec['abs'] = re.sub('^[Aa]bstract[:\.]? *', '', rec['abs'])
                 try:
                     xmlstring += marcxml('520',[('a',rec['abs']), ('9',publisher)])
                 except:
@@ -446,9 +449,19 @@ def writeXML(recs,dokfile,publisher):
                         recdate = False
                         print(' !! invalid date "%s"' % (rec['date']))
                         del(rec['date'])
-        if not 'date' in rec and 'year' in rec:
-            rec['date'] = rec['year']
-            recdate = rec['year']
+        if 'year' in rec:
+            if not 'date' in rec:
+                rec['date'] = rec['year']
+                recdate = rec['year']
+            else:
+                dyear = re.sub('.*?([12]\d\d\d).*', r'\1', rec['date'])
+                try:
+                    if int(dyear) > int(rec['year'])+1:
+                        print('  !!! remove publication date %s as it seems to be the online date' % (rec['date']))
+                        rec['date'] = rec['year']
+                        recdate = rec['year']
+                except:
+                    print('date? %s' % (rec['date']))                        
         if 'date' in rec:
             try:
                 if 'B' in rec['tc']:
@@ -597,6 +610,8 @@ def writeXML(recs,dokfile,publisher):
             #special euclid:
             if re.search('^20.2000\/euclid\.', rec['doi']):
                 xmlstring += marcxml('035', [('9', 'EUCLID'), ('a', rec['doi'][8:])])
+        if 'alternatedoi' in rec:
+            xmlstring += marcxml('0247',[('a',rec['alternatedoi']), ('2','DOI'), ('9',publisher)])
         #HDL
         if 'hdl' in rec:
             xmlstring += marcxml('0247',[('a',rec['hdl']), ('2','HDL'), ('9',publisher)])
@@ -1098,7 +1113,9 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Alphabetical Index', 'Editorial Note', 'In Other Journals', 'Keynote Speeches',
             'Workshops and Tutorials', 'Cover Page', 'Plenary Panel', 'Book Reviews',
             'Half Title Page', 'Plenary/Invited Speech', 'Table of Contents', 'Information and Announcements',
-            'Editorial —How to write a good letter for EPL', 'Calendar of events']
+            'Editorial —How to write a good letter for EPL', 'Calendar of events',
+            'Authors Index', 'Masthead', "Publisher's Note", 'Acknowledgment',
+            'Index of Authors']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1123,7 +1140,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
         if 'doi' in rec and 'link' in rec:
             if re.search('^10\.\d+', rec['doi']):
                 del(rec['link'])
-        elif not 'doi' in rec or not rec['doi'] or not rec['doi'][0] != '1':
+        elif not 'doi' in rec or not rec['doi'] or rec['doi'][0] != '1':
             if 'artlink' in rec and not 'link' in rec:
                 rec['link'] = rec['artlink']
         #open access fulltext
@@ -1461,7 +1478,7 @@ def metatagcheck(rec, artpage, listoftags):
                         rec['doi'] = re.sub('.*doi.org\/(10.*)', r'\1', meta['content']).strip()
                         done.append(tag)
                     elif re.search('(doi|DOI):10\.\d', meta['content']):
-                        rec['doi'] = re.sub('.*(doi|DOI):(10.*)', r'\1', meta['content']).strip()
+                        rec['doi'] = re.sub('.*(doi|DOI):(10.*)', r'\2', meta['content']).strip()
                         done.append(tag)
                     elif re.search('DOI:10\.\d', meta['content']):
                         rec['doi'] = re.sub('.*:\/(10.*)', r'\1', meta['content']).strip()
@@ -1513,7 +1530,8 @@ def metatagcheck(rec, artpage, listoftags):
                     if re.search('@', meta['content']):
                         rec['supervisor'][-1].append('EMAIL:' + meta['content'].strip())
                 elif tag in ['bepress_citation_author_institution', 'citation_author_institution', 'citation_editor_institution',
-                             'citation_dissertation_institution', 'bepress_citation_dissertation_institution']:
+                             'citation_dissertation_institution', 'bepress_citation_dissertation_institution',
+                             'citation_author_affiliation']:
                     if not meta['content'].strip() in rec['autaff'][-1]:
                         rec['autaff'][-1].append(meta['content'].strip())
                     done.append(tag)
@@ -1548,8 +1566,8 @@ def metatagcheck(rec, artpage, listoftags):
                              'bepress_citation_online_date', 'citation_cover_date', 'citation_date', 'eprints.date',
                              'citation_publication_date', 'DC.Date.issued', 'dc.onlineDate', 'dcterms.date',
                              'DCTERMS.issued', 'dc.date.submitted', 'citation_online_date', 'dc.date.issued',
-                             'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum',
-                             'DC.Date.Creation_of_intellectual_content']:
+                             'eprints.datestamp', 'DC.issued', 'eprints.thesis_datum', 'citation_publication_data',
+                             'DC.Date.Creation_of_intellectual_content', 'prism.publicationDate']:
                     rec['date'] = meta['content'].strip()
                     done.append(tag)
                 #pubnote
@@ -1600,7 +1618,8 @@ def metatagcheck(rec, artpage, listoftags):
                 #fulltext
                 elif tag in ['bepress_citation_pdf_url', 'citation_pdf_url', 'eprints.document_url']:
                     if not re.search('[aA]bstract', meta['content']):
-                        rec['pdf_url'] = meta['content'].strip()
+                        if not 'pdf_url' in rec or not rec['pdf_url']:
+                            rec['pdf_url'] = meta['content'].strip()
                     done.append(tag)
                 #object type
                 elif tag in ['DC.type', 'dc.type', 'dc.Type', 'DC.Type']:
@@ -1636,6 +1655,8 @@ def metatagcheck(rec, artpage, listoftags):
                                 pbnfp = val
                             elif key == 'lastpage':
                                 pbnlp = val
+                            elif key == 'pages' and not pbnfp:
+                                pbnfp = val
                             elif not key in ['conference_title', 'issn', 'publication_date', 'issue', 'publisher']:
                                 print('        ? citation_%s ?' % (key))
                         if pbnjt and pbnv and pbnfp:
