@@ -45,7 +45,7 @@ elif (jnl == 'php'):
     jnlname = 'Phys.Plasmas'
 elif jnl in ['adva', 'adv']:
     jnlname = 'AIP Adv.'
-elif (jnl == 'aipconf') or (jnl == 'aipcp') or (jnl == 'apc'):
+elif (jnl == 'aipconf') or (jnl == 'aipcp') or (jnl == 'acp'):
     jnlname = 'AIP Conf.Proc.'
     jnl = 'apc'
     typecode = 'C'
@@ -70,7 +70,10 @@ elif (jnl == 'sci'):
 elif (jnl == 'pto'): #authors messy
     jnlname = 'Phys.Today'
     typecode = ''
-
+elif (jnl == 'aplqquantum'):
+    jnlname = 'APL Quantum'
+elif (jnl == 'apr'):
+    jnlname = 'Appl.Phys.Rev.'
 
 host = os.uname()[1]
 if host == 'l00schwenn':
@@ -188,6 +191,9 @@ boring += ['FROM THE EDITOR', "READERS' FORUM", 'ISSUES AND EVENTS', 'BOOKS',
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
 if jnl in ['aqs']:
     urltrunk = 'https://avs.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
+elif jnl in ['apr']:
+    urltrunk = 'https://pubs.aip.org/aip/%s/issue/%s/%s' % (jnl,vol,iss)
+    
 print(urltrunk)
 
 driver.get(urltrunk)
@@ -220,7 +226,7 @@ def getarticle(artlink, secs):
         rec['note'].append(sec)
         secu = sec.upper()
         if secu in ['CONTRIBUTED REVIEW ARTICLES', 'REVIEW ARTICLES']:
-            rec['tc'] = 'R'
+            rec['tc'] = 'PR'
         if secu in ['CLASSICAL AND QUANTUM GRAVITY', 'GENERAL RELATIVITY AND GRAVITATION']:
             rec['fc'] = 'g'
         elif secu in ['ACCELERATOR', 'COMPACT PARTICLE ACCELERATORS TECHNOLOGY', 'LATEST TRENDS IN FREE ELECTRON LASERS', 'PLASMA-BASED ACCELERATORS, BEAMS, RADIATION GENERATION']:
@@ -241,10 +247,20 @@ def getarticle(artlink, secs):
             rec['fc'] = 's'            
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'citation_author_institution',
                                         'citation_doi', 'citation_publication_date',
-                                        'description', 'citation_title'])
+                                        'description', 'citation_title',
+                                        'citation_reference'])
     #abstract
     for section in artpage.body.find_all('section', attrs = {'class' : 'abstract'}):
         rec['abs'] = section.text.strip()
+    #license and fulltext
+    ejlmod3.globallicensesearch(rec, artpage)
+    if 'license' in rec:
+        ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
+    else:
+        for h1 in artpage.find_all('h1'):
+            for ii in h1.find_all('i', attrs = {'class' : ['icon-availability_free',
+                                                           'icon-availability_open']}):
+                ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
     #article ID
     for script in artpage.find_all('script', attrs = {'type' : 'application/ld+json'}):
         scriptt = re.sub('[\n\t]', '', script.contents[0].strip())
@@ -278,16 +294,18 @@ def getarticle(artlink, secs):
                 newautaff.append(aa)
         rec['autaff'] = newautaff
                         
-        
+    #field code for conferences
+    if len(sys.argv) > 5:
+        rec['fc'] = sys.argv[5]
     
     #references
     for div in artpage.body.find_all('div', attrs = {'class' : 'ref-list'}):
         rec['refs'] = []
         for a in div.find_all('a'):
-            if a.text in ['Google Scholar', 'Crossref', 'Search ADS']:
+            if a.text in ['Google Scholar', 'Crossref', 'Search ADS', 'PubMed']:
                 a.decompose()
         for div2 in div.find_all('div', attrs = {'class' : 'ref-content'}):
-            rec['refs'].append([('x', div2.text.strip())])
+            rec['refs'].append([('x', re.sub('[\n\t\r]', ' ', div2.text.strip()))])
     
     ejlmod3.printrecsummary(rec)
     #print('AUTAFF', rec['autaff'])
@@ -345,7 +363,7 @@ for (href, secs) in tocheck:
         rec = getarticle(href, secs)
         if 'autaff' in rec and rec['autaff']:
             recs.append(rec)
-            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
             if len(recs) % extrabreakafterrecords == 0:
                 print('  --> extra break to stay under the radar <--')
                 time.sleep(700)
