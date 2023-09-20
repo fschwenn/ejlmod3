@@ -26,7 +26,7 @@ for path in [ejlpath, os.path.join(ejlpath, str(ejlmod3.year(backwards=1)))]:
             if issuenumber > highestissunumber:
                 highestissunumber = issuenumber
 print('highest issuenumber so far: %i' % (highestissunumber))
-
+highestissunumber = 65
 hdr = {'User-Agent' : 'Magic Browser'}
 reiss = re.compile('.*issue\/(\d+)\/$')
 todo = []
@@ -67,7 +67,19 @@ for (issuenumber, issuelink) in todo:
         sleep(6)
         req = urllib.request.Request(rec['artlink'], headers=hdr)
         artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-        ejlmod3.metatagcheck(rec, artpage, ["keywords", "citation_doi", "citation_date", "citation_title", "citation_issue", "citation_volume", "citation_abstract_content", "citation_firstpage", "citation_lastpage"])
+        ejlmod3.metatagcheck(rec, artpage, ["keywords", "citation_doi", "citation_date",
+                                            "citation_title", "citation_issue",
+                                            "citation_abstract_content", "citation_firstpage",
+                                            "citation_lastpage"])
+        #"citation_volume" in fact is issuenumber not real volume!
+        for div in artpage.find_all('div', attrs = {'class' : 'j-info'}):
+            for span in div.find_all('span'):
+                print(span)
+                spant = span.text.strip()
+                if re.search('Volume', spant):
+                    rec['vol'] = re.sub('Volume:? *', '', spant)
+        if 'doi' in rec:
+            rec['doi'] = re.sub(' ', '', rec['doi'])
         #authors
         for meta in artpage.find_all('meta', attrs = {'name' : 'citation_authors'}):            
             rec['auts'] = []
