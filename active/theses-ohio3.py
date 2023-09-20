@@ -254,8 +254,8 @@ def get_sub_site(url, sess):
 options = uc.ChromeOptions()
 #options.headless=True
 options.add_argument('--headless')
-options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 #chromeversion = 108
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -306,6 +306,10 @@ with Session() as session:
                 ejlmod3.printprogress('-', [[i, numtheses]])
         #ejlmod3.writenewXML(recs, publisher, jnlfilename+'TMP', retfilename='retfiles_special')
         print('  %4i records so far (checked %i of %i)' % (len(recs), rpp*page, numtheses))
+
+        if page == 50:
+            break
+        
         if rpp*page < numtheses:
             if (page+1) % 10  ==  1:
                 print('\n --> click for Next Set\n')
