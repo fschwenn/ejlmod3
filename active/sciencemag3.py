@@ -110,15 +110,20 @@ def harvestarticle(jnl, rec, i, l, r):
                 rec['doi'] = meta['content']
     #authors and affiliations
     for div in artpage.find_all('div', attrs = {'property' : 'author'}):
+        name = False
         for span in div.find_all('span', attrs = {'property' : 'familyName'}):
             name = span.text.strip()
         for span in div.find_all('span', attrs = {'property' : 'givenName'}):
             name += ', ' + span.text.strip()
-        rec['autaff'].append([name])
-        for a in div.find_all('a', attrs = {'class' : 'orcid-id'}):
-            rec['autaff'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
-        for div2 in div.find_all('div', attrs = {'property' : ['affiliation', 'organization']}):
-            rec['autaff'][-1].append(div2.text.strip())
+        if name:
+            rec['autaff'].append([name])
+            for a in div.find_all('a', attrs = {'class' : 'orcid-id'}):
+                rec['autaff'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+            for div2 in div.find_all('div', attrs = {'property' : ['affiliation', 'organization']}):
+                rec['autaff'][-1].append(div2.text.strip())
+        else:
+            rec['autaff'].append([re.sub('View all articles by this author', '', div.text.strip())])
+            print('\n  added "%s" as author - is it ok or a collaboration or ...?\n' % (rec['autaff'][-1][0]))
     #abstract
     for section in artpage.find_all('section', attrs = {'id' : 'abstract'}):
         for h2 in section.find_all('h2'):
@@ -181,6 +186,14 @@ def harvestissue(jnl, vol, issue):
                            'year' : year, 'autaff' : [], 'note' : [scttit], 'refs' : []}
                     rec['artlink'] = 'https://www.science.org%s' % (a['href'])
                     prerecs.append(rec)
+        sct.decompose()
+    #articles no in regular sections
+    for h3 in tocpage.find_all('h3', attrs = {'class' : 'article-title'}):
+        for a in h3.find_all('a'):
+            rec = {'tc' : 'P', 'jnl' : jnlname, 'vol' : vol, 'issue' : issue,
+                   'year' : year, 'autaff' : [], 'note' : [scttit], 'refs' : []}
+            rec['artlink'] = 'https://www.science.org%s' % (a['href'])
+            prerecs.append(rec)
     #check article pages
     i = 0
     recs = []
