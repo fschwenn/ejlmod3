@@ -24,9 +24,9 @@ dois = []
 options = uc.ChromeOptions()
 #options.headless=True'
 options.binary_location='/usr/bin/google-chrome'
-#options.binary_location='/usr/bin/chromium-browser'
-options.add_argument('--headless')
-options.add_argument("--no-sandbox")
+options.binary_location='/usr/bin/chromium'
+#options.add_argument('--headless')
+#options.add_argument("--no-sandbox")
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -69,7 +69,8 @@ for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', '')
                 tuples.append((subject, doi, fc))
                 dois.append(doi)
     print('       %3i' % (len(tuples)))
-
+    time.sleep(3)
+    
 
 i = 0
 recs = []
@@ -78,13 +79,15 @@ for tuplet in tuples:
     i += 1
     ejlmod3.printprogress('-', [[i, len(tuples)], [len(recs)], [subject], [doi]])
     tc ='B'
-    bookfilename = '/tmp/wspbooks.%s' % (re.sub('\W', '', doi))
-    if not os.path.isfile(bookfilename):
-        time.sleep(20)
-        os.system('wget -q -O %s "http://www.worldscientific.com/worldscibooks/%s"' % (bookfilename, doi))
-    bookf = open(bookfilename, 'r')
-    book = BeautifulSoup(''.join(bookf.readlines()), features="lxml")
-    bookf.close()
+    #bookfilename = '/tmp/wspbooks.%s' % (re.sub('\W', '', doi))
+    #if not os.path.isfile(bookfilename):
+    #    time.sleep(20)
+    #    os.system('wget -q -O %s "http://www.worldscientific.com/worldscibooks/%s"' % (bookfilename, doi))
+    #bookf = open(bookfilename, 'r')
+    #book = BeautifulSoup(''.join(bookf.readlines()), features="lxml")
+    #bookf.close()
+    driver.get("http://www.worldscientific.com/worldscibooks/%s" % (doi))
+    book = BeautifulSoup(driver.page_source, features="lxml")
     rec = {'doi' : doi, 'isbns' : [], 'autaff' : [], 'note' : [ subject ], 'jnl' : 'BOOK'}
     if fc: rec['fc'] = fc
     for meta in book.head.find_all('meta'):
@@ -152,6 +155,7 @@ for tuplet in tuples:
     rec['tc'] = tc
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
+    time.sleep(3)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
