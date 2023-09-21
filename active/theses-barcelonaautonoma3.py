@@ -135,7 +135,7 @@ prerecs = []
 jnlfilename = 'THESES-BarcelonaAutonomaU-%s' % (ejlmod3.stampoftoday())
 
 if skipalreadyharvested:
-    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename) + ejlmod3.getalreadyharvested('THESES-TDX')
 
 for page in range(pages):
     tocurl = 'https://ddd.uab.cat/search?cc=tesis&ln=en&rg=' + str(rpp) + '&jrec=' + str(page*rpp+1)
