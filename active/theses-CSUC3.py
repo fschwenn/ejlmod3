@@ -24,9 +24,7 @@ dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = eljmod3.getalreadyharvested(jnlfilename) + eljmod3.getalreadyharvested('THESES-BarcelonaAutonomaU')
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
