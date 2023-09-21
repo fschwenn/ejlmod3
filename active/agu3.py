@@ -23,23 +23,34 @@ issue = sys.argv[3]
 skipalreadyharvested = True
 
 if   (jnl == 'jgrsp'):
+    year = str(int(vol)+1895)
     jnlname = 'J.Geophys.Res.Space Phys.'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699402/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699402/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'jgrp'):
+    year = str(int(vol)+1895)
     jnlname = 'J.Geophys.Res.Planets'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699100/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699100/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'jgra'):
+    year = str(int(vol)+1895)
     jnlname = 'J.Geophys.Res.Atmos.'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21698996/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21698996/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'jgrse'):
+    year = str(int(vol)+1895)
     jnlname = 'J.Geophys.Res.Solid Earth'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699356/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699356/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'jgro'):
+    year = str(int(vol)+1895)
     jnlname = 'J.Geophys.Res.Oceans'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699291/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/21699291/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'grl'):
+    year = str(int(vol)+1895)
     jnlname = 'Geophys.Res.Lett.'
-    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/19448007/%i/%s/%s' % (int(vol)+1895, vol, issue)
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/19448007/%s/%s/%s' % (year, vol, issue)
+elif (jnl == 'agua'):
+    year = str(int(vol)+2019)
+    jnlname = 'AGU Adv..'
+    toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/2576604x/%s/%s/%s' % (year, vol, issue)
+    
 
 
 #scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
@@ -82,6 +93,7 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 (note1, note2) = (False, False)
+dois = []
 prerecs = []
 for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items-container']}):
     for child in div.children:
@@ -106,7 +118,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items
                     if not at:
                         at = child2.find_all('a', attrs = {'class' : ['issue-item__title', 'visitable']})
                     for a in at:
-                        rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : issue, 'year' : '%i' % (int(vol)+1895),
+                        rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : issue, 'year' : year,
                                'tc' : tc, 'note' : [], 'autaff' : [], 'keyw' : []}
                         if len(sys.argv) > 4:
                             rec['cnum'] = cnum
@@ -117,14 +129,20 @@ for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items
                                 rec['note'].append(note1)
                             if note2:
                                 rec['note'].append(note2)
-                            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
-                                print('    a)', rec['doi'])
-                                prerecs.append(rec)
+                            if rec['doi'] in dois:
+                                print(' [  a)', rec['doi'] + ']')
+                            elif not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                                if a.text.strip() in ['Issue Information']:
+                                    print('    -)', rec['doi'])
+                                else:
+                                    print('    a)', rec['doi'])
+                                    prerecs.append(rec)                                
                             else:
                                 print('      ', rec['doi'])
+                            dois.append(rec['doi'])
                 elif child2.name == 'a':
                     if child2.has_attr('class') and ('issue-item__title' in child2['class'] or 'issue-item__title visitable' in child2['class']):
-                        rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : issue, 'year' : '%i' % (int(vol)+1895),
+                        rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : issue, 'year' : year,
                                'tc' : tc, 'note' : [], 'autaff' : [], 'keyw' : []}
                         if len(sys.argv) > 4:
                             rec['cnum'] = cnum
@@ -135,12 +153,17 @@ for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items
                                 rec['note'].append(note1)
                             if note2:
                                 rec['note'].append(note2)
-                            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
-                                print('    b)', rec['doi'])
-                                prerecs.append(rec)
+                            if rec['doi'] in dois:
+                                print(' [  a)', rec['doi'] + ']')
+                            elif not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                                if child2.text.strip() in ['Issue Information']:
+                                    print('    -)', rec['doi'])
+                                else:
+                                    print('    b)', rec['doi'])
+                                    prerecs.append(rec)
                             else:
                                 print('      ', rec['doi'])
-
+                            dois.append(rec['doi'])
 
 
 
@@ -170,6 +193,10 @@ for rec in prerecs:
                                         'citation_author', 'citation_author_institution',
                                         'citation_author_orcid', 'citation_author_email'])
     ejlmod3.globallicensesearch(rec, artpage)
+    if 'license' in rec:
+        #print('check citation_pdf_url')
+        ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
+        #print(rec.keys())                            
     #articleID
     if not 'p1' in list(rec.keys()):
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
