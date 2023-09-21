@@ -98,6 +98,12 @@ boring = ["External Context of the MPI for Human Development",
           "Publications of the MPI for Tax Law and Public Finance",
           "Publications of the MPI für Kohlenforschung"]
 
+
+
+
+
+
+
 recs = []
 for year in years:
     for degree in ['PHD', 'HABILITATION']:  # "BACHELOR", "MASTER"
@@ -114,11 +120,86 @@ for year in years:
                                {"term" : {"metadata.dateAccepted" : {"value" : str(year), "boost" : 1.0}}}, 
                                {"match_all" : {"boost" : 1.0} } ],
                     "adjust_pure_negative" : True,
-                    "boost" : 1.0
+#                    "boost" : 1.0
                 }
             },
             "sort" : [{"metadata.title.keyword" : {"order" : "ASC"}}],
             "size" : str(rpp), "from" : "0"
+        }
+        payload = {
+            "query" :{
+                "bool" : {
+                    "must" : [ {
+                        "term" : {
+                            "publicState" : {
+                                "value" : "RELEASED"
+                            }
+                        }
+                    }, {
+                        "term" : {
+                            "versionState" : {
+                                "value" : "RELEASED"
+                            }
+                        }
+                    }, {
+                        "bool" : {
+                            "must" : [ {
+                                "bool" : {
+                                    "should" : [ {
+                                        "range" : {
+                                            "metadata.datePublishedInPrint" : {
+                                                "gte" : "%i-01-01||/d" % (year),
+                                                "lte" : "%i-01-01||/d" % (year+1),
+                                            }
+                                        }
+                                    }, {
+                                        "range" : {
+                                            "metadata.datePublishedOnline" : {
+                                                "gte" : "%i-01-01||/d" % (year),
+                                                "lte" : "%i-01-01||/d" % (year+1),
+                                            }
+                                        }
+                                    }, {
+                                        "range" : {
+                                            "metadata.dateAccepted" : {
+                                                "gte" : "%i-01-01||/d" % (year),
+                                                "lte" : "%i-01-01||/d" % (year+1),
+                                            }
+                                        }
+                                    }, {
+                                        "range" : {
+                                            "metadata.dateCreated" : {
+                                                "gte" : "%i-01-01||/d" % (year),
+                                                "lte" : "%i-01-01||/d" % (year+1),
+                                            }
+                                        }
+                                    } ]
+                                }
+                            }, {
+                                "bool" : {
+                                    "must" : [ {
+                                        "term" : {
+                                            "metadata.genre" : {
+                                                "value" : "THESIS"
+                                            }
+                                        }
+                                    }, {
+                                        "bool" : {
+                                            "should" : [ {
+                                                "term" : {
+                                                    "metadata.degree" : {
+                                                        "value" : degree
+                                                    }
+                                                }
+                                            } ]
+                                        }
+                                    } ]
+                                }
+                            } ]
+                        }
+                    } ]
+                }
+            }
         }
         headers = {
             'Cache-Control' : 'no-cache',
