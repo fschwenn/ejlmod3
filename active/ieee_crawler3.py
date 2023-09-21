@@ -47,8 +47,12 @@ def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     filenametrunc = 'ieee*doki'
     alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*http/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    filenametrunc = 'IEEE*doki'
     print('%i records in backup' % (len(alreadyharvested)))
-
+    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*http/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    print('%i records in backup' % (len(alreadyharvested)))
+alreadyharvested.append('http://ieeexplore.ieee.org/document/10189126/')
+alreadyharvested.append('http://ieeexplore.ieee.org/document/10188200/')
 
 def meta_with_name(tag):
     return tag.name == 'meta' and tag.has_attr('name')
@@ -416,7 +420,7 @@ def ieee(number):
         rec['tc'] = tc
         if gdm['isConference']:
             rec['tc'] = 'C'
-            rec['note'] = [gdm['publicationTitle']]            
+            rec['note'].append(gdm['publicationTitle'])
         if len(args) > 1:
             rec['tc'] = 'C'
             if re.search('^C\d\d\-\d\d\-\d\d', args[1]):
@@ -476,7 +480,11 @@ def ieee(number):
                               'IEEE Information Theory Society information', 'Board of Governors', 'Commitees',
                               'IEEE Journal on Special Areas in Information Theory information for authors', 'Copyright Page',
                               'IEEE Journal on Special Areas in Information Theoryinformation for authors', 'Title Page',
-                              'Back Cover', 'Conference Programme', 'Panel']:
+                              'Back Cover', 'Conference Programme', 'Panel', 'Message from the Chairs',
+                              'Message from the Chair', 'IEEE Computer Society Jobs Board', 'Full Program',
+                              'Get Published in the New IEEE Open Journal of the Computer Scoiety',
+                              'IEEE Computer Society Jobs Board', 'Ieee Computer Society Jobs Board',
+                              'Message from the General Chair', 'Speakers']:
 
 #            if 'p1' in rec.keys():
 #                del rec['p1']
