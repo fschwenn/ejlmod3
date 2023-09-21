@@ -130,24 +130,33 @@ def get_records(url):
         else:
             print(("number of pages %s not an integer" % (numpag[0].string)))
     else:
-        for input in pages[url].body.findAll('input', attrs={'class': 'c-pagination__input'}):
-            if re.search('^\d+$', input['max']):
-                maxpage = int(input['max'])
+        inpts = pages[url].body.findAll('input', attrs={'class': 'c-pagination__input'})
+        print('%i input-fields' % (len(inpts)))
+        for inpt in inpts:
+            if re.search('^\d+$', inpt['max']):
+                maxpage = int(inpt['max'])
             print('maxpage=', maxpage)
             for i in range(maxpage):
-#                try:
-                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
-                    if not tocurl in list(pages.keys()):
-                        print(tocurl)
-                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
-                        pages[tocurl] = BeautifulSoup(page, features="lxml")
-                        time.sleep(10)
-#                except:
-#                    tocurl = '%s?page=%i' % (url, i+1)
-#                    if not tocurl in list(pages.keys()):
-#                        print(tocurl)
-#                        page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
-#                        pages[tocurl] = BeautifulSoup(page, features="lxml")
+                tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
+                if not tocurl in list(pages.keys()):
+                    print(tocurl)
+                    page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
+                    pages[tocurl] = BeautifulSoup(page, features="lxml")
+                    time.sleep(1)
+        if not inpts:
+            dp = 0
+            for li in pages[url].body.findAll('li', attrs={'class': 'c-pagination__item'}):
+                if li.has_attr('data-page'):
+                    if re.search('^\d$', li['data-page']):
+                        dp = int(li['data-page'])
+            for i in range(dp-1):
+                tocurl = '%s&page=%i' % (re.sub('#toc$', '', url), i+2)
+                if not tocurl in list(pages.keys()):
+                    print(tocurl)
+                    page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
+                    pages[tocurl] = BeautifulSoup(page, features="lxml")
+                    time.sleep(1)
+        
 
 #    links = []
 #    for tocurl in list(pages.keys()):
@@ -263,7 +272,14 @@ for rec in prerecs:
         time.sleep(20)
     ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_lastpage', 'citation_doi', 'citation_author',
                                         'citation_author_institution', 'citation_author_email', 'citation_author_orcid',
-                                        'description', 'dc.description', 'citation_cover_date', 'citation_article_type'])
+                                        'description', 'dc.description', 'citation_cover_date', 'citation_article_type',
+                                        'prism.publicationDate'])
+    if jnl in ['npj Quantum Inf.']:
+        for p in artpage.find_all('p', attrs = {'class' : 'c-article-info-details'}):
+            for span in p.find_all('span', attrs = {'data-test' : 'article-number'}):
+                rec['p1'] = span.text.strip()
+                if 'p2' in rec:
+                    del rec['p2']
     #article type
     if 'citation_article_type' in rec:
         for at in rec['citation_article_type']:
@@ -271,6 +287,11 @@ for rec in prerecs:
                 keepit = False                
             elif not at[24:] in ['Article', 'Letter', 'Review Article', 'Publisher Correction']:
                 rec['note'].append(at)
+    #license
+    for a in artpage.body.find_all('a', attrs = {'rel' : 'license'}):
+        if a.has_attr('href') and re.search('creativecomm', a['href']):
+            rec['license'] = {'url' : a['href']}
+            ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
     #date
     if not 'date' in list(rec.keys()):
         for  meta in artpage.head.find_all('meta', attrs = {'name' : 'citation_publication_date'}):
@@ -279,6 +300,10 @@ for rec in prerecs:
         for span in artpage.body.find_all('span', attrs = {'class' : 'bibliographic-information__value', 'id' : 'copyright-info'}):
             if re.search('[12]\d\d\d', span.text):
                 rec['date'] = re.sub('.*?([12]\d\d\d).*', r'\1', span.text.strip())
+    if not 'date' in rec:
+        for a in artpage.body.find_all('a', attrs = {'data-track-action' : 'publication date'}):
+            for dt in a.find_all('time'):
+                rec['date'] = dt['datetime']
     #Abstract
     for section in artpage.body.find_all('section', attrs = {'class' : 'Abstract'}):
         abstract = ''
@@ -296,16 +321,23 @@ for rec in prerecs:
         for li in artpage.body.find_all('li', attrs = {'class' : 'c-article-subject-list__subject'}):
             rec['keyw'].append(li.text.strip())            
     #References
-    for ol in artpage.body.find_all('ol', attrs = {'class' : ['BibliographyWrapper', 'c-article-references']}):
+    references = artpage.body.find_all('ol', attrs = {'class' : ['BibliographyWrapper', 'c-article-references']})
+    if not references:
+        references = artpage.body.find_all('ul', attrs = {'class' : ['BibliographyWrapper', 'c-article-references']})
+    for ol in references:
         rec['refs'] = []
         for li in ol.find_all('li'):
             for a in li.find_all('a'):
-                if a.text.strip() in ['Google Scholar', 'MathSciNet']:
+                if a.text.strip() in ['Google Scholar', 'MathSciNet', 'ADS']:
                     a.replace_with(' ')
-                elif a.text.strip() == 'CrossRef':
+                elif a.text.strip() in ['CrossRef' ,'Article']:
                     rdoi = re.sub('.*doi.org\/', '', a['href'])
+                    rdoi = re.sub('%2F', '/', rdoi)
                     a.replace_with(', DOI: %s' % (rdoi))
             rec['refs'].append([('x', li.text.strip())])
+
+
+        
     #SPECIAL CASE LANDOLT-BOERNSTEIN
     if not rec['autaff']:
         del rec['autaff']
