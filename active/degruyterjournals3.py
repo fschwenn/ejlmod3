@@ -47,20 +47,41 @@ elif journal == 'agms':
     jnl = 'Anal.Geom.Metr.Spaces'
 elif journal == 'cmam':
     jnl = 'Comp.Meth.Appl.Math.'
-
+elif journal == 'zna':
+    jnl = 'Z.Naturforsch.A'
+elif journal == 'nanoph':
+    jnl = 'Nanophoton.'
+elif journal == 'bams':
+    jnl = 'Bio-Alg.Med-Syst.'
+elif journal == 'form':
+    jnl = 'Forum Math.'
+elif journal == 'jnet':
+    jnl = 'J.Nonequil.Thermo.'
+elif journal == 'coma':
+    jnl = 'Compl.Manif.'
+elif journal == 'qmetro':
+    jnl = 'Quantum Meas.Quantum Metrol.'  
+elif journal == 'ms':
+    jnl = 'Math.Slovaca'
+tc = 'P'
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
     
 #get list of volumes
-if journal in ['kern', 'ract', 'phys', 'astro', 'crll', 'agms', 'cmam']:
+if journal in ['kern', 'ract', 'phys', 'astro', 'crll', 'agms', 'cmam'] + ['zna', 'nanoph', 'bams', 'form', 'jnet', 'coma', 'qmetro', 'ms']:
     tocurl = 'https://www.degruyter.com/journal/key/%s/%s/%s/html' % (journal.upper(), vol, iss)
 else:
     tocurl = "%s/view/j/%s.%s.%s.issue-%s/issue-files/%s.%s.%s.issue-%s.xml" % (urltrunc, journal, year, vol, iss, journal, year, vol, iss)        
 print(tocurl)
 
 tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+
+for h1 in tocpage.find_all('h1'):
+    h1t = h1.text.strip()
+    if re.search('(Proceedins|Conference|Workshop)', h1t):
+        tc = 'C'
 
 #get volumes
 recs = []
@@ -78,16 +99,29 @@ for div in titledivs:
                 if skipalreadyharvested and doi in alreadyharvested:
                     print('   already in backup')
                     continue
-            rec = {'tc' : 'P', 'jnl' : jnl, 'year' : year, 'vol' : vol, 'issue' : iss, 'autaff' : [],
+            rec = {'tc' : tc, 'jnl' : jnl, 'year' : year, 'vol' : vol, 'issue' : iss, 'autaff' : [],
                    'auts' : [], 'aff' : [], 'keyw' : [], 'pacs' : []}
+            #conference
+            if tc == 'C':
+                rec['note'] = [h1t]
             #title
             rec['tit'] = a.text.strip()
             if rec['tit'] in ['Frontmatter', 'Backmatter', 'Contents', 'Editorial']:
                 continue
             #get details
             if not os.path.isfile('/tmp/dg%s.%i' % (jnlfilename, i)):
-                time.sleep(5)
+                time.sleep(7)
                 os.system('wget -T 300 -t 3 -q -U "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0"  -O /tmp/dg%s.%i %s' % (jnlfilename, i, vollink))
+                time.sleep(0.1)
+            if int(os.path.getsize('/tmp/dg%s.%i' % (jnlfilename, i))) == 0:
+                print('  download again')
+                time.sleep(15)
+                os.system('rm /tmp/dg%s.%i' % (jnlfilename, i))
+                time.sleep(.2)
+                os.system('wget -T 300 -t 3 -q -U "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0"  -O /tmp/dg%s.%i %s' % (jnlfilename, i, vollink))                
+                
+                   
+                       
             inf = open('/tmp/dg%s.%i' % (jnlfilename, i), 'r')
             artpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
             inf.close()
@@ -169,7 +203,9 @@ for div in titledivs:
             if not 'auts' in rec and not rec['autaff']:
                 for ct in artpage.find_all('contributor-popdown'):
                     rec['autaff'].append([ct['name']])
-                    if ct.has_attr('email') and ct['email']:
+                    if ct.has_attr('orcid') and ct['orcid']:
+                        rec['autaff'][-1].append(re.sub('.*orcid.org\/', 'ORCID:', ct['orcid']))
+                    elif ct.has_attr('email') and ct['email']:
                         rec['autaff'][-1].append('EMAIL:' + ct['email'])
                     if ct.has_attr('affiliations'):
                         rec['autaff'][-1].append(ct['affiliations'])
@@ -184,6 +220,18 @@ for div in titledivs:
                 for a in p.find_all('a'):
                     if a.text and not a.text in rec[key]:
                         rec[key].append(a.text)
+            for div in artpage.find_all('div', attrs = {'class' : 'keywords'}):
+                divt = div.text.strip()
+                if divt[:5] == 'PACS:':
+                    key = 'pacs'
+                elif divt[:9] == 'Keywords:':
+                    key = 'keyw'
+                else:
+                    key = 'note'
+                if not key in rec:
+                    rec[key] = []
+                for a in div.find_all('a'):
+                    rec[key].append(a.text.strip())
             #keywords
             for div in artpage.find_all('div', attrs = {'class' : 'column'}):
                 for dl in div.find_all('dl'):
@@ -216,8 +264,10 @@ for div in titledivs:
                         for a in p.find_all('a'):
                             if a.text.strip() == 'Search in Google Scholar':
                                 a.decompose()
-                        rec['refs'].append([('x', rebreaks.sub(' ', re.sub(';', ',', p.text)))])                                
-                    
+                            elif re.search('doi.org', a['href']):
+                                doi = re.sub('.*doi.org.', '', a['href'])
+                                a.replace_with(', DOI: %s  ' % (doi))
+                        rec['refs'].append([('x', rebreaks.sub(' ', re.sub(';', ',', p.text)))])
             #date
             for div in artpage.find_all('div', attrs = {'class' : 'pubHistory'}):
                 for dl in div.find_all('dl', attrs = {'id' : 'date-epub'}):
@@ -238,6 +288,11 @@ for div in titledivs:
                     #fulltext pdf
                     for meta in artpage.find_all('meta', attrs = {'name' : 'citation_pdf_url'}):
                         rec['FFT'] = meta['content']
+            if 'licence' not in rec:
+                for span in artpage.find_all('span', attrs = {'class' : 'accessAccessible'}):
+                    if re.search('Publicly Available', span.text):
+                        for a in artpage.find_all('a', attrs = {'class' : 'downloadCompletePdfArticle'}):
+                            rec['hidden'] = 'https://www.degruyter.com' + a['href']
             #pages 
             if 'p1' not in rec:
                 for div in artpage.find_all('div', attrs = {'class' : 'citationInfo'}):
@@ -245,6 +300,12 @@ for div in titledivs:
                     if re.search('[pP]ages \d+\D\d+', pages):
                         rec['p1'] = re.sub('.*[pP]ages (\d+).*', r'\1', pages)
                         rec['p2'] = re.sub('.*[pP]ages \d+\D(\d+).*', r'\1', pages)
+            if 'p1' not in rec:
+                for div in artpage.find_all('div', attrs = {'id' : 'citationContent'}):
+                    for div2 in div.find_all('div', attrs = {'id' : 'MLA'}):
+                        dt = div2.text.strip()
+                        if re.search('pp\. \d+', dt):
+                            rec['p1'] = re.sub('.*pp\. (\d+).*', r'\1', dt)
             #authors
             if not rec['autaff']:
                 if not 'aff' in list(rec.keys()) or not arec['aff']:
@@ -271,4 +332,4 @@ for div in titledivs:
                 recs.append(rec)
                 ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
