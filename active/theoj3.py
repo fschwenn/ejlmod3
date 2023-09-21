@@ -26,6 +26,7 @@ jnlfilename = 'theoj_%s_%s' % (jnl, ejlmod3.stampoftoday())
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 options.add_argument("--no-sandbox")
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
