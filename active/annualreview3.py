@@ -35,20 +35,20 @@ elif (jnl == 'arcmp'):
     urltrunk = 'http://www.annualreviews.org/toc/conmatphys/%s/1' % (vol)
 
 
-#options = uc.ChromeOptions()
+options = uc.ChromeOptions()
 #options.headless=True
-#options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
-#chromeversion = int(re.sub('Chro.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 #chromeversion = 108
-#driver = uc.Chrome(version_main=chromeversion, options=options)
-scraper = cloudscraper.create_scraper()
+driver = uc.Chrome(version_main=chromeversion, options=options)
+#scraper = cloudscraper.create_scraper()
 
 
 print("get table of content of %s%s ... via %s" %(jnlname,vol, urltrunk))
-#driver.get(urltrunk)
-#tocpage = BeautifulSoup(driver.page_source, features="lxml")
-tocpage = BeautifulSoup(scraper.get(urltrunk).text, features="lxml")
+driver.get(urltrunk)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
+#tocpage = BeautifulSoup(scraper.get(urltrunk).text, features="lxml")
 time.sleep(3)
 
 recs = []
@@ -74,9 +74,9 @@ for div in tocpage.find_all('article', attrs = {'class' : 'teaser'}):
     else:
         doisdone.append(rec['doi'])
     print(rec['doi'], rec['artlink'])
-    #driver.get(rec['artlink'])
-    #artpage = BeautifulSoup(driver.page_source, features="lxml")
-    artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
+    driver.get(rec['artlink'])
+    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'keywords', 'dc.Description'])
 #    print(artpage.text)
     #Abstract
@@ -148,6 +148,8 @@ for div in tocpage.find_all('article', attrs = {'class' : 'teaser'}):
     recs.append(rec)
     time.sleep(3)
 
+if not recs:
+    print(tocpage.text)
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
