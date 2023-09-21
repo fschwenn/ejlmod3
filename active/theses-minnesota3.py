@@ -17,6 +17,7 @@ publisher = 'Minnesota U.'
 
 rpp = 100
 pages = 2
+skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-MINNESOTA-%s' % (ejlmod3.stampoftoday())
@@ -51,13 +52,18 @@ boringmajors = ["Aerospace Engineering and Mechanics", "Animal Sciences", "Anthr
                 "Philosophy", "Plant and Microbial Biology", "Plant Biological Sciences", "Plant Pathology",
                 "Public Affairs", "Soil Science", "Water Resources Science", "Work and Human Resource Education"]
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 prerecs = []
 for page in range(pages):
     tocurl = 'https://conservancy.umn.edu/handle/11299/45273/discover?sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&page=' + str(page+1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    prerecs += ejlmod3.getdspacerecs(tocpage, 'https://conservancy.umn.edu')
+    prerecs += ejlmod3.getdspacerecs(tocpage, 'https://conservancy.umn.edu', alreadyharvested=alreadyharvested)
 
 recs = []
 i = 0
