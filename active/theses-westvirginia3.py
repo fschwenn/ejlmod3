@@ -14,6 +14,7 @@ import time
 publisher = 'West Virginia U.'
 pages = 5
 years = 2
+skipalreadyharvested = True
 boring = ['Psychology', 'History', 'Accounting', 'Agricultural and Resource Economics', 'Anesthesiology',
           'Animal and Nutritional Sciences', 'Art History', 'Biology', 'Ceramics',
           'Chemical and Biomedical Engineering', 'Chemistry', 'Civil and Environmental Engineering',
@@ -43,6 +44,9 @@ boring += ['MS', 'DMA', 'DNP', 'EdD', 'MA', 'MFA', 'MLA', 'MM']
 
 jnlfilename = 'THESES-WESTVIRGINIA-%s' % (ejlmod3.stampoftoday())
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 basetocurl = 'https://researchrepository.wvu.edu/etd/index.'
 tocextension = 'html'
 
@@ -71,7 +75,7 @@ for i in range(pages):
                 #year = int(re.sub('.*(20\d\d).*', r'\1', rec['date']))
                 if int(date) > ejlmod3.year(backwards=years):
                     if child.has_attr('class') and 'article-listing' in child['class']:
-                        rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : []}
+                        rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : [], 'supervisor' : []}
                         for a in child.find_all('a'):                    
                             rec['tit'] = a.text.strip()
                             rec['artlink'] = a['href']
@@ -98,10 +102,7 @@ for rec in prerecs:
                                         'bepress_citation_online_date'])
     rec['autaff'][-1].append(publisher)
     #supervisor
-    for div in artpage.body.find_all('div', attrs = {'id' : 'advisor1'}):
-        for p in div.find_all('p'):
-            rec['supervisor'] = [[ re.sub('^Dr. ', '', p.text.strip()) ]]
-    for div in artpage.body.find_all('div', attrs = {'id' : 'advisor2'}):
+    for div in artpage.body.find_all('div', attrs = {'id' : ['advisor1', 'advisor2']}):
         for p in div.find_all('p'):
             rec['supervisor'].append( [re.sub('^Dr. ', '', p.text.strip())] )
     #degree
@@ -132,8 +133,9 @@ for rec in prerecs:
     for link in artpage.find_all('link', attrs = {'rel' : 'license'}):
         rec['license'] = {'url' : link['href']}
     if keepit:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
