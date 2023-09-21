@@ -86,6 +86,7 @@ jnl['1555-6611'] = ['Laser Phys.', '', '', 'P'] #Laser Physics#yepp
 jnl['1612-202X'] = ['Laser Phys.Lett.', '', '', 'P'] #Laser Physics Letters #yepp
 jnl['2515-5172'] = ['Res.Notes AAS', '', '', 'P']
 jnl['1347-4065'] = ['Jap.J.Appl.Phys.', '', '', 'P']
+jnl['2633-4356'] = ['Mat.Quant.Tech.', '', '', 'P']
 ##
 
 #identify PACS
