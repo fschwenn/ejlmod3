@@ -47,21 +47,23 @@ else:
     elif (jnl == 'toms'): 
         jnlname = 'ACM Trans.Math.Software'
     elif (jnl == 'cacm'): 
-        jnlname = 'Commun.ACM'
-    elif (jnl == 'jacm'): 
         jnlname = 'J.Assoc.Comput.Machinery'
-    elif (jnl == 'tocs'): 
-        jnlname = 'ACM Trans.Comp.Syst.'
     elif (jnl == 'csur'): 
         jnlname = 'ACM Comput.Surveys'
+    elif (jnl == 'sigsam-cca'):
+        jnlname = 'ACM Commun.Comp.Alg.'
+
+    elif (jnl == 'tocs'): 
+        jnlname = 'ACM Trans.Comp.Syst.'
     elif (jnl == 'tog'): 
         jnlname = 'ACM Trans.Graph.'
     elif (jnl == 'tomacs'): 
         jnlname = 'ACM Trans.Model.Comput.Simul.'
     elif (jnl == 'trets'): 
         jnlname = 'ACM Trans.Reconf.Tech.Syst.'
+        
 
-    jnlfilename = "acm_%s%s.%s" % (jnl, vol, issue)
+    jnlfilename = "acm_%s%s.%s" % (jnl, vol, re.sub('\/', '_', issue))
     tocurl = 'https://dl.acm.org/toc/%s/%s/%s/%s' % (jnl, year, vol, issue)
 
     print("%s, Volume %s, Issue %s" % (jnlname, vol, issue))
@@ -69,8 +71,8 @@ else:
 print("get table of content... from %s" % (tocurl))
 
 options = uc.ChromeOptions()
-options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -143,13 +145,17 @@ for tocpage in tocpages:
                 rec['tit'] = a.text.strip()
         for div2 in div.find_all('div', attrs = {'class' : 'issue-item__detail'}):
             div2t = div2.text.strip()
-            #pages
-            if re.search(' pp \d+\D\d+', div2t):
-                pages = re.split('\D', re.sub('.*pp (\d+\D\d+).*', r'\1', div2t))
-                rec['pages'] = str(int(pages[1]) - int(pages[0]))
             #p1
             if re.search('(Paper|Article) No\.: \d+', div2t):
                 rec['p1'] = re.sub('.*(Paper|Article) No\.: (\d+).*', r'\2', div2t)            
+            #pages
+            if re.search(' pp \d+\D\d+', ' '+div2t):
+                pages = re.split('\D', re.sub('.*pp (\d+\D\d+).*', r'\1', div2t))
+                if jnl in ['sigsam-cca', 'cacm'] or not 'p1' in rec:
+                    rec['p1'] = pages[0]
+                    rec['p2'] = pages[1]
+                else:
+                    rec['pages'] = str(int(pages[1]) - int(pages[0]))
         recs.append(rec)
 
 print(' %3i recs from TOC' % (len(recs)))
@@ -161,20 +167,28 @@ for tocpage in tocpages:
                                                                 'toc__section accordion-tabbed__tab js--open']}):
         section = div.text.strip()
         inps = div.find_all('input', attrs = {'class' : 'section--dois'})
-        ndois = 0 
-        for inp in inps:
-            if inp.has_attr('value'):
-                for doi in re.split(',', inp['value']):
-                    if jnl == 'proceedings':
-                        rec = {'jnl' : jnlname, 'tc' : tc, 'year' : year, 'note' : [section], 'fc' : 'c'}
-                        if cnum:
-                            rec['cnum'] = cnum
-                    else:
-                        rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'issue' : issue, 'year' : year, 'note' : [section], 'fc' : 'c'}
-                    rec['doi'] = doi
-                    rec['artlink'] = 'https://dl.acm.org/doi/' + doi
-                    recs.append(rec)
-                    ndois += 1
+        ndois = 0
+        if not section in ['DEPARTMENT: Departments', 'DEPARTMENT: Career Paths in Computing',   
+                           'DEPARTMENT: Letters to the Editor', 'DEPARTMENT: BLOG@CACM',
+                           'COLUMN: Last Byte', 'COLUMN: News', 'COLUMN: Legally Speaking',
+                           'COLUMN: Privacy', 'COLUMN: Viewpoint', 'DEPARTMENT: Career paths in computing',
+                           'DEPARTMENT: Letters to the editor', 'COLUMN: Legally speaking', 'COLUMN: Education',
+                           'COLUMN: Last byte', "DEPARTMENT: Cerf's up", 'COLUMN: Inside risks',
+                           'COLUMN: Technology strategy and management', 'COLUMN: Broadening participation',
+                           'COLUMN: Kode Vicious', 'COLUMN: Historical reflections', 'editorial']:
+            for inp in inps:
+                if inp.has_attr('value'):
+                    for doi in re.split(',', inp['value']):
+                        if jnl == 'proceedings':
+                            rec = {'jnl' : jnlname, 'tc' : tc, 'year' : year, 'note' : [section], 'fc' : 'c'}
+                            if cnum:
+                                rec['cnum'] = cnum
+                        else:
+                            rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'issue' : issue, 'year' : year, 'note' : [section], 'fc' : 'c'}
+                        rec['doi'] = doi
+                        rec['artlink'] = 'https://dl.acm.org/doi/' + doi
+                        recs.append(rec)
+                        ndois += 1
         if ndois:
             print(' %3i additional recs from %i section %s' % (ndois, len(inps), section))
 
@@ -241,10 +255,21 @@ for rec in recs:
                 else:
                     a.decompose()
             rec['refs'].append([('x', refno + li.text.strip())])
+    #FFT
+    for li in artpage.find_all('li', attrs = {'class' : 'pdf-file'}):
+        for a in li.find_all('a', attrs = {'title' : 'PDF'}):
+            rec['hidden'] = 'https://dl.acm.org' + a['href']
     #pages
     for div in artpage.find_all('div', attrs = {'class' : 'pageRange'}):
         rec['p1'] = re.sub('\D.*?(\d+).*', r'\1', div.text.strip())
         rec['p2'] = re.sub('.*\D(\d+).*', r'\1', div.text.strip())
+    if not 'p1' in rec:
+        for span in artpage.find_all('span', attrs = {'class' : 'epub-section__pagerange'}):
+            div2t = span.text.strip()
+            if re.search(' pp +\d+\D\d+', ' '+div2t):
+                pages = re.split('\D', re.sub('.*pp +(\d+\D\d+).*', r'\1', div2t))
+                rec['p1'] = pages[0]
+                rec['p2'] = pages[1]
     ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
