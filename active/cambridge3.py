@@ -71,6 +71,9 @@ elif jid == 'MAM':
 elif jid == 'PHS':
     jnlname = 'Phil.Sci.'
     camjnlname = 'philosophy-of-science'
+elif jid == 'JFM':
+    jnlname = 'J.Fluid Mech.'
+    camjnlname = 'journal-of-fluid-mechanics'
 #Now at Global Science Press
 #elif jid == 'CPH':
 #    jnlname = 'Commun.Comput.Phys.'
@@ -78,7 +81,7 @@ elif jid == 'PHS':
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-if jid in ['PHS']:
+if jid in ['PHS', 'JFM']:
     supertocurl = 'https://www.cambridge.org/core/journals/%s/all-issues' % (camjnlname)
     supertocfilename = '/tmp/%s.toc' % (camjnlname)
     if not os.path.isfile(supertocfilename):
@@ -87,16 +90,23 @@ if jid in ['PHS']:
     toc = BeautifulSoup(''.join(tocf.readlines()), features="lxml")
     tocf.close()
     for li in toc.body.find_all('li', attrs = {'class' : 'accordion-navigation'}):
-        for a in li.find_all('a', attrs = {'class' : 'row'}):
-            if a.has_attr('aria-label') and re.search('Volume '+vol, a['aria-label']):
-                print(a['aria-label'])
-                for li2 in li.find_all('li'):
-                    aa = li2.find_all('a', attrs = {'class' : 'row'})
-                    if len(aa) == 1:
-                        for span in li2.find_all('span', attrs = {'class' : 'issue'}):
-                            print(' ', span, aa[0]['href'])
-                            if re.search('Issue '+iss, span.text):
-                                toclink = 'https://www.cambridge.org' + aa[0]['href']
+        if jid in ['PHS']:
+            for a in li.find_all('a', attrs = {'class' : 'row'}):
+                if a.has_attr('aria-label') and re.search('Volume '+vol, a['aria-label']):
+                    print(a['aria-label'])
+                    for li2 in li.find_all('li'):
+                        aa = li2.find_all('a', attrs = {'class' : 'row'})
+                        if len(aa) == 1:
+                            for span in li2.find_all('span', attrs = {'class' : 'issue'}):
+                                print(' ', span, aa[0]['href'])
+                                if re.search('Issue '+iss, span.text):
+                                    toclink = 'https://www.cambridge.org' + aa[0]['href']
+        else:
+            for a in li.find_all('a', attrs = {'class' : 'row'}):
+                for span in a.find_all('span', attrs = {'class' : 'issue'}):
+                    if re.search('Volume '+vol, span.text):
+                        toclink = 'https://www.cambridge.org' + a['href']
+            
 else:
     if len(sys.argv) > 5:
         toclink = explicittoclink
@@ -104,7 +114,8 @@ else:
         toclink = 'http://journals.cambridge.org/action/displayIssue?jid=%s&volumeId=%s' % (jid, vol)
         if len(sys.argv) > 3:
             toclink += '&issueId=%s' % (iss)
-    print(toclink)
+
+print(toclink)
 
 #toclink = "https://www.cambridge.org/core/journals/glasgow-mathematical-journal/issue/FF36FC6AD93313180F0F572188FA2F70"
         
@@ -295,4 +306,4 @@ for rec in prerecs:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
