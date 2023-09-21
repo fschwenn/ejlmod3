@@ -15,6 +15,7 @@ publisher = 'Kentucky University'
 jnlfilename = 'THESES-KENTUCKY-%s' % (ejlmod3.stampoftoday())
 years = 2
 boring = ['Master of Science (MS)', 'Bachelor of Science (BS)']
+skipalreadyharvested = True
 
 tocurl = 'https://uknowledge.uky.edu/physastron_etds/'
 
@@ -25,6 +26,9 @@ except:
     print("retry %s in 180 seconds" % (tocurl))
     time.sleep(180)
     tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 prerecs = []
 date = False
@@ -89,9 +93,10 @@ for rec in prerecs:
         rec['doi'] = '20.2000/KENTUCKY/' + re.sub('\W', '', re.sub('.*edu', '', rec['artlink']))
         rec['link'] = rec['artlink']
     if keepit:
-        rec['autaff'][-1].append(publisher)
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+            rec['autaff'][-1].append(publisher)
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['artlink'])
 
