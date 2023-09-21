@@ -24,8 +24,8 @@ deps = [('Mathematics', 'm'), ('Astronomy', 'a'), ('Physics', ''),
         ('Computer%20Science', 'c'), ('Statistics', 's')]
 
 options = uc.ChromeOptions()
-options.headless=True
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -99,7 +99,7 @@ for rec in prerecs:
             #Supervisor
             if tdt == 'Supervisor':
                 for a in td.find_all('a'):
-                    rec['supervisor'].append([a.text.strip()])
+                    rec['supervisor'].append([re.sub(', \d.*', '', a.text.strip())])
             #Handle
             elif tdt == 'URI':
                 for a in td.find_all('a'):
