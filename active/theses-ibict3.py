@@ -138,7 +138,11 @@ for rec in prerecs:
                                              'citation_keywords', 'citation_date', 'DC.identifier'])
     else:
         rec['link'] = rec['artlink']        
-    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+    if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+        pass
+    elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+        pass
+    else:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
