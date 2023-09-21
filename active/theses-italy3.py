@@ -33,7 +33,11 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'sissa' : ('SISSA', 'https://iris.sissa.it', '/handle/20.500.11767/64', 6),
                 'cagliarieprints' : ('Cagliari U.', 'https://iris.unica.it', '/handle/11584/265854', 8),
                 'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1),
-                'modena' : ('Modena U.', 'https://iris.unimore.it', '/handle/11380/1196085', 7)}
+                'modena' : ('Modena U.', 'https://iris.unimore.it', '/handle/11380/1196085', 7),
+                'messina' : ('Messina U.', 'https://iris.unime.it', '/handle/11570/3101346', 5),
+                'florence' : ('U. Florence (main)', 'https://flore.unifi.it', '/handle/2158/1001453', 20),
+                'aquila' : ('U. Aquila (main)', 'https://ricerca.univaq.it', '/handle/11697/143427', 3), #neu 9
+                'padua' : ('U. Padua (main)', 'https://www.research.unipd.it', '/handle/11577/3394917', 20)}
 boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
           'biochemistry and molecular biology bibim 2.0', 'bioingegneria e scienze medico-chirurgiche',
           'biomolecular sciences', 'biotecnologie mediche', 'chemical and pharmaceutical sciences', 'chim',
@@ -58,7 +62,7 @@ boring += ['scienze e tecnologie della chimica e dei materiali - drug discovery 
            'scienze e tecnologie della chimica e dei materiali - nanochemistry',
            'scienze e tecnologie della chimica e dei materiali - scienza e tecnologia dei materiali',
            'bioingegneria e robotica - bioengineering and robotics - bionanotechnology',
-           'bioingegneria e robotica - bioengineering and robotics',
+           'bioingegneria e robotica - bioengineering and robotics', 'icar', 'agr',
            'biotecnologie in medicina traslazionale - medicina rigenerativa ed ingegneria dei tessuti']
 regsec = re.compile('^([a-z]+\-?[a-z]+\-?[a-z]+)\/\d+ .*')
 uni = sys.argv[1]
@@ -74,7 +78,7 @@ else:
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for page in range(pages):
-    tocurl = '%s%s?offset=%i&sort_by=-1&order=DESC' % (universities[uni][1], universities[uni][2], page*rpp)
+    tocurl = '%s%s?offset=%i&sort_by=-1&order=DESC' % (universities[uni][1], universities[uni][2], (page)*rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -96,7 +100,7 @@ for page in range(pages):
             recsfound = True
             for td in tr.find_all('td', attrs = {'headers' : 't2'}):
                 if re.search('[12]\d\d\d', td.text):
-                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', td.text.strip())
+                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', re.sub('[\n\t\r]', '', td.text.strip()))
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
                         if ejlmod3.checkinterestingDOI(rec['hdl']):
                             if rec['hdl'] in alreadyharvested:
@@ -115,7 +119,7 @@ for page in range(pages):
             rec['hdl'] = re.sub('.*handle\/', '', a['href'])
             for p in a.find_all('p'):
                 if re.search('[12]\d\d\d', p.text):
-                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', p.text.strip())
+                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', re.sub('[\n\t\r]', '', p.text.strip()))
                     if int(rec['year']) >= ejlmod3.year(backwards=years):
                         if ejlmod3.checkinterestingDOI(rec['hdl']):
                             if rec['hdl'] in alreadyharvested:
@@ -234,6 +238,23 @@ for rec in prerecs:
                             interesting = True
                         else:
                             print('  skip', section)
+                    elif section in ['med/01', 'med/04', 'med/07', 'med/08', 'med/09', 'med/11', 'med/12', 'med/13', 'med/15',
+                                     'med/16', 'med/26', 'med/27', 'med/28', 'med/30', 'med/31', 'med/33', 'med/36', 'med/38',
+                                     'med/41', 'med/42', 'med/45', 'l-ant/01', 'l-ant/02', 'l-ant/03', 'l-ant/05', 'l-ant/06',
+                                     'l-ant/07', 'l-ant/08', 'l-art/01', 'l-art/02', 'l-art/03', 'l-art/04', 'l-art/05',
+                                     'l-art/06', 'l-art/07', 'geo/01', 'geo/02', 'geo/03', 'geo/04', 'geo/05', 'agr/01',
+                                     'agr/02', 'agr/03', 'agr/05', 'agr/06', 'agr/07', 'agr/08', 'agr/09', 'agr/10', 'agr/11',
+                                     'agr/12', 'agr/13', 'agr/14', 'agr/15', 'agr/16', 'agr/19', 'agr/20', 'bio/03', 'bio/05',
+                                     'bio/07', 'bio/08', 'bio/09', 'bio/10', 'bio/11', 'bio/12', 'bio/13', 'bio/14', 'bio/16',
+                                     'bio/17', 'bio/18', 'bio/19', 'chim/01', 'chim/02', 'chim/03', 'chim/04', 'chim/06',
+                                     'chim/08', 'chim/09', 'chim/12', 'geo/06', 'geo/07', 'geo/08', 'geo/09', 'geo/10',
+                                     'l-art/08', 'l-fil-let/01', 'l-fil-let/02', 'ius/01', 'ius/02', 'ius/04', 'ius/07',
+                                     'ius/08', 'ius/09', 'ius/10', 'ius/11', 'ius/13', 'ius/16', 'ius/17', 'ius/18', 'ius/19',
+                                     'ius/20', 'l-fil-let/04', 'l-fil-let/05', 'l-fil-let/08', 'l-fil-let/10', 'l-fil-let/11',
+                                     'l-fil-let/12', 'l-fil-let/13', 'l-fil-let/14', 'l-lin/01', 'l-lin/03', 'l-lin/05',
+                                     'l-lin/07', 'l-lin/12', 'l-lin/13', 'l-lin/21', 'l-or/02', 'l-or/04', 'l-or/07',
+                                     'l-or/08', 'l-or/21']:
+                        interesting = False                    
         #FFT
         if not 'FFT' in rec:
             for div in artpage.body.find_all('div', attrs = {'class' : 'itemTagBitstreams'}):
@@ -244,7 +265,7 @@ for rec in prerecs:
                                 rec['FFT'] = universities[uni][1] + a['href']
     #faculty
     for div in artpage.body.find_all('div', attrs = {'id' : ['dc.authority.orgunit_content', 'dc.description.phdCourse_content',
-                                                             'dc.authority.academicField2000_content',
+                                                             'dc.authority.academicField2000_content', 'dc.ugov.classaux4_content',
                                                              'dc.ugov.classaux1_content', 'dc.subject.miur_content']}):
         for em in div.find_all('em'):
             fac = em.text.strip().lower()
@@ -294,4 +315,4 @@ for rec in prerecs:
     else:
         print('---[ NO AUTHOR! ]---  ')
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
