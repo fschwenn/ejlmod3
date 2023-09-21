@@ -32,7 +32,7 @@ else:
     driver = uc.Chrome(version_main=chromeversion, options=options)
     driver.implicitly_wait(30)
 
-
+book = False
 starturls = re.split(',', sys.argv[1])
 issns = [re.sub('.*\/(\d\d\d\d\-\d\d\d.)\/.*', r'\1', starturl) for starturl in starturls]
 if len(set(issns)) > 1:
@@ -87,11 +87,19 @@ jnls = {'1538-3881': 'Astron.J.',
         '2515-5172': 'Res.Notes AAS',
         '0026-1394': 'Metrologia'}
 jnls['2516-1067'] = 'Plasma Res.Express'
+jnls['2633-4356'] = 'Mat.Quant.Tech.'
 if issn in jnls:
     jnl = jnls[issn]
+elif re.search('\/book\/', issn):
+    book = True
 else:
-    print('journal not known')
+    print('journal not known:', issn)
     sys.exit(0)
+
+
+
+
+    
 tocpages = []
 j = 0
 for starturl in starturls:
@@ -116,6 +124,7 @@ recs = []
 voliss = []
 vols = []
 j = 0
+motherisbn = False
 for tocpage in tocpages:
     j += 1
     print('---------{_} %i/%i {_}---------' % (j, len(tocpages)))
@@ -128,6 +137,9 @@ for tocpage in tocpages:
     divs = tocpage.find_all('div', attrs = {'id' : 'wd-jnl-issue-art-list'})
     if not divs:
         divs = tocpage.find_all('div', attrs = {'class' : 'art-list'})
+    if book:
+        for meta in tocpage.find_all('meta', attrs = {'name' : 'citation_isbn'}):
+            motherisbn = re.sub('\-', '', meta['content'])
     print(len(divs))
     if len(divs) == 0:
         print(tocpage.text)
@@ -152,10 +164,23 @@ for tocpage in tocpages:
                 h4note = child.text
                 print('---%s---' % (h4note))
             elif child.name == 'div':
-                for a in child.find_all('a', attrs = {'class' : 'art-list-item-title'}):
+                if book:
+                    for div2 in child.find_all('h2', attrs = {'class' : 'art-list-item-title'}):
+                        linksoup = div2.find_all('a')
+                else:
+                    linksoup = child.find_all('a', attrs = {'class' : 'art-list-item-title'})
+                for a in linksoup:
                     preface = False
                     time.sleep(20)
-                    rec = {'jnl' : jnl, 'note' : [], 'tc' : 'P', 'autaff' : [], 'refs' : []}
+                    if book:
+                        rec = {'jnl' : 'BOOK', 'note' : [], 'tc' : 'S', 'autaff' : [], 'refs' : []}
+                        if motherisbn:
+                            rec['motherisbn'] = motherisbn
+                        if a['href'][-4:] == '.pdf':
+                            print('  skip', a.text.strip())
+                            continue
+                    else:
+                        rec = {'jnl' : jnl, 'note' : [], 'tc' : 'P', 'autaff' : [], 'refs' : []}
                     orcidsfound = False
                     if len(sys.argv) > 2:
                         rec['cnum'] = sys.argv[2]
@@ -195,7 +220,9 @@ for tocpage in tocpages:
                     #metadata
                     ejlmod3.metatagcheck(rec, artpage, ['citation_online_date', 'citation_issue', 'citation_doi',
                                                         'citation_author', 'citation_author_institution', 'citation_author_orcid',
-                                                        'citation_author_email'])
+                                                        'citation_author_email', 'citation_abstract'])
+                    if not 'date' in rec:
+                        ejlmod3.metatagcheck(rec, artpage, ['citation_publication_date'])
                     for meta in artpage.find_all('meta'):
                         if meta.has_attr('name'):
                             if meta['name'] == 'citation_title':
@@ -309,16 +336,21 @@ for tocpage in tocpages:
                     else:
                         if rec['auts']:
                             recs.append(rec)
-    if 'issue' in list(rec.keys()):
-        voliss.append('%s.%s' % (rec['vol'], rec['issue']))
-    elif not rec['vol'] in voliss:
-        voliss.append(rec['vol'])
-    if not rec['vol'] in vols:
-        vols.append(rec['vol'])
+    if not book:
+        if 'issue' in list(rec.keys()):
+            voliss.append('%s.%s' % (rec['vol'], rec['issue']))
+        elif not rec['vol'] in voliss:
+            voliss.append(rec['vol'])
+        if not rec['vol'] in vols:
+            vols.append(rec['vol'])
 
-if len(vols) == 1:
-    iopf = 'iopcrawl.' + re.sub(' ', '', jnl) + re.sub('_\d+', '', '.' + '_'.join(voliss))
+if book:
+    iopf = 'iopcrawl.book.' + re.sub('\D', '', starturls[0])
 else:
-    iopf = 'iopcrawl.' + re.sub(' ', '', jnl) + '.' + '_'.join(voliss)
+    if len(vols) == 1:
+        iopf = 'iopcrawl.' + re.sub(' ', '', jnl) + re.sub('_\d+', '', '.' + '_'.join(voliss))
+    else:
+        iopf = 'iopcrawl.' + re.sub(' ', '', jnl) + '.' + '_'.join(voliss)
+        
 
 ejlmod3.writenewXML(recs, publisher, iopf, retfilename='retfiles_special')
