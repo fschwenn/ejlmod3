@@ -18,6 +18,12 @@ jnlfilename = 'THESES-WashingtonUSeattle-%s' % (ejlmod3.stampoftoday())
 
 rpp = 20
 pages = 1
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 #bad certificate
 ctx = ssl.create_default_context()
@@ -31,7 +37,7 @@ for (dep, fc) in [('4891', 'm'), ('4909', 'c'), ('4939', 'm'), ('4892', 'a')]:#(
         ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        recs += ejlmod3.getdspacerecs(tocpage, 'https://digital.lib.washington.edu')
+        recs += ejlmod3.getdspacerecs(tocpage, 'https://digital.lib.washington.edu', alreadyharvested=alreadyharvested)
         print('  %4i records do far' % (len(recs)))
         time.sleep(10)
 
