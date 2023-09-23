@@ -12,7 +12,7 @@ import time
 import ssl
 
 rpp = 50
-pages = 2+10
+pages = 2
 skipalreadyharvested = True
 boring = ['info:eu-repo/semantics/masterThesis']
 boring += ['Facultad de Arquitectura. Programa Interinstitucional de Doctorado en Arquitectura',
@@ -149,4 +149,4 @@ for page in range(pages):
         else:
             ejlmod3.adduninterestingDOI(rec['doi'])
     jnlfilename = 'THESES-UMSNHMIchoacan-%02i-%s' % (page, ejlmod3.stampoftoday())    
-    ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
