@@ -30,6 +30,7 @@ if   (jnl == 'rbef'):
 #    trunc = 'http://www.scielo.org.mx'
 #    issn = '0185-1101'
 #    jnlname = 'Rev.Mex.Astron.Astrofis.'
+#    vol = str(int(year) - 1964)
 #    publisher = 'National Autonomous University of Mexico'
 else:
     print('Dont know journal %s!' % (jnl))
@@ -100,7 +101,9 @@ for rec in prerecs:
         print('      wait 5 minutes to get', rec['artlink'])
         time.sleep(300)
         artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']))
-    ejlmod3.metatagcheck(rec, artpage, ['citation_doi', 'citation_publication_date', 'citation_pdf_url'])
+    ejlmod3.metatagcheck(rec, artpage, ['citation_doi', 'citation_publication_date', 'citation_pdf_url',
+                                        'citation_firstpage', 'citation_abstract', 'citation_keywords',
+                                        'citation_author', 'citation_author_orcid', 'citation_author_affiliation'])
     #authors
     for div in artpage.body.find_all('div', attrs = {'class' : 'contribGroup'}):
         for span in div.find_all('span', attrs = {'class' : 'dropdown'}):
@@ -116,18 +119,32 @@ for rec in prerecs:
                     a.decompose()
             rec['autaff'][-1].append(re.sub('[\n\t\r]', ' ', span.text.strip()))
     #translated title
-    if 'language' in list(rec.keys()):
-        for h2 in artpage.body.find_all('h2', attrs = {'class' : 'article-title'}):
-            rec['transtit'] = h2.text.strip()
+    if 'language' in rec:
+        abslink = re.sub('(.*)\/.*', r'\1', rec['artlink']) + '/abstract/?lang=en'
+        time.sleep(2)
+        try:
+            req = urllib.request.Request(abslink, headers=hdr)
+            abspage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+            for h1 in abspage.find_all('h1'):
+                rec['transtit'] = h1.text.strip()
+            for article in abspage.find_all('article'):
+                articlet = re.sub('[\n\t\r]', ' ', article.text.strip())
+                if re.search('Keywords:', articlet):
+                    rec['keyw'] = re.split('; ', re.sub('.*Keywords: *', '', articlet))
+                    articlet = re.sub(' *Keywords:.*', '', articlet)
+                rec['abs'] = articlet
+        except:
+            print('  could not get abstract page')
     #abstract and keywords
-    for div in artpage.body.find_all('div', attrs = {'data-anchor' : 'Abstract'}):
-        for h1 in div.find_all('h1'):
-            h1.decompose()
-        divt = re.sub('[\n\t\r]', ' ', div.text.strip())
-        if re.search('Keywords:', divt):
-            rec['keyw'] = re.split('; ', re.sub('.*Keywords: *', '', divt))
-            divt = re.sub(' *Keywords:.*', '', divt)
-        rec['abs'] = divt
+    for article in artpage.body.find_all('article'):
+        for div in article.find_all('div'):
+            for p in div.find_all('p'):
+                for strong in p.find_all('strong'):
+                    if strong.text.strip() == 'Keywords:':
+                        strong.decompose()
+                        rec['keyw'] = re.split('; ', re.sub('.*Keywords: *', '', p.text.strip()))
+                        p.decompose()
+                        rec['abs'] = div.text.strip()
     if not 'abs' in list(rec.keys()):
         abslink = re.sub('(.*)\/.*', r'\1', rec['artlink']) + '/abstract/?lang=en'
         time.sleep(2)
@@ -142,15 +159,7 @@ for rec in prerecs:
                 rec['abs'] = articlet
         except:
             print('  could not get abstract page')
-    if not 'abs' in list(rec.keys()):
-        for div in artpage.body.find_all('div', attrs = {'data-anchor' : 'Resumos'}):
-            for h1 in div.find_all('h1'):
-                h1.decompose()
-            divt = re.sub('[\n\t\r]', ' ', div.text.strip())
-            if re.search('Palavros:', divt):
-                rec['keyw'] = re.split('; ', re.sub('.*Palavros: *', '', divt))
-                divt = re.sub(' *Palavros:.*', '', divt)
-            rec['abs'] = divt
+
     #license
     ejlmod3.globallicensesearch(rec, artpage)
     #references
