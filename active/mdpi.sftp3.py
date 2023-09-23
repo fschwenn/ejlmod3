@@ -231,6 +231,9 @@ for voldir in os.listdir(tmppath):
                         rec['jnl'] = 'Fractal Fract.'
                     elif jnl == 'applsci':
                         rec['jnl'] = 'Appl.Sciences'
+
+                    elif jnl == 'computation':
+                        rec['jnl'] = 'Comput.'
                     prerecs.append(rec)
     
 recs = []
