@@ -160,6 +160,7 @@ for rec in prerecs:
     elif keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
+        alreadyharvested.append(rec['doi'])
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
 
