@@ -16,7 +16,8 @@ jnlfilename = 'THESES-SURREY-%s' % (ejlmod3.stampoftoday())
 
 recs = []
 rpp = 10
-pages = 20
+skipalreadyharvested = True
+pages = 30
 undepartments = ['Department of Mechanical Engineering Sciences',
                  'Centre for Environmental Strategy',
                  'Centre for Vision Speech and Signal Processing',
@@ -34,7 +35,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Department of Civil and Environmental Engineering; Faculty of Engineering and Physical Sciences',
                  'Electrical and Electronic Engineering',
                  'EPSRC Centre for Doctoral Training in Micro- and NanoMaterials and Technologies',
-                 'Faculty of Engineering and Physical Sciences',
                  'Faculty of Health and Medical Sciences; School of Psychology',
                  'Institute for Communication Systems',
                  'Mechanical Engineering',
@@ -53,7 +53,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'School of Health Sciences', 'School of Economics',
                  'Department of Chemistry',
                  'Department of Civil and Environmental Engineering',
-                 #'Department of Computer Science',
                  'Department of Sociology',
                  'Centre for Environment and Sustainability',
                  'School of Hospitality and Tourism Management',
@@ -68,11 +67,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Advanced Technology Institute, Faculty of Engineering and Physical Sciences.',
                  'Advanced Technology Institute.', 'Biochemical Sciences.',
                  'Centre for Biomedical Engineering',
-                 'Centre for Communications Systems Research, Faculty of Engineering and Physical Sciences',
-                 'Centre for Communication System Research',
-                 'Centre for Communication Systems Research, Department of Electronic Engineering',
-                 'Centre for Communication Systems Research, Faculty of Engineering and Physical Sciences',
-                 'Centre for Communication Systems',
                  'Centre For Doctoral Training in Micro- And NanoMaterials and Technologies (MiNMaT)',
                  'Centre for Doctoral Training in Micro- and NanoMaterials and Technologies',
                  'Centre for Doctoral Training in Micro and Nano Materials and Technology',
@@ -90,7 +84,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Civil and Environmental Engineering Department',
                  'Civil, Chemical & Environmental Engineering',
                  'Civil Engineering',
-                 'College of Engineering and Physical Sciences',
                  'Culture, Media and Communication.',
                  'Deparment of Mechanical Engineering',
                  'Departement of Civil and Environmental Engineering',
@@ -104,7 +97,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Department of Civil and Enviromental Engineering',
                  'Department of Civil, and Environmental Engineering',
                  'Department of Civil and Environmental Health Engineering',
-                 'Department of Computing, School of Electronics and Physical Sciences.',
                  'Department of Dance, Film and Theatre Studies',
                  'Department of Dance, Film and Theatre',
                  'Department of Diabetes and Metabolic Medicine.',
@@ -141,7 +133,6 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'English.', 'Environmental and Human Sciences Division. Forest Research',
                  'Faculty of Arts and Human Sciences.',
                  'Faculty of Biomedical and Molecular Sciences.',
-                 'Faculty of Engineering and Physical Sciences; Surrey Space Centre',
                  'Faculty of Health and Medical Science, Division of Health and Social Care.',
                  'Faculty of Health and Medical Science',
                  'Faculty of Management and Law.', 'Health and Social Sciences',
@@ -149,9 +140,8 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'I LAB, Centre for Communication Systems Research',
                  'Insitute of Communications Systems, 5G Innovation Center',
                  'Institute of Communication Systems', 'Institute of Educational Technology',
-                 'Institute of Sound and Recording',
-                 'Institute of Sound Recording, Faculty of Arts and Human Sciences',
-                 'Mechanical and Engineering Sciences',
+                 'Institute of Sound and Recording', 'Mechanical and Engineering Sciences',
+                 'Institute of Sound Recording, Faculty of Arts and Human Sciences',                 
                  'Mechanical Engineering Sciences (MES)', 'Mech, Med & Aero Engineering',
                  'Medical Oncology', 'Micro- and NanoMaterials and Technologies CDT',
                  'microbial and cellular sciences', 'Microbial Sciences Division',
@@ -161,21 +151,17 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'School od Management', 'School of Biological Sciences', 'School of Biomedical and Medicine',
                  'School of Biomedical and Molecular Science', 'School of Bisciences and Medicine',
                  'School of Chemical Process Engineering', 'School of Chemistry',
-                 'School of Culture Media and Communication', 'school of electronics and computer science',
+                 'School of Culture Media and Communication', 
                  'School of Engineering.', 'School of Health and Medical Sciences',
                  'School of Health and Social Sciences', 'School of hospitality and Tourism Management',
                  'School of Hospitality and Tourism', 'School of Human Sciences',
-                 'School of Human Sciences.', 'School of Management and Law', 'School of Mathematics',
+                 'School of Human Sciences.', 'School of Management and Law', 
                  'School of Nursing and Midwifery', 'School of Nutritional Science',
                  'School of Oriental and African Studies', 'School of Political, International and Policy Studies',
                  'School of Politics', 'School of Psychology', 'School of Pyschology', 'School of Social Sciences (Sociology)',
-                 'Space Structures Research Centre', 'Surrey Business School (SBS)',
-                 'Surrey Morphology Group, School of English and Languages',
-                 'Surrey Space Centre, Faculty of Electronics and Physical Sciences',
-                 'Sustainability for Engineering and Energy Systems',
-                 'The Centre for Environment and Sustainability',
-                 'The Department of Electrical and Electronic Engineering',
-                 'The Department of Electronic Engineering',
+                 'Surrey Business School (SBS)', 'Surrey Morphology Group, School of English and Languages',
+                 'Sustainability for Engineering and Energy Systems', 'The Centre for Environment and Sustainability',
+                 'The Department of Electrical and Electronic Engineering', 'The Department of Electronic Engineering',
                  'Department of Aeronautics', 'Department of Civil Engineering',
                  'Department of Clinical and Experimental Medicine', 'Department of Clinical Psychology',
                  'Department of Environmental Technology.', 'Department of Mechanical Engineering and Sciences',
@@ -183,38 +169,37 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Department of Sociology.', 'Division of Mechanical, Medical and Aerospace Engineering',
                  'Electronic Engineering', 'Microbial and Cellular Sciences',
                  'School of Bioscience and Medicine', 'School of Biosciences',
-                 'School of Electrical and Electronic Engineering', 'School of Electronics and Physical Sciences',
+                 'School of Electrical and Electronic Engineering', 
                  'School of Health and Social Care', 'School of Management Studies for the Service Sector',
                  'School of Social Sciences', 'Chemical and Process Engineering',
                  'Department of Economics', 'Department of Psychology, School of Human Sciences.',
                  'Division of Health and Social Care', 'Electronic Engineering.',
-                 'Faculty of Arts and Human Sciences',
-                 'Faculty of Management and Law', 'Music and Sound Recording.',
-                 'School of Electronics and Physical Sciences.', 'School of Engineering',
-                 'Sociology', 'Chemistry', 'Chemistry.',
+                 'Faculty of Arts and Human Sciences', 'Sociology', 'Chemistry', 'Chemistry.',
+                 'Faculty of Management and Law', 'Music and Sound Recording.',                 
                  'Department of Psychology, Faculty of Arts and Human Sciences.',
                  'Department of Psychotherapeutic and Counselling Psychology.',
                  'Faculty of Health and Medical Sciences', 'Health and Social Care.',
                  'Political, International and Policy Studies.',
-                 'School of Electronics and Computer Science', 'School of Management.',
+                 'School of Management.', 'Department of Psychology',
                  'Unspecified', 'Department of Nutritional Sciences',
                  'Institute of Sound Recording', 'Psychology',
                  'Department of Microbial and Cellular Sciences',
                  'Faculty of Health and Medical Sciences.', 'Sociology.',
-                 'Centre for Communication Systems Research',
-                 'Faculty of Engineering and Physical Sciences.',
-                 'Advanced Technology Institute', 'Mechanical Engineering Sciences',
-                 'Department of Psychology.',
+                 'Centre for Communication Systems Research', 'Department of Psychology.',
+                 'Advanced Technology Institute', 'Mechanical Engineering Sciences',                 
                  'Economics.', 'Faculty of Arts and Social Sciences; School of Economics',
                  'School of Arts', 'Faculty of Arts and Social Sciences; School of Law',
                  'Faculty of Arts and Social Sciences; School of Hospitality and Tourism Management',
-                 'Surrey Space Centre', 'Department of Mathematics',
-                 'Psychology.', 'Faculty of Arts and Social Sciences; School of Literature and Languages',
-                 'Department of Psychology',
+                 'Psychology.', 'Faculty of Arts and Social Sciences; School of Literature and Languages',                 
                  'Faculty of Health and Medical Sciences; School of Biosciences and Medicine',
                  'Faculty of Health and Medical Sciences; School of Veterinary Medicine',
                  'School of Management']
 
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=2)
+else:
+    alreadyharvested = []
 
 def get_sub_side(asset):
     url = "https://openresearch.surrey.ac.uk/esplorows/rest/research/fullAssetPage/assets/"+str(asset['id'])+"?institution=44SUR_INST&language=en"
@@ -240,6 +225,7 @@ def get_sub_side(asset):
         except:
             rec['doi'] = '20.2000/Surrey/' + str(asset['id'])
             rec['link'] = server_data['permalink']
+
 
     #keywords
     try:
@@ -287,16 +273,21 @@ def get_sub_side(asset):
     for detail in server_data['details']:
         if detail['code'] == 'esploroAssetModel.general.assetAffiliation':
             dep = detail['value']
-            if dep in undepartments:
+            if dep in ['Department of Mathematics', 'School of Mathematics']:
+                rec['fc'] = 'm'
+            if dep in ['Department of Computer Science']:
+                rec['fc'] = 'c'
+            elif dep in undepartments:
                 print('   skip "%s"' % (dep))
                 keepit = False
             else:
                 rec['note'].append(dep)
         elif detail['code'] == 'esploroAssetModel.general.pages':
             rec['pages'] = detail['value']
-    if keepit: 
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+    if keepit:
+        if not rec['doi'] in alreadyharvested:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(url)
     sleep(5)
