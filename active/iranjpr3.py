@@ -11,11 +11,12 @@ import ejlmod3
 import time
 
 publisher = 'Physics Society of Iran and the Isfahan University of Technology'
-issuestocheck = 5 + 60
+issuestocheck = 5
 ejldir = '/afs/desy.de/user/l/library/dok/ejl'
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
