@@ -8,6 +8,7 @@ import time
 from bs4 import BeautifulSoup
 import zipfile
 from ftplib import FTP
+import undetected_chromedriver as uc
 
 
 
@@ -31,18 +32,22 @@ regexpcr = re.compile('[\n\t\r]')
 regexpdoi2 = re.compile('.*servlet.*key=(10\.\d\d.*).*')
 
 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium-browser'
+options.binary_location='/usr/bin/chromium'
+#options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 def getreferencesfromweb(doi):
     link = 'http://www.worldscientific.com/doi/ref/%s' % (doi)
+    link = 'http://www.worldscientific.com/doi/%s' % (doi)
     print('   ', link)
-    reffile = '%s/%s%s.ref' % (tmpdir, publisher, re.sub('[\/\(\)]', '_', doi))
-    if not os.path.isfile(reffile):
-        os.system("wget -T 300 -t 3 -q -O %s %s" % (reffile, link))
-    inf = open(reffile, 'r')
-    refpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-    inf.close()
-    #refpage = BeautifulSoup(urllib2.build_opener(urllib2.HTTPCookieProcessor).open(link))
+    driver.get(link)
+    refpage = BeautifulSoup(driver.page_source, features="lxml")
+    uls = refpage.body.find_all('ul', attrs = {'class' : 'rlist separator'})
     refs = []
-    for ul in refpage.body.find_all('ul', attrs = {'class' : 'rlist separator'}):
+    for ul in uls:
         print('      %i references' % (len(ul)))
         for li in ul.find_all('li'):
             for a in li.find_all('a'):
@@ -80,6 +85,9 @@ def getreferencesfromweb(doi):
             refs.append([('x', reftext)])
     time.sleep(50)
     return refs
+
+
+
 
 
 #mapping from WSP-xml to ejlmod2-format
@@ -293,12 +301,12 @@ def concert(rawrecs):
             rec['pages'] = pagecount['count']
         #references
         if 'refs' not in rec:
-            try:
+#            try:
                 if not rec['tc'] in ['B', 'S']:
                     rec['refs'] = getreferencesfromweb(rec['doi'])
                 #print 'referenzen ausgeschaltet'
-            except:
-                print('could not get references from the web')
+#            except:
+#                print('could not get references from the web')
         #OF?
         if 'no metatdata for individual chapters!' in rec['note']:
             rec['note'].append(rec['date'])
@@ -330,7 +338,6 @@ for filename in files:
             filestodo.append(filename)
 
 print('skipped %i zip-files, found %i new WSP zip-files to digest' % (numofskipped, len(filestodo)))
-
 
 #unzip new files
 for zipdatei in filestodo:
