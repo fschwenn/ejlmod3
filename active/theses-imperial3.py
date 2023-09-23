@@ -12,9 +12,9 @@ import re
 import ejlmod3
 import time
 
-startyear = str(ejlmod3.year(backwards=1))
+startyear = str(ejlmod3.year(backwards=1+1))
 pages = 1
-rpp = 20
+rpp = 20+40
 skipalreadyharvested = True
 
 publisher = 'Imperial Coll., London'
