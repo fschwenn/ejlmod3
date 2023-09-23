@@ -40,13 +40,14 @@ elif jnl == 'bjps':
     jnlname = 'Brit.J.Phil.Sci.'
 else:
     print('journal not known')
-    
+
 tocurl = 'https://www.journals.uchicago.edu/toc/%s/%s/%s/%s' % (jnl, year, vol, issue)
 print(tocurl)
 
 options = uc.ChromeOptions()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -81,9 +82,12 @@ for div in tocpage.body.find_all('ul', attrs = {'class' : 'table-of-content__sec
                 rec['tit'] = span.text.strip()
             for h5 in child.find_all('h5', attrs = {'class' : 'issue-item__title'}):
                 rec['tit'] = h5.text.strip()
+            if not 'tit' in rec:
+                for h4 in child.find_all('h4', attrs = {'class' : 'issue-item__title'}):
+                    rec['tit'] = h4.text.strip()
             #authors
             for span in child.find_all('span', attrs = {'class' : 'hlFld-ContribAuthor'}):
-                rec['auts'].append(re.sub(' and$', '', span.text.strip()))               
+                rec['auts'].append(re.sub(' and$', '', span.text.strip()))
             #pages
             divs = child.find_all('div', attrs = {'class' : 'art_meta citation'})
             if not divs:
@@ -96,7 +100,7 @@ for div in tocpage.body.find_all('ul', attrs = {'class' : 'table-of-content__sec
             #DOI
             links = child.find_all('a', attrs = {'class' : 'ref'})
             if not links:
-                links = child.find_all('a', attrs = {'class' : 'issue-item__btn', 'title' : 'Full Text'})                
+                links = child.find_all('a', attrs = {'class' : 'issue-item__btn', 'title' : 'Full Text'})
             for a in links:
                 if re.search('10.10(86|93)', a['href']):
                     rec['doi'] = re.sub('.*(10.1086|10.1093)', r'\1', a['href'])
@@ -114,10 +118,16 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['artlink']]])
-    time.sleep(10)
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
-    #abstract
-    ejlmod3.metatagcheck(rec, artpage, ['dc.Description', 'dc.Date', 'dc.Title'])
- 
+    if not 'tit' in rec or not 'abs' in rec:
+        time.sleep(10)
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        #abstract
+        if not 'tit' in rec:
+            ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Date'])
+        if not 'abs' in rec:
+            ejlmod3.metatagcheck(rec, artpage, ['dc.Description', 'dc.Date'])
+        ejlmod3.printrecsummary(rec)
+
+
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
