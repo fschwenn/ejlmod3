@@ -63,7 +63,8 @@ for journal in crossref.body.find_all('journal'):
             for doi_data in journal_article.find_all('doi_data'):
                 for resource in doi_data.find_all('resource'):
                     rec['aid'] = re.sub('.*=', '', resource.text)
-                    rec['p1'] = re.sub('.*A', '', resource.text)
+                    #rec['p1'] = re.sub('.*A', '', resource.text)
+                    rec['p1'] = rec['aid']
                     for last_page in journal_article.find_all('last_page'):
                         rec['pages'] = last_page.text
         else:
