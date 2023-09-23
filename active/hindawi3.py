@@ -30,6 +30,7 @@ jids = {'AA' : 'Adv.Astron.',
         'QUE' : 'Quantum Eng.',
         'JAM' : 'J.Appl.Math.'}
 jids['LPB'] = 'Laser Part.Beams'
+jids['JMATH'] = 'J.Math.'
 
 ###clean formulas in tag
 def cleanformulas(tag):
@@ -385,7 +386,7 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ftp':
     #srv = pyftp.Connection(host="ftp.hindawi.com", username="INSPIRE", password="INA67hhA-@")
     #filesatserver = srv.listdir()
     ftp = FTP("ftp.hindawi.com")
-    ftp.login("INSPIRE", "INA67hhA-@")
+    ftp.login("INSPIRE", "XXXXXXXXXXXXXXx") 
     filesatserver = ftp.nlst()  
     filesdone = os.listdir(os.path.join(feeddir, 'done'))
     filestodo = [zf for zf in filesatserver if zf not in filesdone]
