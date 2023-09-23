@@ -10,6 +10,7 @@ import re
 import sys
 import time
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
 
 xmldir = '/afs/desy.de/user/l/library/inspire/ejl'
 tmpdir = '/tmp'
@@ -49,14 +50,21 @@ elif re.search('worldscibooks',url):
 
 urltrunk = 'http://www.worldscientific.com'
 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
+#options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 print("get table of content of %s (%s) ..." % (jnlfilename,url))
-if not os.path.isfile("/tmp/%s.toc" % (jnlfilename)):
-    os.system("wget -T 300 -t 3 -q -O /tmp/%s.toc %s" % (jnlfilename, url))
-inf = open('/tmp/%s.toc' % (jnlfilename), 'r')
-tocpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-inf.close()
-
+#if not os.path.isfile("/tmp/%s.toc" % (jnlfilename)):
+#    os.system("wget -T 300 -t 3 -q -O /tmp/%s.toc %s" % (jnlfilename, url))
+#inf = open('/tmp/%s.toc' % (jnlfilename), 'r')
+#tocpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+#inf.close()
+driver.get(url)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 note = []
 year = False
@@ -72,6 +80,15 @@ for span in tocpage.body.find_all('span', attrs = {'class' : 'cover-date'}):
         year = re.sub('.*?(\d\d\d\d).*', r'\1', span.text)
 
 
+motherisbn = False
+for div in tocpage.body.find_all('div', attrs = {'class' : 'purchase-options-container'}):
+    for span in div.find_all('span', attrs = {'class' : 'add-article-to-cart__title'}):
+        spant = span.text.strip()
+        if re.search('ISBN.*978', spant):
+            motherisbn = re.sub('.*?(978.*?) ', r'\1', spant)
+        motherisbn = re.sub('[^0-9X]', '', motherisbn)
+        print(motherisbn)
+
 
 recs = []
 typecode = 'P'
@@ -80,6 +97,8 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     rec = {'note' : note.copy(), 'jnl' : jnlname, 'autaff' : []}
     if year:
         rec['year'] = year
+    if motherisbn:
+        rec['motherisbn'] = motherisbn
     #subject
     for div2 in div.find_all('div', attrs = {'class' : 'subject'}):
         subject = div2.text.strip()
@@ -131,17 +150,17 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
 
 
 
-
-
-
 for i in range(len(recs)):
+    time.sleep(3)
     ejlmod3.printprogress('-', [[i+1, len(recs)], [recs[i]['artlink']]])
-    if not os.path.isfile("/tmp/%s.%i" % (jnlfilename, i)):
-        os.system("wget -T 300 -t 3 -q -O /tmp/%s.%i %s" % (jnlfilename, i, recs[i]['artlink']))
-        time.sleep(3)
-    inf = open('/tmp/%s.%i' % (jnlfilename, i), 'r')
-    artpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-    inf.close()
+    #if not os.path.isfile("/tmp/%s.%i" % (jnlfilename, i)):
+    #    os.system("wget -T 300 -t 3 -q -O /tmp/%s.%i %s" % (jnlfilename, i, recs[i]['artlink']))
+    #    time.sleep(3)
+    #inf = open('/tmp/%s.%i' % (jnlfilename, i), 'r')
+    #artpage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+    #inf.close()
+    driver.get(recs[i]['artlink'])
+    artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(recs[i], artpage, ["dc.Subject", "dc.Date"])
 
     #author
