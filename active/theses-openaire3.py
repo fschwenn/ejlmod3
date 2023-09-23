@@ -17,11 +17,11 @@ rpp = 50
 skipalreadyharvested = True
 alreadyharvestedlogfile = '/afs/desy.de/user/l/library/dok/ejl/backup/THESES-OpenAIRE-%salreadyharvestedviadecicatedcrawler.doki' % (ejlmod3.stampofnow())
 #splitting the time erange to be checked to not hit maximal number of records per search
-months = 12*10
-monthlength = 30/10
+months = 12*15
+monthlength = 30/30
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
 tmpdir = '/afs/desy.de/user/l/library/tmp'
-
+maxrecords = 1000
 
 boring = ['Social Science and Humanities', 'Transport Research', 'Rural Digital Europe',
           'North American Studies', 'Digital Humanities and Cultural Heritage',
@@ -144,7 +144,7 @@ def getrecs(pagen, pagent, page):
                         rec['link'] = urltext
                         if rec['autaff'] and 'abs' in rec and rec['keyw'] and 'doi' in rec:
                             pass
-                        elif keepit:
+                        elif keepit and not re.search('\.pdf$', urltext):
                             print('    check source: %s' % (rec['link']))
                             time.sleep(3)
                             try:
@@ -279,7 +279,7 @@ restart = re.compile('^Core key')
 renum = re.compile('\d')
 restop = re.compile('^Field ')
 redri = re.compile('dri:objIdentifier:::')
-now = datetime.datetime.now() #+ datetime.timedelta(days=-300)
+now = datetime.datetime.now()
 for month in range(months):
     startdate = now + datetime.timedelta(days=-monthlength*(month+1))
     stopdate = now + datetime.timedelta(days=-monthlength*month)
@@ -294,7 +294,7 @@ for month in range(months):
     numofrecs = int(header.total.text.strip())
     numofpages = (numofrecs-1) // rpp + 1
     
-    recs = getrecs(1, 0, startpage)
+    recs = getrecs(1, numofpages, startpage)
     for page in range(numofpages-1):
         tocurl = '%s&page=%i' % (starturl, page+2)
         ejlmod3.printprogress('=', [[month+1, months, startmark], [page+2, numofpages], [tocurl], [len(recs), rpp*(page+1), numofrecs]])
@@ -302,8 +302,10 @@ for month in range(months):
         treq = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(treq), features="lxml")
         recs += getrecs(page+2, numofpages, tocpage)
+        if len(recs) > maxrecords:
+            break
 
-    ejlmod3.writenewXML(recs, publisher, jnlfilename+'m'+str(month), retfilename='retfiles_special')
+    #ejlmod3.writenewXML(recs, publisher, jnlfilename+'m'+str(month), retfilename='retfiles_special')
 
     #now check whether there are any CORE keywords. I not, forget about it. Just too many theses on OpenAIRE
     frecs = []
@@ -365,8 +367,8 @@ for month in range(months):
                     if redri.search(note):
                         dri = redri.sub('', note)
                         print(dri, 'seems to be uninteresting')
-                        ejlmod3.adduninterestingDOI(identifier)
+                        ejlmod3.adduninterestingDOI(dri)
                         
     if frecs:
-        ejlmod3.writenewXML(frecs, publisher, jnlfilename+'M'+str(month), retfilename='retfiles')
+        ejlmod3.writenewXML(frecs, publisher, jnlfilename+'M'+str(month))#, retfilename='retfiles_special')
             
