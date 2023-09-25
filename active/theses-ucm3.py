@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
+
 
 publisher = 'UCM, Somosaguas'
 jnlfilename = 'THESES-UniversidadComplutenseDeMadrid-%s' % (ejlmod3.stampoftoday())
@@ -41,13 +43,18 @@ deps = [('216', 'Madrid U.', ''),
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
 links = []
 recs = []
 for (depnr, aff, fc) in deps:
     tocurl = 'https://eprints.ucm.es/view/divisions/%s.html' % (depnr)
     print(tocurl)
     req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
     time.sleep(5)
     for div in tocpage.body.find_all('div', attrs = {'class' : 'ep_view_page'}):
         h2t = ''
@@ -84,8 +91,9 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
-    try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
+    try:        
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         time.sleep(5)
     except:
         try:
