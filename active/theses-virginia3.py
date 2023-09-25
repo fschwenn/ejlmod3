@@ -37,7 +37,7 @@ boringdegrees = ['BA (Bachelor of Arts)', 'MA (Master of Arts)',
 # Initilize Webdriver
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-#options.binary_location='/opt/google/chrome/google-chrome'
+options.binary_location='/usr/bin/chromium'
 
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
