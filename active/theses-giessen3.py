@@ -54,7 +54,7 @@ for page in range(pages):
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     except:
         try:
-            time.sleep(1)
+            time.sleep(10)
             driver.get(tocurl)
             tocpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
@@ -88,7 +88,7 @@ for rec in prerecs:
     except:
         try:
             print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(1.80)
+            time.sleep(180)
             artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link'] + '?show=full'))
         except:
             print("no access to %s" % (rec['link']))
