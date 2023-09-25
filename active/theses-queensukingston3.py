@@ -16,8 +16,8 @@ publisher = "Queen's U., Kingston"
 jnlfilename = 'THESES-QUEENSUKINGSTON-%s' % (ejlmod3.stampoftoday())
 
 skipalreadyharvested = True
-pages = 10
-rpp = 50 
+pages = 50
+rpp = 10 
 boring = ['Art History', 'Civil Engineering', 'Environmental Studies', 'Rehabilitation Science',
           'Geological Sciences and Geological Engineering', 'Mechanical and Materials Engineering',
           'Political Studies', 'Aging and Health', 'Biology', 'Biomedical and Molecular Sciences',
@@ -28,13 +28,14 @@ boring = ['Art History', 'Civil Engineering', 'Environmental Studies', 'Rehabili
           'Chemistry', 'Electrical and Computer Engineering', 'Gender Studies', 'French Studies',
           'Anatomy and Cell Biology', 'Biochemistry', 'Community Health and Epidemiology', 'English',
           'French', 'Geography', 'German', 'Management', 'Microbiology and Immunology',
-          'Pharmacology and Toxicology', 'Physiology']
+          'Pharmacology and Toxicology', 'Physiology', 'Translational Medicine']
           
 recs = []
 
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -47,8 +48,8 @@ if skipalreadyharvested:
 def get_subsite(url):
     if ejlmod3.checkinterestingDOI(url):
         print("    [%s] --> Harversting data" % url)
-        rec = {'tc': 'T', 'jnl': 'BOOK', 'link': url, 'note' : []}
-
+        rec = {'tc': 'T', 'jnl': 'BOOK', 'link': url, 'note' : [], 'keyw' : [],
+               'supervisor' : []}
         driver.get(url)
         soup = BeautifulSoup(driver.page_source, 'lxml')
         sleep(5)
@@ -56,112 +57,81 @@ def get_subsite(url):
         print("    [%s]     uninteresting" % url)
         return
 
-    # Read out the table
-    table_section = soup.find_all('div', attrs={'class': 'ds-table-responsive'})
-    if len(table_section) != 1:
-        return
-
-    table = table_section[0]
-    rows = table.find_all('tr')
-
-    if len(rows) <= 0:
-        return
-
-    for row in rows:
-        cols = row.find_all('td')
-        if len(cols) <= 0:
-            continue
-
-        row_header = cols[0].text
-        row_data = cols[1].text
-        
+    ejlmod3.metatagcheck(rec, soup, ['citation_pdf_url', 'citation_publication_date',
+                                    'citation_language'])
+    for tr in soup.find_all('tr'):
+        tds = tr.find_all('td')
+        if len(tds) == 3:
+            th = tds[0].text.strip()
+            td = tds[1].text.strip()
         # Get the author name
-        if row_header.find('author') != -1:
-            rec['autaff'] = [[row_data]]
-        elif row_header.find('date.issued') != -1:
-            # Get the issued date
-            rec['date'] = row_data
-        elif row_header.find('identifier.uri') != -1:
-            # Get the handle
-            splitted_handle_link = row_data.split('/')
-            handle = "%s/%s" % (splitted_handle_link[-2], splitted_handle_link[-1])
-            rec['hdl'] = handle
-        elif row_header.find('abstract') != -1:
+        if th == 'dc.contributor.author':
+            rec['autaff'] = [[td, publisher]]
+        # Get the issued date
+        elif th == 'date.issued':
+            rec['date'] = td
+        # Get the handle
+        elif th == 'identifier.uri':
+            rec['hdl'] =re.sub('.*handle\/', '', td)
             # Get the abstract
-            rec['abs'] = row_data
-        elif row_header.find('language') != -1:
-            # Get the Language
-            rec['lang'] = row_data.upper()
-        elif row_header.find('subject') != -1:
-            # Get the keywords
-            if 'keyw' in list(rec.keys()):
-                rec['keyw'].append(row_data)
-            else:
-                rec['keyw'] = [row_data]
-        elif row_header.find('title') != -1:
-            # Get the title
-            rec['tit'] = row_data
-        elif row_header.find('supervisor') != -1:
-            # Get the supervisor
-            if 'supervisor' in list(rec.keys()):
-                rec['supervisor'].append([row_data])
-            else:
-                rec['supervisor'] = [[row_data]]
-        elif row_header.find('degree') != -1 and row_header.find('grantor') == -1:
-            # Check if it is a PhD
-            if row_data.find('PhD') == -1:
-                print("\t[PhD Check] This is not a PhD! --> Skipping")
+        elif th == 'abstract':
+            rec['abs'] = td
+        # Get the keywords
+        elif th == 'subject':
+            rec['keyw'].append(td)
+        # Get the title
+        elif th == 'title':
+            rec['tit'] = td
+        # Get the supervisor
+        elif th == 'supervisor':
+            rec['supervisor'].append([td])
+        # Check if it is a PhD
+        elif th == 'dc.description.degree':
+            if td != 'PhD':
+                if td in ['M.Sc.', 'B.Sc.', 'D.Sc.', 'M.A.', 'B.A.']:
+                    print('\tskip "%s"' % (td))
+                else:
+                    print('\tskip "%s" ?!?!' % (td))                    
                 ejlmod3.adduninterestingDOI(url)
                 return
             #print "\t[PhD Check] PhD detected --> Saving"
-        elif row_header.find('dc.contributor.department') != -1:
-            if row_data in boring:
-                print('\tskip "%s"' % (row_data))
+        #department
+        elif th == 'dc.contributor.department':
+            if td in boring:
+                print('\tskip "%s"' % (td))
                 ejlmod3.adduninterestingDOI(url)
                 return
-            elif row_data == 'Computing':
+            elif td == 'Computing':
                 rec['fc'] = 'c'
-            elif row_data == 'Mathematics and Statistics':
+            elif td == 'Mathematics and Statistics':
                 rec['fc'] = 'm'
             else:
-                rec['note'].append(row_data)
-
-    # Get the pdf link
-    for meta in soup.find_all('meta', attrs={'name' : 'citation_pdf_url'}):
-        rec['pdf_link'] = meta['content']
-
-    #license
-    for meta in soup.find_all('meta', attrs={'name' : 'DC.rights'}):
-        if re.search('creativecommons.org', meta['content']):
-            rec['license'] = {'url' : meta['content']}
-    if 'pdf_link' in list(rec.keys()):
-        if 'license' in list(rec.keys()):
-            rec['FFT'] = rec['pdf_link']
-        else:
-            rec['hidden'] = rec['pdf_link']
-
-    #date
-    if not 'date' in rec:
-        for meta in soup.find_all('meta', attrs={'name' : 'citation_date'}):
-            rec['date'] = meta['content'][:10] 
+                rec['note'].append(td)
+        #license
+        elif th == 'dc.rights.uri':
+            rec['license'] = {'url' : td}
 
     if not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
         recs.append(rec)
+        ejlmod3.printrecsummary(rec)
+    else:
         ejlmod3.printrecsummary(rec)
 
 
 
 for page in range(pages):
     tocurl = 'https://qspace.library.queensu.ca/handle/1974/290/discover?order=desc&rpp=' + str(rpp) + '&sort_by=dc.date.available_dt&order=desc&page=' + str(page+1) + '&group_by=none&etal=0'
+    tocurl = 'https://qspace.library.queensu.ca/collections/28264e28-1843-437c-abca-776a363a1c1c?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp) 
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     driver.get(tocurl)
-    articles = BeautifulSoup(driver.page_source, 'lxml').find_all('div', attrs={'class': 'ds-artifact-item'})
+    articles = BeautifulSoup(driver.page_source, 'lxml').find_all('ds-truncatable', attrs={'class': 'ng-star-inserted'})
     for article in articles:
-        article_link = article.find_all('a')
-        if len(article_link) == 2:
-            if article_link[0].get('href') is not None:
-                href = "https://qspace.library.queensu.ca%s?show=full" % article_link[0].get('href')
+        for a in article.find_all('a', attrs={'target' : '_self'}):
+            if a.has_attr('href'):
+                href = "https://qspace.library.queensu.ca%s/full" % (a['href'])
                 get_subsite(href)
+    print('\n  %4i/%4i/%4i records so far\n' % (len(recs), (page+1)*rpp, pages*rpp))
     sleep(10)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
