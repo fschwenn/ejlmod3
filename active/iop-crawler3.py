@@ -88,6 +88,9 @@ jnls = {'1538-3881': 'Astron.J.',
         '0026-1394': 'Metrologia'}
 jnls['2516-1067'] = 'Plasma Res.Express'
 jnls['2633-4356'] = 'Mat.Quant.Tech.'
+jnls['1347-4065'] = 'Jap.J.Appl.Phys.'
+jnls['2515-7647'] = 'JPhys Photon.'
+jnls['2058-9565'] = 'Quantum Sci.Technol.'
 if issn in jnls:
     jnl = jnls[issn]
 elif re.search('\/book\/', issn):
@@ -98,7 +101,8 @@ else:
 
 
 
-
+driver.get(starturls[0])
+time.sleep(30)
     
 tocpages = []
 j = 0
@@ -109,9 +113,10 @@ for starturl in starturls:
     #    os.system('wget -q -T 300 -O %s "%s"' % (tocfile, starturl))
     #inf = open(tocfile, 'r')
     #tocpages.append(BeautifulSoup(''.join(inf.readlines())))
+    print(starturl)
     driver.get(starturl)
     tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
-    time.sleep(30)
+    time.sleep(20)
     
 hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -127,7 +132,7 @@ j = 0
 motherisbn = False
 for tocpage in tocpages:
     j += 1
-    print('---------{_} %i/%i {_}---------' % (j, len(tocpages)))
+    ejlmod3.printprogress('#', [[j, len(tocpages)], [starturls[j-1]]])
     issnote = False
     h3note = False
     h4note = False
@@ -155,14 +160,15 @@ for tocpage in tocpages:
                 child.name
             except:
                 continue
-            print('      -{ %i/%i }-{ %s }-' % (k, kmax, child.name))
+            if child.name:
+                ejlmod3.printprogress('-', [[j, len(tocpages)], [k, kmax], [child.name]])
             if child.name == 'h3':
                 h4note = False
-                h3note = child.text
-                print('===%s===' % (h3note))
+                h3note = child.text.strip()
+                ejlmod3.printprogress('=', [[h3note]])
             elif child.name == 'h4':
-                h4note = child.text
-                print('---%s---' % (h4note))
+                h4note = child.text.strip()
+                ejlmod3.printprogress('~', [[h4note]])
             elif child.name == 'div':
                 if book:
                     for div2 in child.find_all('h2', attrs = {'class' : 'art-list-item-title'}):
@@ -171,7 +177,7 @@ for tocpage in tocpages:
                     linksoup = child.find_all('a', attrs = {'class' : 'art-list-item-title'})
                 for a in linksoup:
                     preface = False
-                    time.sleep(20)
+                    time.sleep(20-5)
                     if book:
                         rec = {'jnl' : 'BOOK', 'note' : [], 'tc' : 'S', 'autaff' : [], 'refs' : []}
                         if motherisbn:
@@ -193,7 +199,7 @@ for tocpage in tocpages:
                     if h3note: rec['note'].append(h3note)
                     if h4note: rec['note'].append(h4note)
                     artlink = 'http://iopscience.iop.org' + a['href']
-                    print('     (%i) %s ' % (len(recs), artlink))
+                    ejlmod3.printprogress('-', [[artlink], [len(recs)]])
                     try:
                         driver.get(artlink)
                         artpage = BeautifulSoup(driver.page_source, features="lxml")
@@ -327,8 +333,8 @@ for tocpage in tocpages:
                         if regexpiopurl.search(ref):
                             ref = regexpiopurl.sub('DOI: 10.1088/', ref)
                         rec['refs'].append([('x', ref)])
-                    print('  - ', rec['doi'], ' orcidfound:', orcidsfound)
-                    print('    ', list(rec.keys()))
+                    print('       orcidfound:', orcidsfound)
+                    ejlmod3.printrecsummary(rec)
                     #print rec
                     if 'autaff' in rec:
                         if rec['autaff']:
