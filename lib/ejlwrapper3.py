@@ -235,7 +235,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-shodganga3.py', 'Physics', '201', '500']),
         (1, ['theses-mpg3.py']),
         (3, ['theses-shodganga3.py', 'Math', '1', '50']),
-        (2, ['theses-harvard3.py']),
+        (2, ['theses-harvard3XXX.py']),
         (3, ['theses-shodganga3.py', 'Math', '51', '100']),
         (1, ['theses-ucla3.py', 'ucsb']),
         (3, ['theses-shodganga3.py', 'Math', '101', '150']),
@@ -289,7 +289,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-southermethodist3.py']),
         (2, ['theses-tubingen3.py']),
         (2, ['theses-waynestate3.py']),
-        (2, ['theses-thueringen3.py']),
+        (2, ['theses-thueringen3XXX.py']),
         (1, ['theses-minnesota3.py']),
         (2, ['oxfordjournals3.py', 'astrogeo', pryear-1959, prsixth]),
         (1, ['theses-indiana3.py']),
@@ -403,11 +403,11 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-syracuse3.py']),
         (2, ['theses-ncsu3.py']),
         (3, ['theses-oviedo3.py']),
-        (3, ['theses-yorkcanada3.py']),
+        (3, ['theses-yorkcanada3XXX.py']),
         (3, ['theses-alabama3.py']),
         (3, ['theses-louisianastate3.py']),
         (1, ['oapen3.py']),
-        (3, ['theses-tsukuba3.py']),
+        (3, ['theses-tsukuba3XXX.py']),
         (3, ['theses-rice3.py']),
 #        (3333, ['npreview.py', pryear, prquarter]), #zu unregulaer
         (2, ['theses-taiwannatlu3.py']),
@@ -426,7 +426,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-connecticut3.py']),
         (3, ['theses-hokkaido3.py']),
         (3, ['theses-wisconsinmilwaukee3.py']),
-        (3, ['theses-hkust3.py']),
+        (3, ['theses-hkust3XXX.py']),
         (2, ['theses-vrijeuamsterdam3.py']),
         (3, ['theses-regina3.py']),
         (2, ['theses-brussels3XXX.py']),
@@ -452,10 +452,10 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['figshare3.py', 'techrxiv']),
         (1, ['theses-middleeasttech3XXX.py']),
         (3, ['theses-wigner3.py']),
-        (3, ['theses-zaragoza3.py']),
-        (1, ['theses-queensland3.py']),
-        (3, ['theses-laval3.py']),
-        (3, ['theses-cyprus3.py']),
+        (3, ['theses-zaragoza3XXX.py']),
+        (1, ['theses-queensland3XXX.py']),
+        (3, ['theses-laval3XXX.py']),
+        (3, ['theses-cyprus3XXX.py']),
         (2, ['theses-barcelonapolytech3.py']),
         (1, ['mitbooks3.py']),
         (2, ['theses-puebla3.py']),
@@ -480,10 +480,10 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['scipost3.py', 'sps', 2*(prpryear-2016) + (prprmonth-1)//6, (prprmonth -1) % 6 +1]),
         (2, ['theses-unsw3.py']),
         (2, ['theses-italy3.py', 'modena']),
-        (3, ['theses-liege3.py']),
+        (3, ['theses-liege3XXX.py']),
         (3, ['theses-georgiastate3.py']),
         (3, ['theses-standrews3.py']),
-        (3, ['theses-patras3.py']),
+        (3, ['theses-patras3XXX.py']),
         (2, ['theses-chilecatolica3.py']),
         (1, ['theses-upenn3.py']),
         (1, ['theses-umassamherst3XXX.py']),
@@ -503,7 +503,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-calgary3.py']),
         (2, ['theses-aveiro3.py']),
         (2, ['theses-santacatarina3.py']),
-        (2, ['theses-ohio3.py']),
+        (2, ['theses-ohio3XXX.py']),
         (2, ['theses-coloradomines3.py']),
         (2, ['theses-debrecen3.py']),
         (2, ['theses-carlos3.py']),
@@ -511,8 +511,8 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-valenciapolytechnic3.py']),
         (2, ['theses-sancarlosfederal3.py']),
         (1, ['theses-openuengland3.py']),
-        (3, ['theses-utahstate3.py']),
-        (3, ['theses-dekalb3.py']),
+        (3, ['theses-utahstate3XXX.py']),
+        (3, ['theses-dekalb3XXX.py']),
         (1, ['theses-limapont3.py']),
         (1, ['theses-clemson3.py']),
         (1, ['theses-cityulondon3.py']),
@@ -533,7 +533,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-bilbao3.py']),
         (1, ['theses-minasgerais3.py']),
         (1, ['theses-cordoba3.py']),
-        (1, ['iranjpr3.py']),
+        (1, ['iranjpr3XXX.py']),
         (1, ['theses-openaire3.py']),
         (1, ['theses-delft3.py']),
         (1, ['theses-saarland3.py']),
@@ -550,19 +550,23 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-qucosa3XXX.py', 'leipzig']),
         (2, ['theses-elpaso3.py']),
         (1, ['theses-msu3.py']),
-        (2, ['siam3.py', 'sjmaah', pryear-1968, prsixth]),
-        (2, ['siam3.py', 'sjoce3', pryear-1978, prsixth]),
+        (2, ['siam3XXX.py', 'sjmaah', pryear-1968, prsixth]),
+        (2, ['siam3XXX.py', 'sjoce3', pryear-1978, prsixth]),
         (2, ['degruyterjournals3.py', 'form', pryear, pryear-1988, prsixth]),
         (3, ['degruyterjournals3.py', 'jnet', pryear, pryear-1988, prquarter]),
-        (3, ['siam3.py', 'siread', pryear-1958, prquarter]),
-        (2, ['siam3.py', 'smjcat', pryear-1971, prsixth]),
+        (3, ['siam3XXX.py', 'siread', pryear-1958, prquarter]),
+        (2, ['siam3XXX.py', 'smjcat', pryear-1971, prsixth]),
         (1, ['rinton3.py', 'qic']),
-        (2, ['siam3.py', 'smjmap', pryear-1940, prsixth]),
+        (2, ['siam3XXX.py', 'smjmap', pryear-1940, prsixth]),
         (3, ['aip3YYY.py', 'apr', pryear-2013, prquarter]),
-        (3, ['siam3.py', 'sjmael', pryear-1979, prquarter]),
-        (2, ['siam3.py', 'sjnaam', pryear-1962, prsixth]),
+        (3, ['siam3XXX.py', 'sjmael', pryear-1979, prquarter]),
+        (2, ['siam3XXX.py', 'sjnaam', pryear-1962, prsixth]),
         (2, ['degruyterjournals3.py', 'ms', pryear, pryear-1950, prsixth]),
         (3, ['sciendo3.py', 'nuka', pryear-1955, prquarter]),
+        (3, ['siam3XXX.py', 'sjdmec', pryear-1986, prquarter]),
+        (2, ['princetonbooks3XXX.py']),
+        (3, ['siam3XXX.py', 'sjaabq', pryear-2016, prquarter]),
+        (2, ['muse3.py', '5']),
         #
         (1, ['theses-tokyo3.py']),
         (1, ['theses-cds3.py'])]
@@ -602,7 +606,7 @@ prfil.write(' - springer3.py\n')
 
 #do always WSP or IOP or HINDWAI
 if (today.day % 3 == 0):
-    listofcommands.append(['wsp3.py'])
+    listofcommands.append(['wsp3XXX.py'])
     prfil.write(' - wsp3.py\n')
 elif (today.day % 3 == 1):
     listofcommands.append(['ieee_wrapper3XXX.py'])
@@ -644,35 +648,50 @@ for com in listofcommands:
     writtenfiles = []
     print(com)
     time.sleep(10)
-    if re.search('3\.py', com[0]):
-        commando = [python['python3'], os.path.join(lproc['python3'], com[0])] + [str(c) for c in com[1:]]
-    else:
-        commando = [python['python2'], os.path.join(lproc['python2'], com[0])] + [str(c) for c in com[1:]]
-    harvest = subprocess.Popen(commando, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
-    result, errors = harvest.communicate()
-    errors = re.sub('No handlers could be found for logger .?rdflib.term.?\n', '', errors)
-    errors = re.sub('cat: ..afs.*?: No such file or directory\n', '', errors)
-    errors = re.sub('\/afs.*?\d+: UserWarning: No parser was explicitly specified.*?\n\n.*to the BeautifulSoup constructor.\n\n.*?\n', '    [kein expliziter Parser fuer BeautifulSoup angegeben]\n', errors)
-    errors = re.sub('\/home\/library\/.virtualenvs\/inspire\/lib\/python2.7\/site-packages\/selenium\/webdriver\/phantomjs\/webdriver.py:49: UserWarning: Selenium support for PhantomJS has been deprecated, please use headless versions of Chrome or Firefox instead\n *warnings.warn..Selenium support for PhantomJS has been deprecated, please use headless *.', '    [PhantomJS ist veraltet]', errors)
-    errors = re.sub('\/home\/library\/.virtualenvs\/inspire\/lib\/python2.7\/site-packages\/paramiko\/transport.py.*elease. *\n *from cryptography.hazmat.backends import default_backend', '    [Cryptography ist veraltet]', errors)
-    #detailed log
-    logfil = open(logfile, "a")
-    logfil.write('========={ %s }=========\n' % (' '.join([str(c) for c in com])))
-    logfil.write(result)
-    for line in re.split('\n', result):
-        if refin.search(line):
-            writtenfiles.append(refin.sub(r'   \1.xml (\2 records)\n   [records with datafields: \3]\n\n', line))
-    logfil.write(errors)
-    logfil.close()
-    #summary to bes
-    shortreport += '\n- ' + ' '.join(commando)
-    shortreport += '\n  ' + '\n  '.join(writtenfiles) + '\n'
-    if len(errors) > 0:
-        shortreport += '\n' + errors + '\n'
 
-    prfil = open(protocol, "a")
-    prfil.write('  {did} ' + ' '.join([str(c) for c in com]) + '\n')
-    prfil.close()
+    if re.search('XXX\.py', com[0]):
+        #code that has to run on laptop
+        kommando = re.sub('XXX', '', com[0]) + ' ' + ' '.join([str(c) for c in com[1:]])        
+        #detailed log
+        logfil = open(logfile, "a")
+        logfil.write('========={ %s }=========\n  has to run on laptop\n\n' % (' '.join([str(c) for c in com])))
+        logfil.close()
+        #summary to bes        
+        shortreport += '\n-@l00schwenn: ~/Envs/inspire3-python3.8/bin/python %s/%s\n\n' % (lproc['python3'], kommando)
+        prfil = open(protocol, "a")
+        prfil.write('  {could not do} ' + kommando + '\n')
+        prfil.close()
+    else:
+        #code that can run at DESY
+        if re.search('3\.py', com[0]):
+            commando = [python['python3'], os.path.join(lproc['python3'], com[0])] + [str(c) for c in com[1:]]
+        else:
+            commando = [python['python2'], os.path.join(lproc['python2'], com[0])] + [str(c) for c in com[1:]]
+        harvest = subprocess.Popen(commando, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+        result, errors = harvest.communicate()
+        errors = re.sub('No handlers could be found for logger .?rdflib.term.?\n', '', errors)
+        errors = re.sub('cat: ..afs.*?: No such file or directory\n', '', errors)
+        errors = re.sub('\/afs.*?\d+: UserWarning: No parser was explicitly specified.*?\n\n.*to the BeautifulSoup constructor.\n\n.*?\n', '    [kein expliziter Parser fuer BeautifulSoup angegeben]\n', errors)
+        errors = re.sub('\/home\/library\/.virtualenvs\/inspire\/lib\/python2.7\/site-packages\/selenium\/webdriver\/phantomjs\/webdriver.py:49: UserWarning: Selenium support for PhantomJS has been deprecated, please use headless versions of Chrome or Firefox instead\n *warnings.warn..Selenium support for PhantomJS has been deprecated, please use headless *.', '    [PhantomJS ist veraltet]', errors)
+        errors = re.sub('\/home\/library\/.virtualenvs\/inspire\/lib\/python2.7\/site-packages\/paramiko\/transport.py.*elease. *\n *from cryptography.hazmat.backends import default_backend', '    [Cryptography ist veraltet]', errors)
+        #detailed log
+        logfil = open(logfile, "a")
+        logfil.write('========={ %s }=========\n' % (' '.join([str(c) for c in com])))
+        logfil.write(result)
+        for line in re.split('\n', result):
+            if refin.search(line):
+                writtenfiles.append(refin.sub(r'   \1.xml (\2 records)\n   [records with datafields: \3]\n\n', line))
+        logfil.write(errors)
+        logfil.close()
+        #summary to bes
+        shortreport += '\n- ' + ' '.join(commando)
+        shortreport += '\n  ' + '\n  '.join(writtenfiles) + '\n'
+        if len(errors) > 0:
+            shortreport += '\n' + errors + '\n'
+    
+        prfil = open(protocol, "a")
+        prfil.write('  {did} ' + ' '.join([str(c) for c in com]) + '\n')
+        prfil.close()
 
 
 shortreport += '\n\ndetailed protocols has been written to '+logfile
