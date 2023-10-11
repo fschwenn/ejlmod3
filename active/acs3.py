@@ -31,6 +31,9 @@ elif jnl == 'apchd5': # 1 issue per month
 elif jnl == 'jacsat': # 1 issue per week
     jnlname = 'J.Am.Chem.Soc.'
     letter = ''
+elif jnl == 'chreay': # 1 issue per two weaks
+    jnlname = 'Chem.Rev.'
+    letter = ''
 else:
     print(' unknown journal "%s"' % (jnl))
     sys.exit(0)
@@ -50,6 +53,7 @@ else:
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    print(chromeversion)
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
 
