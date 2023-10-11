@@ -101,6 +101,7 @@ for rec in recs:
     #print(maildict)
     #authors
     authors = []
+    author = False
     for div in page.body.find_all('div', attrs = {'class' : 'contrib-group'}):
         for sup in div.find_all('sup'):
             affkey = sup.text.strip()
@@ -132,24 +133,23 @@ for rec in recs:
                         author = {'name' : part, 'orcid' : False, 'affs' : [], 'mail' : False}
                     else:
                         author['name'] = part
-    authors.append(author)
-    for author in authors:
-        rec['autaff'].append([author['name']])
-        if author['orcid']:
-            rec['autaff'][-1].append(author['orcid'])
-        elif author['mail']:
-            rec['autaff'][-1].append(author['mail'])
-        if author['affs']:
-            rec['autaff'][-1] += author['affs']
-                    
-                    
-                
-    #for meta in page.head.find_all('meta', attrs = {'name' : 'citation_author'}):
-    #    for author in re.split(' *; *',  meta['content']):
-    #        if re.search(',', author):
-    #            rec['auts'].append(author)
-    #        else:
-    #            rec['auts'].append(re.sub('(.*) (.*)', r'\1, \2', author))
+    if author:
+        authors.append(author)
+        for author in authors:
+            rec['autaff'].append([author['name']])
+            if author['orcid']:
+                rec['autaff'][-1].append(author['orcid'])
+            elif author['mail']:
+                rec['autaff'][-1].append(author['mail'])
+                if author['affs']:
+                    rec['autaff'][-1] += author['affs']
+    else:
+        for meta in page.head.find_all('meta', attrs = {'name' : 'citation_author'}):
+            for author in re.split(' *; *',  meta['content']):
+                if re.search(',', author):
+                    rec['autaff'].append([author])
+                else:
+                    rec['autaff'].append([re.sub('(.*) (.*)', r'\1, \2', author)])
 
                 
     for div in page.body.find_all('div', attrs = {'class' : 'article-box'}):
