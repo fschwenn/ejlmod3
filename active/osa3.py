@@ -34,6 +34,8 @@ elif (jnl == 'josab'):
     vol = 'B' + sys.argv[2]
 elif (jnl == 'optica'):
     jnlname = 'Optica'
+elif (jnl == 'aop'):
+    jnlname = 'Adv.Opt.Photon.'
 else:
     print(' do not know "%s"' % (jnl))
     sys.exit(0)
@@ -55,7 +57,7 @@ options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
-options.add_argument("--no-sandbox")
+#options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
 #options.add_argument("--user-data-dir=/home/library/chrome")
 #options.add_argument("--disable-gpu")
