@@ -253,17 +253,16 @@ def get_sub_site(url, sess):
 
 options = uc.ChromeOptions()
 #options.headless=True
-options.add_argument('--headless')
+#options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 #chromeversion = 108
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-
-tocurl = 'https://etd.ohiolink.edu/apexprod/rws_olink/r/1501/search-results?token=2077610qRWPtPjxpDLkdlCyHutFjuMH&clear=1001,RP&p1001_page_rows=' + str(rpp)
-#2023: tocurl = 'https://etd.ohiolink.edu/apexprod/rws_olink/r/1501/search-results?token=2233876QZsBdCpQQZnygMSuIvKaDvWd&clear=1001,RP&p1001_page_rows=' + str(rpp)
-
+driver.get('https://etd.ohiolink.edu')
+sleep(10)
+tocurl = 'https://etd.ohiolink.edu/acprod/odb_etd/etd/r/1501/search-results?token=2233876QZsBdCpQQZnygMSuIvKaDvWd&clear=1001,RP&p1001_page_rows=' + str(rpp)
 ejlmod3.printprogress('=', [[1], [tocurl]])
 driver.get(tocurl)
 tocpage = BeautifulSoup(driver.page_source, 'lxml')
