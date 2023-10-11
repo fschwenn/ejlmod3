@@ -139,7 +139,10 @@ elif (jnl == 'cjoc'):
     issn = '1614-7065'
     doitrunk = '10.1002/cjoc'
     jnlname = 'Chin.J.Chem.'
-    
+elif (jnl == 'adfm'):
+    issn = '1616-3028'
+    doitrunk = '10.1002/adfm.202214211'
+    jnlname = 'Adv.Funct.Mater.'
 
     
 if skipalreadyharvested:
