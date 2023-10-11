@@ -39,17 +39,19 @@ else:
     chromeversion = 108
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
+#useragent for wget
+useragent = ' --user-agent "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0" '
 
-
+ppdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     filenametrunc = 'ieee*doki'
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*http/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
     filenametrunc = 'IEEE*doki'
     print('%i records in backup' % (len(alreadyharvested)))
-    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*http/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
     print('%i records in backup' % (len(alreadyharvested)))
 alreadyharvested.append('http://ieeexplore.ieee.org/document/10189126/')
 alreadyharvested.append('http://ieeexplore.ieee.org/document/10188200/')
@@ -156,6 +158,8 @@ def translatejnlname(ieeename):
         jnlname = 'IEEE Trans.Nanotechnol.'
     elif ieeename in ['IEEE Journal of Quantum Electronics']:
         jnlname = 'IEEE J.Quant.Electron.'
+    elif ieeename in ['IEEE Access']:
+        jnlname = 'IEEE Access'
     elif ieeename in ["IEEE Symposium Conference Record Nuclear Science 2004.",
                       "IEEE Nuclear Science Symposium Conference Record, 2005"]:
         jnlname = 'BOOK'
@@ -171,7 +175,7 @@ def addreferences(refsdict, articlelink):
     global refwait
     refsdict[articlelink] = []
     arefs = []
-    reffilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', articlelink))
+    reffilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', re.sub('https', 'http', articlelink)))
     print('    ... from %s%s' % (articlelink, 'references'))
     needtowait = True
     try:
@@ -218,7 +222,7 @@ def addreferences(refsdict, articlelink):
 def ieee(number):
     manager = Manager()
     refsdict = manager.dict()
-    urltrunc = "http://ieeexplore.ieee.org"
+    urltrunc = "https://ieeexplore.ieee.org"
     #get name of journal
     if number[0] in ['C', 'N']: 
         #toclink = "/xpl/mostRecentIssue.jsp?punumber=%s&rowsPerPage=2000" % (number[1:])        
@@ -227,7 +231,10 @@ def ieee(number):
         jnlname = 'IEEE Nucl.Sci.Symp.Conf.Rec.'
         jnlname = 'BOOK'
     else:
-        toclink = "/xpl/tocresult.jsp?isnumber=%s&rowsPerPage=%i" % (number, articlesperpage)
+        if number[0] == 'Q':
+            toclink = "/xpl/tocresult.jsp?isnumber=%s&rowsPerPage=%i&searchWithin=quantum" % (number[1:], articlesperpage)
+        else:
+            toclink = "/xpl/tocresult.jsp?isnumber=%s&rowsPerPage=%i" % (number, articlesperpage)
         tc = 'P'
         
     articlelinks = []
@@ -315,11 +322,11 @@ def ieee(number):
             iref += 1
         hasreferencesection = False
         ejlmod3.printprogress('-', [[i, len(allarticlelinks)], [articlelink], [len(recs)]])
-        if articlelink in alreadyharvested:
+        if articlelink in alreadyharvested or re.sub('https', 'http', articlelink) in alreadyharvested:
             print('   already in backup')
             continue
         #rec['note'] = ['Konferenz ?']
-        artfilename = '%s/ieee_%s.%s' % (tmpdir, number, re.sub('\W', '', articlelink))
+        artfilename = '%s/ieee_%s.%s' % (tmpdir, number, re.sub('https', 'http', re.sub('\W', '', articlelink)))
         if not os.path.isfile(artfilename):
             time.sleep(20)
             try:
@@ -382,8 +389,6 @@ def ieee(number):
                     rec['p1'] = gdm['externalId']
                 else:
                     rec['p1'] = gdm['articleNumber']
-        if gdm['isFreeDocument']:
-            rec['FFT'] = urltrunc + gdm['pdfPath']
         rec['tit'] = gdm['formulaStrippedArticleTitle']
         if 'abstract' in gdm:
             rec['abs'] = gdm['abstract']
@@ -402,6 +407,18 @@ def ieee(number):
         else:
             rec['doi'] = '30.3000/ieee_%s_%06i' % (number, i)
             rec['link'] = articlelink
+        if 'isFreeDocument' in gdm and gdm['isFreeDocument']:
+            rec['pdf_url'] = urltrunc + gdm['pdfPath']
+            rec['pdf_url'] = urltrunc + re.sub('iel7', 'ielx7', gdm['pdfPath'])
+            #download it NOW as availability may change quckly
+            doi1trunk = re.sub('\/.*', '', rec['doi'])
+            doi1 = re.sub('[\/\(\)]', '_', rec['doi'])
+            poufname = '%s/%s/%s.pdf' % (ppdfpath, doi1trunk, doi1)
+            if not os.path.isfile(poufname):
+                print('          -> download %s NOW as availability may change quckly' % (rec['pdf_url']))
+                time.sleep(10)
+                os.system('wget -T 300 -t 3 %s -O %s "%s"' % (useragent, poufname, rec['pdf_url']))
+                time.sleep(10)                                              
         if 'keywords' in gdm:
             for kws in gdm['keywords']:
                 for kw in kws['kwd']:
@@ -431,10 +448,10 @@ def ieee(number):
                 rec['note'].append(args[1])
         #references
         if hasreferencesection:
-                refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('\W', '', articlelink))
-                if not os.path.isfile(refilename) and host == 'l00schwenn':
+                refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('https?', 'http', re.sub('\W', '', articlelink)))
+                if not os.path.isfile(refilename) and host == 'l00schwenn':                    
                     iref += 1
-                    print('  try to get references')
+                    print('  try to get references since %s not found' % (refilename))
                     action_process = Process(target=addreferences, args=(refsdict, articlelink))
                     action_process.start()
                     #action_process.join(timeout=5)
@@ -511,9 +528,13 @@ def ieee(number):
         return (recs, 'none')
 
 
+#journals: isnumber
+#journals (IEEE Access) but only QIS stuff: Qisnumber
+#proceedings with pagination: punumber
+#proceedings without pagination: Npunumber
 if __name__ == '__main__':
     usage = """
-        python ieee_crawler.py Cpunumber|isnumber|Npunumber [cnum] 
+        python ieee_crawler.py Cpunumber|isnumber|Npunumber|Qisnumber [cnum] 
         use Npunumber if no pagination
     """
     try:
