@@ -61,6 +61,8 @@ else:
         jnlname = 'ACM Trans.Model.Comput.Simul.'
     elif (jnl == 'trets'): 
         jnlname = 'ACM Trans.Reconf.Tech.Syst.'
+    elif (jnl == 'jacm'):
+        jnlname = 'J.Assoc.Comput.Machinery'
         
 
     jnlfilename = "acm_%s%s.%s" % (jnl, vol, re.sub('\/', '_', issue))
@@ -85,9 +87,18 @@ for span in tocpages[0].body.find_all('span', attrs = {'class' : 'in-progress'})
     jnlfilename = "acm_%s%s.%s_in_progress_%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
 
 if jnl == 'proceedings':
+    year= False
     #year
     for div in tocpages[0].find_all('div', attrs = {'class' : 'coverDate'}):
         year = div.text.strip()
+    if not year:   
+        tocurl = 'https://dl.acm.org/doi/proceedings/10.5555/' + procnumber
+        print("get table of content... from %s instead" % (tocurl))
+        time.sleep(2)
+        driver.get(tocurl)
+        tocpages = [BeautifulSoup(driver.page_source, features="lxml")]
+        for div in tocpages[0].find_all('div', attrs = {'class' : 'coverDate'}):
+            year = div.text.strip()        
     #Hauptaufnahme
     rec = {'jnl' : jnlname, 'tc' : 'K', 'auts' : [], 'year' : year, 'fc' : 'c', 'note' : []}
     rec['doi'] = '10.1145/' + procnumber
@@ -140,9 +151,12 @@ for tocpage in tocpages:
             rec = {'jnl' : jnlname, 'tc' : tc, 'vol' : vol, 'issue' : issue, 'year' : year, 'fc' : 'c', 'note' : []}
         for h5 in div.find_all('h5', attrs = {'class' : 'issue-item__title'}):
             for a in h5.find_all('a'):
-                rec['artlink'] = 'https://dl.acm.org' + a['href']
-                rec['doi'] = re.sub('.*?\/(10\..*)', r'\1', rec['artlink'])
-                rec['tit'] = a.text.strip()
+                if a.has_attr('href'):
+                    rec['artlink'] = 'https://dl.acm.org' + a['href']
+                    rec['doi'] = re.sub('.*?\/(10\..*)', r'\1', rec['artlink'])
+                    rec['tit'] = a.text.strip()
+                else:
+                    print('???', a)
         for div2 in div.find_all('div', attrs = {'class' : 'issue-item__detail'}):
             div2t = div2.text.strip()
             #p1
