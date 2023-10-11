@@ -58,6 +58,17 @@ for (i, tr) in enumerate(trs):
             rec['fc'] += 't'
         elif note == 'Operation, Performance and Upgrade (incl. HL-LHC) of Present Detectors':
             rec['fc'] += 'i'
+        elif note == 'S02-AA Astronomy and Astrophysics':
+            rec['fc'] = 'a'
+        elif note == 'S03-GC Gravitation and Cosmology':
+            rec['fc'] = 'g'
+        elif note == 'S06-CMPSP Condensed Matter Physics and Statistical Physics':
+            rec['fc'] = 'f'
+        elif note in ['S10-MG Meteorology and Geophysics', 'S11-EPASE Environmental Physics – Alternative Sources of Energy',
+                      'S13-BMP Biophysics and Medical Physics', 'S14-PEHPP Physics Education, History and Philosophy of Physics']:
+            rec['fc'] = 'o'
+        elif note == 'S15-MI Metrology and Instrumentation':
+            rec['fc'] = 'i'
     #cnum
     if len(sys.argv) > 4:
         rec['cnum'] = sys.argv[4]
@@ -114,7 +125,7 @@ for (i, tr) in enumerate(trs):
     #construct DOI if neccessary
     if not 'doi' in list(rec.keys()):
         rec['doi'] = '10.22323/1.%s.%04i' % (nr, int(rec['p1']))
-    if skipalreadyharvested and rec['doi'] in alreadyharvested:
+    if skipalreadyharvested and rec['doi'] in alreadyharvested and rec['doi'] != '10.22323/1.444.1226':
         continue
     #get PDF
     if 'FFT' in list(rec.keys()):
