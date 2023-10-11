@@ -23,6 +23,7 @@ jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
 skipalreadyharvested = True
+bunchsize = 10
 
 if   (jnl == 'tnst20'):
     jnlname = 'J.Nucl.Sci.Tech.'
@@ -52,11 +53,11 @@ elif (jnl == 'gitr20'):
     jnlname = 'Integral Transform.Spec.Funct.'
 elif (jnl == 'glma20'):
     jnlname = 'Linear Multilinear Alg.'
+elif (jnl == 'uasa20'):
+    jnlname = 'J.Am.Statist.Assoc.'
 
-if jnl in ['tapx20']:
-    jnlfilename = "%s.%s.%s.%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
-else:
-    jnlfilename = "%s.%s.%s" % (jnl, vol, issue)
+jnlfilename = "%s.%s.%s.%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
+
 
 
 if skipalreadyharvested:
@@ -111,10 +112,12 @@ for adoi in page.body.find_all('a'):
     rec['doi'] = re.sub('.*\/(10\..*)', r'\1', adoi['href'])
     if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
         prerecs.append(rec)
+    else:
+        print(rec['doi'], 'already harvested')
         
 recs = []
 for (i, rec) in enumerate(prerecs):
-    time.sleep(random.randint(30,170))
+    time.sleep(random.randint(30,170-120))
     ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['doi']]])
     try:
         driver.get('http://www.tandfonline.com/doi/full/%s' % (rec['doi']))
@@ -223,5 +226,6 @@ for (i, rec) in enumerate(prerecs):
     else:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+#ejlmod3.writenewXML(recs, publisher, jnlfilename)
