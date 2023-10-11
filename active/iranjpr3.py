@@ -102,7 +102,7 @@ for (i, vol, iss, year, toclink) in todo:
             rec['keyw'] = re.split(',', rec['keyw'][0])
         #references are sometimes not properly formatted
         ejlmod3.printrecsummary(rec)
-    ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
             
         
 
