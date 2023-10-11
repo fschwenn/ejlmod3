@@ -31,6 +31,7 @@ options = uc.ChromeOptions()
 options.add_argument('--headless')
 options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 #chromeversion = 108
 driver = uc.Chrome(version_main=chromeversion, options=options)
