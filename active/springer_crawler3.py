@@ -31,6 +31,7 @@ boring = ['Editorial', 'Comment', 'Q&A', 'News & Views', 'Obituary',
           'Futures', 'Where I Work', 'Books & Arts', 'Expert Recommendation', 'Measure for Measure',
           'News Round-up', 'News & Views', 'Q&a', 'q-and-a', 'Nature Index', 'nature-index',
           'News and views', 'Career Feature', 'News and Views']
+boring += ['Research Highlights']
 
 if re.search('springer', toclink):
     urltrunc = 'https://link.springer.com'
@@ -257,6 +258,8 @@ for rec in prerecs:
         rec['tc'] = 'C'
     elif vol == '0' or jnl == 'BOOK':
          rec['tc'] = 'S'
+         #rec['motherisbn'] = '9789811930799'
+         #rec['fc'] = 'g'
     else:
         rec['tc'] = 'P'
     if len(sys.argv) > 6:
@@ -304,13 +307,6 @@ for rec in prerecs:
         for a in artpage.body.find_all('a', attrs = {'data-track-action' : 'publication date'}):
             for dt in a.find_all('time'):
                 rec['date'] = dt['datetime']
-    #Abstract
-    for section in artpage.body.find_all('section', attrs = {'class' : 'Abstract'}):
-        abstract = ''
-        for p in section.find_all('p'):
-            abstract += p.text.strip() + ' '
-        if not 'abs' in rec or len(abstract) > len(rec['abs']):
-            rec['abs'] = abstract
     #Keywords
     for div in artpage.body.find_all('div', attrs = {'class' : 'KeywordGroup'}):
         rec['keyw'] = []
@@ -320,7 +316,22 @@ for rec in prerecs:
         rec['keyw'] = []
         for li in artpage.body.find_all('li', attrs = {'class' : 'c-article-subject-list__subject'}):
             rec['keyw'].append(li.text.strip())            
-    #References
+
+    #Abstract
+    for section in artpage.body.find_all('section', attrs = {'class' : 'Abstract'}):
+        abstract = ''
+        for p in section.find_all('p'):
+            abstract += p.text.strip() + ' '
+        if not 'abs' in rec or len(abstract) > len(rec['abs']):
+            rec['abs'] = abstract
+    for div in artpage.body.find_all('div', attrs = {'id' : 'Abs1-content'}):
+        for h3 in div.find_all('h3', attrs = {'class' : 'c-article__sub-heading'}):
+            h3.decompose()
+        for ul in div.find_all('ul', attrs = {'class' : 'c-article-subject-list'}):
+            ul.decompose()
+        abstract = div.text.strip()
+        if not 'abs' in rec or len(abstract) > len(rec['abs']):
+            rec['abs'] = abstract    #References
     references = artpage.body.find_all('ol', attrs = {'class' : ['BibliographyWrapper', 'c-article-references']})
     if not references:
         references = artpage.body.find_all('ul', attrs = {'class' : ['BibliographyWrapper', 'c-article-references']})
