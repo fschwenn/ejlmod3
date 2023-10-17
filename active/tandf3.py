@@ -55,6 +55,8 @@ elif (jnl == 'glma20'):
     jnlname = 'Linear Multilinear Alg.'
 elif (jnl == 'uasa20'):
     jnlname = 'J.Am.Statist.Assoc.'
+elif (jnl == 'tmph20'):
+    jnlname = 'Mol.Phys.'
 
 jnlfilename = "%s.%s.%s.%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
 
