@@ -9,11 +9,15 @@ import time
 from urllib.request import Request, urlopen
 
 startyear = ejlmod3.year(backwards=1)
+skipalreadyharvested = True
 
 publisher = 'Warwick U.'
 
 jnlfilename = "THESES-WARWICK-%s" % (ejlmod3.stampoftoday())
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    
 hdr = {'User-Agent': 'Magic Browser'}
 recs = []
 for (dep, fc) in [('Department_of_Physics', ''), ('Department_of_Computer_Science', 'c'),
@@ -42,7 +46,8 @@ for (dep, fc) in [('Department_of_Physics', ''), ('Department_of_Computer_Scienc
                 if re.search('\(\d\d\d\d\)', pt):
                     rec['date'] = re.sub('.*\((\d\d\d\d)\).*', r'\1', pt)
                     if rec['date'] >= str(startyear):
-                        recs.append(rec)
+                        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                            recs.append(rec)
     time.sleep(5)
     #ejlmod3.printprogress('=', [[i, len(ps)], [rec['date']], [len(recs)]])
 
