@@ -179,14 +179,14 @@ for tocpage in tocpages:
                     preface = False
                     time.sleep(20-5)
                     if book:
-                        rec = {'jnl' : 'BOOK', 'note' : [], 'tc' : 'S', 'autaff' : [], 'refs' : []}
+                        rec = {'jnl' : 'BOOK', 'note' : [], 'tc' : 'S', 'autaff' : []}
                         if motherisbn:
                             rec['motherisbn'] = motherisbn
                         if a['href'][-4:] == '.pdf':
                             print('  skip', a.text.strip())
                             continue
                     else:
-                        rec = {'jnl' : jnl, 'note' : [], 'tc' : 'P', 'autaff' : [], 'refs' : []}
+                        rec = {'jnl' : jnl, 'note' : [], 'tc' : 'P', 'autaff' : []}
                     orcidsfound = False
                     if len(sys.argv) > 2:
                         rec['cnum'] = sys.argv[2]
@@ -226,7 +226,7 @@ for tocpage in tocpages:
                     #metadata
                     ejlmod3.metatagcheck(rec, artpage, ['citation_online_date', 'citation_issue', 'citation_doi',
                                                         'citation_author', 'citation_author_institution', 'citation_author_orcid',
-                                                        'citation_author_email', 'citation_abstract'])
+                                                        'citation_author_email', 'citation_abstract', 'citation_reference'])
                     if not 'date' in rec:
                         ejlmod3.metatagcheck(rec, artpage, ['citation_publication_date'])
                     for meta in artpage.find_all('meta'):
@@ -305,43 +305,47 @@ for tocpage in tocpages:
                     for ul in artpage.body.find_all('ul', attrs = {'class' : 'clear-list wd-content-footnotes'}):
                         ul.replace_with('')      
                     #references
-                    for li in artpage.body.find_all('li', attrs = {'class' : 'indices-list'}):
-                        for a in li.find_all('a',  attrs = {'class' : 'indices-id'}):
-                            nummer = a.text
-                            a.replace_with(nummer + ' ')
-                        for a in li.find_all('a',  attrs = {'title' : 'CrossRef'}):
-                            if a.has_attr('href'):
-                                doi = regexpdxdoi.sub(', DOI: ', a['href'])
-                                a.replace_with(doi)
-                        for a in li.find_all('a',  attrs = {'title' : 'IOPScience'}):
-                            if a.has_attr('href'):
-                                doi = regexpiopurl.sub(', DOI: 10.1088/', a['href'])
-                                a.replace_with(doi)
-                        for a in li.find_all('a',  attrs = {'title' : 'IOPscience'}):
-                            if a.has_attr('href'):
-                                doi = regexpiopurl.sub(', DOI: 10.1088/', a['href'])
-                                a.replace_with(doi)
-                        for a in li.find_all('a'):
-                            if re.search('Google.?Scholar', a.text) or re.search('ADS', a.text):
-                                a.replace_with('')
-                            elif a.has_attr('href'):
-                                link = ', %s: %s' % (a.text, a['href'])
-                                a.replace_with(link)
-                        ref = li.text
-                        if regexpdxdoi.search(ref):
-                            ref = regexpdxdoi.sub('DOI: ', ref)
-                        if regexpiopurl.search(ref):
-                            ref = regexpiopurl.sub('DOI: 10.1088/', ref)
-                        rec['refs'].append([('x', ref)])
-                    print('       orcidfound:', orcidsfound)
-                    ejlmod3.printrecsummary(rec)
-                    #print rec
-                    if 'autaff' in rec:
-                        if rec['autaff']:
-                            recs.append(rec)
+                    #references = artpage.body.find_all('li', attrs = {'class' : 'indices-list'})
+                    #if references:
+                    #    rec['refs'] = []
+                    #    for li in references:
+                    #        for a in li.find_all('a',  attrs = {'class' : 'indices-id'}):
+                    #            nummer = a.text
+                    #            a.replace_with(nummer + ' ')
+                    #        for a in li.find_all('a',  attrs = {'title' : 'CrossRef'}):
+                    #            if a.has_attr('href'):
+                    #                doi = regexpdxdoi.sub(', DOI: ', a['href'])
+                    #                a.replace_with(doi)
+                    #        for a in li.find_all('a',  attrs = {'title' : 'IOPScience'}):
+                    #            if a.has_attr('href'):
+                    #                doi = regexpiopurl.sub(', DOI: 10.1088/', a['href'])
+                    #                a.replace_with(doi)
+                    #        for a in li.find_all('a',  attrs = {'title' : 'IOPscience'}):
+                    #            if a.has_attr('href'):
+                    #                doi = regexpiopurl.sub(', DOI: 10.1088/', a['href'])
+                    #                a.replace_with(doi)
+                    #        for a in li.find_all('a'):
+                    #            if re.search('Google.?Scholar', a.text) or re.search('ADS', a.text):
+                    #                a.replace_with('')
+                    #            elif a.has_attr('href'):
+                    #                link = ', %s: %s' % (a.text, a['href'])
+                    #                a.replace_with(link)
+                    #        ref = li.text
+                    #        if regexpdxdoi.search(ref):
+                    #            ref = regexpdxdoi.sub('DOI: ', ref)
+                    #        if regexpiopurl.search(ref):
+                    #            ref = regexpiopurl.sub('DOI: 10.1088/', ref)
+                    #        rec['refs'].append([('x', ref)])
+                    if 'Editorial' in rec['note']:
+                        print('  skip Editorial')
                     else:
-                        if rec['auts']:
-                            recs.append(rec)
+                        ejlmod3.printrecsummary(rec)
+                        if 'autaff' in rec:
+                            if rec['autaff']:
+                                recs.append(rec)
+                        else:
+                            if rec['auts']:
+                                recs.append(rec)
     if not book:
         if 'issue' in list(rec.keys()):
             voliss.append('%s.%s' % (rec['vol'], rec['issue']))
