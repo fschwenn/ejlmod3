@@ -11,6 +11,7 @@ import re
 import ejlmod3
 import time
 import os
+import undetected_chromedriver as uc
 
 years = 2
 rpp = 20
@@ -35,7 +36,7 @@ universities = {'milanbicocca' : ('Milan Bicocca U.', 'https://boa.unimib.it', '
                 'parma' : ('Parma U.', 'https://www.repository.unipr.it', '/handle/1889/636', 1),
                 'modena' : ('Modena U.', 'https://iris.unimore.it', '/handle/11380/1196085', 7),
                 'messina' : ('Messina U.', 'https://iris.unime.it', '/handle/11570/3101346', 5),
-                'florence' : ('U. Florence (main)', 'https://flore.unifi.it', '/handle/2158/1001453', 20),
+                'florence' : ('U. Florence (main)', 'https://flore.unifi.it', '/handle/2158/1001453', 20-15),
                 'aquila' : ('U. Aquila (main)', 'https://ricerca.univaq.it', '/handle/11697/143427', 3), #neu 9
                 'padua' : ('U. Padua (main)', 'https://www.research.unipd.it', '/handle/11577/3394917', 20)}
 boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
@@ -48,8 +49,7 @@ boring = ['archeologia medievale', 'beni architettonici e paesaggistici', 'bio',
           'european cultures. environment, contexts, histories, arts, ideas', u'facolt\xe0 di giurisprudenza',
           'filologia e critica', 'genetica, oncologia e medicina clinica', 'geo', 'gestione, produzione e design',
           'ing-ind', 'ing-inf', 'ingegneria aerospaziale', 'ingegneria chimica', 'ingegneria civile e ambientale',
-          'international studies', 'ius', 'l-ant',
-          'l-art', 'l-fil-let', 'l-lin', 'l-or', 'lettere e filosofia', 'm-dea', 'm-edf', 'm-fil', 'm-ggr',
+          'international studies', 'ius', 'l-ant', 'l-art', 'l-fil-let', 'l-lin', 'l-or', 'lettere e filosofia', 'm-dea', 'm-edf', 'm-fil', 'm-ggr',
           'm-ped', 'm-psi', 'm-sto', 'materials, mechatronics and systems engineering', 'med',
           'medicina molecolare', 'metrologia', 'psicologia e scienze cognitive',
           'psychological sciences and education', 'scienza politica - politica comparata ed europea',
@@ -75,13 +75,25 @@ if skipalreadyharvested:
 else:
     alreadyharvested = []
 
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+    
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
+driver.get(universities[uni][1])
+time.sleep(10)
 for page in range(pages):
     tocurl = '%s%s?offset=%i&sort_by=-1&order=DESC' % (universities[uni][1], universities[uni][2], (page)*rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    #req = urllib.request.Request(tocurl, headers=hdr)
+    #tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    driver.get(tocurl)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+
     recsfound = False
     for tr in tocpage.body.find_all('tr'):
         rec = False
@@ -142,8 +154,10 @@ for rec in prerecs:
     if not ejlmod3.checkinterestingDOI(rec['hdl']):
         continue
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink'] + '?mode=complete'), features="lxml")
-        time.sleep(3)
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink'] + '?mode=complete'), features="lxml")
+        driver.get(rec['artlink'] + '?mode=complete')
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        time.sleep(7)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['artlink']))
@@ -181,12 +195,14 @@ for rec in prerecs:
                             rec['fc'] = 'm'
                         rec['note'].append(section)
                         interesting = True
-#                    else:
-#                        print('  skip', section)
+                    else:
+                        print('  skip', section)
     if not 'autaff' in rec:
         for meta in artpage.find_all('meta', attrs = {'name' : 'DC.creator'}):
             rec['autaff'] = [[ meta['content'] ]]
     # :( meta-tags now hidden in JavaScript
+    #print(artpage.text)
+
     for table in artpage.body.find_all('table', attrs = {'class' : 'itemTagFields'}):
         for tr in table.find_all('tr'):
             for td in tr.find_all('td', attrs = {'class' : 'metadataFieldLabel'}):
@@ -254,7 +270,8 @@ for rec in prerecs:
                                      'l-fil-let/12', 'l-fil-let/13', 'l-fil-let/14', 'l-lin/01', 'l-lin/03', 'l-lin/05',
                                      'l-lin/07', 'l-lin/12', 'l-lin/13', 'l-lin/21', 'l-or/02', 'l-or/04', 'l-or/07',
                                      'l-or/08', 'l-or/21']:
-                        interesting = False                    
+                        interesting = False    
+                        print('  skip', section)                
         #FFT
         if not 'FFT' in rec:
             for div in artpage.body.find_all('div', attrs = {'class' : 'itemTagBitstreams'}):
@@ -276,6 +293,7 @@ for rec in prerecs:
             fac = regsec.sub(r'\1', fac)
             if fac in boring:
                 interesting = False
+                print('  skip', fac)
             elif re.search('mat\/\d+ ', fac):
                 rec['fc'] = 'm'
             elif re.search('inf\/\d+ ', fac):
