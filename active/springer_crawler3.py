@@ -151,7 +151,7 @@ def get_records(url):
                     if re.search('^\d$', li['data-page']):
                         dp = int(li['data-page'])
             for i in range(dp-1):
-                tocurl = '%s&page=%i' % (re.sub('#toc$', '', url), i+2)
+                tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+2)
                 if not tocurl in list(pages.keys()):
                     print(tocurl)
                     page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
@@ -277,12 +277,25 @@ for rec in prerecs:
                                         'citation_author_institution', 'citation_author_email', 'citation_author_orcid',
                                         'description', 'dc.description', 'citation_cover_date', 'citation_article_type',
                                         'prism.publicationDate'])
-    if jnl in ['npj Quantum Inf.']:
-        for p in artpage.find_all('p', attrs = {'class' : 'c-article-info-details'}):
-            for span in p.find_all('span', attrs = {'data-test' : 'article-number'}):
-                rec['p1'] = span.text.strip()
-                if 'p2' in rec:
-                    del rec['p2']
+    #article number
+    ps = artpage.find_all('p', attrs = {'class' : 'c-article-info-details'})
+    if not ps:
+        ps = artpage.find_all('li', attrs = {'class' : 'c-article-identifiers__item'})
+    for p in ps:
+        for span in p.find_all('span', attrs = {'data-test' : 'article-number'}):
+#            if jnl in ['npj Quantum Inf.', 'J.Cryptolog.', 'Quantum Machine Intelligence', 'SN Comput.Sci.',
+#                       'Complexity', 'Stat.Comput.']:
+            if 'p2' in rec:
+                spant = span.text.strip()
+                print('     change pagination (%s-%s) to article-id (%s)' % (rec['p1'], rec['p2'], spant))
+                rec['pages'] = int(rec['p2']) - int(rec['p1']) + 1 
+                rec['p1'] = spant
+                del rec['p2']
+            else:
+                print("     no rec['p2'] -> keep rec['p1']=%s, neglect article-id=%s" % (rec['p1'], spant))
+                
+#            else:
+#                print('  > may be article numer %s' % (span.text.strip()))
     #article type
     if 'citation_article_type' in rec:
         for at in rec['citation_article_type']:
@@ -405,6 +418,10 @@ for rec in prerecs:
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
+        if 'p2' in rec:
+            print('      %s %s, %s-%s' % (rec['jnl'], rec['vol'], rec['p1'], rec['p2']))
+        else:
+            print('      %s %s, %s' % (rec['jnl'], rec['vol'], rec['p1']))
         
 
                 
