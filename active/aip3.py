@@ -74,6 +74,8 @@ elif (jnl == 'aplqquantum'):
     jnlname = 'APL Quantum'
 elif (jnl == 'apr'):
     jnlname = 'Appl.Phys.Rev.'
+elif (jnl == 'aml'):
+    jnlname = 'APL Mach.Learn.'
 
 host = os.uname()[1]
 if host == 'l00schwenn':
