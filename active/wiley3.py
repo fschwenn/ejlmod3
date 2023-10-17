@@ -141,8 +141,25 @@ elif (jnl == 'cjoc'):
     jnlname = 'Chin.J.Chem.'
 elif (jnl == 'adfm'):
     issn = '1616-3028'
-    doitrunk = '10.1002/adfm.202214211'
+    doitrunk = '10.1002/adfm'
     jnlname = 'Adv.Funct.Mater.'
+elif (jnl == 'lpor'):
+    issn = '1863-8899'
+    doitrunk = '10.1002/lpor'
+    jnlname = 'Laser Photonics Rev.'
+elif (jnl == 'adma'):
+    issn = '1521-4095'
+    doitrunk = '10.1002/adma'
+    jnlname = 'Adv.Mater.'
+elif (jnl == 'anie'):
+    issn = '15213773'
+    doitrunk = '10.1002/anie'
+    jnlname = 'Angew.Chem.Int.Ed.'
+elif (jnl == 'jcc'):
+    issn = '1096-987x'
+    doitrunk = '10.1002/jcc'
+    jnlname = 'J.Comput.Chem.'
+    
 
     
 if skipalreadyharvested:
