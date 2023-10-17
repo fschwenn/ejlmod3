@@ -410,15 +410,6 @@ def ieee(number):
         if 'isFreeDocument' in gdm and gdm['isFreeDocument']:
             rec['pdf_url'] = urltrunc + gdm['pdfPath']
             rec['pdf_url'] = urltrunc + re.sub('iel7', 'ielx7', gdm['pdfPath'])
-            #download it NOW as availability may change quckly
-            doi1trunk = re.sub('\/.*', '', rec['doi'])
-            doi1 = re.sub('[\/\(\)]', '_', rec['doi'])
-            poufname = '%s/%s/%s.pdf' % (ppdfpath, doi1trunk, doi1)
-            if not os.path.isfile(poufname):
-                print('          -> download %s NOW as availability may change quckly' % (rec['pdf_url']))
-                time.sleep(10)
-                os.system('wget -T 300 -t 3 %s -O %s "%s"' % (useragent, poufname, rec['pdf_url']))
-                time.sleep(10)                                              
         if 'keywords' in gdm:
             for kws in gdm['keywords']:
                 for kw in kws['kwd']:
@@ -501,14 +492,18 @@ def ieee(number):
                               'Message from the Chair', 'IEEE Computer Society Jobs Board', 'Full Program',
                               'Get Published in the New IEEE Open Journal of the Computer Scoiety',
                               'IEEE Computer Society Jobs Board', 'Ieee Computer Society Jobs Board',
-                              'Message from the General Chair', 'Speakers']:
-
-#            if 'p1' in rec.keys():
-#                del rec['p1']
-#            if 'p2' in rec.keys():
-#                del rec['p2']
-#            rec['fc'] = 'kc'
-            
+                              'Message from the General Chair', 'Speakers', 'Sponsors and Organizers',
+                              'Copyright and Reprint Permission']:
+            if 'pdf_url'  in rec:
+                #download it NOW as availability may change quckly
+                doi1trunk = re.sub('\/.*', '', rec['doi'])
+                doi1 = re.sub('[\/\(\)]', '_', rec['doi'])
+                poufname = '%s/%s/%s.pdf' % (ppdfpath, doi1trunk, doi1)
+                if not os.path.isfile(poufname):
+                    print('          -> download %s NOW as availability may change quckly' % (rec['pdf_url']))
+                    time.sleep(10)
+                    os.system('wget -T 300 -t 3 %s -O %s "%s"' % (useragent, poufname, rec['pdf_url']))
+                    time.sleep(10)                                                          
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
     if recs:
