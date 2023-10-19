@@ -15,10 +15,10 @@ jnlfilename = 'THESES-WISCONSINMADISON-%s' % (ejlmod3.stampoftoday())
 # Initialize webdriver
 options = uc.ChromeOptions()
 options.binary_location='/opt/google/chrome/google-chrome'
-#options.binary_location='/opt/google/chrome/chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
-#driver = uc.Chrome(version_main=103, options=options)
-driver = uc.Chrome(options=options)
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 recs = []
@@ -41,7 +41,7 @@ def get_author(header):
 def get_sub_side(link, fc, aff):
     rec = {'keyw' : [], 'note' : []}
     rec['doi'] = '20.2000/WisconsinMadison/' + re.sub('\W', '', link[31:])
-    if skipalreadyharvested and rec['doi'] in alreadyharvested:
+    if skipalreadyharvested and rec['doi'] in alreadyharvested:        
         return
     print("[" + link + "] --> Harvesting Data")
     driver.get(link)
@@ -102,23 +102,27 @@ def get_sub_side(link, fc, aff):
                     rec['date'] = re.sub('.*([12]\d\d\d).*', r'\1', td.text.strip())
 
     recs.append(rec)
+    ejlmod3.printrecsummary(rec)
+    return
         
 
 
 def get_index_page(url, fc, aff):
     # Get Index page
     driver.get(url)
+    ejlmod3.printprogress('+', [[url]])
 
-    index_links = BeautifulSoup(driver.page_source, 'lxml').find_all('a', attrs={'class', 'item_path'})
-    for i in index_links:
-	#print '[https://search.library.wisc.edu'+i.get('href')+'] --> Harvesting data'
-        get_sub_side("https://search.library.wisc.edu" + i.get('href'), fc, aff)
-        sleep(10)
+    for div in BeautifulSoup(driver.page_source, 'lxml').find_all('div', attrs = {'class' : 'result-title'}):
+        for a in div.find_all('a'):
+            artlink = 'https://search.library.wisc.edu' + a['href']
+            ejlmod3.printprogress('-', [[artlink], [len(recs)]])
+            get_sub_side(artlink, fc, aff)
+            sleep(10)
 
 
 for (pages, dep, fc, aff) in departments:
     for page in range(1, pages+1):
-        ejlmod3.printprogress('-', [[dep], [page, pages]])
+        ejlmod3.printprogress('=', [[dep], [page, pages]])
         get_index_page("https://search.library.wisc.edu/search/system/browse?filter%5Bfacets%5D%5Bsubjects_facet"
                        "~Dissertations%2C+Academic%5D=yes&filter%5Bfacets%5D%5Bsubjects_facet~" + dep + "%5D=yes&page=" +
                        str(page) + "&sort=newest", fc, aff)
