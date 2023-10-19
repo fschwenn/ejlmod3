@@ -165,7 +165,7 @@ done = os.listdir(iopdirdone)
 for directory in iopdirarchive:
     done += os.listdir(directory)
 
-srv = pysftp.Connection(host="collection-service.iop.org", username="inspire_hep", private_key="/afs/desy.de/user/l/library/.ssh/iop/id_rsa")
+srv = pysftp.Connection(host="XXX", username="XXX", password="XXX")
 for datei in srv.listdir():
     if datei in done:
         print('%s already in done' % (datei))
