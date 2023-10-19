@@ -415,7 +415,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-washingtonustlouis3.py']),
         (3, ['theses-swansea3.py']),
         (3, ['theses-vanderbilt3.py']),
-        (3, ['theses-wisconsinmadison3.py']),
+        (3, ['theses-wisconsinmadison3XXX.py']),
         (3, ['theses-royalholloway3.py']),
         (2, ['theses-ucm3.py']),
         (3, ['theses-coloradostate3.py']),
@@ -677,6 +677,8 @@ for com in listofcommands:
         errors = re.sub('It looks like you.re parsing an XML document using an HTML parser. If this really is an HTML document', '', errors)
         errors = re.sub('.*GuessedAtParserWarning: No parser was explicitly specified.*', '    [kein expliziter Parser fuer BeautifulSoup angegeben]\n', errors)
         errors = re.sub('.*To get rid of this warning, pass the additional argument .features=lxml. to the BeautifulSoup constructor.*', '    [kein expliziter Parser fuer BeautifulSoup angegeben]\n', errors)
+        errors = re.sub('.*you can ignore or filter this warning. If it.s XML, you should know that using an XML parser.*', '', errors)
+        errors = re.sub('^warnings.warn\($', '', errors.strip())
         #detailed log
         logfil = open(logfile, "a")
         logfil.write('========={ %s }=========\n' % (' '.join([str(c) for c in com])))
