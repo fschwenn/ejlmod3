@@ -821,7 +821,7 @@ if not os.path.isdir(iopdirtmp):
 
 done = os.listdir(iopdirdone)
 todo = []
-srv = pysftp.Connection(host="files.consonance.app", username="iopp_inspire", password="XXXXXXXXXXXX", port=2222)
+srv = pysftp.Connection(host="XXX", username="XXX", password="XXX")
 for datei in srv.listdir():
     if datei in done:
         print('%s already in done' % (datei))
