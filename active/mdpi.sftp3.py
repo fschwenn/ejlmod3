@@ -161,7 +161,7 @@ if not os.path.isdir(tmppath):
 print('connect to ftp://download.mdpi.com') 
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
-srv = pysftp.Connection(host="download.mdpi.com", username="mdpi_public_ftp", password="j7kzfbf9RDiJnEuX", port=9922, cnopts=cnopts)
+srv = pysftp.Connection(host="download.mdpi.com", username="mdpi_public_ftp", password="XXXXXXXXXXXx", port=9922, cnopts=cnopts)
 srv.cwd('MDPI_corpus')
 srv.cwd(jnl)
 issueslocal = []

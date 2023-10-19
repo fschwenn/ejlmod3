@@ -383,8 +383,6 @@ def extractrecord(publisherfile):
 
 #getfilesfromserver
 if len(sys.argv) > 1 and sys.argv[1] == '-ftp':
-    #srv = pyftp.Connection(host="ftp.hindawi.com", username="INSPIRE", password="INA67hhA-@")
-    #filesatserver = srv.listdir()
     ftp = FTP("ftp.hindawi.com")
     ftp.login("INSPIRE", "XXXXXXXXXXXXXXx") 
     filesatserver = ftp.nlst()  
