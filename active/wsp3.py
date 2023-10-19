@@ -321,7 +321,7 @@ done = os.listdir(os.path.join(wspdir, 'done'))
 filestodo = []
 
 ftp = FTP("ftp.wspc.com.sg")
-ftp.login("inspire", "Ins!539Ws%")
+ftp.login("XXX", "XXX")
 ftp.cwd('journals')
 files = ftp.nlst()  #list of the zip.files
 numofskipped = 0
