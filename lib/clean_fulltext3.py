@@ -49,7 +49,9 @@ def clean_fulltext_jacow(inlines, pairmode=True, verbose=3):
     skipline = 0
     sessionline = 0
 
-    for line in inlines:
+    for (i, line) in enumerate(inlines):
+        if verbose > 10:
+            print('---{ %i/%i }---{ %i }---' % (i+1, len(inlines), len(outtext)))
         if skipline > 0:
             # don't add this line to fulltext
             skipline += -1
@@ -70,9 +72,9 @@ def clean_fulltext_jacow(inlines, pairmode=True, verbose=3):
             # collect everything up and incl. DOI in del_lines - this is repeated in the header
             if line:
                 del_lines.append(line)
-            if line.startswith('doi:10.18429/JACoW'):
+            if re.search('^ *doi: *10.18429/JACoW', line):
                 # get the article-id from the DOI
-                doi = line[4:]
+                doi = re.sub('.*?(10.*)', r'\1', line)
                 artid = doi.split('-')[-1]
         else:
             if line == artid:
