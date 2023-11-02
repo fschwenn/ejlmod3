@@ -9,6 +9,10 @@ import ejlmod3
 from inspirelabslib3 import *
 from clean_fulltext3 import clean_fulltext_jacow, clean_fulltext_moriond, clean_linebreaks, get_reference_section
 import sys
+import ssl
+from urllib3 import poolmanager
+from json import loads
+import time
 
 publisher = 'JACOW'
 tmppath = '/afs/desy.de/group/library/publisherdata/tmp/'
@@ -21,9 +25,14 @@ cnum = sys.argv[2]
 
 jnlfilename = 'jacow.%s' % (acronym)
 
-sourceurl = 'http://jacow.org/%s/html/inspire-%s.xml' % (acronym, acronym)
+sourceurl = 'http://jacow.org/%s/json/inspire-%s.jsonl' % (acronym, acronym)
+print(sourceurl)
 re_thisConf = re.compile(r'(?i)%s[^a-zA-Z]*%s' % (re.sub('\d.*','',acronym), acronym[-2:]))
 
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 re_number = re.compile(r'^\[(\d+)\]')
 def by_number(a):
@@ -54,7 +63,10 @@ def get_references(url, doi, clean='jacow'):
 #               os.system('wget -q -O %s%s %s' % (tmppath, filename, url))
             if not os.path.isfile('%s%s.pdf' % (pdfpath, doi1)):
                 os.system('wget -q -O %s%s.pdf %s' % (pdfpath, doi1, url))
+                time.sleep(1)
             os.system('/usr/bin/pdftotext %s%s.pdf %s%s.txt' % (pdfpath, doi1, tmppath, filename[:-4]))
+        if not os.path.isfile('%s%s.txt' % (tmppath, filename[:-4])):
+            return []
         #infile = codecs.EncodedFile(codecs.open('%s/%s.txt' % (tmppath, filename[:-4])),'utf8')
         #fulltext = infile.readlines()
         #fulltext = [line.decode("utf-8") for line in fulltext]
@@ -96,7 +108,7 @@ def get_references(url, doi, clean='jacow'):
         controlfile.write(fulltext.encode("utf-8"))
         controlfile.close()        
     
-    refs = extract_references_from_string(fulltext, is_only_references=False, override_kbs_files={'journals': '/opt/invenio/etc/docextract/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
+    refs = extract_references_from_string(fulltext, is_only_references=False, override_kbs_files={'journals': '/afs/desy.de/user/l/library/lists/journal-titles-inspire.py3.kb'}, reference_format="{title},{volume},{page}")
     references = []
     
     #mappings for references in JSON to MARC
@@ -155,133 +167,81 @@ def addDOI_thisConference(ref, base_doi, re_thisConf):
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
-req = urllib.request.Request(sourceurl, headers=hdr)
-sourcesoup = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+#os.system("wget -q -O /tmp/inspire-%s.jsonl %s" % (acronym, sourceurl))
+inf = open('/tmp/inspire-%s.jsonl' % (acronym))
+lines = inf.readlines()
+inf.close()
 
 nrec = 0
 info = {}
 licence = False
-records = sourcesoup.find_all('record')
-for record in records:
+for line in lines:    
     nrec += 1
+    jsonrecord = loads(line)
     rec = {'tc' : 'C', 'jnl' : 'JACoW', 'cnum' : cnum, 'acronym' : acronym, 'autaff' : [],
            'refs' : [], 'keyw' : []}
-    (p1, url) = ('-', False)
-    #URL
-    for df in record.find_all('datafield', attrs = {'tag' : '856'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'u'}):
-            url = sf.text.strip()
-    #DOI 
-    for df in record.find_all('datafield', attrs = {'tag' : '024', 'ind1' : '7'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            rec['doi'] = sf.text.strip()
-            jacow_doi = rec['doi'][9:].split('-')
-            base_doi = '10.18429/%s-%s' % (jacow_doi[0], jacow_doi[1])
-            if not re.search('10.18429\/jacow\-', rec['doi'], flags=re.IGNORECASE):
-                print('  invalid DOI?: %s' % (rec['doi']))
+    #DOI
+    if 'dois' in jsonrecord:
+        rec['doi'] = jsonrecord['dois'][0]['value']
+        jacow_doi = rec['doi'][9:].split('-')
+        base_doi = '10.18429/%s-%s' % (jacow_doi[0], jacow_doi[1])
+    elif 'urls' in jsonrecord:
+        rec['link'] = jsonrecord['urls'][0]['value']
     #find PDF
-    if not url and 'doi' in rec:
-        url = "http://jacow.org/%s/papers/%s.pdf" % (jacow_doi[1].lower(), jacow_doi[2].lower())         
-    if url:
-        if url[-4:].lower() == '.pdf':
-            if nrec < 10:
-                url_type = urllib.request.urlopen(url).info().get('Content-Type')
-                if not url_type == 'application/pdf':
-                    if first:
-                        print('  switch to accelconf')
-                        first = False
-                    url = url.replace("http://jacow.org/", "http://accelconf.web.cern.ch/AccelConf/") 
-                    url_type = urllib.urlopen(url).info().get('Content-Type')
-                    if not url_type == 'application/pdf':
-                        print('  still doesnt work:', url)
-                        url = None
-            if url:
-                rec['artlink'] = url
-                artid = url.split('/')[-1].split('.')[0]
-                if artid.upper() in badpdf:
-                    print('  No FFT for',url)
-                else:
-                    rec['FFT'] = url
-                    #add references
-                    references = get_references(url, rec['doi'])
-                    for ref in references:
-                        ref = addDOI_thisConference(ref, base_doi, re_thisConf)
-                        rec['refs'].append(ref)
-            else:
-                rec['artlink'] = url                           
+    if 'documents' in jsonrecord:
+        rec['FFT'] = jsonrecord['documents'][0]['url']
+        #add references
+        references = get_references(rec['FFT'], rec['doi'])
+        for ref in references:
+            ref = addDOI_thisConference(ref, base_doi, re_thisConf)
+            rec['refs'].append(ref)
         else:
-            rec['artlink'] = url
-    else:
-        print('  No URL found!')
-        print(record)
+            rec['artlink'] = rec['FFT'] 
     #ISBN
-    for df in record.find_all('datafield', attrs = {'tag' : '020'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            rec['isbn'] = sf.text.strip()
-            rec['tc'] = 'K'
+    if 'isbns' in jsonrecord:
+        rec['isbn'] = re.sub('-', '', jsonrecord['isbns'][0]['value'])
+        rec['tc'] = 'K'
     #license
-    for df in record.find_all('datafield', attrs = {'tag' : '540'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            licence = sf.text.strip() 
-            if not licence in ['CC-BY-4.0', 'Open Access']:
-                print('  Licence different:', licence)
-    if licence:
-        rec['license'] = {'statement' : licence}
+    if 'license' in jsonrecord:
+        rec['license'] = {'url' : jsonrecord['license'][0]['url']}
     #date
-    for df in record.find_all('datafield', attrs = {'tag' : '260'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'c'}):
-            rec['date'] = sf.text.strip()
+    if 'imprints' in jsonrecord:
+        rec['date'] = jsonrecord['imprints'][0]['date']
     #pubnote
-    for df in record.find_all('datafield', attrs = {'tag' : '773'}):
-        #article ID
-        for sf in df.find_all('subfield', attrs = {'code' : 'c'}):
-            p1 = sf.text.strip()
-            rec['p1'] = p1
-        #volume
-        for sf in df.find_all('subfield', attrs = {'code' : 'q'}):
-            rec['vol'] = sf.text.strip()
-            rec['acronym'] = sf.text.strip()
+    if 'publication_info' in jsonrecord:
+        if 'artid' in jsonrecord['publication_info'][0]:
+            rec['p1'] = jsonrecord['publication_info'][0]['artid']
+        rec['year'] = str(jsonrecord['publication_info'][0]['year'])
+        if 'journal_volume' in jsonrecord['publication_info'][0]:
+            rec['vol'] = jsonrecord['publication_info'][0]['journal_volume']
+            rec['acronym'] = jsonrecord['publication_info'][0]['conf_acronym']
+        if 'acronym' in jsonrecord['publication_info'][0]:
+            rec['vol'] = jsonrecord['publication_info'][0]['journal_volume']
+            rec['acronym'] = jsonrecord['publication_info'][0]['conf_acronym']
     #authors
-    for df in record.find_all('datafield', attrs = {'tag' : ['100', '700']}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            name = sf.text.strip()
-            if name in ['Schaa, Volker RW', 'Schaa, Volker R. W.']:
-                name = 'Schaa, Volker R.W.'
-            rec['autaff'].append([name])
-        for sf in df.find_all('subfield', attrs = {'code' : 'e'}):
-            rec['autaff'][-1][0] += ' (Ed.)'
-        for sf in df.find_all('subfield', attrs = {'code' : 'j'}):
-            rec['autaff'][-1].append(sf.text.strip())
-        for sf in df.find_all('subfield', attrs = {'code' : 'm'}):
-            rec['autaff'][-1].append('EMAIL:'+sf.text.strip())
-        for sf in df.find_all('subfield', attrs = {'code' : 'v'}):
-            rec['autaff'][-1].append(sf.text.strip())
-    #title
-    for df in record.find_all('datafield', attrs = {'tag' : '245'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            title = sf.text.strip()
-            rec['tit'] = title
-            if title in info:
-                print('  same title in %s and' % (p1))
-                print('                %s \n ' % (info[title]))
-                info[title] += p1
+    if 'authors' in jsonrecord:
+        for author in jsonrecord['authors']:
+            if rec['tc'] == 'C':
+                rec['autaff'].append([author['full_name']])
             else:
-                info[title] = p1                
+                rec['autaff'].append([author['full_name'] + ' (Ed.)'])
+            if 'raw_affiliations' in author:
+                for aff in author['raw_affiliations']:
+                    rec['autaff'][-1].append(aff['value'])                                 
+    #title
+    rec['tit'] = jsonrecord['titles'][0]['title']
     #pages
-    for df in record.find_all('datafield', attrs = {'tag' : '300'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', sf.text.strip())
     #abstract
-    for df in record.find_all('datafield', attrs = {'tag' : '520'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            rec['abs'] = sf.text.strip()
+    if 'abstracts' in jsonrecord:
+        rec['abs'] = jsonrecord['abstracts'][0]['value']
     #keywords
-    for df in record.find_all('datafield', attrs = {'tag' : '653', 'ind1' : '1'}):
-        for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
-            rec['keyw'].append(sf.text.strip())
+    if 'keywords' in jsonrecord:
+        for keyw in jsonrecord['keywords']:
+            rec['keyw'].append(keyw['value'])
     recs.append(rec)
-    ejlmod3.printprogress('==', [[nrec, len(records)], [p1]])
+    ejlmod3.printprogress('==', [[nrec, len(lines)]])
     ejlmod3.printrecsummary(rec)
+    #ejlmod3.printrec(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
