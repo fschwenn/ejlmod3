@@ -181,6 +181,11 @@ for (i, rec) in enumerate(prerecs):
     #abstract
     for div in apage.body.find_all('div', attrs = {'class' : 'abstractInFull'}):
         rec['abs'] = div.text.strip()
+    if not 'abs' in rec:
+        for div in apage.body.find_all('div', attrs = {'class' : 'hlFld-Abstract'}):
+            for h2 in div.find_all('h2'):
+                h2.decompose()
+            rec['abs'] = div.text.strip()        
     #pages
     for span in apage.body.find_all('span', attrs = {'class' : 'contentItemPageRange'}):
         pages = re.sub('[Pp]ages? *', '', span.text).strip()
