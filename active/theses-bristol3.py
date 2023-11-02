@@ -109,7 +109,9 @@ for rec in prerecs:
             continue
     #title
     if not 'tit' in rec.keys():
-        ejlmod3.metatagcheck(rec, artpage, ['og:title'])
+        ejlmod3.metatagcheck(rec, artpage, ['og:title', 'DC.identifier'])
+    else:
+        ejlmod3.metatagcheck(rec, artpage, ['DC.identifier'])
     #department
     for a in artpage.find_all('a', attrs = {'rel' : 'Organisation'}):
         dep = a.text.strip()
