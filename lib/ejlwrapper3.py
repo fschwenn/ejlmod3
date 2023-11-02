@@ -130,7 +130,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['oxfordjournals3.py', 'mnras', 1 + (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1, 'in_progress']),
         (1, ['oxfordjournals3.py', 'mnras', 1 + (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1, 'in_progress']),
         (1, ['oxfordjournals3.py', 'mnrasl', 1 + mnrasbignumber//4, '1', 'in_progress']),
-        (3, ['chicago3.py', 'bjps', prpryear, prpryear-1949, prprquarter]),
+        (3, ['chicago3XXX.py', 'bjps', prpryear, prpryear-1949, prprquarter]),
         (1, ['oxfordjournals3.py', 'mnras', 2 + mnrasbignumber//4, mnrasbignumber % 4 + 1, 'early']),
         (1, ['oxfordjournals3.py', 'mnras', 2 + (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1, 'early']),
         (1, ['oxfordjournals3.py', 'mnras', 2 + (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1, 'early']),
@@ -553,7 +553,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['siam3XXX.py', 'sjmaah', pryear-1968, prsixth]),
         (2, ['siam3XXX.py', 'sjoce3', pryear-1978, prsixth]),
         (2, ['degruyterjournals3.py', 'form', pryear, pryear-1988, prsixth]),
-        (3, ['degruyterjournals3.py', 'jnet', pryear, pryear-1988, prquarter]),
+        (3, ['degruyterjournals3.py', 'jnet', pryear, pryear-1975, prquarter]),
         (3, ['siam3XXX.py', 'siread', pryear-1958, prquarter]),
         (2, ['siam3XXX.py', 'smjcat', pryear-1971, prsixth]),
         (1, ['rinton3.py', 'qic']),
@@ -705,7 +705,11 @@ prfil = open(protocol, "a")
 prfil.write('\n' + 50*'-' +  shortreport + '\n\n')
 prfil.close()
 
-os.system('echo "%s" | mail -s "ejlwrapper3 finished"  florian.schwennsen@desy.de ' % (shortreport))
+print('====================')
+print(shortreport)
+print('====================')
+
+os.system('echo "%s" | mail -s "ejlwrapper3 finished"  florian.schwennsen@desy.de ' % (re.sub('"', "'", shortreport)))
 
 os.system('echo "ejlwrapper3 finished" >> '+logfile)
 prfil = open(protocol, "a")
