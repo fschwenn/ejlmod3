@@ -215,4 +215,4 @@ for (i, rec) in enumerate(recs):
             rec[oa] = 'https://epubs.siam.org/doi/pdf/%s?download=true' % (rec['doi'])            
     ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
