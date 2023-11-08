@@ -1125,7 +1125,8 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Half Title Page', 'Plenary/Invited Speech', 'Table of Contents', 'Information and Announcements',
             'Editorial —How to write a good letter for EPL', 'Calendar of events',
             'Authors Index', 'Masthead', "Publisher's Note", 'Acknowledgment',
-            'Index of Authors', 'Editorial Collaborators', 'Editor’s note']
+            'Index of Authors', 'Editorial Collaborators', 'Editor’s note',
+            'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
