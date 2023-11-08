@@ -94,7 +94,7 @@ if not divs:
 for div in divs:
     for label in div.find_all('label'):
         level0note = label.text.strip()
-    for div2 in div.find_all('div', attrs = {'class' : 'row'}):
+    for div2 in div.find_all('div', attrs = {'class' : ['row', 'col-md-12']}):
         for h2 in div2.find_all('h2'):
             level1note = h2.text.strip()
         for p in div2.find_all('p', attrs = {'class' : 'article-title'}):
