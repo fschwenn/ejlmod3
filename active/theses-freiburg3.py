@@ -73,12 +73,13 @@ for record in records:
     for df in record.find_all('datafield', attrs = {'tag' : '700'}):
         for sf in df.find_all('subfield', attrs = {'code' : '4'}):
             if sf.text == 'dgs':
-                rec['supervisor'].append([ sf.text.strip() ])
-                for sf2 in df.find_all('subfield', attrs = {'code' : '0'}):
-                    sft = sf2.text.strip()
-                    if re.search('\(orcid\)', sft):
-                        rec['supervisor'][-1].append(re.sub('.*\)', 'ORCID:', sft))
-                rec['supervisor'][-1].append(publisher)
+                for sf2 in df.find_all('marc:subfield', attrs = {'code' : 'a'}):
+                    rec['supervisor'].append([ sf2.text.strip() ])
+                    for sf3 in df.find_all('subfield', attrs = {'code' : '0'}):
+                        sft = sf3.text.strip()
+                        if re.search('\(orcid\)', sft):
+                            rec['supervisor'][-1].append(re.sub('.*\)', 'ORCID:', sft))
+                    rec['supervisor'][-1].append(publisher)
     #PDF
     for df2 in record.find_all('datafield', attrs = {'tag' : '856'}):
         for sf2 in df2.find_all('subfield', attrs = {'code' : 'x'}):
