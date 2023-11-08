@@ -167,7 +167,7 @@ def addDOI_thisConference(ref, base_doi, re_thisConf):
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
-#os.system("wget -q -O /tmp/inspire-%s.jsonl %s" % (acronym, sourceurl))
+os.system("wget -q -O /tmp/inspire-%s.jsonl %s" % (acronym, sourceurl))
 inf = open('/tmp/inspire-%s.jsonl' % (acronym))
 lines = inf.readlines()
 inf.close()
