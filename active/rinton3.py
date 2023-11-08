@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import time
 
 publisher = 'Rinton Press'
-years = 1+4+2+4
+years = 1+4+2+4+2+2+2+2
 skipalreadyharvested = True
 
 jnl = sys.argv[1]
@@ -27,6 +27,10 @@ hdr = {'User-Agent' : 'Magic Browser'}
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
     alreadyharvested.append('10.26421/QIC16.13-14-4')
+    alreadyharvested.append('10.26421/QIC9.5-6-8')
+    alreadyharvested.append('10.26421/QIC9.3-4-8')
+    alreadyharvested.append('10.26421/QIC7.5-6-4')
+    alreadyharvested.append('10.26421/QIC5.4-5-4')
     
 print(tocurl)
 req = urllib.request.Request(tocurl, headers=hdr)
