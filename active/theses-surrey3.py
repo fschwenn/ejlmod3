@@ -193,6 +193,7 @@ undepartments = ['Department of Mechanical Engineering Sciences',
                  'Psychology.', 'Faculty of Arts and Social Sciences; School of Literature and Languages',                 
                  'Faculty of Health and Medical Sciences; School of Biosciences and Medicine',
                  'Faculty of Health and Medical Sciences; School of Veterinary Medicine',
+                 'School of Sustainability, Civil and Environmental Engineering',
                  'School of Management']
 
 
@@ -206,8 +207,14 @@ def get_sub_side(asset):
     if not ejlmod3.checkinterestingDOI(url):
         return
     ejlmod3.printprogress('-', [[url], [len(recs)]])
-    request = urllib.request.Request(url)
-    server_data = loads(urllib.request.urlopen(request).read())['esploroAssetForPortalFullAssetPage']
+    try:
+        request = urllib.request.Request(url)
+        server_data = loads(urllib.request.urlopen(request).read())['esploroAssetForPortalFullAssetPage']
+    except:
+        print('   ... try again')
+        sleep(60)
+        request = urllib.request.Request(url)
+        server_data = loads(urllib.request.urlopen(request).read())['esploroAssetForPortalFullAssetPage']
 
     rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'artlink' : url}
 
