@@ -152,7 +152,7 @@ elif (jnl == 'adma'):
     doitrunk = '10.1002/adma'
     jnlname = 'Adv.Mater.'
 elif (jnl == 'anie'):
-    issn = '15213773'
+    issn = '1521-3773'
     doitrunk = '10.1002/anie'
     jnlname = 'Angew.Chem.Int.Ed.'
 elif (jnl == 'jcc'):
@@ -199,15 +199,58 @@ print(toclink)
 driver.get(toclink)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 prerecs = []
+
+
+for divc in tocpage.find_all('div', attrs = {'class' : 'issue-items-container'}):
+    headline = divc.find_all('h3')
+    keepit = True
+    if len(headline) > 1 and headline[1].text.strip() == 'This article corrects the following:':
+        headtit = 'Corrigenda'
+        ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+    elif len(headline) == 1:
+        headtit = headline[0].text.strip()
+        ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+    else:
+        print(headline)
+        sys.exit(0)
+    if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
+        keepit = False
+    elif re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Graphical Abstract', 'Team profile', 'Team Profile', 'Obituary', 'Classifieds: Jobs and Awards, Products and Services']:
+        keepit = False
+    if keepit:
+        for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
+            for h2 in div.find_all('h2'):
+                tit = h2.text.strip()
+            rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
+                   'note' : [headtit], 'vol' : vol, 'issue' : issue, 'keyw' : []}
+            if jnl == 'pssa':
+                rec['vol'] = 'A'+vol
+            for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
+                rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
+                rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
+            if not rec['doi'] in alldois:
+                prerecs.append(rec)
+                alldois.append(rec['doi'])
+                print('      ', rec['doi'])
+    divc.decompose()
+
+print('')
 for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
+    keepit = True
     for h3 in div.find_all('h3'):
-        tit = h3.text.strip()
-        if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
-            continue
+        headtit = h3.text.strip()
+        if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
+            keepit = False
+        if re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Graphical Abstract',
+                                                                'Team profile', 'Team Profile',
+                                                                'Classifieds: Jobs and Awards, Products and Services']:
+            keepit = False
     for h2 in div.find_all('h2'):
         tit = h2.text.strip()
     if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
-        continue
+        keepit = False
+    if re.search('^Introducing .$', tit) or tit in ['Frontispiece', 'Graphical Abstract', 'Team profile', 'Classifieds: Jobs and Awards, Products and Services']:
+        keepit = False
     rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
            'note' : [], 'vol' : vol, 'issue' : issue, 'keyw' : []}    
     if jnl == 'pssa':
@@ -215,12 +258,13 @@ for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
     for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
         rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
         rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
-    if not rec['doi'] in alldois:
+    if keepit and not rec['doi'] in alldois:
         prerecs.append(rec)
         alldois.append(rec['doi'])
+        print('      ', rec['doi'])
 
-if not alldois:
-    print(tocpage)
+#if not alldois:
+#    print(tocpage)
     
 i = 0
 recs = []
@@ -254,6 +298,10 @@ for rec in prerecs:
                                             'citation_lastpage', 'citation_publication_date', 'citation_author',
                                             'citation_author_institution', 'citation_author_orcid',
                                             'citation_author_email'])#'citation_pdf_url' does not resolve
+    for span in artpage.find_all('span', attrs = {'class' : 'primary-heading'}):
+        if span.text.strip() in ['Frontispiece']:
+            print('    skip ', span.text)
+            continue
     if not 'p1' in rec:
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
             rec['p1'] = re.sub('.*, (.+?)\..*', r'\1', meta['content'].strip())
