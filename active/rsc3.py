@@ -33,10 +33,15 @@ options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
-
-driver.get(tocurl)
-time.sleep(5)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
+try:
+    driver.get(tocurl)
+    time.sleep(5)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+except:
+    time.sleep(120)
+    driver.get(tocurl)
+    time.sleep(5)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 recs = []
 for div in tocpage.find_all('div', attrs = {'class' : 'capsule--article'}):
@@ -68,8 +73,13 @@ for div in tocpage.find_all('div', attrs = {'class' : 'capsule--article'}):
 for (i, rec) in enumerate(recs):
     ejlmod3.printprogress('-', [[i+1, len(recs)], [rec['artlink']]])
     time.sleep(10)
-    driver.get(rec['artlink'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    try:
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+    except:
+        time.sleep(120)
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3. metatagcheck(rec, artpage, ['citation_title', 'citation_author', 'citation_author_institution',
                                          'citation_online_date', 'citation_volume', 'citation_issue',
                                          'citation_firstpage', 'citation_lastpage', 'citation_doi',
