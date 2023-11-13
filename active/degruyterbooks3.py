@@ -83,8 +83,13 @@ for (n, publisher, tocurl, jnlfilename) in todo:
     ejlmod3.printprogress('=', [[n, len(todo)], [publisher, serial], [tocurl]])
 
     driver.implicitly_wait(30)
-    driver.get(tocurl)
-    tocpage = BeautifulSoup(driver.page_source, features='lxml')
+    try:
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features='lxml')
+    except:
+        time.sleep(15)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features='lxml')
 
     #get volumes
     recs = []
@@ -133,7 +138,7 @@ for (n, publisher, tocurl, jnlfilename) in todo:
                     continue
                 #get details
                 artfilename = '/tmp/dg%s' % (re.sub('[\(\)\/]', '_', rec['doi']))
-                if not os.path.isfile(artfilename):
+                if not os.path.isfile(artfilename) or int(os.path.getsize(artfilename)) == 0:
                     time.sleep(10)
                     os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, rec['artlink']))
                 inf = open(artfilename, 'r')
@@ -191,11 +196,15 @@ for (n, publisher, tocurl, jnlfilename) in todo:
                                     h2.decompose()
                                     rec['autaff'].append([re.sub(',*', '', div.text.strip())])
                 if not rec['autaff']:
+                    for li in volpage.find_all('li', attrs = {'class=' : 'contributors-EDITOR '}):
+                        for span in li.find_all('span', attrs = {'class' : 'displayName'}):
+                            rec['autaff'].append([spant.text.strip() + ' (Ed.)'])
+                if not rec['autaff']:
                     for div in volpage.find_all('div', attrs = {'class' : 'productInfo'}):
                         for h3 in div.find_all('h3'):
                             if re.search('[Aa]uthor information', h3.text) or re.search('[Aa]uthor *\/ *[eE]ditor information', h3.text) :
                                 for div2 in div.find_all('div', attrs = {'class' : 'metadataInfoFont'}):
-                                    for s in div2.find_all('strong'):
+                                    for s in div2.find_all(['strong', 'b', 'B']):
                                         rec['autaff'].append([s.text.strip()])
                                         s.decompose()
                                     if rec['autaff']:
