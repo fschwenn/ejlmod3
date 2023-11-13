@@ -50,17 +50,19 @@ for (i, tr) in enumerate(trs):
             rec['fc'] += 'a'
         elif note == 'Computing and Data Handling':
             rec['fc'] += 'c'
-        elif note == 'Dark Matter':
+        elif note in ['Dark Matter', 'Workshop on Tensions in Cosmology']:
             rec['fc'] += 'a'
         elif note == 'Detectors for Future Facilities, R&D, novel techniques':
             rec['fc'] += 'i'
-        elif note == 'Formal Theory':
+        elif note in ['Formal Theory', 'Workshop on Holography and the Swampland',
+                      'Workshop on Holography and the Swampland',
+                      'Workshop on Noncommutative and Generalized Geometry in String Theory, Gauge Theory and Related Physical Models']:
             rec['fc'] += 't'
         elif note == 'Operation, Performance and Upgrade (incl. HL-LHC) of Present Detectors':
             rec['fc'] += 'i'
         elif note == 'S02-AA Astronomy and Astrophysics':
             rec['fc'] = 'a'
-        elif note == 'S03-GC Gravitation and Cosmology':
+        elif note in ['S03-GC Gravitation and Cosmology', 'Workshop on Features of a Quantum de Sitter Universe']:
             rec['fc'] = 'g'
         elif note == 'S06-CMPSP Condensed Matter Physics and Statistical Physics':
             rec['fc'] = 'f'
