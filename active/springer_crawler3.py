@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+ # -*- coding: UTF-8 -*-
 #program to crawl Springer
 # FS 2017-02-22
 # FS 2022-09-26
@@ -71,7 +71,7 @@ def get_records(url):
             if len(sys.argv) > 5:
                 rec['cnum'] = cnum
                 rec['tc'] = 'K'
-            ejlmod3.metatagcheck(rec, pages[url], ['doi'])
+            ejlmod3.metatagcheck(rec, pages[url], ['doi', 'prism.volume', 'prism.number'])
             #editors
             for div in pages[url].find_all('div', attrs = {'data-test' : 'editor-info'}):
                 rec['autaff'] = []
@@ -110,7 +110,10 @@ def get_records(url):
     if len(numpag) > 0:
         if re.search('^\d+$', numpag[0].string):
             for i in range(int(numpag[0].string)):
-                tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
+                if re.search('\?', url):
+                    tocurl = '%s&page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
+                else:
+                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+1)  + '#toc'
                 if not tocurl in list(pages.keys()):
                     print(tocurl)
                     try:
@@ -151,7 +154,10 @@ def get_records(url):
                     if re.search('^\d$', li['data-page']):
                         dp = int(li['data-page'])
             for i in range(dp-1):
-                tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+2)
+                if re.search('\?', url):
+                    tocurl = '%s&page=%i' % (re.sub('#toc$', '', url), i+2)
+                else:
+                    tocurl = '%s?page=%i' % (re.sub('#toc$', '', url), i+2)
                 if not tocurl in list(pages.keys()):
                     print(tocurl)
                     page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl)
@@ -193,12 +199,12 @@ def get_records(url):
             for li in section.find_all('li', attrs = {'class' : 'c-card'}):                
                 for h3 in li.find_all('h3', attrs = {'data-title' : 'part-title'}):
                     foundsection = True
-                    print('    ', h3.text.strip())
+                    print('    ---', h3.text.strip())
                     note = h3.text.strip()
                     for h4 in li.find_all('h4'):
                         rec = {'jnl' : jnl, 'autaff' : [], 'note' : [note]}
                         rec['tit'] = h4.text.strip()
-                        print('      ', rec['tit'])
+                        print('      .', rec['tit'])
                         if booktitle:
                             rec['note'].append(booktitle)
                             if 'isbns' in recs[0] and recs[0]['isbns']:
@@ -214,9 +220,28 @@ def get_records(url):
                                 else:
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
+                    for h5 in li.find_all('h5'):
+                        rec = {'jnl' : jnl, 'autaff' : [], 'note' : [note]}
+                        rec['tit'] = h5.text.strip()
+                        print('        .', rec['tit'])
+                        if booktitle:
+                            rec['note'].append(booktitle)
+                            if 'isbns' in recs[0] and recs[0]['isbns']:
+                                rec['motherisbn'] = recs[0]['isbns'][0][0][1]
+                        for a in h5.find_all('a'):
+                            if a.has_attr('href'):
+                                if re.search('https?:', a['href']):
+                                    rec['artlink'] = a['href']
+                                else:
+                                    rec['artlink'] = urltrunc + a['href']
+                                if rec['artlink'] in artlinks:
+                                    print('   %s alredady in list' % (rec['artlink']))
+                                else:
+                                    recs.append(rec)
+                                    artlinks.append(rec['artlink'])
         if not foundsection:
             for h3 in page.find_all('h3', attrs = {'class' : 'c-card__title'}):
-                print('    ', h3.text.strip())
+                print('    ~', h3.text.strip())
                 rec = {'jnl' : jnl, 'autaff' : [], 'note' : []}
                 rec['tit'] = h3.text.strip()
                 for a in h3.find_all('a'):
@@ -256,9 +281,9 @@ for rec in prerecs:
     if len(sys.argv) > 5:
         rec['cnum'] = cnum
         rec['tc'] = 'C'
+#        rec['motherisbn'] = '9783034890786'
     elif vol == '0' or jnl == 'BOOK':
          rec['tc'] = 'S'
-         #rec['motherisbn'] = '9789811930799'
          #rec['fc'] = 'g'
     else:
         rec['tc'] = 'P'
@@ -416,6 +441,7 @@ for rec in prerecs:
                 for p in div.find_all('p'):
                     rec['abs'] = p.text.strip()
     if keepit:
+        rec['tit'] = re.sub('\\\\\(', '$', re.sub('\\\\\)', '$', rec['tit']))
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
         if 'p2' in rec:
