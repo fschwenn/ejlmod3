@@ -10,7 +10,7 @@ import codecs
 from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
-
+from selenium.webdriver.common.by import By
 
 publisher = 'OSA Publishing'
 typecode = 'P'
@@ -50,13 +50,16 @@ urltrunk = 'https://www.osapublishing.org/%s/issue.cfm?volume=%s&issue=%s' % (jn
 urltrunk = 'https://opg.optica.org/%s/issue.cfm?volume=%s&issue=%s' % (jnl, vol, issue)
 print(urltrunk)
 
+downloadpath = '/tmp'
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+
 options = uc.ChromeOptions()
 #options.headless=True
 #options.binary_location='/usr/bin/chromium-browser'
 #options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
-options.add_argument('--headless')
+####options.add_argument('--headless')
 #options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
 #options.add_argument("--user-data-dir=/home/library/chrome")
@@ -68,6 +71,7 @@ options.add_argument('--headless')
 #options.add_argument("--no-sandbox")
 #options.add_argument("--disable-setuid-sandbox")
 #options.add_argument("--disable-dev-shm-usage")
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 #driver = uc.Chrome(options=options)
@@ -75,8 +79,6 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.get(urltrunk)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 time.sleep(10)
-
-
 
 done = ['https://www.osapublishing.org/josab/abstract.cfm?uri=josab-36-7-E112']
 if skipalreadyharvested:
@@ -221,10 +223,31 @@ for rec in prerecs:
             rec['refs'].append([('x', ref)])
     if not rec['autaff']:
         del rec['autaff']
+    
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
-    time.sleep(40-i/10)
+    #store pdf - but only for QIS as OSA likes to block
+    for rec2 in recs:
+        if 'FFT' in rec2 and 'fc' in rec2 and 'k' in rec2['fc']:
+            targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec2['doi']), re.sub('[\(\)\/]', '_', rec2['doi']))
+            if os.path.isfile(targetfilename):
+                print('     %s already exists' % (targetfilename))
+            else:
+                savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec2['FFT']))
+                if not os.path.isfile(savedfilename):            
+                    print('     get %s from %s' % (savedfilename, rec2['FFT']))
+                    driver.get(rec2['FFT'])
+                    time.sleep(30)
+                if os.path.isfile(savedfilename):
+                    print('     mv %s to %s' % (savedfilename, targetfilename))
+                    os.system('mv %s %s' % (savedfilename, targetfilename))
+                    time.sleep(300)
+                else:
+                    print('     COULD NOT DOWNLOAD PDF')
+
+
+
+
     ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+    time.sleep(40-i/10)
 
-
-    
