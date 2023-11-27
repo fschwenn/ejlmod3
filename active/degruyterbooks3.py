@@ -187,6 +187,10 @@ for (n, publisher, tocurl, jnlfilename) in todo:
                                 for strong in div.find_all('strong'):
                                     rec['autaff'].append([strong.text.strip()])
                 if not rec['autaff']:
+                    for li in volpage.find_all('li', attrs = {'class=' : 'contributors-EDITOR'}):
+                        for span in li.find_all('span', attrs = {'class' : 'displayName'}):
+                            rec['autaff'].append([spant.text.strip() + ' (Ed.)'])
+                if not rec['autaff']:
                     for div in volpage.find_all('div', attrs = {'class' : 'productInfo'}):
                         for h2 in div.find_all('h2'):
                             if re.search('Author', h2.text):
@@ -196,17 +200,15 @@ for (n, publisher, tocurl, jnlfilename) in todo:
                                     h2.decompose()
                                     rec['autaff'].append([re.sub(',*', '', div.text.strip())])
                 if not rec['autaff']:
-                    for li in volpage.find_all('li', attrs = {'class=' : 'contributors-EDITOR '}):
-                        for span in li.find_all('span', attrs = {'class' : 'displayName'}):
-                            rec['autaff'].append([spant.text.strip() + ' (Ed.)'])
-                if not rec['autaff']:
                     for div in volpage.find_all('div', attrs = {'class' : 'productInfo'}):
                         for h3 in div.find_all('h3'):
                             if re.search('[Aa]uthor information', h3.text) or re.search('[Aa]uthor *\/ *[eE]ditor information', h3.text) :
                                 for div2 in div.find_all('div', attrs = {'class' : 'metadataInfoFont'}):
                                     for s in div2.find_all(['strong', 'b', 'B']):
-                                        rec['autaff'].append([s.text.strip()])
-                                        s.decompose()
+                                        st = s.text.strip()
+                                        if len(st) > 2:
+                                            rec['autaff'].append([s.text.strip()])
+                                            s.decompose()
                                     if rec['autaff']:
                                         rec['autaff'][-1].append(div2.text.strip())
                                     else:
