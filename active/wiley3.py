@@ -20,9 +20,9 @@ skipalreadyharvested = True
 bunchsize = 10
 jnl = sys.argv[1]
 vol = sys.argv[2]
-issue = sys.argv[3]
+issues = sys.argv[3]
 year = sys.argv[4]
-jnlfilename = re.sub('\/','-',jnl+vol+'.'+issue+'_'+ejlmod3.stampoftoday())
+jnlfilename = re.sub('\/','-',jnl+vol+'.'+re.sub(',', '-', issues)+'_'+ejlmod3.stampoftoday())
 donepath = '/afs/desy.de/group/library/publisherdata/wiley/done'
 #harvested vi desydoc
 if   (jnl == 'annphys'):
@@ -186,95 +186,96 @@ else:
     driver = uc.Chrome(version_main=chromeversion, options=options)
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
-print("%s %s, Issue %s" %(jnlname,vol,issue))
-if re.search('1111',doitrunk):
-    toclink = '%s/%s.%s.%s.issue-%s/issuetoc' % (urltrunk,doitrunk,year,vol,issue)
-    toclink = 'https://nyaspubs.onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
-else:
-    toclink = '%s/%s.v%s.%s/issuetoc' % (urltrunk,doitrunk,vol,issue)
-    toclink = 'https://onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
-print(toclink)
-
-#tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
-driver.get(toclink)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
 prerecs = []
-
-
-for divc in tocpage.find_all('div', attrs = {'class' : 'issue-items-container'}):
-    headline = divc.find_all('h3')
-    keepit = True
-    if len(headline) > 1 and headline[1].text.strip() == 'This article corrects the following:':
-        headtit = 'Corrigenda'
-        ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
-    elif len(headline) > 1 and headline[1].text.strip() == 'Correction(s) for this article':
-        headtit = headline[0].text.strip()
-        ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
-    elif len(headline) == 1:
-        headtit = headline[0].text.strip()
-        ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+for issue in re.split(',', issues):
+    print("%s %s, Issue %s" %(jnlname,vol,issue))
+    if re.search('1111',doitrunk):
+        toclink = '%s/%s.%s.%s.issue-%s/issuetoc' % (urltrunk,doitrunk,year,vol,issue)
+        toclink = 'https://nyaspubs.onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
     else:
-        print(headline)
-        sys.exit(0)
-    if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
-        keepit = False
-    elif re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Announcement', 'Graphical Abstract',
-                                                              'Team profile', 'Team Profile', 'Obituary',
-                                                              'Classifieds: Jobs and Awards, Products and Services',
-                                                              'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY',
-                                                              'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
-                                                              'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
-                                                              'Back Cover', 'Covers']:
-        keepit = False
-    if keepit:
-        for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
-            for h2 in div.find_all('h2'):
-                tit = h2.text.strip()
-            rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
-                   'note' : [headtit], 'vol' : vol, 'issue' : issue, 'keyw' : []}
-            if jnl == 'pssa':
-                rec['vol'] = 'A'+vol
-            for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
-                rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
-                rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
-            if not rec['doi'] in alldois:
-                prerecs.append(rec)
-                alldois.append(rec['doi'])
-                print('      ', rec['doi'])
-    divc.decompose()
+        toclink = '%s/%s.v%s.%s/issuetoc' % (urltrunk,doitrunk,vol,issue)
+        toclink = 'https://onlinelibrary.wiley.com/toc/%s/%s/%s/%s'  % (issn[:4]+issn[5:], year, vol, issue)
+    ejlmod3.printprogress('##', [[issue, issues], [toclink]])
 
-print('>>>')
-for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
-    keepit = True
-    for h3 in div.find_all('h3'):
-        headtit = h3.text.strip()
+    #tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+
+    for divc in tocpage.find_all('div', attrs = {'class' : 'issue-items-container'}):
+        headline = divc.find_all('h3')
+        keepit = True
+        if len(headline) > 1 and headline[1].text.strip() == 'This article corrects the following:':
+            headtit = 'Corrigenda'
+            ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+        elif len(headline) > 1 and headline[1].text.strip() in ['Correction(s) for this article', 'This article relates to:', 'This article retracts the following:', 'Retraction(s) for this article']:
+            headtit = headline[0].text.strip()
+            ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+        elif len(headline) == 1:
+            headtit = headline[0].text.strip()
+            ejlmod3.printprogress('~', [[headtit], [len(prerecs)]])
+        else:
+            print(headline)
+            sys.exit(0)
         if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
             keepit = False
-        if re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Announcement', 'Graphical Abstract',
-                                                                'Team profile', 'Team Profile',
-                                                                'Classifieds: Jobs and Awards, Products and Services',
-                                                                'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY', 'PERSPECTIVE',
-                                                                'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
-                                                                'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
-                                                                'Back Cover', 'Covers']:
+        elif re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Announcement', 'Graphical Abstract',
+                                                                  'Team profile', 'Team Profile', 'Obituary', 'Editorials',
+                                                                  'Classifieds: Jobs and Awards, Products and Services',
+                                                                  'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY',
+                                                                  'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
+                                                                  'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
+                                                                  'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial']:
             keepit = False
-    for h2 in div.find_all('h2'):
-        tit = h2.text.strip()
-    if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
-        keepit = False
-    if re.search('^Introducing .$', tit) or tit in ['Frontispiece', 'Announcement', 'Graphical Abstract', 'Team profile', 'Classifieds: Jobs and Awards, Products and Services']:
-        keepit = False
-    rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
-           'note' : [], 'vol' : vol, 'issue' : issue, 'keyw' : []}    
-    if jnl == 'pssa':
-        rec['vol'] = 'A'+vol
-    for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
-        rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
-        rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
-    if keepit and not rec['doi'] in alldois:
-        prerecs.append(rec)
-        alldois.append(rec['doi'])
-        print('      ', rec['doi'])
+        if keepit:
+            for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
+                for h2 in div.find_all('h2'):
+                    tit = h2.text.strip()
+                rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
+                       'note' : [headtit], 'vol' : vol, 'issue' : issue, 'keyw' : []}
+                if jnl == 'pssa':
+                    rec['vol'] = 'A'+vol
+                for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
+                    rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
+                    rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
+                if not rec['doi'] in alldois:
+                    prerecs.append(rec)
+                    alldois.append(rec['doi'])
+                    print('      ', rec['doi'])
+        divc.decompose()
+
+    print('>>>')
+    for div in tocpage.find_all('div', attrs = {'class' : 'issue-item'}):
+        keepit = True
+        for h3 in div.find_all('h3'):
+            headtit = h3.text.strip()
+            if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
+                keepit = False
+            if re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Announcement', 'Graphical Abstract',
+                                                                    'Team profile', 'Team Profile',
+                                                                    'Classifieds: Jobs and Awards, Products and Services',
+                                                                    'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY', 'PERSPECTIVE',
+                                                                    'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
+                                                                    'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
+                                                                    'Back Cover', 'Covers', 'Cover Image']:
+                keepit = False
+        for h2 in div.find_all('h2'):
+            tit = h2.text.strip()
+        if tit == 'Contents' or re.search('^Issue Information', tit) or re.search('^Cover Picture', tit) or re.search('^Cover Image', tit) or re.search('^Masthead', tit):
+            keepit = False
+        if re.search('^Introducing .$', tit) or tit in ['Frontispiece', 'Announcement', 'Graphical Abstract', 'Team profile', 'Classifieds: Jobs and Awards, Products and Services']:
+            keepit = False
+        rec = {'tit' : tit, 'year' : year, 'jnl' : jnlname, 'autaff' : [],
+               'note' : [], 'vol' : vol, 'issue' : issue, 'keyw' : []}    
+        if jnl == 'pssa':
+            rec['vol'] = 'A'+vol
+        for a in div.find_all('a', attrs = {'class' : 'issue-item__title'}):
+            rec['doi'] = re.sub('.*\/(10\..*)', r'\1', a['href'])
+            rec['artlink'] = 'https://onlinelibrary.wiley.com' + a['href']
+        if keepit and not rec['doi'] in alldois:
+            prerecs.append(rec)
+            alldois.append(rec['doi'])
+            print('      ', rec['doi'])
+    time.sleep(random.randint(70, 130))
 
 #if not alldois:
 #    print(tocpage)
@@ -286,7 +287,6 @@ for rec in prerecs:
     typecode = 'P'
     keepit = True
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['doi']], [rec['artlink']]])
-    time.sleep(random.randint(70, 130))
     try:
         #artpage = BeautifulSoup(scraper.get(rec['artlink']).text, features="lxml")
         driver.get(rec['artlink'])
@@ -417,4 +417,6 @@ for rec in prerecs:
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
         ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+    time.sleep(random.randint(70, 130))
+
 os.system('touch %s/%s' % (donepath, jnlfilename[:-11]))
