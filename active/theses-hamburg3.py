@@ -14,9 +14,10 @@ import time
 publisher = 'U. Hamburg (main)'
 jnlfilename = 'THESES-HAMBURG-%s' % (ejlmod3.stampoftoday())
 
-pages = 3
+pages = 1
+pagesmultiplier = 10
 skipalreadyharvested = True
-rpp = 50
+rpp = 20 # andere Werte gehen eh nicht
 years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -26,6 +27,7 @@ if skipalreadyharvested:
 
 prerecs = []
 recs = []
+artlinks = []
 for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
     ejlmod3.printprogress("=", [[fac]])
     for page in range(pages):
@@ -36,7 +38,7 @@ for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
         for tr in tocpage.body.find_all('tr'):
             for td in tr.find_all('td', attrs = {'headers' : 't1'}):
-                rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : []}
+                rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
                 if fac == '510+Mathematik':
                     rec['fc'] = 'm'
                 elif fac == '004+Informatik':
@@ -45,9 +47,33 @@ for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
                     rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
                     if ejlmod3.checknewenoughDOI(rec['artlink']):
                         prerecs.append(rec)
+                        artlinks.append(rec['artlink'])
         print('  %4i records so far' % (len(prerecs)))
 
+
+
+#stopped DDC :-(
+for page in range(pages*pagesmultiplier):
+    time.sleep(3)
+    tocurl = 'https://ediss.sub.uni-hamburg.de/handle/ediss/2?sort_by=2&order=DESC&rpp=' + str(rpp) + '&offset=' + str(page*rpp)
+    ejlmod3.printprogress("=", [['all'], [page+1, pages*pagesmultiplier], [tocurl]])
+    req = urllib.request.Request(tocurl, headers=hdr)
+    tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
+    for tr in tocpage.body.find_all('tr'):
+        for td in tr.find_all('td', attrs = {'headers' : 't1'}):
+            rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
+            for a in td.find_all('a'):
+                rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
+                if ejlmod3.checknewenoughDOI(rec['artlink']) and not rec['artlink'] in artlinks:
+                    if ejlmod3.checkinterestingDOI(rec['artlink']):
+                        prerecs.append(rec)
+                        artlinks.append(rec['artlink'])
+    print('  %4i records so far' % (len(prerecs)))
+    
+    
+
 for (i, rec) in enumerate(prerecs):
+    keepit = True
     ejlmod3.printprogress("-", [[i+1, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features='lxml')
@@ -64,19 +90,42 @@ for (i, rec) in enumerate(prerecs):
                                         'DCTERMS.issued', 'DC.subject', 'language',
                                         'DC.Identifier', 'DC.identifier', 'citation_pdf_url',
                                         'DC.contributor'])
+    #DDC
+    for meta in artpage.find_all('meta', attrs = {'scheme' : 'DCTERMS.DDC'}):
+        if meta.has_attr('content'):
+            #print(meta['content'], meta['content'][:3], meta['content'][0])
+            if meta['content'][:3] == '004':
+                rec['fc'] = 'c'
+            elif meta['content'][:3] == '510':
+                rec['fc'] = 'm'
+            elif meta['content'][0] in ['1', '2', '3', '4', '6', '7', '8', '9']:
+                keepit = False
+                print('   skip "%s"' % (meta['content']))
+            elif meta['content'][1] in ['5', '6', '7', '8', '9'] or meta['content'][:3] == '020':
+                keepit = False
+                print('   skip "%s"' % (meta['content']))
+            else:
+                rec['note'].append('DDC:::' + meta['content'])
+    ejlmod3.globallicensesearch(rec, artpage)
     rec['autaff'][-1].append(publisher)
-#        for meta in artpage.head.find_all('meta'):
+
+# invalid HTML: <td class="metadataFieldLabel">Betreuer*in:&nbsp;</td><td class="metadataFieldValue">Parak,&#x20;Wolfgang<br />Torres,&#x20;Neus</td></tr>
+    
+ #        for meta in artpage.head.find_all('meta'):
 #            if meta.has_attr('name'):#
                 #supervisor
 #                elif meta['name'] == 'DC.contributor':
 #                    rec['supervisor'].append([re.sub(' *\(.*', '', meta['content'])])
-    if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
-        print('    already in backup')
-    elif 'date' in rec and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
-        print('    too old')
-        ejlmod3.addtoooldDOI(rec['artlink'])
+    if keepit:
+        if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
+            print('    already in backup')
+        elif 'date' in rec and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+            print('    too old')
+            ejlmod3.addtoooldDOI(rec['artlink'])
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     else:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        ejlmod3.adduninterestingDOI(rec['artlink'])
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
