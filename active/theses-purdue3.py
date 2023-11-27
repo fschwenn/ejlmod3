@@ -117,7 +117,7 @@ uninterestingsubjects = ['Chemistry', 'Biochemistry', 'Organic chemistry',
                          "Occupational safety", "Occupational Therapy", "Operations Research", "Pacific Rim Studies",
                          "Packaging", "Parasitology", "Petroleum engineering", "Pharmacy sciences",
                          "Physical anthropology", "Physiological psychology", "Planetology", "Plant biology",
-                         "Political Science, International Law and Relations",
+                         "Political Science, International Law and Relations", "Military studies",
                          "Political Science, International Relations", "Psychobiology", "Psychology, Cognitive",
                          "Psychology, General", "Psychology, Industrial", "Reading instruction", "Recreation",
                          "Religion, History of", "Religious history", "School administration", "School counseling",
@@ -197,12 +197,17 @@ for rec in prerecs:
                     #subjects
                     elif h4t == 'Subject Area':
                         for subj in re.split('\|', child.text.strip()):
-                            rec['note'].append(subj)
                             if subj in uninterestingsubjects:
                                 print('   skip "%s"' % (subj))
                                 interesting = False
                             elif subj in ["Computational physics", "Computer science"]:
                                 rec['fc'] = 'c'
+                            elif subj in ["Mathematics"]:
+                                rec['fc'] = 'm'
+                            elif subj in ["Astronomy"]:
+                                rec['fc'] = 'a'
+                            else:
+                                rec['note'].append(subj)
     #license           
     for table in artpage.body.find_all('table', attrs = {'class' : 'ep_block'}):
         for a in table.find_all('a'):
