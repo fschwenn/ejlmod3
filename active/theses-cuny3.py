@@ -151,7 +151,9 @@ boring += ['American Politics', 'Environmental Studies', 'International Relation
            "Systems and Communications", "Systems Architecture", "Systems Engineering", "Urology",
            "Teacher Education and Professional Development", "Translational Medical Research", "Urban Education",
            "Urban Studies and Planning", "Virus Diseases", "German Language and Literature",
-           "Instructional Media Design", "Social Welfare"]
+           "Instructional Media Design", "Social Welfare", "Psychiatric and Mental Health Nursing",
+           "Advertising and Promotion Management", "Behavioral Disciplines and Activities",
+           "Other Neuroscience and Neurobiology", "Other Rhetoric and Composition"]
 tocurl = 'https://academicworks.cuny.edu/gc_etds'
 
 prerecs = []
@@ -217,7 +219,14 @@ for rec in prerecs:
             for category in re.split(' \| ', p.text.strip()):
                 if category in boring:
                     keepit = False
-                else:
+                elif category in ['Computer and Systems Architecture', 'Computer Sciences']:
+                    rec['fc'] = 'c'
+                elif category in ['Condensed Matter Physics']:
+                    rec['fc'] = 'f'
+                elif category in ['Discrete Mathematics and Combinatorics']:
+                    rec['fc'] = 'm'
+                elif not category in ['Elementary Particles and Fields and String Theory',
+                                      'Other Physics', 'Physics']:
                     rec['note'].append('CATEGORY=%s' % (category))
     #supervisor
     for div in artpage.body.find_all('div', attrs = {'id' : ['advisor1', 'advisor2']}):
