@@ -29,7 +29,7 @@ else:
 
 
 # uninteresting journals:
-juninteresting = ['JBBBE', 'JBBTE', 'MSF', 'RC', 'FoMSE', 'SC', 'EI', 'SBC', 'MSFo', 'CTA', 'EC', 'SBA']
+juninteresting = ['JBBBE', 'JBBTE', 'MSF', 'RC', 'FoMSE', 'SC', 'EI', 'SBC', 'MSFo', 'CTA', 'EC', 'SBA', 'EH']
 # interesting journals:
 jninteresting = ['AMM', 'AMR', 'DDF', 'AEF', 'SSP', 'KEM', 'JERA', 'JNanoR', 'AST']
 #dictionary of journal names
