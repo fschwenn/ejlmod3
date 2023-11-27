@@ -76,6 +76,8 @@ elif (jnl == 'apr'):
     jnlname = 'Appl.Phys.Rev.'
 elif (jnl == 'aml'):
     jnlname = 'APL Mach.Learn.'
+elif (jnl == 'mre'):
+    jnlname = 'Matter Radiat.Extremes'
 
 host = os.uname()[1]
 if host == 'l00schwenn':
@@ -102,11 +104,12 @@ if skipalreadyharvested:
     if jnl == 'apc':
         filestosearch += '%s/*%s*doki ' % (dokidir, 'aipcp')
         filestosearch += '%s/*%s*doki ' % (dokidir, 'aipconf')
-    for i in range(3-1):
-        filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, jnl)
+    for i in range(3):
+        filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, jnl)
+        filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, jnl)
         if jnl == 'apc':
-            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, 'aipcp')
-            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i-1, 'aipconf')
+            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, 'aipcp')
+            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, 'aipconf')
     alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep pubs.aip.org | sed 's/^I..//' | sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), jnl))
     if len(alreadyharvested) > 2:
@@ -188,7 +191,8 @@ boring = ['ADVANCED MATERIALS AND NANOTECHNOLOGY FOR SUSTAINABLE ENERGY AND ENVI
 boring += ['FROM THE EDITOR', "READERS' FORUM", 'ISSUES AND EVENTS', 'BOOKS',
            'NEW PRODUCTS', 'OBITUARIES', 'QUICK STUDY', 'BACK MATTER', 'NOTES AND DISCUSSIONS',
            'BACK OF THE ENVELOPE', 'BOOK REVIEWS', 'READERS’ FORUM', 'AWARDS',
-           'ANNOUNCEMENTS', 'EDITORIALS', 'EDITORIAL', 'TUTORIAL', 'PERSPECTIVES']
+           'ANNOUNCEMENTS', 'EDITORIALS', 'EDITORIAL', 'TUTORIAL', 'PERSPECTIVES',
+           'INERTIAL CONFINEMENT FUSION PHYSICS']
 
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
 if jnl in ['aqs']:
