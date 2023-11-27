@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 #harvest UPenn, Philadelphia
 #FS: 2022-11-10
+#FS: 2023-11-23
 
-import getopt
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'UPenn, Philadelphia'
 pages = 6
-years = 2
+rpp = 40
 skipalreadyharvested = True
 boring = ['City & Regional Planning', 'Romance Languages', 'Cell & Molecular Biology',
           'History of Art', 'Applied Economics', 'Accounting', 'Africana Studies', 'Anthropology', 'Architecture',
@@ -28,51 +28,50 @@ boring = ['City & Regional Planning', 'Romance Languages', 'Cell & Molecular Bio
           'Social Welfare', 'Sociology', 'South Asia Regional Studies', 'History and Sociology of Science',
           'Immunology', 'Ancient History', 'Criminology', 'East Asian Languages & Civilizations',
           'Germanic Languages and Literature', 'Managerial Science and Applied Economics',
-          'Near Eastern Languages & Civilizations', 'Philosophy', 'Religious Studies',
-          'Earth & Environmental Science', 'Healthcare Systems', 'Insurance & Risk Management']
+          'Near Eastern Languages & Civilizations', 'Philosophy', 'Religious Studies', 'City and Regional Planning',
+          'Earth & Environmental Science', 'Healthcare Systems', 'Insurance & Risk Management',
+          'Art and Archaeology of the Mediterranean World', 'Biochemistry and Molecular Biophysics',
+          'Cell and Molecular Biology', 'Chief Learning Officer', 'East Asian Languages and Civilizations',
+          'Epidemiology and Biostatistics', 'Ethics and Legal Studies', 'Genomics and Computational Biology',
+          'Materials Science and Engineering', 'Mechanical Engineering and Applied Mechanics',
+          'Operations, Information and Decisions']
 
 jnlfilename = 'THESES-UPENN-%s' % (ejlmod3.stampoftoday())
 
-basetocurl = 'https://repository.upenn.edu/edissertations/index.'
-tocextension = 'html'
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 prerecs = []
 date = False
-for i in range(pages):
-    tocurl = basetocurl + tocextension
-    ejlmod3.printprogress('=', [[i+1, pages], [tocurl]])
+for page in range(pages):
+    tocurl = 'https://repository.upenn.edu/search?scope=34a5f2e5-48bc-428c-adf2-e3b1e2609515&configuration=diss-thesis-search&spc.page=' + str(page+1) + '&spc.sf=dc.date.accessioned&spc.sd=DESC&spc.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-        time.sleep(3)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        time.sleep(7)
     except:
         print("retry %s in 180 seconds" % (tocurl))
         time.sleep(180)
-        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-    for div in tocpage.body.find_all('div', attrs = {'id' : 'series-home'}):
-        for child in div.children:
-            try:
-                name = child.name
-            except:
-                continue
-            if name == 'h4':
-                for span in child.find_all('span'):
-                    date = span.text.strip()
-            elif name == 'p':
-                #year = int(re.sub('.*(20\d\d).*', r'\1', rec['date']))
-                if int(date) > ejlmod3.year(backwards=years):
-                    if child.has_attr('class') and 'article-listing' in child['class']:
-                        rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : []}
-                        for a in child.find_all('a'):                    
-                            rec['tit'] = a.text.strip()
-                            rec['link'] = a['href']
-                            a.replace_with('')
-                        if ejlmod3.checkinterestingDOI(rec['link']):
-                            prerecs.append(rec)
-    print('  ', len(prerecs))
-    tocextension = '%i.html' % (i+2)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    for article in tocpage.find_all('ds-truncatable', attrs={'class': 'ng-star-inserted'}):
+        for a in article.find_all('a', attrs={'target' : '_self'}):
+            if a.has_attr('href'):
+                rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : [],
+                       'supervisor' : [], 'keyw' : []}
+                rec['link'] = "https://repository.upenn.edu%s" % (a['href'])
+                if ejlmod3.checkinterestingDOI(rec['link']):
+                    prerecs.append(rec)
+    print('  ', len(prerecs),'records so far')
 
 i = 0
 recs = []
@@ -81,45 +80,92 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(3)
+        driver.get(rec['link'] + '/full')
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        time.sleep(7)
+        ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url', 'citation_title', 'citation_author'])
+        rec['autaff']
     except:
         print("retry %s in 180 seconds" % (rec['link']))
         time.sleep(180)
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ['description', 'bepress_citation_author', 'bepress_citation_pdf_url', 'bepress_citation_doi',
-                                        'bepress_citation_online_date'])
-    #supervisor
-    for div in artpage.body.find_all('div', attrs = {'id' : 'advisor1'}):
-        for p in div.find_all('p'):
-            rec['supervisor'] = [[ re.sub('^Dr. ', '', p.text.strip()) ]]
-    for div in artpage.body.find_all('div', attrs = {'id' : 'advisor2'}):
-        for p in div.find_all('p'):
-            rec['supervisor'].append( [re.sub('^Dr. ', '', p.text.strip())] )
-    #department
-    for div in artpage.body.find_all('div', attrs = {'id' : 'department'}):
-        for p in div.find_all('p'):
-            department = p.text.strip()
-            if department in boring:
+        driver.get(rec['link'] + '/full')
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url', 'citation_title', 'citation_author'])
+        time.sleep(1)
+    for tr in artpage.find_all('tr'):
+        tds = tr.find_all('td')
+        if len(tds) == 3:
+            th = tds[0].text.strip()
+            td = tds[1].text.strip()
+        # Get the author name
+        if th == 'dc.contributor.author':
+            rec['autaff'] = [[td]]
+        # Get the issued date
+        elif th == 'dc.date.issued':
+            rec['date'] = td
+        # Get the handle
+        elif th in ['dc.identifier.uri', 'identifier.uri']:
+            rec['hdl'] =re.sub('.*handle\/', '', td)
+            # Get the abstract
+        elif th in ['dc.description.abstract', 'abstract']:
+            rec['abs'] = td
+        # Get the keywords
+        elif th in ['dc.subject', 'subject']:
+            rec['keyw'].append(td)
+        # Get the title
+        elif th in ['dc.title', 'title']:
+            rec['tit'] = td
+        # Get the supervisor
+        elif th in ['supervisor', 'dc.contributor.supervisor', 'dc.contributor.advisor']:
+            rec['supervisor'].append([td])
+        # pages
+        elif th in ['dc.extent']:
+            rec['pages'] = td
+        # Check if it is a PhD
+        elif th == 'dc.description.degree':
+            if td != 'Doctor of Philosophy (PhD)':
+                if td in ['M.Sc.', 'B.Sc.', 'D.Sc.', 'M.A.', 'B.A.', "Master's degree",
+                          'Master of Applied Positive Psychology', 'Doctor of Social Work (DSW)',
+                          'Master of Science in Animal Welfare and Behavior (MSc AWB)',
+                          'Master of Science in Historic Preservation (MSHP)']:
+                    print('\tskip "%s"' % (td))
+                    keepit = False
+                else:
+                    rec['note'].append('DEGREE:::' + td)
+        #department
+        elif th in ['dc.contributor.department', 'upenn.graduate.group']:
+            if td in boring:
                 keepit = False
-            elif department in ['Computer Science', 'Computer and Information Science']:
+            elif td == 'Computer and Information Science':
                 rec['fc'] = 'c'
-            elif department in ['Applied Mathematics', 'Mathematics']:
-                rec['fc'] = 'm'
-                rec['autaff'][-1].append('Pennsylvania U., Dept. Math.')
-            elif department in ['Statistics']:
+            elif td == 'Statistics':
                 rec['fc'] = 's'
-                rec['autaff'][-1].append('Pennsylvania U., Dept. Math.')
-            elif department in ['Physics and Astronomy', 'Physics & Astronomy']:
-                rec['autaff'][-1].append('Pennsylvania U.')
+            elif td in ['Mathematics and Statistics', 'Mathematics',
+                        'Applied Mathematics and Computational Science']:
+                rec['fc'] = 'm'
             else:
-                rec['note'].append(department)
+                rec['note'].append('GROUP:::'+td)
+        #license
+        elif th == 'dc.rights.uri':
+            if re.search('creativecommons', td):
+                rec['license'] = {'url' : td}
+        #embargo
+        elif th == 'dc.embargo.liftdate':
+            rec['embargo'] = td
+            
     if keepit:
-        if len(rec['autaff'][-1]) == 1:
-            rec['autaff'][-1].append(publisher)
-        if not skipalreadyharvested or not '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:]) in alreadyharvested:
-            ejlmod3.printrecsummary(rec)
-            recs.append(rec)
+        if 'autaff' in rec:
+            if len(rec['autaff'][-1]) == 1:
+                rec['autaff'][-1].append(publisher)
+            if skipalreadyharvested and '20.2000/LINK/' + re.sub('\W', '', rec['link'][4:]) in alreadyharvested:
+                pass
+            elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
+                pass
+            else:
+                ejlmod3.printrecsummary(rec)
+                recs.append(rec)
+        else:
+            print('   not able to harvest')
     else:
         ejlmod3.adduninterestingDOI(rec['link'])
 
