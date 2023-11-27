@@ -15,7 +15,7 @@ publisher = 'Toronto U.'
 jnlfilename = 'THESES-TORONTO-%s' % (ejlmod3.stampoftoday())
 
 rpp = 50
-pages = 10
+pages = 20
 skipalreadyharvested = True
 boringdeps = ['Adult Education and Counselling Psychology', 'Aerospace Science and Engineering',
               'Anthropology', 'Applied Psychology and Human Development', 'Biochemistry',
@@ -38,10 +38,10 @@ boringdeps = ['Adult Education and Counselling Psychology', 'Aerospace Science a
               'Kinesiology and Physical Education', 'Laboratory Medicine and Pathobiology',
               'History and Philosophy of Science and Technology', 'History of Art', 'History',
               'Ecology and Evolutionary Biology', 'Economics', 'Electrical and Computer Engineering',
-              'Chemical Engineering Applied Chemistry', 'Chemistry', 'Women and Gender Studies Institute',
-              'Chemical Engineering Applied Chemistry', 'Germanic Languages and Literatures',
+              'Women and Gender Studies Institute',
+              'Germanic Languages and Literatures',
               'Sociology and Equity Studies in Education', 'Speech-Language Pathology', 'Italian Studies',
-              'Chemical Engineering Applied Chemistry', 'Chemical Engineering Applied Chemistry']
+              'Doctor of Medicine/Doctor of Philosophy', 'Slavic Languages and Literatures']
 
 hdr = {'User-Agent' : 'Magic Browser'}
 
