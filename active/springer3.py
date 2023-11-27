@@ -41,7 +41,7 @@ if cday == '-sftp':
     # deleting all files in PUB-dirs
     os.system("rm -rf %s/JOU* %s/BSE*" % (sprdir, sprdir))
     #get files from Springer server
-    srv = pysftp.Connection(host="", username="", password="")
+    srv = pysftp.Connection(host="XXX", username="XXX", password="XXX")
     filesatserver = srv.listdir('data/in')
     filesdone = os.listdir(os.path.join(sprdir, 'done'))
     filestodo = [zipfile for zipfile in filesatserver if zipfile not in filesdone]
@@ -222,13 +222,32 @@ jc['10948'] = ['jsnovm', 'J.Supercond.Nov.Mag.', '', '', 'P'] #! (requested 2022
 jc['00209'] = ['matz', 'Math.Z.', '', '', 'P'] #(requested 2022-09-15, added 2023-01-18)
 jc['11082'] = ['oqe', 'Opt.Quant.Electron.', '', '', 'P'] #(requested 2022-09-15, added 2023-01-18)
 jc['40094'] = ['jtap', 'J.Theor.Appl.Phys.', '', '', 'P'] #now at New publisher: Please contact Islamic Azad University
-#to be asked for
-jc['41928'] = ['natnanot', 'Nature Nanotech.', '', '', 'P'] 
-jc['41563'] = ['natmater', 'Nature Materials', '', '', 'P'] 
-jc['40009'] = ['nasl', 'Natl.Acad.Sci.Lett.', '', '', 'P'] 
-jc['00031'] = ['trgr', 'Transform.Groups', '', '', 'P']
-jc['43588'] = ['natcomsci', 'Nature Computat.Sci.', '', '', 'P']
-jc['00208'] = ['mathannalen', 'Math.Ann.', '', '', 'P']
+#asked for
+jc['00031'] = ['transfgr', 'Transform.Groups', '', '', 'P'] # requested on 2023-11-14
+jc['00037'] = ['compcompl', 'Comp.Complexity', '', '', 'P'] # requested on 2023-11-14
+jc['00205'] = ['armanal', 'Arch.Ration.Mech.Anal.', '', '', 'P'] # requested on 2023-11-14
+jc['00208'] = ['mathann', 'Math.Ann.', '', '', 'P'] # requested on 2023-11-14
+jc['00440'] = ['ptrfield', 'Probab.Theor.Related Fields', '', '', 'P'] # requested on 2023-11-14
+jc['00453'] = ['algorithmica', 'Algorithmica', '', '', 'P'] # requested on 2023-11-14
+jc['10455'] = ['annalsgag', 'Annals Global Anal.Geom.', '', '', 'P'] # requested on 2023-11-14
+jc['10623'] = ['dccryptogr', 'Des.Codes Cryptogr.', '', '', 'P'] # requested on 2023-11-14
+jc['10910'] = ['jmathchem', 'J.Math.Chem.', '', '', 'P'] # requested on 2023-11-14
+jc['10915'] = ['jscicomput', 'J.Sci.Comput.', '', '', 'P'] # requested on 2023-11-14
+jc['11038'] = ['earthmoonp', 'Earth Moon Planets', '', '', 'P'] # requested on 2023-11-14
+jc['11227'] = ['jsupercomput', 'J.Supercomput.', '', '', 'P'] # requested on 2023-11-14
+jc['40009'] = ['natlasl', 'Natl.Acad.Sci.Lett.', '', '', 'P'] # requested on 2023-11-14
+jc['40306'] = ['amvietnam', 'Acta Math.Vietnamica', '', '', 'P'] # requested on 2023-11-14
+jc['41115'] = ['livrevcompastr', 'Liv.Rev.Comput.Astrophys.', '', '', 'P'] # requested on 2023-11-14
+jc['41524'] = ['mpjcm', 'npj Computat.Mater.', '', '', 'P'] # requested on 2023-11-14
+jc['41563'] = ['natmaterials', 'Nature Materials', '', '', 'P'] # requested on 2023-11-14
+jc['41565'] = ['natnanotech', 'Nature Nanotech.', '', '', 'P'] # requested on 2023-11-14
+jc['41928'] = ['natelectron', 'Nature Electron.', '', '', 'P'] # requested on 2023-11-14
+jc['42484'] = ['quantmachint', 'Quantum Machine Intelligence ', '', '', 'P'] # requested on 2023-11-14
+jc['42979'] = ['sncomputsci', 'SN Comput.Sci.', '', '', 'P'] # requested on 2023-11-14
+jc['43246'] = ['communmater', 'Commun.Mater.', '', '', 'P'] # requested on 2023-11-14
+jc['43538'] = ['pindiannsa', 'Proc.Indian Natl.Sci.Acad.', '', '', 'P'] # requested on 2023-11-14
+jc['43588'] = ['natcomputatsci', 'Nature Computat.Sci.', '', '', 'P'] # requested on 2023-11-14
+
 
 #known conferences
 confdict = {'Proceedings of the 7th International Conference on Trapped Charged Particles and Fundamental Physics (TCP 2018), Traverse City, Michigan, USA, 30 September-5 October 2018' : 'C18-09-30',
