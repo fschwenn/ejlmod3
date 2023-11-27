@@ -20,13 +20,10 @@ startyear = str(ejlmod3.year(backwards=1))
 stopyear = str(ejlmod3.year())
 skipalreadyharvested = True
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = 'THESES-DIVA*doki'
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested('THESES-DIVA')
+else:
+    alreadyharvested = []
 
                 
 hdr = {'User-Agent' : 'Magic Browser'}
