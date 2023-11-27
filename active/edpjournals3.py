@@ -12,6 +12,7 @@ import sys
 import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
 
 maxtries = 7
 basewait = 60
@@ -63,12 +64,28 @@ else:
 
 print("get table of content (%s) ..." % (toclink))
 
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/chromium'
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 try:
-    tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
+    if host == 'l00schwenn':
+        driver.get(toclink)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    else:
+        tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
 except:
     print("wait 2 minutes, retry %s" % (toclink))
     time.sleep(120)
-    tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
+    if host == 'l00schwenn':
+        driver.get(toclink)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    else:
+        tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
 
 
 recs = []
@@ -91,7 +108,11 @@ for a in articleas:
     tries = 0
     while tries < maxtries:
         try:
-            artpage = BeautifulSoup(urllib.request.urlopen(artlink), features="lxml")
+            if host == 'l00schwenn':
+                driver.get(artlink)
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
+            else:
+                artpage = BeautifulSoup(urllib.request.urlopen(artlink), features="lxml")
             tries = 2*maxtries
         except:
             tries += 1
@@ -160,7 +181,11 @@ for a in articleas:
         reflink = re.sub('(.*\.org)\/.*', r'\1', toclink) + a['href']
         time.sleep(10)
         try:
-            refpage = BeautifulSoup(urllib.request.urlopen(reflink), features="lxml")
+            if host == 'l00schwenn':
+                driver.get(reflink)
+                refpage = BeautifulSoup(driver.page_source, features="lxml")
+            else:
+                refpage = BeautifulSoup(urllib.request.urlopen(reflink), features="lxml")
         except:
             print('    %s not found' % (reflink))
             break
