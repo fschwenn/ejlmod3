@@ -43,7 +43,7 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-
+urlswithoutauthors = []
 
 def get_subsite(url):
     if ejlmod3.checkinterestingDOI(url):
@@ -71,19 +71,19 @@ def get_subsite(url):
         elif th == 'date.issued':
             rec['date'] = td
         # Get the handle
-        elif th == 'identifier.uri':
+        elif th in ['dc.identifier.uri', 'identifier.uri']:
             rec['hdl'] =re.sub('.*handle\/', '', td)
             # Get the abstract
-        elif th == 'abstract':
+        elif th in ['dc.description.abstract', 'abstract']:
             rec['abs'] = td
         # Get the keywords
-        elif th == 'subject':
+        elif th in ['dc.subject', 'subject']:
             rec['keyw'].append(td)
         # Get the title
-        elif th == 'title':
+        elif th in ['dc.title', 'title']:
             rec['tit'] = td
         # Get the supervisor
-        elif th == 'supervisor':
+        elif th in ['supervisor', 'dc.contributor.supervisor']:
             rec['supervisor'].append([td])
         # Check if it is a PhD
         elif th == 'dc.description.degree':
@@ -110,10 +110,35 @@ def get_subsite(url):
         #license
         elif th == 'dc.rights.uri':
             rec['license'] = {'url' : td}
+        #embargo
+        elif th == 'dc.embargo.liftdate':
+            rec['embargo'] = td
+
+    #check embargo
+    if 'license' in rec and 'pdf_url' in rec and 'embargo' in rec:
+        if rec['embargo'] > ejlmod3.stampoftoday():
+            del rec['pdf_url']
+            print('   Embargo until %s :-(' % (rec['embargo']))
+
+
+    #authors:
+    if url == 'https://qspace.library.queensu.ca/items/b29b74bd-4e63-4f3a-ac0a-a872cbd6e962/full':
+        rec['autaff'] = [['Benjamin Sum Ki Tam', publisher]]
+    elif url == 'https://qspace.library.queensu.ca/items/50e68a83-21b1-49d1-ad8a-61d8f357843a/full':
+        rec['autaff'] = [['Poushimin, Rana', publisher]]
+    elif url == 'https://qspace.library.queensu.ca/items/065182a7-fad7-48ad-9f28-89753485d6c4/full':
+        rec['autaff'] = [['Dongze Wang', publisher]]
+    elif url == 'https://qspace.library.queensu.ca/items/b2ade516-b03a-4444-b1b9-b838422833cf/full':
+        rec['autaff'] = [['Sarakbi, Diana', publisher]]
+    elif url == 'https://qspace.library.queensu.ca/items/2e11f607-1685-4ee2-93dc-e768330ce805/full':
+        rec['autaff'] = [['Lebedev, Dmitry', publisher]]
+    
 
     if not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
+        if not 'autaff' in rec:
+            urlswithoutauthors.append(url)
     else:
         ejlmod3.printrecsummary(rec)
 
@@ -135,3 +160,5 @@ for page in range(pages):
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
+if urlswithoutauthors:
+    print(urlswithoutauthors)
