@@ -13,6 +13,9 @@ import time
 nr = sys.argv[1]
 vol = sys.argv[2]
 year = sys.argv[3]
+if not re.search('^[12]\d\d\d$', year):
+    print('nor a proper year')
+    sys.exit(0)
 #cnum = sys.argv[4]
 #fc = sys.argv[5]
 skipalreadyharvested = True
@@ -52,7 +55,7 @@ for (i, tr) in enumerate(trs):
             rec['fc'] += 'c'
         elif note in ['Dark Matter', 'Workshop on Tensions in Cosmology']:
             rec['fc'] += 'a'
-        elif note == 'Detectors for Future Facilities, R&D, novel techniques':
+        elif note in ['Detectors for Future Facilities, R&D, novel techniques', 'Future facilities']:
             rec['fc'] += 'i'
         elif note in ['Formal Theory', 'Workshop on Holography and the Swampland',
                       'Workshop on Holography and the Swampland',
