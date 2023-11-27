@@ -48,10 +48,10 @@ alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     filenametrunc = 'ieee*doki'
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
     filenametrunc = 'IEEE*doki'
     print('%i records in backup' % (len(alreadyharvested)))
-    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
+    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
     print('%i records in backup' % (len(alreadyharvested)))
 alreadyharvested.append('http://ieeexplore.ieee.org/document/10189126/')
 alreadyharvested.append('http://ieeexplore.ieee.org/document/10188200/')
@@ -160,6 +160,8 @@ def translatejnlname(ieeename):
         jnlname = 'IEEE J.Quant.Electron.'
     elif ieeename in ['IEEE Access']:
         jnlname = 'IEEE Access'
+    elif ieeename in ['IEEE Journal of Solid-State Circuits']:
+        jnlname = 'IEEE J.Solid State Circuits'
     elif ieeename in ["IEEE Symposium Conference Record Nuclear Science 2004.",
                       "IEEE Nuclear Science Symposium Conference Record, 2005"]:
         jnlname = 'BOOK'
