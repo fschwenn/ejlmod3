@@ -3,6 +3,11 @@
 #JH+FS: 2021-11-04
 #FS: 2023-01-10
 
+
+
+#https://hdl.handle.net/1911/13110
+#https://repository.rice.edu/search?scope=5aa4da72-3dd6-4196-9ca2-0eb55538e94e&spc.page=1&f.degreelevel=Doctoral,equals&spc.sf=dc.date.issued&spc.sd=DESC&spc.rpp=100
+
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 from time import sleep
