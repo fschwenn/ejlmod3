@@ -38,7 +38,7 @@ for div in tocpage.body.find_all('div', attrs = {'id' : 'series-home'}):
             name = child.name
         except:
             continue
-        if name == 'h4':
+        if name in ['h3', 'h4']:
             for span in child.find_all('span'):
                 date = span.text.strip()
         elif name == 'p':
