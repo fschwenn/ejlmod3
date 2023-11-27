@@ -21,7 +21,7 @@ publisher = 'Vienna, Tech. U.'
 hdr = {'User-Agent' : 'Magic Browser'}
 
 rpp = 20
-pages = 20
+pages = 20+20+40
 skipalreadyharvested = True
 boringinstitutes = ['E360', 'E017', 'E017', 'E105', 'E120', 'E163', 'E164', 'E165',
                     'E186', 'E187', 'E188', 'E194', 'E259', 'E311', 'E315', 'E322',
@@ -51,7 +51,7 @@ for page in range(pages):
     for tr in tocpage.body.find_all('tr'):
         for a in tr.find_all('a'):
             if a.has_attr('href') and re.search('handle\/20.500', a['href']):
-                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'keyw' : [], 'oa' : False}
+                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'keyw' : [], 'oa' : False, 'supervisor' : []}
                 rec['hdl'] = re.sub('.*?(20.500.*)', r'\1', a['href'])
                 rec['artlink'] = 'https://repositum.tuwien.at' + a['href']
                 for img in tr.find_all('img', attrs = {'title' : 'Open Access'}):
@@ -86,10 +86,10 @@ for rec in prerecs:
     for meta in artpage.head.find_all('meta'):
         if meta.has_attr('name'):
             #supervisor
-            if meta['name'] == 'DC.contributor':
-                rec['supervisor'] = [[ meta['content'] ]]
+            #if meta['name'] == 'DC.contributor':
+            #    rec['supervisor'] = [[ meta['content'] ]]
             #keywords
-            elif meta['name'] == 'citation_keywords':
+            if meta['name'] == 'citation_keywords':
                 for keyw in re.split('[,;] ', meta['content']):
                     if not keyw in ['Thesis', 'Hochschulschrift']:
                         rec['keyw'].append(keyw)
@@ -112,10 +112,16 @@ for rec in prerecs:
             #ORCID of supervisor
             elif metadataFieldLabel == 'Advisor:':
                 for a in td.find_all('a'):
-                    if a.has_attr('href') and re.search('orcid.org', a['href']):
-                        rec['supervisor'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+                    if a.has_attr('href'):
+                        if re.search('authority', a['href']):
+                            rec['supervisor'].append([a.text.strip()])
+                        elif re.search('orcid.org', a['href']):
+                            rec['supervisor'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+            #pages
+            elif metadataFieldLabel == 'Number of Pages:':
+                rec['pages'] = td.text.strip()
             #institute
-            elif metadataFieldLabel == 'Organisation:':
+            elif metadataFieldLabel in ['Organisation:', 'Organisational Unit:']:
                 institute = td.text.strip()
                 if institute[:4] in boringinstitutes:
                     print('  skip "%s"' % (institute[:4]))
