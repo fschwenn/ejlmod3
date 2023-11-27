@@ -86,7 +86,10 @@ for (i, artlink) in enumerate(artlinks):
     refpage = BeautifulSoup(urllib.request.urlopen(reflink), features='lxml')
     for li in refpage.find_all('li'):
         rec['refs'].append([('x', li.text.strip())])
-    
+
+
+    rec['doi'] = '10.4204/EPTCS.%s.%i' % (rec['vol'], i+1)
+        
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
 
