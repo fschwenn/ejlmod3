@@ -532,9 +532,15 @@ for (aff, payload) in payloads:
     for page in range(pages):
         payload['page'] = page+1
         ejlmod3.printprogress('=', [[i, len(payloads)], [payload]])
-        response = requests.post(apiurl, json=payload, headers={"authorization": auth}, timeout=120, verify=False)
-        response.raise_for_status()  # will raise an exception if there's an error
-        r = response.json()
+        try:
+            response = requests.post(apiurl, json=payload, headers={"authorization": auth}, timeout=120, verify=False)
+            response.raise_for_status()  # will raise an exception if there's an error
+            r = response.json()
+        except:
+            time.sleep(300)
+            response = requests.post(apiurl, json=payload, headers={"authorization": auth}, timeout=120, verify=False)
+            response.raise_for_status()  # will raise an exception if there's an error
+            r = response.json()            
         for article in r:
             rec = {'url_public_api' : article['url_public_api'], 'autaff' : [], 'note' : [payload['search']], 'jnl' : jnl}
             if aff:
