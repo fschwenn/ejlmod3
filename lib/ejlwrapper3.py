@@ -122,7 +122,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['oxfordjournals3.py', 'imrn', pryear, 2*prmonth]),
         (1, ['oxfordjournals3.py', 'mnras', mnrasbignumber//4, mnrasbignumber % 4 + 1]),
         (1, ['oxfordjournals3.py', 'mnras', (mnrasbignumber+1)//4, (mnrasbignumber+1)%4 + 1]),
-        (1, ['edpjournals3.py', 'aanda', pryear, prmonth]),
+        (1, ['edpjournals3XXX.py', 'aanda', pryear, prmonth]),
         (1, ['oxfordjournals3.py', 'mnras', (mnrasbignumber+2)//4, (mnrasbignumber+2)%4 + 1]),
         (1, ['oxfordjournals3.py', 'mnrasl', mnrasbignumber//4, '1']),
         (2, ['scipost3.py', 'sps', 2*(pryear-2016) + (prmonth-1)//6, (prmonth -1) % 6 +1]),
@@ -185,7 +185,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-durham3.py']),
         (1, ['sciencemag3XXX.py', 'sciadv', pryear]),
         (2, ['theses-southampton3.py']),
-        (2, ['theses-imperial3.py']),
+        (1, ['theses-imperial3.py']),
         (2, ['theses-bern3.py']),
         (2, ['theses-edinburgh3.py']),
         (2, ['theses-kyoto3.py']),
@@ -210,14 +210,14 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-valencia3.py']),
         (2, ['theses-bielefeld3.py']),
         (2, ['theses-cracow3.py']),
-        (2, ['theses-cornell3.py']),
+        (1, ['theses-cornell3.py']),
         (1, ['theses-texasam3.py']),
         (2, ['theses-gent3.py']),
         (2, ['theses-mainz3.py']),
         (1, ['theses-texas3.py']),
         (2, ['theses-johnhopkins3.py']),
         (2, ['theses-sidney3XXX.py']),
-        (2, ['theses-toronto3.py']),
+        (1, ['theses-toronto3.py']),
         (2, ['theses-arizona3.py']),
         (2, ['theses-carleton3.py']),
         (2, ['theses-duke3.py']),
@@ -235,7 +235,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-shodganga3.py', 'Physics', '201', '500']),
         (1, ['theses-mpg3.py']),
         (3, ['theses-shodganga3.py', 'Math', '1', '50']),
-        (2, ['theses-harvard3XXX.py']),
+        (1, ['theses-harvard3XXX.py']),
         (3, ['theses-shodganga3.py', 'Math', '51', '100']),
         (1, ['theses-ucla3.py', 'ucsb']),
         (3, ['theses-shodganga3.py', 'Math', '101', '150']),
@@ -301,7 +301,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-qucosa3XXX.py', 'dresden']),
         (2, ['theses-northcarolina3.py']),
         (2, ['theses-gsi3.py']),
-        (2, ['theses-osti3.py']),
+        (2, ['theses-osti3XXX.py']),
         (3, ['theses-brown3.py']),
         (3, ['theses-lancaster3.py']),
         (3, ['theses-warwick3.py']),
@@ -458,8 +458,8 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-cyprus3XXX.py']),
         (2, ['theses-barcelonapolytech3XXX.py']),
         (1, ['mitbooks3.py']),
-        (2, ['theses-puebla3.py']),
-        (2, ['theses-westernaustralia3.py']),
+        (2, ['theses-puebla3XXX.py']),
+        (2, ['theses-westernaustralia3XXX.py']),
         (2, ['theses-bergen3.py']),
         (3, ['theses-warwick3.py']),
         (1, ['sppu3.py', 'jpm']),
@@ -567,6 +567,15 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['princetonbooks3XXX.py']),
         (3, ['siam3XXX.py', 'sjaabq', pryear-2016, prquarter]),
         (2, ['muse3.py', '5']),
+        (3, ['osa3XXX.py', 'aop', pryear-2008, prquarter]),
+        (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4]),
+        (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4-1]),
+        (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4-2]),
+        (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4-3]),
+        (3, ['aip3YYY.py', 'aml', pryear-2022, prquarter]),
+        (3, ['theses-embryriddle3.py']),
+        (1, ['theses-bremen3.py']),
+        (2, ['aip3YYY.py', 'mre', pryear-2015, prsixth]),
         #
         (1, ['theses-tokyo3.py']),
         (1, ['theses-cds3.py'])]
@@ -620,7 +629,7 @@ if (today.weekday() == 0):
     prfil.write(' - pubdbweb3.py\n')
 #IOP books still old workflow, do IOP journals 6 times per week
 if (today.day % 7 == 0):
-    listofcommands.append(['iopbooks3.py'])
+    listofcommands.append(['iopbooks3XXX.py'])
     prfil.write(' - iopbooks3.py\n')
 else:
     listofcommands.append(['iop3.py'])
@@ -657,7 +666,7 @@ for com in listofcommands:
         logfil.write('========={ %s }=========\n  has to run on laptop\n\n' % (' '.join([str(c) for c in com])))
         logfil.close()
         #summary to bes        
-        shortreport += '\n-@l00schwenn: ~/Envs/inspire3-python3.8/bin/python %s/%s\n\n' % (lproc['python3'], kommando)
+        shortreport += '\n-@l00schwenn: nice -10 ~/Envs/inspire3-python3.8/bin/python %s/%s\n\n' % (lproc['python3'], kommando)
         prfil = open(protocol, "a")
         prfil.write('  {could not do} ' + kommando + '\n')
         prfil.close()
