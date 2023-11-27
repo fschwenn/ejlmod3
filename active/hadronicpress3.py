@@ -71,18 +71,31 @@ for article in tocpage.body.find_all('article'):
                     sup.replace_with('XXXAff%s= ' % (st))
                     rec['aff'] = re.split('XXX', p.text.strip())[1:]
             else:
-                for strong in strongs[1:]:
-                    st = strong.text.strip()
-                    strong.replace_with(' YYY ' + st + ' XXX ')
-                for br in p.find_all('br'):
-                    br.replace_with(' ')
-                for autaff in re.split(' +YYY +', re.sub('^.*?YYY *', '', re.sub('[\n\t\r]', ' ', p.text.strip()))):            
-                    parts = re.split(' +XXX +', autaff)
-                    if re.search(' and ', parts[0]):
-                        for aparts in re.split(' and ', parts[0]):
-                            rec['autaff'].append([aparts] + parts[1:])
-                    else:
-                        rec['autaff'].append(parts)
+                if re.search('\(1\)', strongs[1].text):
+                    del(rec['autaff'])
+                    st = re.sub('\((\d+)\), ', r', =Aff\1, ', strongs[1].text.strip())
+                    st = re.sub('(\d+)\)', r', =Aff\1, ', st)
+                    st = re.sub(', (\d+) ', r', =Aff\1, ', st)
+                    st = re.sub('\((\d+) ', r', =Aff\1, ', st)
+                    st = re.sub(', (\d+) ', r', =Aff\1, ', st)
+                    st = re.sub(', *,', ',', st)
+                    rec['auts'] = re.split(' *, *', st.strip())
+                    strongs[1].decompose()
+                    pt = re.sub('\((\d+)\)', r'XXXAff\1= ', p.text.strip())
+                    rec['aff'] = re.split('XXX', pt.strip())
+                else:                    
+                    for strong in strongs[1:]:
+                        st = strong.text.strip()
+                        strong.replace_with(' YYY ' + st + ' XXX ')
+                    for br in p.find_all('br'):
+                        br.replace_with(' ')
+                    for autaff in re.split(' +YYY +', re.sub('^.*?YYY *', '', re.sub('[\n\t\r]', ' ', p.text.strip()))):            
+                        parts = re.split(' +XXX +', autaff)
+                        if re.search(' and ', parts[0]):
+                            for aparts in re.split(' and ', parts[0]):
+                                rec['autaff'].append([aparts] + parts[1:])
+                        else:
+                            rec['autaff'].append(parts)
             recs.append(rec)
             ejlmod3.printrec(rec)
     if not recs:
