@@ -59,7 +59,7 @@ for i in range(pages):
                     name = child.name
                 except:
                     continue
-                if name == 'h4':
+                if name in ['h4', 'h3']:
                     for span in child.find_all('span'):
                         date = span.text.strip()
                 elif name == 'p':
