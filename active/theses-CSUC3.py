@@ -20,11 +20,9 @@ rpp = 10
 pages = 1
 skipalreadyharvested = True
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    alreadyharvested = eljmod3.getalreadyharvested(jnlfilename) + eljmod3.getalreadyharvested('THESES-BarcelonaAutonomaU')
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename) + ejlmod3.getalreadyharvested('THESES-BarcelonaAutonomaU')
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
