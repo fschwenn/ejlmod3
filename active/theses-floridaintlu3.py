@@ -24,7 +24,7 @@ tocextension = 'html'
 boringdepartments = ['English', 'Electrical Engineering', 'International Relations', 'International Studies',
                      'Civil Engineering', 'Adult Education and Human Resource Development', 'Biochemistry',
                      'Biology', 'Biomedical Engineering', 'Biomedical Sciences', 'Business Administration',
-                     'Chemistry', 'Computer Engineering', 'Construction Management',
+                     'Chemistry', 'Computer Engineering', 'Construction Management', 'Cognitive Neuroscience',
                      #'Computer Science',
                      'Creative Writing', 'Curriculum and Instruction', 'Dietetics and Nutrition',
                      'Earth Systems Science', 'Economics', 'Educational Administration and Supervision',
