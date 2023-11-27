@@ -13,41 +13,100 @@ import time
 import undetected_chromedriver as uc
 
 publisher = 'Harvard U. (main)'
-jnlfilename = 'THESES-HARVARD-%s' % (ejlmod3.stampoftoday())
+jnlfilename = 'THESES-HARVARD-%sC' % (ejlmod3.stampoftoday())
 
 rpp = 20
-numofpages = 1
+years = 2+30
 skipalreadyharvested = True
-departments = [('m', 'Mathematics'), ('', 'Physics'), ('a', 'Astronomy'), ('c', 'Computer+Science')]
+departments = [('m', 'Mathematics', 1), ('', 'Physics', 1), ('a', 'Astronomy', 1),
+               ('c', 'Computer+Science', 1), ('', '_ALL_', 10)]
+departments = [('', '_ALL_', 108)]
+bunchsize = 10
+
+
+boring = ['Social+Policy', 'Chemistry+and+Chemical+Biology', 'Medical+Sciences',
+          'Population+Health+Sciences', 'Anthropology', 'History+of+Art+and+Architecture',
+          'Economics', 'Biology%2C+Molecular+and+Cellular', 'Government',
+          'English', 'German', 'French', 'Spanish', 'Public+Policy', 
+          'East+Asian+Languages+and+Civilizations', 'Music', 'American+Studies',
+          'History', 'Slavic+Languages+and+Literatures', 'Education', 'Chemical+Biology',
+          'Architecture%2C+Landscape+Architecture+and+Urban+Planning',
+          'Organizational+Behavior', 'Middle+Eastern+Studies+Committee',
+          'Systems+Biology', 'Sociology', 'Linguistics', 'Business+Administration',
+          'Religion%2C+Committee+on+the+Study+of', 'Comparative+Literature',
+          'Psychology', 'Biology%2C+Organismic+and+Evolutionary', 'Biostatistics',
+          'African+and+African+American+Studies', 'Romance+Languages+and+Literatures',
+          'Classics', 'Health+Policy', 'Political+Economy+and+Government',
+          'South+Asian+Studies', 'Near+Eastern+Languages+and+Civilizations',
+          'Germanic+Languages+and+Literatures', 'Business+Economics',
+          'Biological+Sciences+in+Public+Health', 'Film+and+Visual+Studies',
+          'Human+Evolutionary+Biology', 'Biological+Sciences+in+Dental+Medicine',
+          'Inner+Asian+and+Altaic+Studies']
+
+
+
 
 options = uc.ChromeOptions()
 options.binary_location='/opt/google/chrome/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-#driver = uc.Chrome(version_main=chromeversion, options=options)
-driver = uc.Chrome( options=options)
+driver = uc.Chrome(version_main=chromeversion, options=options)
+#driver = uc.Chrome( options=options)
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
-for (fc, dep) in departments:
+fakedois = []
+for (fc, dep, numofpages) in departments:
     for i in range(numofpages):
-        tocurl = 'https://dash.harvard.edu/handle/1/4927603/browse?type=department&value=%s&rpp=%i&sort_by=2&type=dateissued&offset=%i&etal=-1&order=DESC' % (dep, rpp, i*rpp)
+        if dep == '_ALL_':
+            tocurl = 'https://dash.harvard.edu/handle/1/4927603/browse?rpp=%i&sort_by=2&type=dateissued&offset=%i&etal=-1&order=DESC' % (rpp, i*rpp+420)
+        else:
+            tocurl = 'https://dash.harvard.edu/handle/1/4927603/browse?type=department&value=%s&rpp=%i&sort_by=2&type=dateissued&offset=%i&etal=-1&order=DESC' % (dep, rpp, i*rpp)
         ejlmod3.printprogress("-", [[dep], [i+1, numofpages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
         time.sleep(10)
         for rec in ejlmod3.getdspacerecs(tocpage, 'https://dash.harvard.edu', fakehdl=True):
             if fc: rec['fc'] = fc
-            prerecs.append(rec)
+            if not rec['doi'] in fakedois:
+                #department
+                year = False
+                keepit = True
+                if 'degrees' in rec:
+                    for degree in rec['degrees']:
+                        if degree in boring:
+                            keepit = False
+                            #print('    skip "%s"' % (degree))
+                        elif not degree in ['Harvard+University+Graduate+School+of+Arts+and+Sciences',
+                                            'Doctoral', 'Ph.D.', 'AB', 'Physics', 'A.B.', 
+                                            'Engineering+and+Applied+Sciences+-+Engineering+Sciences',
+                                            'Engineering+and+Applied+Sciences+-+Applied+Physics',
+                                            'Engineering+and+Applied+Sciences+-+Applied+Math',
+                                            'Engineering+and+Applied+Sciences+-+Computer+Science',
+                                            'Engineering+and+Applied+Sciences+-+Computational+Science+and+Engineering',
+                                            'Earth+and+Planetary+Sciences', 'Biophysics', 'Applied+Physics',
+                                            'Graduate+School+of+Arts+%26+Sciences', 'Doctor+of+Philosophy']:
+                            if re.search('^20\d\d$', degree):
+                                year = int(degree)
+                            else:
+                                rec['note'].append('DEGREE:::' + degree)
+                if year and year <= ejlmod3.year(backwards=years):
+                    print('    skip "%i"' % (year))
+                elif keepit:
+                    prerecs.append(rec)
+                    fakedois.append(rec['doi'])
         print('  %4i records so far' % (len(prerecs)))
             
 j = 0
 recs = []
 for rec in prerecs:
     j += 1
+    keepit = True
+
     ejlmod3.printprogress("-", [[j, len(prerecs)], [rec['link']], [len(recs)]])
     try:
         driver.get(rec['link'])
@@ -65,10 +124,10 @@ for rec in prerecs:
         if re.search('rft.author=.*%40', info):
             rec['autaff'][-1].append(re.sub('.*=(.*)%40(.*)', r'EMAIL:\1@\2', info))
         elif re.search('rft_id=\d\d\d\d\-\d\d\d\d\-', info):
-            rec['autaff'][-1].append(re.sub('.*=', 'ORCID:', info))        
+            rec['autaff'][-1].append(re.sub('.*=', 'ORCID:', info))
     rec['autaff'][-1].append(publisher)
+    
     #URN
-    keepit = True
     for meta in artpage.find_all('meta', attrs = {'name' : 'DC.identifier'}):
         if meta.has_attr('scheme'):
             if re.search('URI', meta['scheme']):
@@ -85,5 +144,13 @@ for rec in prerecs:
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
+    if len(recs) % bunchsize == 0:
+        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+
+
+if len(recs) % bunchsize != 0:
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+
+
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
