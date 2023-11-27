@@ -35,7 +35,7 @@ for (dep, fc) in [('hum_sci_mathematics', 'm'), ('hum_sci_physics', '')]:
                 child.name
             except:
                 continue
-            if child.name == 'h4':
+            if child.name in ['h3', 'h4']:
                 for span in child.find_all('span'):
                     year = re.sub('.*(20\d\d).*', r'\1', span.text.strip())
                     print(year)
