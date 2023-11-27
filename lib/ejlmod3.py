@@ -96,10 +96,10 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
 fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW']),
-                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A']),
+                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A', 'Jap.J.Math.', 'Algorithmica']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.']),
-                  ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.']),
+                  ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A']),
                   ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.', 'Celest.Mech.Dyn.Astron.', 'Earth Moon Planets']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
                   ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.', 'Leibniz Int.Proc.Inf.', 'Comput.Sci', 'J.Assoc.Comput.Machinery', 'Machine Learning', 'APL Mach.Learn.', 'SN Comput.Sci.', 'Neural Comput.', 'J.Sci.Comput.', 'J.Cryptolog.', 'Stat.Comput.', 'Des.Codes Cryptogr.', 'J.Supercomput.', 'Data Min.Knowl.Discov.', 'Int.J.Comput.Vision', 'J.Big Data', 'J.Comput.Chem.']),
@@ -354,6 +354,7 @@ refca = re.compile('Astro')
 #refck = re.compile('[qQ]uantum.(Phys|phys|Infor|infor|Comp|comp|Tec|Com|Corr|Theor|Mech|Dynam|Opti|Elec)')
 refck = re.compile('[qQ]uantum.(Infor|infor|Comp|comp)')
 rerfc = re.compile('^([a-z][a-z])_[A-Z].*')
+reyear = re.compile('^[12]\d\d\d$')
 def writeXML(recs,dokfile,publisher):
     dokfile.write('<collection>\n')
     i = 0
@@ -454,18 +455,25 @@ def writeXML(recs,dokfile,publisher):
                         print(' !! invalid date "%s"' % (rec['date']))
                         del(rec['date'])
         if 'year' in rec:
-            if not 'date' in rec:
-                rec['date'] = rec['year']
-                recdate = rec['year']
+            if not reyear.search(str(rec['year'])):
+                print('  !!! inapproriate year: ', rec['year'])
+                del(rec['year'])
             else:
-                dyear = re.sub('.*?([12]\d\d\d).*', r'\1', rec['date'])
-                try:
-                    if int(dyear) > int(rec['year'])+1:
-                        print('  !!! remove publication date %s as it seems to be the online date' % (rec['date']))
-                        rec['date'] = rec['year']
-                        recdate = rec['year']
-                except:
-                    print('date? %s' % (rec['date']))                        
+                if not 'date' in rec:
+                    rec['date'] = rec['year']
+                    recdate = rec['year']
+                else:
+                    dyear = re.sub('.*?([12]\d\d\d).*', r'\1', rec['date'])
+                    try:
+                        if int(dyear) > int(rec['year'])+1:
+                            print('  !!! remove publication date %s as it seems to be the online date' % (rec['date']))
+                            rec['date'] = rec['year']
+                            recdate = rec['year']
+                    except:
+                        print('date? %s' % (rec['date']))
+        if not 'year' in rec and 'date' in rec:
+            if re.search('[12]\d\d\d', rec['date']):
+                rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
         if 'date' in rec:
             try:
                 if 'B' in rec['tc']:
@@ -477,7 +485,7 @@ def writeXML(recs,dokfile,publisher):
                     xmlstring += marcxml('260', [('c', rec['year']), ('t', 'published')])
                 except:
                     print('{DATE}', recdate,  rec)
-                    xmlstring += marcxml('599', [('a', 'date missing?!')])
+                    xmlstring += marcxml('599', [('a', 'date missing?!')])                    
         #KEYWORDS
         if 'keyw' in rec:
             if len(rec['keyw']) == 1:
@@ -1126,7 +1134,8 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Editorial —How to write a good letter for EPL', 'Calendar of events',
             'Authors Index', 'Masthead', "Publisher's Note", 'Acknowledgment',
             'Index of Authors', 'Editorial Collaborators', 'Editor’s note',
-            'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover']
+            'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover',
+            'New Associate Editor', 'Member Get-A-Member (MGM) Program']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1790,9 +1799,9 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                       'Masters', 'Mgr.', 'Bc.', 'RNDr.', 'Doctor+of+Musical+Arts', 'Master+of+Arts+%28M.A.%29',
                       'Master+of+Education+%28M.Ed.%29', 'Master+of+Environment+and+Sustainability+%28M.E.S.%29',
                       'Master+of+Fine+Arts+%28M.F.A.%29', 'Master+of+Laws+%28LL.M.%29', 'Master+of+Nursing+%28M.N.%29',
-                      'Master+of+Public+Health+%28M.P.H.%29', 'Master+of+Science+%28M.Sc.%29',
+                      'Master+of+Public+Health+%28M.P.H.%29', 'Master+of+Science+%28M.Sc.%29', 'Undergraduate'
                       'Master+of+Veterinary+Science+%28M.Vet.Sc.%29', 'MS', 'MFA', 'MA', 'A.Mus.D.', 'Ed.D.',
-                      'M.F.A.', 'M.L.A.']
+                      'M.F.A.', 'M.L.A.', 'Bachelor%27s', 'UNDERGRADUATE', 'Bachelor+of+Science']
     recs = []
     divs = tocpage.body.find_all('div', attrs = {'class' : divclass})
     links = []
@@ -1822,9 +1831,11 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                                 keepit = False
                             elif degree == 'Computer+Science':
                                 rec['fc'] = 'c'
-                            elif degree == 'Mathematics':
+                            elif degree == 'Statistics':
+                                rec['fc'] = 's'
+                            elif degree in ['Mathematics', 'Applied+Mathematics']:
                                 rec['fc'] = 'm'
-                            elif degree == 'Astronomy+and+Astrophysics':
+                            elif degree in ['Astronomy+and+Astrophysics', 'Astronomy', 'Astrophysics']:
                                 rec['fc'] = 'a'
                             else:
                                 rec['degrees'].append(degree)
