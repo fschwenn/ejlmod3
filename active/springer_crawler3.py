@@ -194,7 +194,7 @@ def get_records(url):
     for (i, tocurl) in enumerate(list(pages.keys())):
         page = pages[tocurl]
         foundsection = False
-        print(foundsection)
+        #print(foundsection)
         for section in page.body.find_all('section', attrs = {'data-title' : 'book-toc'}):
             for li in section.find_all('li', attrs = {'class' : 'c-card'}):                
                 for h3 in li.find_all('h3', attrs = {'data-title' : 'part-title'}):
@@ -240,7 +240,7 @@ def get_records(url):
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
         if not foundsection:
-            for h3 in page.find_all('h3', attrs = {'class' : 'c-card__title'}):
+            for h3 in page.find_all('h3', attrs = {'class' : ['c-card__title', 'c-card-open__heading']}):
                 print('    ~', h3.text.strip())
                 rec = {'jnl' : jnl, 'autaff' : [], 'note' : []}
                 rec['tit'] = h3.text.strip()
