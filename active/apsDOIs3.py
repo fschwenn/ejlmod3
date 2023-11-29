@@ -40,18 +40,18 @@ subject = ''
 recs = []
 for doi in dois:
     ejlmod3.printprogress('-', [[recnr+1, len(dois)], [doi]])
-    if re.search('PhysRev[A-Z].\d', doi):
+    if re.search('PhysRev[A-Z].\d', doi, re.IGNORECASE):
         letter = doi[15].lower()
         artlink = 'https://journals.aps.org/pr%s/abstract/%s' % (letter, doi)
-    elif re.search('PhysRevLett', doi):
+    elif re.search('PhysRevLett', doi, re.IGNORECASE):
         artlink = 'https://journals.aps.org/prl/abstract/' + doi
-    elif re.search('PhysRevAccelBeams', doi):
+    elif re.search('PhysRevAccelBeams', doi, re.IGNORECASE):
         artlink = 'https://journals.aps.org/prab/abstract/' + doi
-    elif re.search('PRXQuantum', doi):
+    elif re.search('PRXQuantum', doi, re.IGNORECASE):
         artlink = 'https://journals.aps.org/prxquantum/abstract/' + doi
-    elif re.search('RevModPhys', doi):
+    elif re.search('RevModPhys', doi, re.IGNORECASE):
         artlink = 'https://journals.aps.org/rmp/abstract/' + doi
-    elif re.search('PhysRevResearch', doi):
+    elif re.search('PhysRevResearch', doi, re.IGNORECASE):
         artlink = 'https://journals.aps.org/prresearch/abstract/' + doi
     else:
         print('??? can can create article link for', doi)
