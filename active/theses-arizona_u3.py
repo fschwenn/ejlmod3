@@ -90,6 +90,10 @@ for j in range(pages):
             if ejlmod3.checkinterestingDOI(rec['hdl']):
                 if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
                     prerecs.append(rec)
+                else:
+                    print('  ', rec['hdl'], 'already in backup')
+            else:
+                print('  ', rec['hdl'], 'uninteresting')
     print('  %4i records so far ' % (len(prerecs)))
     time.sleep(15)
 
