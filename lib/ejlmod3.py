@@ -1903,7 +1903,7 @@ def dedicatedharvesterexists(url):
         return False
 #print('%i URLs already covered by dedicated harvesters' % (len(dedicated)))
 
-#extract metadata from json-structure in 'NGRX_STATE'
+#extract metadata from json-structure in 'NGRX_STATE' (new DSpace)
 checkedmetatags = {}
 def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
     global checkedmetatags
@@ -1936,6 +1936,7 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                     j += 1
                     done = []
                     if not checkinterestingDOI(rec['hdl']):
+                        print('    skip "%"' % (rec['hdl']))
                         continue
                 else:
                     continue
@@ -1966,33 +1967,64 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                         if not 'abs' in rec and 'absother' in rec:
                             rec['abs'] = rec['absother']
                         done.append(key)
+                    #PID
+                    elif key in ['dc.identifier.uri']:
+                        for pid in thesis['metadata'][key]:
+                            if re.search('doi.org\/10', pid['value']):
+                                rec['doi'] = re.sub('.*doi.org\/', '', pid['value'])
+                            elif re.search('hdl.handle.net\/', pid['value']):
+                                rec['hdl'] = re.sub('.*hdl.handle.net\/', '', pid['value'])
+                            else:
+                                rec['note'].append('%s=%s' % (key.upper(), fac['value']))
+                        done.append(key)
                     #faculty
-                    if key in ['bul.faculte', 'dc.faculty', 'dc.school']:
+                    elif key in ['bul.faculte', 'dc.faculty', 'dc.school', 'thesis.degree.discipline']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
-#                                print('    skip %s' % (fac['value']))
+                                print('    skip "%s"' % (fac['value']))
                                 keepit = False
+                            elif fac['value'] in ['Mathematics', 'Applied Mathematics']:
+                                rec['fc'] = 'm'
+                            elif fac['value'] in ['Statistics']:
+                                rec['fc'] = 's'
+                            elif fac['value'] in ['Astronomy']:
+                                rec['fc'] = 'a'
+                            elif fac['value'] in ['Computer Science']:
+                                rec['fc'] = 'c'
                             else:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), fac['value']))
                         done.append(key)
                     #supervisor
-                    if key in ["dc.contributor.advisor"]:
+                    elif key in ["dc.contributor.advisor"]:
                         for sv in thesis['metadata'][key]:
-                            rec['supervisor'].append([sv['value']])
+                            rec['supervisor'].append([re.sub(', 19.*', '', sv['value'])])
+                        done.append(key)
+                    #supervisor
+                    elif key in ["thesis.degree.level"]:
+                        for dl in thesis['metadata'][key]:
+                            if dl['value'] in ['Masters', 'Bachelors']:
+                                print('    skip "%s"' % (dl['value']))
+                                keepit = False
+                            elif not dl['value'] in ['Doctoral']:
+                                rec['note'].append('%s=%s' % (key.upper(), dl['value']))                                
                         done.append(key)
                     #author
-                    if key in ['dc.contributor.author']:
+                    elif key in ['dc.contributor.author', 'dc.creator']:
                         for au in thesis['metadata'][key]:
                             rec['autaff'].append([au['value']])
                         done.append(key)
+                    elif key in ['dc.contributor.author.orcid', 'dc.creator.orcid']:
+                        for au in thesis['metadata'][key]:
+                            rec['autaff'][-1].append('ORCID:'+re.sub('.*orcid.org\/', '', au['value']))
+                        done.append(key)
                     #date
-                    if key in ['dc.date.available', 'dc.date.issued']:
+                    elif key in ['dc.date.available', 'dc.date.issued']:
                         for date in thesis['metadata'][key]:
                             rec['date'] = date['value']
                         done.append(key)
                     #pages
-                    if key in ['dc.format.extent']:
+                    elif key in ['dc.format.extent']:
                         for extent in thesis['metadata'][key]:
                             if re.search('\d\d p', extent['value']):
                                 rec['pages'] = re.sub('.*?(\d\d+) p.*', r'\1', extent['value'])
@@ -2000,42 +2032,55 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                                 rec['note'].append('EXTENT='+extent['value'])
                         done.append(key)
                     #language
-                    if key in ['dc.language', 'dc.language.iso']:
+                    elif key in ['dc.language', 'dc.language.iso']:
                         for lang in thesis['metadata'][key]:
                             rec['language'] = lang['value']
                         done.append(key)
                     #description
-                    if key in ['dc.description']:
+                    elif key in ['dc.description']:
                         for descr in thesis['metadata'][key]:
                             rec['description'] = re.sub('  +', ', ', re.sub('[\n\t\r]', ' ', descr['value']))
-                            rec['note'].append('%s=%s' % (key.upper(), rec['description']))
+                            if re.search('^\d\d+ pages$', descr['value']):
+                                rec['pages'] = re.sub(' .*', '', descr['value'])
+                            else:
+                                rec['note'].append('%s=%s' % (key.upper(), rec['description']))
                         done.append(key)
                     #license
-                    if key in ['dc.rights']:
+                    elif key in ['dc.rights', 'dc.rights.uri']:
                         for rights in thesis['metadata'][key]:
                             if re.search('creativecom', rights['value']):
                                 rec['license'] = {'url' : rights['value']}
                         done.append(key)
+                    #embargo
+                    elif key in ['dc.description.embargo']:
+                        for lang in thesis['metadata'][key]:
+                            rec['embargo'] = lang['value']
+                        done.append(key)
                     #title
-                    if key in ['dc.title']:
+                    elif key in ['dc.title']:
                         for tit in thesis['metadata'][key]:
                             rec['tit'] = tit['value']
                         done.append(key)
                     #degree
-                    if key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
-                               'thesis.degree.name']:
+                    elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
+                                 'thesis.degree.name']:
                         for degree in thesis['metadata'][key]:
                             if degree['value'] in boring:
                                 keepit = False
-                            else:
+                                print('    skip "%s"' % (degree['value']))
+                            elif not degree['value'] in ['Doctor of Philosophy']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
                     #keywords
-                    if key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm']:
+                    elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
+                    #
+                    elif key in listofkeys:
+                        for keyw in thesis['metadata'][key]:
+                            rec['note'].append(key.upper() + ':::' + keyw['value'])
                 #resume
                 notdone = []
                 for key in listofkeys:
