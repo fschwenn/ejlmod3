@@ -16,11 +16,10 @@ publisher = 'Harvard U. (main)'
 jnlfilename = 'THESES-HARVARD-%sC' % (ejlmod3.stampoftoday())
 
 rpp = 20
-years = 2+30
+years = 2
 skipalreadyharvested = True
 departments = [('m', 'Mathematics', 1), ('', 'Physics', 1), ('a', 'Astronomy', 1),
                ('c', 'Computer+Science', 1), ('', '_ALL_', 10)]
-departments = [('', '_ALL_', 108)]
 bunchsize = 10
 
 
