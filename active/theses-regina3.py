@@ -2,101 +2,65 @@
 #harvest theses Regina U.
 #FS: 2021-12-21
 #FS: 2023-03-29
+#FS: 2023-12-02
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
-import ssl
+import undetected_chromedriver as uc
 
 publisher = 'Regina U.'
 jnlfilename = 'THESES-REGINA-%s' % (ejlmod3.stampoftoday())
 
-rpp = 50
+rpp = 40
 skipalreadyharvested = True
 pages = 2
 
-boringdeps = ['Biochemistry', 'Biology', 'Clinical Psychology', 'Education',
-              'Engineering - Electronic Systems', 'Engineering - Environmental Systems',
-              'Engineering - Petroleum Systems', 'Experimental and Applied Psychology',
-              'Geology', 'History', 'Interdisciplinary Studies', 'Public Policy',
-              'Chemistry', 'Engineering - Industrial Systems', 'Engineering - Process Systems',
-              'Geography', 'Kinesiology and Health Studies', 'Canadian Plains Studies',
-              'Engineering - Software Systems', 'Psychology', 'Kinesiology', 'Media Studies',
-              'Police Studies', 'olitical Science', 'Social Work']
+boring = ['Biochemistry', 'Biology', 'Clinical Psychology', 'Education',
+          'Engineering - Electronic Systems', 'Engineering - Environmental Systems',
+          'Engineering - Petroleum Systems', 'Experimental and Applied Psychology',
+          'Geology', 'History', 'Interdisciplinary Studies', 'Public Policy',
+          'Chemistry', 'Engineering - Industrial Systems', 'Engineering - Process Systems',
+          'Geography', 'Kinesiology and Health Studies', 'Canadian Plains Studies',
+          'Engineering - Software Systems', 'Psychology', 'Kinesiology', 'Media Studies',
+          'Police Studies', 'olitical Science', 'Social Work', 'Media and Artistic Research']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
 
-#bad certificate
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-hdr = {'User-Agent' : 'Magic Browser'}
 
-prerecs = []
-for page in range(pages):
-    tocurl = 'https://ourspace.uregina.ca/handle/10294/2900/discover?sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&page=' + str(page+1)
-    ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
-    try:
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    except:
-        print(' try again in 20s...')
-        time.sleep(20)
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    prerecs += ejlmod3.getdspacerecs(tocpage,  'https://ourspace.uregina.ca', alreadyharvested=alreadyharvested)
-    time.sleep(5)
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
-i = 0
 recs = []
-for rec in prerecs:
-    keepit = True
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
+for page in range(pages):
+    tocurl = 'https://ourspace.uregina.ca/collections/49f1d500-d514-427c-ba40-167d0c0807a8?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        req = urllib.request.Request(rec['link'] + '?show=full', headers=hdr)
-        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        time.sleep(4)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("   retry %s in 15 seconds" % (rec['link']))
-            time.sleep(15)
-            req = urllib.request.Request(rec['link'] + '?show=full', headers=hdr)
-            artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        except:
-            print("   no access to %s" % (rec['link']))
-            continue
-    ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title', 'citation_date' ,
-                                        'DC.subject', 'DCTERMS.abstract', 'citation_pdf_url'])
-    for tr in artpage.body.find_all('tr', attrs = {'class' : 'ds-table-row'}):
-        (label, word) = ('', '')
-        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}): 
-            label = td.text.strip()
-        for td in tr.find_all('td', attrs = {'class' : 'word-break'}):
-            word = td.text.strip()
-        #supervisor
-        if re.search('dc.contributor.advisor', label):
-                rec['supervisor'].append([ word ])
-        #department
-        elif re.search('thesis.degree.discipline', label):
-            if word in boringdeps:
-                keepit = False
-            else:
-                rec['note'].append(word)
-
-    #license
-    ejlmod3.globallicensesearch(rec, artpage)
-    if keepit:
-        recs.append(rec)
+        time.sleep(60)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    baseurl = 'https://ourspace.uregina.ca'
+        
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 'dc.date.issued', 'dc.description.abstract', 'dc.identifier.uri', 'dc.title', 'thesis.degree.discipline', 'thesis.degree.name'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
         ejlmod3.printrecsummary(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['hdl'])
-
+        #print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+    
