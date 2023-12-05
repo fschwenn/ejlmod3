@@ -14,8 +14,8 @@ import ejlmod3
 import time
 import json
 
-rpp = 10
-pages = 1+1
+rpp = 20
+pages = 1+1+2
 skipalreadyharvested = True
 
 publisher = 'York U., Canada'
@@ -27,7 +27,7 @@ if skipalreadyharvested:
 else:
     alreadyharvested = []
 options = uc.ChromeOptions()
-options.headless=True
+#options.headless=True
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -47,29 +47,19 @@ for dep in ['27569', '28582', '38508']:
             time.sleep(180)
             driver.get(tocurl)
             tocpage = BeautifulSoup(driver.page_source, features="lxml")
-        for rec in ejlmod3.getdspacerecs(tocpage, 'https://yorkspace.library.yorku.ca', alreadyharvested=alreadyharvested):
+#        for rec in ejlmod3.getdspacerecs(tocpage, 'https://yorkspace.library.yorku.ca', alreadyharvested=alreadyharvested):
+        for rec in ejlmod3.ngrx(tocpage, 'https://yorkspace.library.yorku.ca', ['dc.contributor.advisor', 'dc.contributor.author',
+                                                                                'dc.degree.discipline', 'dc.degree.level',
+                                                                                'dc.degree.name', 'dc.description.abstract',
+                                                                                'dc.identifier.uri', 'dc.rights', 'dc.subject',
+                                                                                'dc.title', 'dc.date.issued'], alreadyharvested=alreadyharvested):
+            #print(rec['thesis.metadata.keys'])
             if dep == '27569':
                 rec['fc'] = 'm'
             elif dep == '38508':
                 rec['fc'] = 'c'
+            rec['autaff'][-1].append(publisher)
+            ejlmod3.printrecsummary(rec)
             recs.append(rec)
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
-    try:
-        driver.get(rec['link'])
-        artpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(4)
-    except:
-        print("retry %s in 180 seconds" % (rec['link']))
-        time.sleep(180)
-        driver.get(rec['link'])
-        artpage = BeautifulSoup(driver.page_source, features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DCTERMS.issued', 'DCTERMS.abstract',  'DC.subject',
-                                        'citation_pdf_url', 'citation_date', 'DC.rights', 'DC.contributor'])
-    rec['autaff'][-1].append(publisher)
-    ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
