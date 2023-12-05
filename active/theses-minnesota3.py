@@ -46,7 +46,7 @@ boringmajors = ["Aerospace Engineering and Mechanics", "Animal Sciences", "Anthr
                 "Speech-Language-Hearing Sciences", "Theatre Arts", "Veterinary Medicine", "American Studies",
                 "Biophysical Sciences and Medical Physics", "Biosystems and Agricultural Engineering",
                 "Chemical Physics", "Child Psychology", "Communication Studies", "Dentistry", "Design",
-                "Education, Work/Community/Family Educ", "Food Science", "French",
+                "Education, Work/Community/Family Educ", "Food Science", "French", 'Art History', 'Social Work',
                 "Hispanic and Luso Literatures, Cultures & Linguistics", "History of Science and Technology",
                 "History", "Linguistics", "Material Science and Engineering", "Nursing", "Pharmaceutics",
                 "Philosophy", "Plant and Microbial Biology", "Plant Biological Sciences", "Plant Pathology",
