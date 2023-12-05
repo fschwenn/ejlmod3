@@ -356,7 +356,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
             print("retry in 180 seconds")
             time.sleep(180)
             pagreq = urllib.request.Request(artlink, headers={'User-Agent' : "Magic Browser"})
-            page = BeautifulSoup(urllib.request.urlopen(pagreq))                               
+            page = BeautifulSoup(urllib.request.urlopen(pagreq), features="lxml")                               
         if note:
             rec['note'] = [note]
         ejlmod3.metatagcheck(rec, page, ['citation_firstpage', 'citation_lastpage', 'citation_doi',
@@ -407,7 +407,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
         #no hidden PDF!
         if not 'license' in rec and 'pdf_url' in rec:
             del rec['pdf_url']
-        ejlmod3.printrecsummary(rec)        
+        ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
 
