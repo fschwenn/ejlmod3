@@ -84,18 +84,10 @@ for page in range(pages):
                                                'dc.identifier', 'dc.language.iso',
                                                'dc.rights', 'dc.title', 'dc.identifier.uri',
                                                'thesis.degree.discipline',
-                                               'thesis.degree.level', 'thesis.degree.name'], boring=boring):
-        keepit = True
-
-        if keepit:
-            if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
-                print('    %s already in backup' % (rec['doi']))
-            elif skipalreadyharvested and 'hdl' in rec and rec['hdl'] in alreadyharvested:
-                print('    %s already in backup' % (rec['hdl']))
-            else:
-                rec['autaff'][-1].append(publisher)
-                ejlmod3.printrecsummary(rec)
-                recs.append(rec)
+                                               'thesis.degree.level', 'thesis.degree.name'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
         
     time.sleep(20)
 
