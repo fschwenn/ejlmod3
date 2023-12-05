@@ -13,14 +13,15 @@ import codecs
 import time
 import ssl
 
-rpp = 100-90
-pages = 5-3
+rpp = 100
+pages = 41
 jnlfilename = 'THESES-STONYBROOK-%s' % (ejlmod3.stampoftoday())
 publisher = 'Stony Brook U.'
+skipalreadyharvested = True
+years = 10
 
 boringdepartments = ['Department of Molecular and Cellular Biology',
-                     'Department of Biomedical Engineering',
-                     'Department of Biopsychology',
+                     'Department of Biomedical Engineering', 'Department of Biopsychology',
                      'Department of Chemistry', 'Department of Geosciences',
                      'Department of Marine and Atmospheric Science',
                      'Department of Neuroscience', 'Department of Anthropology',
@@ -39,11 +40,8 @@ boringdepartments = ['Department of Molecular and Cellular Biology',
                      'Department of Social/Health Psychology',
                      'Department of Science Education', 'Department of Studio Art',
                      'Department of Biochemistry and Structural Biology',
-                     'Department of Clinical Psychology',
-                     'Department of Comparative Literature',
-                     #'Department of Computer Engineering',
-                     #'Department of Computer Engineering.',
-                     'Department of Electrical Engineering.',
+                     'Department of Clinical Psychology', 'Department of Comparative Literature',
+                     'Department of Electrical Engineering.', 'Department of Genetics',
                      'Department of English.', 'Department of Chemistry.',
                      'Department of Experimental Psychology.',
                      'Department of Hispanic Languages and Literature',
@@ -52,26 +50,20 @@ boringdepartments = ['Department of Molecular and Cellular Biology',
                      'Department of Mechanical Engineering',
                      'Department of Molecular Genetics and Microbiology',
                      'Department of Molecular Genetics and Microbiology.',
-                     'Department of Oral Biology and Pathology',
-                     'Department of Political Science',
+                     'Department of Oral Biology and Pathology', 'Department of Political Science',
                      'Department of Romance Languages and Literature (Italian)',
                      'Department of Technology, Policy, and Innovation',
-                     'Department of Theatre Arts',
-                     'Department of Anatomical Sciences.',
-                     'Department of Anthropology.',
-                     'Department of Art History and Criticism.',
+                     'Department of Theatre Arts', 'Department of Anatomical Sciences.',
+                     'Department of Anthropology.', 'Department of Art History and Criticism.',
                      'Department of Biochemistry and Cell Biology.',
                      'Department of Biochemistry and Structural Biology.',
-                     'Department of Biological Sciences.',
-                     'Department of Biopsychology.',
+                     'Department of Biological Sciences.', 'Department of Biopsychology.',
                      'Department of Clinical Psychology.',
                      'Department of Comparative Literary and Cultural Studies.',
-                     'Department of Comparative Literature.',
-                     'Department of Dramaturgy.',
+                     'Department of Comparative Literature.', 'Department of Dramaturgy.',
                      'Department of Ecology and Evolution.',
                      'Department of Economics.', 'Department of Genetics.',
-                     'Department of Geosciences.',
-                     'Department of Hispanic Languages and Literature.',
+                     'Department of Geosciences.', 'Department of Hispanic Languages and Literature.',
                      'Department of History.', 'Department of Linguistics.',
                      'Department of Marine and Atmospheric Science.',
                      'Department of Mechanical Engineering.',
@@ -82,20 +74,28 @@ boringdepartments = ['Department of Molecular and Cellular Biology',
                      'Department of Oral Biology and Pathology.',
                      'Department of Philosophy.', 'Department of Political Science.',
                      'Department of Physiology and Biophysics.',
-                     'Department of Social/Health Psychology.',
-                     'Department of Social Welfare.',
+                     'Department of Social/Health Psychology.', 'Department of Social Welfare.',
                      'Department of Creative Writing and Literature.',
                      'Department of Sociology.', 'Department of Studio Art.',
                      'Department of Technology, Policy, and Innovation.',
-                     'Department of Theatre Arts.',
-                     'Department of English (Comparative Literature)',
+                     'Department of Theatre Arts.', 'Department of English (Comparative Literature)',
                      'Department of Creative Writing and Literature',
                      'Department of Dramaturgy', 'Department of Art History',
                      'Department of Marine and Atmospheric Scienc',
                      'Department of Population Health and Clinical Outcomes Research',
                      'Department of Romance Languages and Literature (French)',
-                     'Department of Social Welfare']
+                     'Department of Social Welfare', 'Department of Basic Health Sciences',
+                     'Department of Biological Sciences', 'Department of Biomedical Informatics',
+                     'Department of Health & Rehabilitation Sciences',
+                     'Department of Health & Rehabilitation Sciences.',
+                     'Department of Science Education.']
 
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+    
 #bad certificate
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -103,21 +103,26 @@ ctx.verify_mode = ssl.CERT_NONE
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for page in range(pages):
-    tocurl = 'https://ir.stonybrook.edu/xmlui/handle/11401/73112/browse?order=DESC&rpp=' + str(rpp) + '&sort_by=2&etal=-1&offset=' + str(page*rpp) + '&type=dateissued'
+    tocurl = 'https://ir.stonybrook.edu/xmlui/handle/11401/73112/browse?order=DESC&rpp=' + str(rpp) + '&sort_by=2&type=dateissued&etal=-1&offset=' + str(page*rpp)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    prerecs += ejlmod3.getdspacerecs(tocpage, 'https://ir.stonybrook.edu')
-    print('  %4i records so far' % (len(prerecs)))
+    for rec in ejlmod3.getdspacerecs(tocpage, 'https://ir.stonybrook.edu', alreadyharvested=alreadyharvested):
+        if 'hdl' in rec and not ejlmod3.checknewenoughDOI(rec['hdl']):
+            print('   ', rec['hdl'], 'too old')
+        else:
+            prerecs.append(rec)
+    print(' %4i records so far' % (len(prerecs)))
     time.sleep(10)
 
 i = 0
 recs = []
 for rec in prerecs:
+    keepit = True
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [len(recs)], [rec['link']]])
     try:
-        req = urllib.request.Request(rec['link'], headers=hdr)
+        req = urllib.request.Request(rec['link'] + '?show=full', headers=hdr)
         artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         time.sleep(3)
     except:
@@ -145,14 +150,69 @@ for rec in prerecs:
             #thesis type
             elif meta['name'] == 'DC.type':
                 rec['note'].append(meta['content'])
-    rec['autaff'][-1].append(publisher)
+    for tr in artpage.find_all('tr', attrs = {'class' : 'ds-table-row'}):
+        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
+            label = td.text.strip()
+        for td in tr.find_all('td', attrs = {'class' : 'word-break'}):
+            word = td.text.strip()
+            #type
+            if label == 'dc.type':
+                if word != 'Dissertation':
+                    rec['note'].append(word)
+            #abstract
+            elif label == 'dcterms.abstract':
+                rec['abs'] = word
+            #author
+            elif label == 'dcterms.creator':
+                rec['autaff'] = [[word]]
+            #department
+            elif label == 'dcterms.description':
+                rec['department'] = word
+            #date
+            elif label == 'dcterms.issued':
+                rec['date'] = word
+            #keywords
+            elif label == 'dcterms.subject':
+                rec['keyw'] = re.split(' \-\- ', word)
+            #title
+            elif label == 'dcterms.title':
+                rec['tit'] = word
+            #pages
+            elif label == 'dcterms.extent':
+                if re.search('\d\d', word):
+                    rec['pages'] = re.sub('\D*(\d\d+).*', r'\1', word)
+    #pdf
+    for a in artpage.body.find_all('a'):
+        if a.has_attr('href') and re.search('bitstream.*pdf', a['href']):
+            rec['pdf_url'] = 'https://repo.library.stonybrook.edu' + a['href']
+        
+    #date check
+    if re.search('[12]\d\d\d', rec['date']):
+        year = int(re.sub('\D*([12]\d\d\d).*', r'\1', rec['date']))
+        if year < ejlmod3.year(backwards=years):
+            print('    %i too old (%s)' % (year, rec['hdl']))
+            ejlmod3.addtoooldDOI(rec['hdl'])
+            keepit = False
+    rec['autaff'][-1].append(publisher)    
     #license
     ejlmod3.globallicensesearch(rec, artpage)
     if 'department' in rec and rec['department'] in boringdepartments:
         print('  skip "%s"' % (rec['department']))
         ejlmod3.adduninterestingDOI(rec['hdl'])
-    else:
-        print('  ', list(rec.keys()))
+    elif keepit:
+        if 'department' in rec:
+            if rec['department'] in ['Department of Mathematics.', 'Department of Mathematics',
+                                     'Department of Applied Mathematics and Statistics.',
+                                     'Department of Applied Mathematics and Statistics']:
+                rec['fc'] = 'm'
+            elif rec['department'] in ['Department of Computer Science.', 'Department of Computer Science',
+                                       'Department of Computer Engineering',
+                                       'Department of Computer Engineering.']:
+                rec['fc'] = 'c'
+            elif not rec['department'] in ['Dissertation', 'Department of Physics',
+                                           'Department of Physics.']:
+                rec['note'].append('DEPARTMENT:::' + rec['department'])
+        ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
