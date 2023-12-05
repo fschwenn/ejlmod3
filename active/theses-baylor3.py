@@ -2,6 +2,7 @@
 #harvest theses from Baylor U.
 #FS: 2019-09-25
 #FS: 2023-01-09
+#FS: 2023-11-28
 
 import getopt
 import sys
@@ -11,65 +12,65 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'Baylor U.'
 
-rpp = 50
-pages = 2
+rpp = 60
+pages = 3
 skipalreadyharvested = True
 
 jnlfilename = 'THESES-BAYLOR-%s' % (ejlmod3.stampoftoday())
 
-alreadyharvested = []
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))  
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
-hdr = {'User-Agent' : 'Magic Browser'}
+
+boring = ['Baylor University. Dept. of Biology.', 'Baylor University. Dept. of Chemistry &a; Biochemistry.',
+          'Baylor University. Dept. of Curriculum &a; Instruction.', 'Baylor University. Dept. of Educational Leadership.',
+          'Baylor University. Dept. of Educational Psychology.', 'Baylor University. Dept. of Electrical &a; Computer Engineering.',
+          'Baylor University. Dept. of English.', 'Baylor University. Dept. of Environmental Science.',
+          'Baylor University. Dept. of Geosciences.', 'Baylor University. Dept. of Health, Human Performance &a; Recreation.',
+          'Baylor University. Dept. of History.', 'Baylor University. Dept. of Mechanical Engineering.',
+          'Baylor University. Dept. of Philosophy.', 'Baylor University. Dept. of Political Science.',
+          'Baylor University. Dept. of Psychology &a; Neuroscience.', 'Baylor University. Dept. of Religion.',
+          'Baylor University. Dept. of Sociology.', 'Baylor University. Institute for Ecological, Earth &a; Environmental Sciences.',
+          'Baylor University. Institute of Biomedical Studies.', 'Baylor University. School of Business.',
+          'Baylor University. School of Music.', 'Baylor University. School of Social Work.',
+          'Baylor University. Dept. of Information Systems.']
+
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 recs = []
 for page in range(pages):
-    tocurl = 'https://baylor-ir.tdl.org/handle/2104/9221/discover?rpp=' + str(rpp) + '&etal=0&group_by=none&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
-    ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://baylor-ir.tdl.org'):
-        if rec['hdl'] in alreadyharvested:
-            print('    %s already harvested' % (rec['hdl']))
-        else:
-            prerecs.append(rec)
-    print('  %4i records so far' % (len(recs)))
+    tocurl = 'https://baylor-ir.tdl.org/collections/06d889b5-9220-4479-a150-c2ab24cd63b3?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
 
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(3)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue    
-    ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DCTERMS.issued', 'DC.subject',
-                                        'DCTERMS.abstract', 'citation_pdf_url'])
-    for meta in artpage.head.find_all('meta'):
-        if meta.has_attr('name'):
-            #author
-            if meta['name'] == 'DC.creator':
-                if re.search('\d{4}\-\d{4}\-', meta['content']):
-                    rec['autaff'][-1].append('ORCID:' + meta['content'])
-                else:
-                    author = re.sub(', \d+.*', '', meta['content'])
-                    rec['autaff'] = [[ author ]]
-    rec['autaff'][-1].append(publisher)
-    ejlmod3.printrecsummary(rec)
-
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    baseurl = 'https://baylor-ir.tdl.org'
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.creator', 'dc.date.issued', 'thesis.degree.department', 'dc.rights.accessrights'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        for note in rec['note']:
+            if note in ['THESIS.DEGREE.DEPARTMENT=Baylor University. Dept. of Mathematics.']:
+                rec['fc'] = 'm'
+            elif note in ['Baylor University. Dept. of Statistical Science.']:
+                rec['fc'] = 's'
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
