@@ -14,9 +14,15 @@ import ssl
 
 publisher = 'Heriot-Watt U.'
 jnlfilename = 'THESES-HERIOTWATT-%s' % (ejlmod3.stampoftoday())
+skipalreadyharvested = True
 
 rpp = 50
 pages = 2
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 #bad certificate
 ctx = ssl.create_default_context()
@@ -32,7 +38,7 @@ for dep in deps:
         ejlmod3.printprogress('=', [[i*pages+page+1, len(deps)*pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        recs += ejlmod3.getdspacerecs(tocpage, 'https://www.ros.hw.ac.uk')
+        recs += ejlmod3.getdspacerecs(tocpage, 'https://www.ros.hw.ac.uk',  alreadyharvested=alreadyharvested)
         print('  %4i records do far' % (len(recs)))
         time.sleep(5)
     i += 1
