@@ -2,73 +2,56 @@
 #harvest theses from Canterbury U.
 #FS: 2020-09-11
 #FS: 2023-04-26
+#FS: 2023-11-28
+
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'Canterbury U.'
 jnlfilename = 'THESES-CANTERBURY-%s' % (ejlmod3.stampoftoday())
 
-rpp = 20
-pages = 1
+rpp = 40
+pages = 8
 skipalreadyharvested = True
+boring = ['Antarctic Studies', 'Geography', 'Geology', 'Speech and Language Therapy', 'Biochemistry',
+          'Biological Sciences', 'Biology', 'Chemistry', 'Disaster Risk and Resilience', 'Ecology',
+          'Environmental Chemistry', 'Environmental Sciences', 'Psychology',
+          'Speech and Language Sciences', 'Water Resource Management']
 
-hdr = {'User-Agent' : 'Magic Browser'}
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
-    
-prerecs = []
-for page in range(pages):
-    tocurl = 'https://ir.canterbury.ac.nz/handle/10092/841/discover?filtertype_1=discipline&filter_relational_operator_1=contains&filter_1=physics&submit_apply_filter=&rpp=' + str(rpp) + '&sort_by=dc.date.issued_dt&order=desc&page=' + str(page+1)
-    ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(5)
-    prerecs += ejlmod3.getdspacerecs(tocpage, 'https://ir.canterbury.ac.nz', alreadyharvested=alreadyharvested)
-    print('  %4i records so far' % (len(prerecs)))
 
-i = 0
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 recs = []
-for rec in prerecs:
-    i += 1
-    keepit = True
-    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
+for page in range(pages):
+    tocurl = 'https://ir.canterbury.ac.nz/collections/ccf82095-90b1-41dd-a18e-06ae942f5513?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(3)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue      
-    ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title', 'DCTERMS.issued',
-                                        'DC.subject', 'DC.identifier', 'DC.rights',
-                                        'citation_pdf_url', 'DCTERMS.abstract'])
-    rec['autaff'][-1].append(publisher)
-    for div in artpage.body.find_all('div', attrs = {'class' : 'simple-item-view-other'}):
-        for h5 in div.find_all('h5'):
-            #Degree
-            if re.search('Degree', h5.text):
-                for span in div.find_all('span'):
-                    rec['degree'] = span.text.strip()
-                    if re.search('Master', rec['degree']):
-                        keepit = False
-                        print('   skip "%s"' % (rec['degree']))
-    if keepit:
-        ejlmod3.printrecsummary(rec)
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    baseurl = 'https://ir.canterbury.ac.nz'    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.author', 'dc.date.issued', 'dc.description.abstract', 'dc.identifier.uri', 'dc.language', 'dc.title', 'dc.rights', 'dc.rights.uri', 'thesis.degree.discipline', 'thesis.degree.name'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        #ejlmod3.printrecsummary(rec)
+        print(rec['thesis.metadata.keys'])
         recs.append(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['hdl'])
-        
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
