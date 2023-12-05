@@ -2,20 +2,20 @@
 #harvest theses from Georgia Tech
 #FS: 2022-04-18
 #FS: 2023-03-27
+#FS: 2023-11-30
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
+import undetected_chromedriver as uc
 import time
-import ssl
 
 publisher = 'Georgia Tech'
 jnlfilename = 'THESES-GEORGIATECH-%s' % (ejlmod3.stampoftoday())
 
-rpp = 50
+rpp = 40
 pages = 5
 skipalreadyharvested = True
 
@@ -32,73 +32,55 @@ boring = ['Electrical and Computer Engineering', 'Civil and Environmental Engine
           'Polymer, Textile and Fiber Engineering', 'Bioengineering',
           'Center for Music Technology', 'Chemical Engineering', 'City Planning',
           'Digital Media', 'Literature, Communication, and Culture', 'Management',
-          'Materials Science &amp; Engineering', 'Medical Physics', 'Robotics',
-          'Strategic Management']
+          'Materials Science & Engineering', 'Medical Physics', 'Robotics',
+          'Strategic Management', 'Aerospace Engineering', 'Applied Physiology',
+          'Architecture', 'Biology', 'Biomedical Engineering (Joint GT/Emory Department)',
+          'Building Construction', 'Business', 'Chemical and Biomolecular Engineering',
+          'Chemistry and Biochemistry', 'City and Regional Planning',
+          'Civil and Environmental Engineering', 'Earth and Atmospheric Sciences',
+          'Economics', 'History, Technology and Society',
+          'Industrial and Systems Engineering', 'Industrial Design',
+          'Literature, Media, and Communication', 'Materials Science and Engineering',
+          'Mechanical Engineering', 'Psychology', 'Public Policy']
 
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-hdr = {'User-Agent' : 'Magic Browser'}
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
 
-prerecs = []
-for page in range(pages):
-    tocurl = 'https://smartech.gatech.edu/handle/1853/3739/browse?rpp=' + str(rpp) + '&sort_by=2&type=dateissued&offset=' + str(rpp*(page)) + '&etal=-1&order=DESC'
-    ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    prerecs += ejlmod3.getdspacerecs(tocpage, 'https://smartech.gatech.edu', alreadyharvested=alreadyharvested)
-    print('  %i records so far' % (len(prerecs)))
-    time.sleep(7)
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
-i = 0
+baseurl = 'https://repository.gatech.edu'
+driver.get(baseurl)
+time.sleep(10)    
+
 recs = []
-for rec in prerecs:
-    i += 1
-    keepit = True
-    ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
+for page in range(pages):
+    tocurl = 'https://repository.gatech.edu/collections/3b203ae7-3ac9-4107-aae7-d4320ca8e1e0?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        req = urllib.request.Request(rec['link'] + '?show=full', headers=hdr)
-        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-        time.sleep(3)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link'] + '?show=full'), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue
-
-    ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title','DCTERMS.issued', 'DC.subject',
-                                        'DCTERMS.abstract', 'citation_pdf_url'])
-    for tr in artpage.body.find_all('tr', attrs = {'class' : 'ds-table-row'}):
-        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
-            label = td.text.strip()
-        for td in tr.find_all('td', attrs = {'class' : 'word-break'}):
-            word = td.text.strip()
-        #Department
-        if label == 'dc.contributor.department':
-            if word in boring:
-                keepit = False
-            elif word == 'Mathematics':
-                rec['fc'] = 'm'
-            elif word == 'Computer Science':
-                rec['fc'] = 'c'
-            elif word != 'Physics':
-                rec['note'].append(word)
-        #supervisor
-        elif label == 'dc.contributor.advisor':
-            rec['supervisor'].append([word])
-
-    if keepit:
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author',
+                                               'dc.contributor.department', 'dc.date.issued',
+                                               'dc.description.abstract', 'dc.identifier.uri',
+                                               'dc.subject', 'dc.title', 'dc.type.genre',
+                                               'local.contributor.advisor',
+                                               'thesis.degree.level'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
         ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
         recs.append(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['hdl'])
-
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
