@@ -224,7 +224,8 @@ for issue in re.split(',', issues):
                                                                   'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY',
                                                                   'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
-                                                                  'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial']:
+                                                                  'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
+                                                                  'PREFACE', 'COVER PICTURE']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
@@ -416,7 +417,7 @@ for rec in prerecs:
         recs.append(rec)
 #    rec['tc'] = 'C'
 #    rec['cnum'] = 'C19-10-23.1'
-        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
     time.sleep(random.randint(70, 130))
 
 os.system('touch %s/%s' % (donepath, jnlfilename[:-11]))
