@@ -485,7 +485,7 @@ def writeXML(recs,dokfile,publisher):
                     xmlstring += marcxml('260', [('c', rec['year']), ('t', 'published')])
                 except:
                     print('{DATE}', recdate,  rec)
-                    xmlstring += marcxml('599', [('a', 'date missing?!')])                    
+                    xmlstring += marcxml('599', [('a', 'date missing?!')])
         #KEYWORDS
         if 'keyw' in rec:
             if len(rec['keyw']) == 1:
@@ -1356,7 +1356,7 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 retfiles = open(os.path.join(retfiles_path, retfilename), "a")
                 retfiles.write(line)
                 retfiles.close()
-        else:                
+        else:
             for i in range(numberofbunches):
                 line = '%s---%04i_of_%04i.xml\n' % (jnlfilename, i+1, numberofbunches)
                 if not line in retfiles_text:
@@ -1455,7 +1455,7 @@ def metatagcheck(rec, artpage, listoftags):
                            'description', 'citation_abstract_content', 'dc.description.abstract', 'eprints.abstract',
                            'eprints.abstract_name', 'dcterms.description']:
                     if len(meta['content']) > 12:
-                        abstract = re.sub('^ABSTRACT:?', '', meta['content'])                          
+                        abstract = re.sub('^ABSTRACT:?', '', meta['content'])
                         if meta.has_attr('xml:lang'):
                             language = meta['xml:lang']
                         else:
@@ -1792,7 +1792,9 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
     rehdl = re.compile('.*handle\/')
     reyear = re.compile('.*([12]\d\d\d).*')
     redegree = re.compile('.*rft.degree=')
-    redate = re.compile('rft.date=')
+    redate = re.compile('.*rft.date=')
+    reid = re.compile('.*rft_id=')
+    reurn = re.compile('^http.*(nrs.harvard.edu).*?(URN|urn)(.*)')
     relicense = re.compile('rft.rights=(http.*creativecommons.org.*)')
     boringdegrees += ['Master+of+Arts', 'Master', 'Bachelor+of+Arts', 'Bachelor', 'M.A.', 'M.S.', 'masters',
                       'D.Ed.', 'Maestr%C3%ADa', 'Bachillerato', 'Ingeniero+Civil', 'Ma%C3%AEtrise+%2F+Master%27s',
@@ -1829,6 +1831,7 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                             degree = redegree.sub('', re.sub('[\n\t\r]', '', info)).strip()
                             if degree in boringdegrees:
                                 keepit = False
+                                print('   skip "%s"' % (degree))
                             elif degree == 'Computer+Science':
                                 rec['fc'] = 'c'
                             elif degree == 'Statistics':
@@ -1837,12 +1840,20 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                                 rec['fc'] = 'm'
                             elif degree in ['Astronomy+and+Astrophysics', 'Astronomy', 'Astrophysics']:
                                 rec['fc'] = 'a'
-                            else:
+                            elif not degree in ['Physcis', 'PhD', 'PHD' ,'Doctoral', 'Ph.D.',
+                                                'Engineering+and+Applied+Sciences+-+Applied+Physics']:
                                 rec['degrees'].append(degree)
                         elif relicense.search(info):
                             rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
                         elif redate.search(info):
                             rec['date'] = redate.sub('', info)
+                        elif keepit and reid.search(info):
+                            identifier = reid.sub('', info)
+                            if reurn.search(identifier):
+                                rec['urn'] = re.sub('%3A', ':', re.sub('%2F', '/', reurn.sub(r'\2\3', identifier)))
+                                if rec['urn'] in alreadyharvested:
+                                    print('    %s in backup' % (rec['urn']))
+                                    keepit = False
                     if rec['degrees']:
                         rec['note'].append('DEGREES=%s' % (','.join(rec['degrees'])))
                 #construct link and HDL (or fakeDOI)
@@ -1852,10 +1863,14 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                         rec['doi'] = '30.3000/' + re.sub('\W', '',  urltrunc) + rehdl.sub('/', a['href'])
                         if checkinterestingDOI(rec['link']) and not rec['doi'] in alreadyharvested:
                             recs.append(rec)
+                        else:
+                            print('    %s uninteresting or in backup' % (rec['doi']))
                     else:
                         rec['hdl'] = rehdl.sub('', a['href'])
                         if checkinterestingDOI(rec['hdl']) and not rec['hdl'] in alreadyharvested:
                             recs.append(rec)
+                        else:
+                            print('    %s uninteresting or in backup' % (rec['hdl']))
     print('  [getdspacerecs] %i/%i' % (len(recs), len(divs)))
     return recs
 
@@ -1905,21 +1920,39 @@ def dedicatedharvesterexists(url):
 
 #extract metadata from json-structure in 'NGRX_STATE' (new DSpace)
 checkedmetatags = {}
-def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
+def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvested=[]):
+    boringdegrees = ['Masters', 'Bachelors', 'MA - Master of Arts',
+                     'MSc - Master of Science', 'Ed.D.', 'M.A.', 'M.F.A.',
+                     'M.M.', 'M.S.E.C.E.', 'M.S.Eco.', 'M.S.Ed.', 'M.S.M.E.',
+                     'M.S.', 'Psy.D.', 'Doctor of Education (EdD)',
+                     'Master of Arts (MA)', 'Master of Fine Arts (MFA)',
+                     'Master of Laws (LLM)', 'Master of Nursing (MN)',
+                     'Master of Science (MSc)', 'Master of Social Work (MSW)',
+                     'Master of Environmental Design (MEDes)',
+                     'Doctor of Business Administration (DBA)',
+                     'Bachelors with Honours', 'Master of Arts',
+                     'Doctor of Education', 'Doctor of Musical Arts']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
             checkedmetatags[tag] = 0
     prerecs = []
     j = 0
-    for script in tocpage.find_all('script'):
-        if script.contents:
+    scripts = tocpage.find_all('script', attrs = {'id' : 'dspace-angular-state',
+                                                  'type' : 'application/json'})
+    if not scripts:
+        scripts = tocpage.find_all('script')
+    for script in scripts:
+        if script.contents and re.search('&q;', script.contents[0]):
             scriptt = re.sub('&q;', '"', re.sub('[\n\t]', '', script.contents[0].strip()))
         else:
             scriptt = False
     if scriptt:
-        scripttjson = json.loads(scriptt)
-        metadata = scripttjson['NGRX_STATE']['core']['cache/object']
+        try:
+            scripttjson = json.loads(scriptt)
+            metadata = scripttjson['NGRX_STATE']['core']['cache/object']
+        except:
+            print(script)
         links = metadata.keys()
         for (i, link) in enumerate(links):
 #            printprogress('-', [[i+1, len(links)], [link], [j]])
@@ -1931,12 +1964,18 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                 if 'handle' in thesis:
                     rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [],
                            'autaff' : [], 'degree' : [], 'fac' : []}
-                    rec['hdl'] = thesis['handle']
+                    if fakehdl:
+                        rec['doi'] = '30.3000/fakehdl/' +  thesis['handle']
+                    else:
+                        rec['hdl'] = thesis['handle']
                     rec['thesis.metadata.keys'] = thesis['metadata'].keys()
                     j += 1
                     done = []
-                    if not checkinterestingDOI(rec['hdl']):
-                        print('    skip "%"' % (rec['hdl']))
+                    if 'hdl' in rec and not checkinterestingDOI(rec['hdl']):
+                        print('    skip "%s"' % (rec['hdl']))
+                        continue
+                    elif 'doi' in rec and not checkinterestingDOI(rec['doi']):
+                        print('    skip "%s"' % (rec['doi']))
                         continue
                 else:
                     continue
@@ -1973,55 +2012,63 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                             if re.search('doi.org\/10', pid['value']):
                                 rec['doi'] = re.sub('.*doi.org\/', '', pid['value'])
                             elif re.search('hdl.handle.net\/', pid['value']):
-                                rec['hdl'] = re.sub('.*hdl.handle.net\/', '', pid['value'])
+                                if fakehdl:
+                                    rec['doi'] = '30.3000/fakehdl/' +  re.sub('.*hdl.handle.net\/', '', pid['value'])
+                                else:
+                                    rec['hdl'] = re.sub('.*hdl.handle.net\/', '', pid['value'])
                             else:
-                                rec['note'].append('%s=%s' % (key.upper(), fac['value']))
+                                rec['note'].append('%s=%s' % (key.upper(), pid['value']))
                         done.append(key)
                     #faculty
-                    elif key in ['bul.faculte', 'dc.faculty', 'dc.school', 'thesis.degree.discipline']:
+                    elif key in ['bul.faculte', 'dc.faculty', 'dc.school', 'thesis.degree.discipline',
+                                 'dc.subject.classification', 'dc.degree.discipline',
+                                 'thesis.degree.department', 'dc.publisher.faculty',
+                                 'dc.contributor.author.department', 'dc.contributor.department',
+                                 'local.contributor.corporatename', 'dc.degree.programme']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
                                 keepit = False
-                            elif fac['value'] in ['Mathematics', 'Applied Mathematics']:
+                            elif fac['value'] in ['Mathematics', 'Applied Mathematics', 'Mathematics &a; Statistics',
+                                                  'Department of Mathematics and Statistics']:
                                 rec['fc'] = 'm'
-                            elif fac['value'] in ['Statistics']:
+                            elif fac['value'] in ['Statistics', 'Mathematical Statistics']:
                                 rec['fc'] = 's'
-                            elif fac['value'] in ['Astronomy']:
+                            elif fac['value'] in ['Astronomy', 'Astronomy and Astrophysics']:
                                 rec['fc'] = 'a'
-                            elif fac['value'] in ['Computer Science']:
+                            elif fac['value'] in ['Computer Science', 'Computational Science and Engineering',
+                                                  'Department of Computer Science']:
                                 rec['fc'] = 'c'
-                            else:
+                            elif fac['value'] in ['Condensed Matter']:
+                                rec['fc'] = 'f'
+                            elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
+                                                      'Physics', 'Applied Mathematics and Scientific Computation']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), fac['value']))
                         done.append(key)
                     #supervisor
-                    elif key in ["dc.contributor.advisor"]:
+                    elif key in ["dc.contributor.advisor", 'local.contributor.advisor']:
                         for sv in thesis['metadata'][key]:
-                            rec['supervisor'].append([re.sub(', 19.*', '', sv['value'])])
-                        done.append(key)
-                    #supervisor
-                    elif key in ["thesis.degree.level"]:
-                        for dl in thesis['metadata'][key]:
-                            if dl['value'] in ['Masters', 'Bachelors']:
-                                print('    skip "%s"' % (dl['value']))
-                                keepit = False
-                            elif not dl['value'] in ['Doctoral']:
-                                rec['note'].append('%s=%s' % (key.upper(), dl['value']))                                
+                            rec['supervisor'].append([re.sub(', (19|20).*', '', sv['value'])])
                         done.append(key)
                     #author
                     elif key in ['dc.contributor.author', 'dc.creator']:
                         for au in thesis['metadata'][key]:
-                            rec['autaff'].append([au['value']])
+                            rec['autaff'].append([re.sub(', (19|20).*', '', au['value'])])
                         done.append(key)
                     elif key in ['dc.contributor.author.orcid', 'dc.creator.orcid']:
                         for au in thesis['metadata'][key]:
                             rec['autaff'][-1].append('ORCID:'+re.sub('.*orcid.org\/', '', au['value']))
                         done.append(key)
                     #date
-                    elif key in ['dc.date.available', 'dc.date.issued']:
+                    elif key in ['dc.date.issued']:
                         for date in thesis['metadata'][key]:
                             rec['date'] = date['value']
+                        done.append(key)
+                    elif key in ['dc.date.available', 'dc.date.created']:
+                        if not 'date' in rec:
+                            for date in thesis['metadata'][key]:
+                                rec['date'] = date['value']
                         done.append(key)
                     #pages
                     elif key in ['dc.format.extent']:
@@ -2063,17 +2110,19 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
                         done.append(key)
                     #degree
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
-                                 'thesis.degree.name']:
+                                 'thesis.degree.name', "thesis.degree.level", 'dc.degree.name',
+                                 'dc.degree.level']:
                         for degree in thesis['metadata'][key]:
-                            if degree['value'] in boring:
+                            if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
                                 print('    skip "%s"' % (degree['value']))
-                            elif not degree['value'] in ['Doctor of Philosophy']:
+                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
                     #keywords
-                    elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm']:
+                    elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
+                                 'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
@@ -2091,7 +2140,12 @@ def ngrx(tocpage, urltrunc, listofkeys, boring=[]):
 #                if notdone:
 #                    print("   %i of %i keys not found (%s)" % (len(notdone), len(listofkeys), ', '.join(notdone)))
                 if keepit:
-                    prerecs.append(rec)
+                    if 'doi' in rec and rec['doi'] in alreadyharvested:
+                        print('    %s already in backup' % (rec['doi']))
+                    elif 'hdl' in rec and rec['hdl'] in alreadyharvested:
+                        print('    %s already in backup' % (rec['hdl']))
+                    else:
+                        prerecs.append(rec)
     print('  [ngrx] %i/%i' % (len(prerecs), j))
     return prerecs
 
