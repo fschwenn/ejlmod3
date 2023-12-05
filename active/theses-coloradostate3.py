@@ -2,74 +2,64 @@
 #harvest theses from Colorado State U., Fort Collins
 #FS: 2021-12-06
 #FS: 2023-03-29
+#FS: 2023-11-28
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 publisher = 'Colorado State U., Fort Collins'
 jnlfilename = 'THESES-ColoradoStateU-%s' % (ejlmod3.stampoftoday())
 
-rpp = 20
+rpp = 40
 skipalreadyharvested = True
 pages = 1
+boring = []
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
-hdr = {'User-Agent' : 'Magic Browser'}
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 recs = []
-for dep in [('Physics', '', '100500', 'Colorado State U.'),
-            ('Mathematics', 'm', '100469', 'Colorado State U., Fort Collins'),
-            ('Computer Science', 'c', '100389', 'Colorado State U., Fort Collins')]:
+for (fc, dep) in [('s', '5988f96d-c5c7-4fbb-84bd-15efa8ac4138'),
+                  ('m', 'a6f26758-6e22-40d7-bf0f-2bf93fcee300'),
+                  ('c', '261a684c-5a74-4b9c-aec7-3363574844a2'),
+                  ('', '17a53586-f4a5-44cc-b854-a94274964986')]:
     for page in range(pages):
-        tocurl = 'https://mountainscholar.org/handle/10217/' + dep[2] + '/discover?rpp=' + str(rpp) + '&etal=0&group_by=none&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
-        ejlmod3.printprogress("=", [[dep[0]], [page+1, pages], [tocurl]])
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-        for rec in ejlmod3.getdspacerecs(tocpage, 'https://mountainscholar.org', alreadyharvested=alreadyharvested):
-            if dep[1]:
-                rec['fc'] = dep[1]
-            rec['affiliation'] = dep[3]
-            recs.append(rec)
-        time.sleep(10)
-        print('  %4i records so far' % (len(recs)))
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link'] + '?show=full']])
-    try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link'] + '?show=full'), features="lxml")
-        time.sleep(5)
-    except:
+        tocurl = 'https://mountainscholar.org/collections/' + dep + '?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+        ejlmod3.printprogress('=', [[fc,dep], [page+1, pages], [tocurl]])
         try:
-            print("retry %s in 180 seconds" % (rec['link'] + '?show=full'))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link'] + '?show=full'), features="lxml")
+            driver.get(tocurl)
+            time.sleep(5)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
-            print("no access to %s" % (rec['link'] + '?show=full'))
-            continue
-    ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.title', 'DCTERMS.issued', 'DC.subject',
-                                        'DCTERMS.abstract', 'citation_pdf_url'])
-    rec['autaff'][-1].append(rec['affiliation'])
-    ejlmod3.globallicensesearch(rec, artpage)
-    #supervisor + degree
-    for tr in artpage.find_all('tr'):
-        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
-            tdt = td.text.strip()
-        for td in tr.find_all('td', attrs = {'class' : 'word-break'}):
-            if tdt == 'dc.contributor.advisor':
-                rec['supervisor'].append([td.text.strip()])
-            elif tdt == 'thesis.degree.level':
-                degree = td.text.strip()
-                if degree != 'Doctoral':
-                    rec['note'].append(degree)
-    ejlmod3.printrecsummary(rec)
-
+            time.sleep(60)
+            driver.get(tocurl)
+            time.sleep(5)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        baseurl = 'https://mountainscholar.org'
+        
+        for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.author', 'dc.date.issued', 'dc.description.abstract', 'dc.identifier', 'dc.identifier.uri', 'dc.language', 'dc.rights', 'dc.title', 'thesis.degree.discipline', 'thesis.degree.level', 'thesis.degree.name'], boring=boring, alreadyharvested=alreadyharvested):
+            for author in rec['autaff'][1:]:
+                if re.search('advisor', author[0]):
+                    rec['supervisor'].append([re.sub(', advisor', '', author[0])])                
+            rec['autaff'] = [[ rec['autaff'][0][0], publisher ]]
+            if fc:
+                rec['fc'] = fc
+            ejlmod3.printrecsummary(rec)
+            #print(rec['thesis.metadata.keys'])
+            recs.append(rec)
+        print('  %i records so far' % (len(recs)))
+        time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
