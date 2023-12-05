@@ -103,7 +103,6 @@ for page in range(pages):
 recs = []
 for (i, rec) in enumerate(prerecs):
     keepit = True
-    i += 1
     ejlmod3.printprogress("-", [[i+1, len(prerecs)], [rec['link']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
