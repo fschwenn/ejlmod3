@@ -2,80 +2,58 @@
 #harvest theses from University of Cape Town
 #FS: 2019-09-25
 #FS: 2022-12-20
+#FS: 2023-11-28
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
+import undetected_chromedriver as uc
 import ejlmod3
 import time
 
 publisher = 'Cape Town U.'
+rpp = 40
+pages = 7
 skipalreadyharvested = True
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 jnlfilename = 'THESES-CAPETOWN-%s' % (ejlmod3.stampoftoday())
 
-hdr = {'User-Agent' : 'Magic Browser'}
+boring = ['Faculty of Commerce', 'Faculty of Health Sciences',
+          'Faculty of Humanities', 'Faculty of Law']
 
-alreadyharvested = []
-def tfstrip(x): return x.strip()
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 recs = []
-for dep in ['Department+of+Physics', 'Department+of+Mathematics+and+Applied+Mathematics', 'Department+of+Astronomy', 'Department+of+Maths+and+Applied+Maths', 'Department+of+Computer+Science']:
-    tocurl = 'https://open.uct.ac.za/handle/11427/29121/discover?sort_by=dc.date.issued_dt&order=desc&rpp=10&filtertype=department&filter_relational_operator=equals&filter=' + dep
-    print(tocurl)
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://open.uct.ac.za'):
-        if dep == 'Department+of+Astronomy':
-            rec['fc'] = 'a'
-        elif dep in ['Department+of+Mathematics+and+Applied+Mathematics', 'Department+of+Maths+and+Applied+Maths']:
-            rec['fc'] = 'm'
-        elif dep in ['Department+of+Computer+Science']:
-            rec['fc'] = 'c'
-        if not rec['hdl'] in alreadyharvested:
-            recs.append(rec)
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['link']]])
+for page in range(pages):
+    tocurl = 'https://open.uct.ac.za/collections/54eb0a16-4729-412a-8839-554727ee22f5?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    #tocurl = 'https://open.uct.ac.za/browse/dateissued?scope=54eb0a16-4729-412a-8839-554727ee22f5&bbm.page=' + str(page+1) + '&startsWith=2023'
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
-        time.sleep(3)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue    
-    ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DCTERMS.issued', 'DCTERMS.abstract',
-                                        'citation_pdf_url'])
-    for meta in artpage.head.find_all('meta'):
-        if meta.has_attr('name'):
-            #author
-            if meta['name'] == 'DC.creator':
-                author = re.sub(' *\[.*', '', meta['content'])
-                rec['autaff'] = [[ author ]]
-                rec['autaff'][-1].append(publisher)
-    if rec['hdl'] == '11427/32379':
-        rec['date'] = '2020'
-    #supervisor
-    for tr in artpage.body.find_all('tr', attrs = {'class' : 'ds-table-row'}):
-        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
-            if td.text.strip() == 'dc.contributor.advisor':
-                td.decompose()
-                for td2 in tr.find_all('td'):
-                    tdt = td2.text.strip()
-                    if tdt and tdt != 'en_ZA':
-                        rec['supervisor'].append([tdt])
-    ejlmod3.printrecsummary(rec)
+        time.sleep(60)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    baseurl = 'https://open.uct.ac.za'
+    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 'dc.date.issued', 'dc.description.abstract', 'dc.identifier.uri', 'dc.publisher.faculty', 'dc.subject', 'dc.title'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
