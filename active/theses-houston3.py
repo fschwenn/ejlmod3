@@ -2,90 +2,75 @@
 #harvest theses from Houston U.
 #FS: 2019-12-09
 #FS: 2023-04-18
+#FS: 2023-11-30
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
+
 
 publisher = 'Houston U.'
 jnlfilename = 'THESES-HOUSTON-%s' % (ejlmod3.stampoftoday())
-
-rpp = 10
+rpp = 60
+pages = 8
 skipalreadyharvested = True
+
+boring = ['Atmospheric Sciences', 'Biochemistry', 'Biology', 'Biomedical Engineering', 'Business Administration',
+          'Cell and Molecular Biology', 'Chemical Engineering', 'Chemistry', 'Civil Engineering',
+          'Counseling Psychology', 'Curriculum and Instruction', 'Environmental Engineering', 'Geophysics',
+          'History', 'Hospitality Administration', 'Hospitality Management', 'Industrial Engineering',
+          'Materials Engineering', 'Mechanical Engineering', 'Music', 'Petroleum Engineering', 'Pharmacology',
+          'Physiological Optics and Vision Science', 'Professional Leadership, Education', 'School Psychology',
+          'Social Work', 'Spanish', 'Special Populations', 'Developmental, Behavioral, and Cognitive Neuroscience',
+          'Economics', 'Educational Psychology', 'Electrical Engineering', 'English', 'Geology',
+          'Geosensing Systems Engineering', 'Higher Education Leadership and Policy', 'Kinesiology',
+          'Pharmaceutic Health Outcomes &a; Policy', 'Pharmaceutics', 'Political Science', 'Psychology, Clinical',
+          'Psychology, Industrial and Organizational', 'Psychology, Social', 'Psychology', 'Creative Writing',
+          'Educational Psychology and Individual Differences', 'Higher Education Leadership and Policy Studies',
+          'Hispanic Studies, Spanish']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
-    
-hdr = {'User-Agent' : 'Magic Browser'}
+
+
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+baseurl = 'https://uh-ir.tdl.org'
+driver.get(baseurl)
+time.sleep(10)    
+
+
 recs = []
-for department in ['Physics%2C+Department+of', 'Physics', 'Mathematics%2C+Department+of', 'Computer+Science%2C+Department+of']:
-    tocurl = 'https://uh-ir.tdl.org/handle/10657/1/browse?type=department&value=' + department + '&sort_by=2&order=DESC&rpp=' + str(rpp)
-    ejlmod3.printprogress('=', [[tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
-    divs = tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'})
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://uh-ir.tdl.org', alreadyharvested=alreadyharvested):
-        if department == 'Mathematics%2C+Department+of':
-            rec['fc'] = 'm'
-        elif department == 'Computer+Science%2C+Department+of':
-            rec['fc'] = 'c'
-        recs.append(rec)
-    print('   %4i records so far' % (len(recs)))
-    time.sleep(30)
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
+for page in range(pages):
+    tocurl = 'https://uh-ir.tdl.org/collections/dee50d8d-4ac5-4a91-a16a-62217c150a4d?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
-        time.sleep(3)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
-        except:
-            print("no access to %s" % (rec['link']))
-            continue    
-    ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DCTERMS.issued', 'DC.subject',
-                                        'DCTERMS.abstract', 'citation_pdf_url'])
-    for meta in artpage.head.find_all('meta', attrs = {'name' : 'DC.creator'}):
-        if re.search('\d\d\d\d\-\d\d\d\d',  meta['content']):
-            rec['autaff'][-1].append('ORCID:' + meta['content'])
-        else:
-            author = re.sub(' \d.*', '', re.sub(' *\[.*', '', meta['content']))
-            rec['autaff'] = [[ author ]]
-    rec['autaff'][-1].append(publisher)
-    #license
-    for a in artpage.find_all('a'):
-        if a.has_attr('href') and re.search('creativecommons.org', a['href']):
-            rec['license'] = {'url' : a['href']}
-            if 'pdf_url' in list(rec.keys()):
-                rec['FFT'] = rec['pdf_url']
-            else:
-                for div in artpage.find_all('div'):
-                    for a2 in div.find_all('a'):
-                        if a2.has_attr('href') and re.search('bistream.*\.pdf', a['href']):
-                            divt = div.text.strip()
-                            if re.search('Restricted', divt):
-                                print(divt)
-                            else:
-                                rec['FFT'] = 'https://uh-ir.tdl.org' + re.sub('\?.*', '', a['href'])
-
-    for tr in artpage.find_all('tr', attrs = {'class' : 'ds-table-row'}):
-        for td in tr.find_all('td', attrs = {'class' : 'label-cell'}):
-            tht = td.text.strip()
-        for td in tr.find_all('td', attrs = {'class' : 'word-break'}):
-            #supervisor
-            if tht == 'dc.contributor.advisor':
-                rec['supervisor'].append([td.text.strip()])
-    ejlmod3.printrecsummary(rec)
-
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.creator', 'dc.creator.orcid',
+                                               'dc.date.issued', 'dc.description.abstract', 'dc.identifier.uri',
+                                               'dc.rights', 'dc.subject', 'dc.title', 'thesis.degree.discipline',
+                                               'thesis.degree.name'], boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
