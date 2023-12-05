@@ -15,7 +15,7 @@ publisher = 'Kansas U.'
 jnlfilename = 'THESES-KANSAS_U-%s' % (ejlmod3.stampoftoday())
 
 rpp = 50
-pages = 4
+pages = 2
 skipalreadyharvested = True
 
 boringdisciplines = ['Nursing', 'Bioengineering', 'Civil, Environmental & Architectural Engineering',
@@ -54,6 +54,7 @@ hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
 for page in range(pages):
     tocurl = 'https://kuscholarworks.ku.edu/handle/1808/1952/discover?sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&page=' + str(page+1)
+    tocurl = 'https://kuscholarworks.ku.edu/handle/1808/1952/discover?rpp=' + str(rpp) + '&etal=0&scope=&group_by=none&page=' + str(page+1) + '&sort_by=dc.date.accessioned_dt&order=desc&filtertype_0=dateIssued&filter_relational_operator_0=equals&filter_0=%5B2010+TO+2050%5D'
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
