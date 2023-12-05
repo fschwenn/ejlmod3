@@ -12,11 +12,15 @@ import time
 from bs4 import BeautifulSoup
 
 skipalreadyharvested = True
+pages = 1
 
 publisher = 'Cambridge University Press'
 
 sections = [('physics', 'https://www.cambridge.org/core/what-we-publish/books/listing?sort=canonical.date%3Adesc&aggs%5BproductTypes%5D%5Bfilters%5D=BOOK&aggs%5BproductDate%5D%5Bfilters%5D=Last+12+months&aggs%5BproductSubject%5D%5Bfilters%5D=DBFB610E9FC5E012C011430C0573CC06&searchWithinIds=0C5182F27A492FDC81EDF8D3C53266B5'),
             ('math', 'https://www.cambridge.org/core/what-we-publish/books/listing?sort=canonical.date%3Adesc&aggs%5BproductTypes%5D%5Bfilters%5D=BOOK&aggs%5BproductDate%5D%5Bfilters%5D=Last+12+months&aggs%5BproductSubject%5D%5Bfilters%5D=FA1467C44B5BD46BB8AA6E58C2252153&searchWithinIds=0C5182F27A492FDC81EDF8D3C53266B5')]
+sections = [('', 'DBFB610E9FC5E012C011430C0573CC06'),
+            ('m', 'FA1467C44B5BD46BB8AA6E58C2252153'),
+            ('c', 'A57E10708F64FB69CE78C81A5C2A6555')]
 
 jnlfilename = 'CambridgeBooks__%s' % (ejlmod3.stampoftoday())
 if skipalreadyharvested:
@@ -57,16 +61,23 @@ def formatreference(content):
         
 
 prerecs = []
-for section in sections:
-    ejlmod3.printprogress("=", [[section[0]]])
-    tocreq = urllib.request.Request(section[1], headers={'User-Agent' : "Magic Browser"}) 
-    toc = BeautifulSoup(urllib.request.urlopen(tocreq), features="lxml")
-    for li in toc.body.find_all('li', attrs = {'class' : 'title'}):
-        for a in li.find_all('a', attrs = {'class' : 'part-link'}):
-            rec = {'tit' : a.text.strip(), 'note' : [ section[0] ], 'autaff' : [],
-                   'tc' : 'B', 'jnl' : 'BOOK'}
-            rec['artlink'] = 'https://www.cambridge.org' + a['href']
-            prerecs.append(rec)
+for (fc, sec) in sections:
+    for page in range(pages):
+        ejlmod3.printprogress("=", [[fc, sec], [page+1, pages]])
+        tocurl = 'https://www.cambridge.org/core/publications/books/listing?sort=canonical.date%3Adesc&aggs%5BproductTypes%5D%5Bfilters%5D=BOOK&aggs%5BproductDate%5D%5Bfilters%5D=Last%2012%20months&aggs%5BproductSubject%5D%5Bfilters%5D=' + sec + '&pageNum=' + str(page+1) + '&searchWithinIds=0C5182F27A492FDC81EDF8D3C53266B5'
+        tocreq = urllib.request.Request(tocurl, headers={'User-Agent' : "Magic Browser"}) 
+        toc = BeautifulSoup(urllib.request.urlopen(tocreq), features="lxml")
+        lis = toc.body.find_all('li', attrs = {'class' : 'title'})
+        if not lis:
+            lis = toc.body.find_all('div', attrs = {'class' : 'product-listing-with-inputs-content'})
+        for li in lis:
+            for a in li.find_all('a', attrs = {'class' : 'part-link'}):
+                rec = {'tit' : a.text.strip(), 'note' : [], 'autaff' : [],
+                       'tc' : 'B', 'jnl' : 'BOOK'}
+                if fc: rec['fc'] = fc
+                rec['artlink'] = 'https://www.cambridge.org' + a['href']
+                prerecs.append(rec)
+        print('    %i recors so far' % (len(prerecs)))
 
 i = 0
 recs = []
@@ -80,7 +91,7 @@ for rec in prerecs:
     rec['doi'] = '20.2000/CambridgeBooks/' + re.sub('\W', '', rec['artlink'][10:])
     ejlmod3.metatagcheck(rec, artpage, ['citation_doi', 'citation_isbn', 'citation_author', 'citation_editor',
                                         'citation_author_institution', 'citation_editor_institution',
-                                        'citation_online_date'])
+                                        'citation_online_date', 'citation_abstract'])
     if skipalreadyharvested and rec['doi'] in alreadyharvested:
         print('  already in backup')
     else:
