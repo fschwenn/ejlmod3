@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import codecs
 import datetime
 
 publisher = 'OpenAIRE'
@@ -17,8 +18,8 @@ rpp = 50
 skipalreadyharvested = True
 alreadyharvestedlogfile = '/afs/desy.de/user/l/library/dok/ejl/backup/THESES-OpenAIRE-%salreadyharvestedviadecicatedcrawler.doki' % (ejlmod3.stampofnow())
 #splitting the time erange to be checked to not hit maximal number of records per search
-months = 12*15
-monthlength = 30/30
+months = 6*5 #infact days
+monthlength = 30/5
 absdir = '/afs/desy.de/group/library/publisherdata/abs'
 tmpdir = '/afs/desy.de/user/l/library/tmp'
 maxrecords = 1000
@@ -252,6 +253,7 @@ def getrecs(pagen, pagent, page):
 
 #check already harvested
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1)),
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup']
 redoki = re.compile('THESES.OpenAIRE.*doki$')
 reid = re.compile('^I\-\-dri:objIdentifier:::(.*)\-\-$')
@@ -281,10 +283,12 @@ restop = re.compile('^Field ')
 redri = re.compile('dri:objIdentifier:::')
 now = datetime.datetime.now()
 for month in range(months):
+    print('\n\n')
     startdate = now + datetime.timedelta(days=-monthlength*(month+1))
     stopdate = now + datetime.timedelta(days=-monthlength*month)
     startmark = '%4d-%02d-%02d' % (startdate.year, startdate.month, startdate.day)
     stopmark = '%4d-%02d-%02d' % (stopdate.year, stopdate.month, stopdate.day)
+    ejlmod3.printprogress('##', [[month+1, months], [startmark, stopmark]])
     
     starturl = 'https://api.openaire.eu/search/publications?size=' + str(rpp) + '&sortBy=resultdateofacceptance,descending&fromDateAccepted=' + startmark + '&toDateAccepted=' + stopmark + '&instancetype=Doctoral%20thesis'
     ejlmod3.printprogress('=', [[month+1, months, startmark], [1], [starturl]])
@@ -309,7 +313,7 @@ for month in range(months):
 
     #now check whether there are any CORE keywords. I not, forget about it. Just too many theses on OpenAIRE
     frecs = []
-    for rec in recs:
+    for (i, rec) in enumerate(recs):
         doi1 = False
         if 'doi' in rec:
             doi1 = re.sub('[\(\)\/]', '_', rec['doi'])
@@ -332,12 +336,36 @@ for month in range(months):
                 pseudodoi = '30.3000/AUT_TIT'
                 if 'autaff' in rec and rec['autaff'] and rec['autaff'][0]:
                     pseudodoi += '/' + re.sub('\W', '', rec['autaff'][0][0])
-                if pseudodoi:
-                    rec['doi'] = pseudodoi
-                    doi1 = re.sub('[\(\)\/]', '_', rec['doi'])
+            if pseudodoi:
+                rec['doi'] = pseudodoi
+                doi1 = re.sub('[\(\)\/]', '_', rec['doi'])
+        ejlmod3.printprogress('~', [[month+1, months, startmark], [i+1, len(recs)], [doi1], [len(frecs)]])
         if doi1:
             absfilename = os.path.join(absdir, doi1)
-            bibfilename = os.path.join(tmpdir, doi1+'.hep.bib')
+            bibfilename = os.path.join(tmpdir, doi1+'.hep.bib')            
+            time.sleep(.3)            
+            if not os.path.isfile(absfilename):
+                absfile = codecs.open(absfilename, mode='wb', encoding='utf8')
+                try:
+                    if 'tit' in rec:
+                        try:
+                            absfile.write(rec['tit'] + '\n\n')
+                        except:
+                            absfile.write(unidecode.unidecode(rec['tit']) + '\n\n')
+                    if 'abs' in rec:
+                        try:
+                            absfile.write(rec['abs'] + '\n\n')
+                        except:
+                            absfile.write(unidecode.unidecode(rec['abs']) + '\n\n')
+                    if 'keyw' in rec:
+                        for kw in rec['keyw']:
+                            try:
+                                absfile.write(kw + '\n')
+                            except:
+                                absfile.write(unidecode.unidecode(kw) + '\n')
+                except:
+                    print('   could not write abstract to file')
+                absfile.close()
             time.sleep(.3)
             if not os.path.isfile(bibfilename):
                 print(' >bibclassify %s' % (doi1))
