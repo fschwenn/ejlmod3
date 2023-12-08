@@ -31,13 +31,10 @@ chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (optio
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', ''),
                                  ('130339', 'Astrophysics / Astronomy / Cosmology / Geophysics', 'a'),
@@ -69,7 +66,7 @@ for (conceptid, subject, fc) in [('130338', 'Applied and Technical Physics', '')
                 tuples.append((subject, doi, fc))
                 dois.append(doi)
     print('       %3i' % (len(tuples)))
-    time.sleep(3)
+    time.sleep(7)
     
 
 i = 0
@@ -155,7 +152,7 @@ for tuplet in tuples:
     rec['tc'] = tc
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
-    time.sleep(3)
+    time.sleep(5)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
