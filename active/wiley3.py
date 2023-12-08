@@ -225,7 +225,7 @@ for issue in re.split(',', issues):
                                                                   'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                   'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
-                                                                  'PREFACE', 'COVER PICTURE']:
+                                                                  'PREFACE', 'COVER PICTURE', 'CONTENTS']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
@@ -252,12 +252,13 @@ for issue in re.split(',', issues):
             if headtit == 'Contents' or re.search('^Issue Information', headtit) or re.search('^Cover Picture', headtit) or re.search('^Cover Image', headtit) or re.search('^Masthead', headtit):
                 keepit = False
             if re.search('^Introducing .$', headtit) or headtit in ['Frontispiece', 'Announcement', 'Graphical Abstract',
-                                                                    'Team profile', 'Team Profile',
+                                                                    'Team profile', 'Team Profile', 'Obituary', 'Editorials',
                                                                     'Classifieds: Jobs and Awards, Products and Services',
-                                                                    'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY', 'PERSPECTIVE',
-                                                                    'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
+                                                                    'ISSUE INFORMATION', 'BOOKS IN BRIEF', 'COMMENTARY',
+                                                                    'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                     'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
-                                                                    'Back Cover', 'Covers', 'Cover Image']:
+                                                                    'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
+                                                                    'PREFACE', 'COVER PICTURE', 'CONTENTS']:
                 keepit = False
         for h2 in div.find_all('h2'):
             tit = h2.text.strip()
