@@ -32,19 +32,19 @@ if len(sys.argv) > 5:
 
 if   (jnl == 'epjconf'):
     jnlname = 'EPJ Web Conf.'
-    urltrunk = 'http://www.epj-conferences.org/articles/epjconf/abs/'
+    urltrunk = 'https://www.epj-conferences.org/articles/epjconf/abs/'
     tc = 'C'
 elif (jnl == 'ljpc'):
     jnlname = 'J.Phys.Colloq.'
-    urltrunk = 'http://jphyscol.journaldephysique.org/articles/jphyscol/abs/'
+    urltrunk = 'https://jphyscol.journaldephysique.org/articles/jphyscol/abs/'
     tc = 'C'
 elif (jnl == 'easps'):
     jnlname = 'EAS Publ.Ser.'
-    urltrunk = 'http://www.eas-journal.org/articles/eas/abs/'
+    urltrunk = 'https://www.eas-journal.org/articles/eas/abs/'
     tc = 'C'
 elif (jnl == 'aanda'):
     jnlname = 'Astron.Astrophys.'
-    urltrunk = 'https://www.aanda.org/articles/aa/abs/'
+    urltrunk = 'httpss://www.aanda.org/articles/aa/abs/'
     tc = 'P'
 elif (jnl == 'aandas'):
     jnlname = 'Astron.Astrophys.Suppl.Ser.'
