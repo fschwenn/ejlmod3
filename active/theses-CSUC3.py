@@ -16,8 +16,13 @@ jnlfilename = 'THESES-TDX-%s' % (ejlmod3.stampoftoday())
 
 sections = [('396268', ''), ('65', ''), ('668603', ''),
             ('178', 'c'), ('123', 'm'), ('668614', 'm')]
+sections.append(('95809', ''))
+sections.append(('31843', 'm'))
+sections.append(('84', 'm'))
+sections.append(('386309', 'mc'))
+
 rpp = 10
-pages = 1
+pages = 2
 skipalreadyharvested = True
 
 alreadyharvested = []
@@ -36,6 +41,7 @@ for (section, fc) in sections:
             if fc: rec['fc'] = fc
             if not rec['hdl'] in alreadyharvested:
                 recs.append(rec)
+                alreadyharvested.append(rec['hdl'])
         print('  %4i records so far' % (len(recs)))
         time.sleep(3)
         
