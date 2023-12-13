@@ -107,4 +107,4 @@ for (i, rec) in enumerate(recs):
     #authors (is a mess in HTML)
     ejlmod3.printrecsummary(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
