@@ -510,12 +510,26 @@ sample = {'10.1088/1361-6633/aa7e1a' : {'all' : 192, 'core' : 142},
           '10.1088/1464-4266/4/3/366' : {'all' : 11, 'core' : 10},
           '10.1088/1367-2630/aaf360' : {'all' : 11, 'core' : 10},
           '10.1088/1367-2630/aae79c' : {'all' : 11, 'core' : 10}}
+sample = {'10.3847/1538-3881/abc3c3' : {'all' : 45 , 'core' : 45},
+          '10.3847/1538-4357/ab1b41' : {'all' : 113 , 'core' : 113},
+          '10.3847/1538-4365/aab766' : {'all' : 116 , 'core' : 116},
+          '10.1088/0004-637X/770/2/117' : {'all' : 23 , 'core' : 23},
+          '10.1088/2041-8205/812/1/L5' : {'all' : 3 , 'core' : 3},
+          '10.3847/1538-3881/aa5be2' : {'all' : 56 , 'core' : 56},
+          '10.1088/0067-0049/189/1/240' : {'all' : 312 , 'core' : 312},
+          '10.1088/0004-637X/697/1/964' : {'all' : 52 , 'core' : 52},
+          '10.3847/1538-4365/ab2241' : {'all' : 285 , 'core' : 285},
+          '10.3847/1538-4357/aaf648' : {'all' : 99 , 'core' : 99},
+          '10.3847/1538-4357/835/1/29' : {'all' : 416 , 'core' : 416},
+          '10.3847/1538-3881/aac387' : {'all' : 424 , 'core' : 424},
+          '10.3847/1538-4357/aa5c41' : {'all' : 182 , 'core' : 182}}
 
 jnls = {'1538-3881': 'Astron.J.',
         '0004-637X': 'Astrophys.J.',
         '1538-4357': 'Astrophys.J.',
         '2041-8205': 'Astrophys.J.Lett.',
         '0067-0049': 'Astrophys.J.Supp.',
+        '1538-4365': 'Astrophys.J.Supp.',
         '0264-9381': 'Class.Quant.Grav.',
         '1009-9271': 'Chin.J.Astron.Astrophys.',
         '0256-307X': 'Chin.Phys.Lett.',
@@ -569,6 +583,7 @@ jnls['1361-6668'] = 'Supercond.Sci.Technol.'
 jnls['0022-3719'] = 'J.Phys.C'
 jnls['0305-4608'] = 'J.Phys.F'
 jnls['1751-8121'] = 'J.Phys.A'
+jnls['0031-8949'] = 'Phys.Scripta'
 #jnls[''] = ''
 
 driver.get('https://iopscience.iop.org/')
@@ -584,6 +599,9 @@ for doi in sample:
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
     if sample[doi]['core'] < 20:
         print('   too, few citations')
+        continue
+    if skipalreadyharvested and doi in alreadyharvested:
+        print('   already in backup')
         continue
     try:
         driver.get(artlink)
@@ -610,6 +628,8 @@ for doi in sample:
         rec['jnl'] = 'EPL'
     elif re.search('^10.1238\/Physica.Topical', doi):
         rec['jnl'] = 'Phys.Scripta'
+    elif doi in ['10.1070/SM1967v001n04ABEH001994']:
+        rec['jnl'] = 'Math.USSR Sb.'
     else:
         mi = doi
         for meta in artpage.find_all('meta', attrs = {'name' : 'citation_journal_title'}):
