@@ -201,15 +201,20 @@ elif jnl in ['apr']:
     urltrunk = 'https://pubs.aip.org/aip/%s/issue/%s/%s' % (jnl,vol,iss)
     
 print(urltrunk)
-
+driver.get('https://pubs.aip.org')
+time.sleep(15)
 driver.get(urltrunk)
+time.sleep(3)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 def getarticle(artlink, secs):
     try:
         driver.get(artlink)
+        time.sleep(3)
         artpage = BeautifulSoup(driver.page_source, features="lxml")
         artpage.body.find_all('div')
+        ejlmod3.metatagcheck(rec, artpage, ['doi'])
+        print('      doi:', rec['doi'])
     except:
         try:
             print(' --- SLEEP ---')
