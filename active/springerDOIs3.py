@@ -18,7 +18,7 @@ skipalreadyharvested = True
 bunchsize = 10
 
 publisher = 'Springer'
-jnlfilename = 'SPRINGER_QIS_retro.' + ejlmod3.stampoftoday()
+jnlfilename = 'SPRINGER_QIS_retro.' + ejlmod3.stampoftoday() + '_2'
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
@@ -1918,6 +1918,33 @@ for doi in sample:
             elif jnlname in ['Radiophysics and Quantum Electronics']:
                 rec['jnl'] = 'Radiophys.Quant.Electron.'
                 jnlnr = True
+            elif jnlname in ['Computational Optimization and Applications']:
+                rec['jnl'] = 'Comput.Optim.Appl.'
+                jnlnr = True
+            elif jnlname in ['Quantum Information Processing']:
+                rec['jnl'] = 'Quant.Inf.Proc.'
+                jnlnr = True
+            elif jnlname in ['Networking Science']:
+                rec['jnl'] = 'Netw.Sci.'
+                jnlnr = True
+            elif jnlname in ['Scientific Data']:
+                rec['jnl'] = 'Sci.Data'
+                jnlnr = True
+            elif jnlname in ['Naturwissenschaften']:
+                rec['jnl'] = 'Naturwiss.'
+                jnlnr = True
+            elif jnlname in ['Natural Computing']:
+                rec['jnl'] = 'Natural Comput.'
+                jnlnr = True
+            elif jnlname in ['Applied Physics B']:
+                rec['jnl'] = 'Appl.Phys.B'
+                jnlnr = True
+            elif jnlname in ['The European Physical Journal Special Topics']:
+                rec['jnl'] = 'Eur.Phys.J.ST'
+                jnlnr = True
+            elif jnlname in ['Biological Cybernetics']:
+                rec['jnl'] = 'Biol.Cyber.'
+                jnlnr = True
 #            elif jnlname in ['']:
 #                rec['jnl'] = ''
 #                jnlnr = True
@@ -1929,6 +1956,14 @@ for doi in sample:
 
     if not jnlnr:
         continue
+
+    #von Hand
+    if doi == '10.1038/s41586-018-0085-3':
+        rec['autaff'] = []
+        rec['col'] = 'BIG Bell Test'
+    elif doi == '10.1038/s41586-021-03253-4':
+        rec['autaff'] = []
+        rec['col'] = 'BACON'
 
     #article number
     ps = artpage.find_all('p', attrs = {'class' : 'c-article-info-details'})
@@ -2063,6 +2098,8 @@ for doi in sample:
             for div in artpage.body.find_all('div', attrs = {'class' : 'section__content'}):
                 for p in div.find_all('p'):
                     rec['abs'] = p.text.strip()
+
+
     #sample note
     rec['note'] = ['reharvest_based_on_refanalysis',
                    '%i citations from INSPIRE papers' % (sample[doi]['all']),
