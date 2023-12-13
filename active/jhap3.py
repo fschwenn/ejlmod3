@@ -32,7 +32,8 @@ except:
 
 recs = []
 for h5 in tocpage.body.find_all('h5'):
-    for a in h5.find_all('a', attrs = {'class' : 'tag_a'}):
+#    for a in h5.find_all('a', attrs = {'class' : 'tag_a'}):
+    for a in h5.find_all('a', attrs = {'class' : 'citation_title'}):
         rec = {'jnl' : 'JHAP', 'tc' : 'P', 'auts' : [], 'aff' : []}
         rec['artlink'] = 'http://jhap.du.ac.ir/' + a['href']
         recs.append(rec)
