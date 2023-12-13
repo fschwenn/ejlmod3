@@ -225,7 +225,7 @@ for issue in re.split(',', issues):
                                                                   'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                   'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
-                                                                  'PREFACE', 'COVER PICTURE', 'CONTENTS']:
+                                                                  'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Author Profile']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
