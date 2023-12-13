@@ -28,7 +28,7 @@ boring += ['wels', 'wels-hwsc', 'fass-ssgs-devl', 'fass-ssgs', 'fass',
            'fass-ssgs-reli', 'fass-ssgs-soci', 'fass-acem-arth',
            'fass-acem-musi', 'fass-ssgs-spcr', 'wels-ecys-educ', 'wels-ecys']
 
-jnlfilename = 'THESES-OPEN-U-ENGLAND-%sB9' % (ejlmod3.stampoftoday())
+jnlfilename = 'THESES-OPEN-U-ENGLAND-%s' % (ejlmod3.stampoftoday())
 
 recs: list = []
 if skipalreadyharvested:
@@ -163,7 +163,7 @@ with Session() as session:
             continue
 
         # Get the link
-        link = article.find_all('a', attrs={'href': re.compile('http\:\/\/oro\.open\.ac\.uk\/[0123456789]')})
+        link = article.find_all('a', attrs={'href': re.compile('https\:\/\/oro\.open\.ac\.uk\/[0123456789]')})
         if len(link) == 1:
             i_d = link[0].get('href').split('/')[-2]
             links.append("http://oro.open.ac.uk/cgi/export/eprint/{}/JSON/oro-eprint-{}.js".format(i_d, i_d))
