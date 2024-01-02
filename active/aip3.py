@@ -208,12 +208,14 @@ time.sleep(3)
 tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 def getarticle(artlink, secs):
+    rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : iss, 'tc' : typecode, 'keyw' : [],
+           'note' : [artlink]}
     try:
         driver.get(artlink)
         time.sleep(3)
         artpage = BeautifulSoup(driver.page_source, features="lxml")
         artpage.body.find_all('div')
-        ejlmod3.metatagcheck(rec, artpage, ['doi'])
+        ejlmod3.metatagcheck(rec, artpage, ['citation_doi'])
         print('      doi:', rec['doi'])
     except:
         try:
@@ -222,14 +224,13 @@ def getarticle(artlink, secs):
             driver.get(artlink)
             artpage = BeautifulSoup(driver.page_source, features="lxml")
             artpage.body.find_all('div')
+            print('      doi:', rec['citation_doi'])
         except:
             print(' --- SLEEEEEP ---')
             time.sleep(600)
             driver.get(artlink)
             artpage = BeautifulSoup(driver.page_source, features="lxml")
             artpage.body.find_all('div')            
-    rec = {'jnl' : jnlname, 'vol' : vol, 'issue' : iss, 'tc' : typecode, 'keyw' : [],
-           'note' : [artlink]}
     emails = {}
     if cnum:
         rec['cnum'] = cnum
