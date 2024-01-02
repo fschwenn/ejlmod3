@@ -1133,9 +1133,9 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Half Title Page', 'Plenary/Invited Speech', 'Table of Contents', 'Information and Announcements',
             'Editorial —How to write a good letter for EPL', 'Calendar of events',
             'Authors Index', 'Masthead', "Publisher's Note", 'Acknowledgment',
-            'Index of Authors', 'Editorial Collaborators', 'Editor’s note',
+            'Index of Authors', 'Editorial Collaborators', 'Editor’s note', 'Reviewers',
             'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover',
-            'New Associate Editor', 'Member Get-A-Member (MGM) Program']
+            'New Associate Editor', 'Member Get-A-Member (MGM) Program', 'Cover Art']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1642,10 +1642,6 @@ def metatagcheck(rec, artpage, listoftags):
                         if not 'pdf_url' in rec or not rec['pdf_url']:
                             rec['pdf_url'] = meta['content'].strip()
                     done.append(tag)
-                #object type
-                elif tag in ['DC.type', 'dc.type', 'dc.Type', 'DC.Type']:
-                    rec['note'].append(meta['content'].strip())
-                    done.append(tag)
                 #references
                 elif tag in ['citation_reference']:
                     done.append(tag)
@@ -1841,7 +1837,8 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                             elif degree in ['Astronomy+and+Astrophysics', 'Astronomy', 'Astrophysics']:
                                 rec['fc'] = 'a'
                             elif not degree in ['Physcis', 'PhD', 'PHD' ,'Doctoral', 'Ph.D.',
-                                                'Engineering+and+Applied+Sciences+-+Applied+Physics']:
+                                                'Engineering+and+Applied+Sciences+-+Applied+Physics',
+                                                'Science']:
                                 rec['degrees'].append(degree)
                         elif relicense.search(info):
                             rec['license'] = re.sub('%3A', ':', re.sub('%2F', '/', relicense.sub(r'\1', info)))
@@ -1868,7 +1865,10 @@ def getdspacerecs(tocpage, urltrunc, fakehdl=False, divclass='artifact-descripti
                     else:
                         rec['hdl'] = rehdl.sub('', a['href'])
                         if checkinterestingDOI(rec['hdl']) and not rec['hdl'] in alreadyharvested:
-                            recs.append(rec)
+                            if 'doi' in rec and rec['doi'] in alreadyharvested:
+                                print('    %s uninteresting or in backup' % (rec['doi']))
+                            else:
+                                recs.append(rec)
                         else:
                             print('    %s uninteresting or in backup' % (rec['hdl']))
     print('  [getdspacerecs] %i/%i' % (len(recs), len(divs)))
@@ -1931,7 +1931,13 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Master of Environmental Design (MEDes)',
                      'Doctor of Business Administration (DBA)',
                      'Bachelors with Honours', 'Master of Arts',
-                     'Doctor of Education', 'Doctor of Musical Arts']
+                     'Doctor of Education', 'Doctor of Musical Arts',
+                     'Master of Arts (M.A.)', 'Master of Education (M.Ed.)',
+                     'Master of Environment (M.Env.)', 'Master of Fine Art (M.F.A.)',
+                     'Master of Human Rights (M.H.R.)',
+                     'Master of Natural Resources Management (M.N.R.M.)',
+                     'Master of Nursing (M.N.)', 'Master of Science (M.Sc.)',
+                     'Master of Social Work (M.S.W.)']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -1942,9 +1948,11 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'type' : 'application/json'})
     if not scripts:
         scripts = tocpage.find_all('script')
+        scriptt = False
     for script in scripts:
         if script.contents and re.search('&q;', script.contents[0]):
             scriptt = re.sub('&q;', '"', re.sub('[\n\t]', '', script.contents[0].strip()))
+            break
         else:
             scriptt = False
     if scriptt:
@@ -2007,6 +2015,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             rec['abs'] = rec['absother']
                         done.append(key)
                     #PID
+                    elif key in ['dc.doi', 'unsw.identifier.doi', 'dc.identifier.doi']:
+                        for pid in thesis['metadata'][key]:
+                            rec['doi'] =  re.sub('^\/', '', pid['value'])
+                        done.append(key)
                     elif key in ['dc.identifier.uri']:
                         for pid in thesis['metadata'][key]:
                             if re.search('doi.org\/10', pid['value']):
@@ -2024,30 +2036,45 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.subject.classification', 'dc.degree.discipline',
                                  'thesis.degree.department', 'dc.publisher.faculty',
                                  'dc.contributor.author.department', 'dc.contributor.department',
-                                 'local.contributor.corporatename', 'dc.degree.programme']:
+                                 'local.contributor.corporatename', 'dc.degree.programme',
+                                 'unsw.relation.faculty', 'unsw.relation.school',
+                                 'dc.contributor.other']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
                                 keepit = False
                             elif fac['value'] in ['Mathematics', 'Applied Mathematics', 'Mathematics &a; Statistics',
-                                                  'Department of Mathematics and Statistics']:
+                                                  'Department of Mathematics and Statistics',
+                                                  'School of Mathematics &a; Statistics',
+                                                  'Departament d&s;Anàlisi Matemàtica',
+                                                  'Departament de Matemàtiques']:
                                 rec['fc'] = 'm'
                             elif fac['value'] in ['Statistics', 'Mathematical Statistics']:
                                 rec['fc'] = 's'
-                            elif fac['value'] in ['Astronomy', 'Astronomy and Astrophysics']:
+                            elif fac['value'] in ['Centre for Quantum Computation &a; Communication Technology']:
+                                rec['fc'] = 'k'
+                            elif fac['value'] in ['Astronomy', 'Astronomy and Astrophysics',
+                                                  'Departament d&s;Astronomia i Astrofísica']:
                                 rec['fc'] = 'a'
                             elif fac['value'] in ['Computer Science', 'Computational Science and Engineering',
-                                                  'Department of Computer Science']:
+                                                  'Department of Computer Science',
+                                                  'Departament d&s;Informàtica']:
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter']:
                                 rec['fc'] = 'f'
                             elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
-                                                      'Physics', 'Applied Mathematics and Scientific Computation']:
+                                                      'Physics', 'Applied Mathematics and Scientific Computation',
+                                                      'School of Physics', 'Facultat de Física',
+                                                      'Departament de Física Aplicada i Electromagnetisme',
+                                                      'Departament de Física Atòmica, Molecular i Nuclear',
+                                                      'Departament de Física de la Terra i Termodinàmica',
+                                                      'Departament de Fisica Teòrica']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), fac['value']))
                         done.append(key)
                     #supervisor
-                    elif key in ["dc.contributor.advisor", 'local.contributor.advisor']:
+                    elif key in ["dc.contributor.advisor", 'local.contributor.advisor',
+                                 'dc.contributor.supervisor']:
                         for sv in thesis['metadata'][key]:
                             rec['supervisor'].append([re.sub(', (19|20).*', '', sv['value'])])
                         done.append(key)
@@ -2108,21 +2135,28 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for tit in thesis['metadata'][key]:
                             rec['tit'] = tit['value']
                         done.append(key)
+                    elif key in ['dc.title.alternative']:
+                        for otit in thesis['metadata'][key]:
+                            if 'otits' in rec:
+                                rec['otits'].append(otit['value'])
+                            else: 
+                                rec['otits'] = [otit['value']]
                     #degree
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
                                  'thesis.degree.name', "thesis.degree.level", 'dc.degree.name',
-                                 'dc.degree.level']:
+                                 'dc.degree.level', 'unsw.thesis.degreetype']:
                         for degree in thesis['metadata'][key]:
                             if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
                                 print('    skip "%s"' % (degree['value']))
-                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)']:
+                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
                     #keywords
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
-                                 'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled']:
+                                 'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled',
+                                 'dc.subject.other']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
