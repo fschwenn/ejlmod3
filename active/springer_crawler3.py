@@ -71,6 +71,10 @@ def get_records(url):
             if len(sys.argv) > 5:
                 rec['cnum'] = cnum
                 rec['tc'] = 'K'
+            if len(sys.argv) > 6:
+                rec['fc'] = sys.argv[6]
+
+            rec['fc'] = 'm'
             ejlmod3.metatagcheck(rec, pages[url], ['doi', 'prism.volume', 'prism.number'])
             #editors
             for div in pages[url].find_all('div', attrs = {'data-test' : 'editor-info'}):
@@ -384,8 +388,10 @@ for rec in prerecs:
                     rdoi = re.sub('%2F', '/', rdoi)
                     a.replace_with(', DOI: %s' % (rdoi))
             rec['refs'].append([('x', li.text.strip())])
-
-
+    #motherisbn
+    if rec['tc'] in ['S', 'C'] and re.search('^10\.1007\/978\-.*_\d+$', rec['doi']):
+        rec['motherisbn'] = re.sub('\D', '', re.sub('^10\.1007\/(978.*)_\d+$', r'\1', rec['doi']))
+            
         
     #SPECIAL CASE LANDOLT-BOERNSTEIN
     if not rec['autaff']:
