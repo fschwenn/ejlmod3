@@ -669,7 +669,7 @@ def convertarticle(issn, vol, isu, artid):
     if not rec['auts'] and rec['tit'] in ['Preface', 'Peer review declaration', 'Statement of Peer Review',
                                           'Peer Review Statement', 'Peer Review Declaration Form Guidance',
                                           'Peer Review Declaration Form', 'Peer review decleration',
-                                          'Peer review Declaration',
+                                          'Peer review Declaration', 'Editorial',
                                           'List of Reviewers', 'Conference Chairs',
                                           'Peer Review Declaration', 'Committee', 'Preface']:
         print('   skip non-article')
