@@ -309,12 +309,12 @@ def translatejnlname(ieeename):
         jnlname = 'IEEE Commun.Surveys Tutorials'
     elif ieeename in ['IEEE Journal of Selected Topics in Signal Processing']:
         jnlname = 'IEEE J.Sel.Top.Sig.Proc.'
-    elif ieeename in ['']:
-        jnlname = ''
-    elif ieeename in ['']:
-        jnlname = ''
-    elif ieeename in ['']:
-        jnlname = ''
+    elif ieeename in ['IEEE Network']:
+        jnlname = 'IEEE Network'
+    elif ieeename in ['IEEE Transactions on Audio and Electroacoustics']:
+        jnlname = 'IEEE Trans.Audio Electroacoust.'
+#    elif ieeename in ['']:
+#        jnlname = ''
     elif ieeename in ["IEEE Symposium Conference Record Nuclear Science 2004.",
                       "IEEE Nuclear Science Symposium Conference Record, 2005",
                       'Proceedings 35th Annual Symposium on Foundations of Computer Science']:
