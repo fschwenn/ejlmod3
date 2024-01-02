@@ -18,31 +18,32 @@ hdr = {'User-Agent' : 'Magic Browser'}
 rpp = 50
 skipalreadyharvested = True
 jnlfilename = 'THESES-BONN-%s' % (ejlmod3.stampoftoday())
+pages = 3
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
-    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 hdls = []
 recs = []
-for ddc in ['500', '510', '530']:
-    tocurl = 'https://bonndoc.ulb.uni-bonn.de/xmlui/handle/20.500.11811/1627/discover?filtertype_0=ddc&filter_relational_operator_0=equals&filter_0=ddc%3A' + ddc + '&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) #&filtertype=dateIssued&filter_relational_operator=equals&filter=[' + str(year) + '+TO+' + str(year) + ']
-    ejlmod3.printprogress("=", [[ddc], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req),features="lxml" )
-    for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
-        rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK'}
-        for a in div.find_all('a'):
-            for h4 in a.find_all('h4'):
-                rec['artlink'] = 'https://bonndoc.ulb.uni-bonn.de' + a['href']# + '?show=full'
-                rec['hdl'] = re.sub('.*handle\/', '', a['href'])
-                if not rec['hdl'] in hdls and not rec['hdl'] in alreadyharvested:
-                    recs.append(rec)
-                    hdls.append(rec['hdl'])
+for (ddc, fc) in [('500', ''), ('510', 'm'), ('520', 'a'), ('530', ''), ('004', 'c')]:
+    for page in range(pages):
+        tocurl = 'https://bonndoc.ulb.uni-bonn.de/xmlui/handle/20.500.11811/1627/discover?filtertype_0=ddc&filter_relational_operator_0=equals&filter_0=ddc%3A' + ddc + '&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&page=' + str(page+1)  #&filtertype=dateIssued&filter_relational_operator=equals&filter=[' + str(year) + '+TO+' + str(year) + ']
+        ejlmod3.printprogress("=", [[ddc, fc], [page+1, pages], [tocurl]])
+        req = urllib.request.Request(tocurl, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req),features="lxml" )
+        for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
+            rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK'}
+            for a in div.find_all('a'):
+                for h4 in a.find_all('h4'):
+                    rec['artlink'] = 'https://bonndoc.ulb.uni-bonn.de' + a['href']# + '?show=full'
+                    rec['hdl'] = re.sub('.*handle\/', '', a['href'])
+                    if not rec['hdl'] in hdls and not rec['hdl'] in alreadyharvested:
+                        if fc: rec['fc'] = fc
+                        recs.append(rec)
+                        hdls.append(rec['hdl'])
+        time.sleep(3)
 
 i = 0
 for rec in recs:
