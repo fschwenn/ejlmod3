@@ -13,6 +13,7 @@ from time import sleep
 import undetected_chromedriver as uc
 
 
+skipalreadyharvested = True
 
 if sys.argv[1] in ['E', 'S']:
         letter = sys.argv[1]
@@ -32,7 +33,7 @@ chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (optio
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
 publisher = 'Sociedad Mexicana de Fisica'
-jnlfilename = 'rmf%s%s.%s' % (letter, volume, issue)
+jnlfilename = 'rmf%s%s.%s_%s' % (letter, volume, issue, ejlmod3.stampoftoday())
 if len(sys.argv) > 4:
         jnlfilename += '_'+sys.argv[4]
 
@@ -47,6 +48,10 @@ elif letter == 'S':
         tocurl = "https://rmf.smf.mx/ojs/index.php/rmf-s/issue/archive"
 
 recs = []
+
+if skipalreadyharvested:
+        alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 
 redoi = re.compile('.*doi.org\/(10.\d+\/.*?)(, .*|\.$|$)')
 def get_article(url, section):
@@ -63,6 +68,9 @@ def get_article(url, section):
                                          'DC.Rights', 'DC.Description', 'citation_keywords',
                                          'citation_pdf_url', 'citation_reference',
                                          'DC.Language'])
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+                print('  already in backup')
+                return
         for meta in soup.find_all('meta'):
                 if meta.has_attr('name'):
                         #pages
