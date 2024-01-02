@@ -401,8 +401,8 @@ for doi in sample:
             elif meta['content'] in ['Progress of Theoretical Physics']:
                 rec['jnl'] = 'Prog.Theor.Phys.'
                 jnl = 'ptp'
-#            elif meta['content'] in ['']:
-#                rec['jnl'] = ''
+            elif meta['content'] in ['International Mathematics Research Notices']:
+                rec['jnl'] = 'Int.Math.Res.Not.'
 #            elif meta['content'] in ['']:
 #                rec['jnl'] = ''
             else:
