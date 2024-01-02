@@ -17,10 +17,9 @@ publisher = 'MIT'
 jnlfilename = 'THESES-MIT-%s' % (ejlmod3.stampoftoday())
 
 rpp = 100
-pages = 4
+pages = 8+17
 skipalreadyharvested = True
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-
+bunchsize = 10
 #these keywords are in fact the departments/institute/PhD prorgams
 boringkeywords = ['Joint Program in Biological Oceanography.',
                   'Joint Program in Marine Geology and Geophysics.',
@@ -67,12 +66,10 @@ boringkeywords = ['Joint Program in Biological Oceanography.',
                   'Massachusetts Institute of Technology. Supply Chain Management Program',
                   'Massachusetts Institute of Technology. Center for Real Estate. Program in Real Estate Development.']
 
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))        
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
@@ -146,7 +143,11 @@ for rec in prerecs:
     if keepit:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
+        ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
     else:
         ejlmod3.adduninterestingDOI(rec['hdl'])
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+
+
+#ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
