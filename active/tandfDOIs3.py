@@ -127,6 +127,7 @@ for doi in sample:
         print('Cloudflare :(')
         sys.exit(0)
     ejlmod3.metatagcheck(rec, apage, ['dc.Title', 'dc.Date', 'keywords'])
+    jnl = doi
     for meta in apage.find_all('meta', attrs = {'name' : 'dc.Identifier', 'scheme' : 'coden'}):
         print('    ', meta['content'])
         jnl = re.sub(', Vol.*', '', meta['content'])
@@ -144,6 +145,10 @@ for doi in sample:
             rec['jnl'] = 'Adv.Phys.'
         elif jnl in ['Journal of the American Statistical Association']:
             rec['jnl'] = 'J.Am.Statist.Assoc.'
+        elif jnl in ['Neutron News']:
+            rec['jnl'] = 'Neutron News
+        elif jnl in [''Philosophical Magazine']:
+            rec['jnl'] = 'Phil.Mag.'
         if re.search(', Vol\.', meta['content']):
             rec['vol'] = re.sub('.*Vol\. *(\d+).*', r'\1', meta['content'])
         if re.search(', No\.', meta['content']):
@@ -158,6 +163,24 @@ for doi in sample:
         rec['jnl'] = 'Phil.Mag.Ser.6'
     elif doi in ['10.1080/14786449508620739']:
         rec['jnl'] = 'Phil.Mag.Ser.5'
+    elif doi in ['10.1080/09500340.2013.856482']:
+        rec['jnl'] = 'J.Mod.Opt.'
+    elif doi in ['10.1080/00107514.2014.964942', '10.1080/00107514.2018.1488463']:
+        rec['jnl'] = 'Contemp.Phys.'
+    elif doi in ['10.1080/23746149.2017.1343097', '10.1080/23746149.2018.1457981']:
+        rec['jnl'] = 'Adv.Phys.X'
+    elif doi in ['10.1080/03610927808827599']:
+        rec['jnl'] = 'Commun.Stat.'
+    elif doi in ['10.1198/106186006X136976']:
+        rec['jnl'] = 'J.Comp.Graph.Stat.'
+    elif doi in ['10.1080/00405000.2013.829687']:
+        rec['jnl'] = ''
+    elif doi in ['']:
+        rec['jnl'] = ''
+    elif doi in ['']:
+        rec['jnl'] = ''
+    elif doi in ['']:
+        rec['jnl'] = ''
     time.sleep(random.randint(10,170-120))
     if not 'jnl' in rec:
         missingjournals.append(jnl)
