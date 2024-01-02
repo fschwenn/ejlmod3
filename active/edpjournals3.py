@@ -44,7 +44,7 @@ elif (jnl == 'easps'):
     tc = 'C'
 elif (jnl == 'aanda'):
     jnlname = 'Astron.Astrophys.'
-    urltrunk = 'httpss://www.aanda.org/articles/aa/abs/'
+    urltrunk = 'https://www.aanda.org/articles/aa/abs/'
     tc = 'P'
 elif (jnl == 'aandas'):
     jnlname = 'Astron.Astrophys.Suppl.Ser.'
