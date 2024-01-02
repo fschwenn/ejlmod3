@@ -17,7 +17,7 @@ jnlfilename = 'THESES-MANITOBA-%s' % (ejlmod3.stampoftoday())
 publisher = 'Manitoba U.'
 
 rpp = 40
-pages = 2
+pages = 4
 skipalreadyharvested = True
 
 boring = ['Pharmacology and Therapeutics', 'Disability Studies', 'History',
@@ -45,19 +45,10 @@ boring = ['Pharmacology and Therapeutics', 'Disability Studies', 'History',
           'Food and Nutritional Sciences', 'French, Spanish and Italian', 'Immunology',
           'Interdisciplinary Program', 'Linguistics', 'Natural Resources Management',
           'Études canadiennes', 'Indigenous Studies', 'Sociology and Criminology', 
-          'Preventive Dental Science (Pediatric Dentistry)']
+          'Preventive Dental Science (Pediatric Dentistry)', 'Éducation']
 
-boring += ['Master of Science (M.Sc.)', 'Master of Arts (M.A.)',  'Master of Education (M.Ed.)',
-           'Master of Fine Art (M.F.A.)',  'Master of Interior Design (M.I.D.)',
-           'Master of Landscape Architecture (M.Land.Arch.)',  'Master of Dentistry (M. Dent.)',
-           'Master of Natural Resources Management (M.N.R.M.)', 'Master of Nursing (M.N.)',
-           'Master of Social Work (M.S.W.)', 'Master of City Planning (M.C.P.)',
-           'Master of Mathematical, Computational and Statistical Sciences (M.M.C.S.S.)',
-           'Master of Laws (LL.M.)', 'Bachelor of Science (B.Sc.)',
-           'Maîtrise ès arts (Université de Saint-Boniface)', 'Master of Dentistry (M.Dent.)']
-
-
-boring = []
+boring += ['Maîtrise ès arts (Université de Saint-Boniface)', 'Master of Dentistry (M.Dent.)'
+           'Maîtrise en éducation (Université de Saint-Boniface)']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
@@ -85,11 +76,13 @@ for page in range(pages):
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
     baseurl = 'https://mspace.lib.umanitoba.ca'
     
-    for rec in ejlmod3.ngrx(tocpage, baseurl, [], boring=boring, alreadyharvested=alreadyharvested):
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.author', 'dc.contributor.supervisor', 'dc.date.issued','dc.degree.discipline', 'dc.degree.level', 'dc.description.abstract', 'dc.identifier.uri', 'dc.language.iso', 'dc.rights', 'dc.subject', 'dc.title', 'dc.title.alternative' ], boring=boring, alreadyharvested=alreadyharvested):
         rec['autaff'] = [[ rec['autaff'][0][0], publisher ]]
-        ejlmod3.printrecsummary(rec)
-        print(rec['thesis.metadata.keys'])
-        recs.append(rec)
+        if 'DC.TYPE=master thesis' in rec['note']:
+            print('   skip Master Thesis')
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
     print('  %i records so far' % (len(recs)))
     time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
