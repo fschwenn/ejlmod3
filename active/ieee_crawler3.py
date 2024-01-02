@@ -287,7 +287,8 @@ def ieee(number):
                                           'Title Page III', 'Title Page IV',
                                           'Copyright', 'Table of Contents',
                                           'Message from the AI4I 2022 General Co-Chairs',
-                                          'Message from the AI4I 2022 Program Co-Chairs']:
+                                          'Message from the AI4I 2022 Program Co-Chairs',
+                                          'Program', 'Welcome Message', 'Advance Program']:
                         notproperarticles += 1
                     else:
                         #print a
