@@ -15,7 +15,7 @@ import time
 startyear = ejlmod3.year(backwards=1)
 stopyear = ejlmod3.year(backwards=-1)
 rpp = 50
-pages = 2
+pages = 4
 skipalreadyharvested = True
 
 publisher = 'Queen Mary, U. of London (main)'
@@ -41,6 +41,7 @@ realpages = pages
 for page in range(pages):
     if len(prerecs) < numberofrecords and page < realpages:
         tocurl = 'https://qmro.qmul.ac.uk/xmlui/handle/123456789/56376/discover?rpp=' + str(rpp) + '&etal=0&group_by=none&page=' + str(page+1) + '&filtertype_0=dateIssued&filtertype_1=type&filter_relational_operator_1=equals&filter_relational_operator_0=equals&filter_1=Thesis&filter_0=%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D'
+        tocurl = 'https://qmro.qmul.ac.uk/xmlui/handle/123456789/56376/browse?rpp=' + str(rpp) + '&sort_by=3&type=dateissued&offset=' + str(rpp*page) + '&etal=-1&order=DESC'
         ejlmod3.printprogress("=", [[page+1, realpages], [tocurl]])
         try:
             tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
