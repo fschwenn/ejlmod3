@@ -13,6 +13,7 @@ import re
 
 publisher = 'European Mathematical Society'
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1)),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=2))]
 
@@ -46,7 +47,7 @@ def get_sub_site(sess, url, jnlname, tc):
 
 
     # Get the abstract
-    abstract_section = artpage.find_all('div', attrs={'class': 'css-xs3ztn'})
+    abstract_section = artpage.find_all('div', attrs={'class': 'formatted-text'})
     if len(abstract_section) == 1:
         abstract = abstract_section[0].find_all('p')
         if len(abstract) == 1:
@@ -54,7 +55,7 @@ def get_sub_site(sess, url, jnlname, tc):
 
     #affiliations
     for div in artpage.find_all('div', attrs={'role' : 'group'}):
-        lis = div.find_all('li', attrs={'class' : 'css-rh72n6'})
+        lis = div.find_all('li', attrs={'class' : 'list-item'})
         if len(lis):
             rec['autaff'] = []
             for li in lis:
@@ -140,11 +141,11 @@ def get_issue(session, jnl, issnr):
         print("Can't reach the page")
         exit(0)
     tocpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
-    for i in tocpage.find_all('a', attrs={'class': 'css-pek1le'}):
-        if i.get('href') is None:
-            continue
-        recs.append(get_sub_site(session, 'https://ems.press{}'.format(i.get('href')), journal_name, tc))
-        sleep(5)
+    for div in  tocpage.find_all('div', attrs={'class': 'content-container'}):
+        for a in div.find_all('a'):
+            if a.has_attr('href'):
+                recs.append(get_sub_site(session, 'https://ems.press{}'.format(a.get('href')), journal_name, tc))
+                sleep(5)
     if recs:
         if 'issue' in recs[-1]:
             jnlfilename = 'ems_%s_%s%s.%s' % (issnr, jnl, recs[-1]['vol'], recs[-1]['issue'])
@@ -166,7 +167,7 @@ for jnl in jnls:
         exit(0)
     jnlpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
     year = 9999
-    for ul in jnlpage.find_all('ul', attrs = {'class' : 'css-1r6balb'}):
+    for ul in jnlpage.find_all('ul', attrs = {'class' : 'issue-list'}):
         for child in ul.children:
             try:
                 cn = child.name
@@ -177,10 +178,12 @@ for jnl in jnls:
                     st = span.text
                     if re.search('[12]\d\d\d', st):
                         year = int(re.sub('.*?([12]\d\d\d).*', r'\1', st))
+                        print('    ', year)
             elif cn == 'li':
                 if year > ejlmod3.year(backwards=years):
                     for a in child.find_all('a'):
                         issnr = re.sub('.*\/', '', a['href'])
+                        print('      ', issnr)
                         if not issnr in done:
                             if not issnr in todo:
                                 todo.append(issnr)
