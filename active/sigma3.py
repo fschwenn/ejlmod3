@@ -22,8 +22,18 @@ print(tocurl)
 
 hdr = {'User-Agent' : 'MagicBrowser'}
 
-req = urllib.request.Request(tocurl, headers=hdr)
-tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+#req = urllib.request.Request(tocurl, headers=hdr)
+#tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+if not os.path.isfile('/tmp/s%s.html' % (jnlfilename)):
+    os.system('wget -O /tmp/s%s.html %s' % (jnlfilename, tocurl))
+inf = open('/tmp/s%s.html' % (jnlfilename), 'r')
+lines = ''.join(inf.readlines())
+lines = re.sub('> *<', '><', re.sub('[\n\r\t]', ' ', lines))
+lines = re.sub('<\/DD><DL>', '</DD></DL><DL>', lines)
+inf.close()
+#print(lines)
+
+tocpage = BeautifulSoup(lines)
 
 prerecs = {}
 for dl in tocpage.body.find_all('dl'):
@@ -32,11 +42,14 @@ for dl in tocpage.body.find_all('dl'):
     for dt in dl.find_all('dt'):
         for b in dt.find_all('b'):
             rec['tit'] = b.text.strip()
+            #print('\n\n', rec['tit'])
     for dd in dl.find_all('dd'):
         ddt = re.sub('[\n\t\r]', ' ', dd.text.strip())
+        #print('   ', ddt)
         parts = re.split('SIGMA', ddt)
         #p1
         p1 = int(re.sub('.*\), (\d+), .*', r'\1', parts[1]))
+        #print(p1)
         rec['p1'] = '%03i' % (p1)
         #pages
         rec['pages'] = re.sub('.*?(\d+) page.*', r'\1', parts[1])
