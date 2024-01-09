@@ -100,7 +100,7 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A']),
-                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.', 'Celest.Mech.Dyn.Astron.', 'Earth Moon Planets']),
+                  ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.', 'Celest.Mech.Dyn.Astron.', 'Earth Moon Planets', 'Discover Space']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
                   ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.', 'Leibniz Int.Proc.Inf.', 'Comput.Sci', 'J.Assoc.Comput.Machinery', 'Machine Learning', 'APL Mach.Learn.', 'SN Comput.Sci.', 'Neural Comput.', 'J.Sci.Comput.', 'J.Cryptolog.', 'Stat.Comput.', 'Des.Codes Cryptogr.', 'J.Supercomput.', 'Data Min.Knowl.Discov.', 'Int.J.Comput.Vision', 'J.Big Data', 'J.Comput.Chem.']),
                   ('kc', ['Quantum Machine Intelligence']),
@@ -1934,7 +1934,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Doctor of Education', 'Doctor of Musical Arts',
                      'Master of Arts (M.A.)', 'Master of Education (M.Ed.)',
                      'Master of Environment (M.Env.)', 'Master of Fine Art (M.F.A.)',
-                     'Master of Human Rights (M.H.R.)',
+                     'Master of Human Rights (M.H.R.)', 'Ed. D.',
                      'Master of Natural Resources Management (M.N.R.M.)',
                      'Master of Nursing (M.N.)', 'Master of Science (M.Sc.)',
                      'Master of Social Work (M.S.W.)']
@@ -2038,7 +2038,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.contributor.author.department', 'dc.contributor.department',
                                  'local.contributor.corporatename', 'dc.degree.programme',
                                  'unsw.relation.faculty', 'unsw.relation.school',
-                                 'dc.contributor.other']:
+                                 'dc.contributor.other', 'dc.department',
+                                 'dc.thesis.degreediscipline']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2049,7 +2050,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Departament d&s;Anàlisi Matemàtica',
                                                   'Departament de Matemàtiques']:
                                 rec['fc'] = 'm'
-                            elif fac['value'] in ['Statistics', 'Mathematical Statistics']:
+                            elif fac['value'] in ['Statistics', 'Mathematical Statistics',
+                                                  'Statistical Science']:
                                 rec['fc'] = 's'
                             elif fac['value'] in ['Centre for Quantum Computation &a; Communication Technology']:
                                 rec['fc'] = 'k'
@@ -2058,7 +2060,11 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['fc'] = 'a'
                             elif fac['value'] in ['Computer Science', 'Computational Science and Engineering',
                                                   'Department of Computer Science',
-                                                  'Departament d&s;Informàtica']:
+                                                  'Departament d&s;Informàtica',
+                                                  'Computer Science and#38; Applications',
+                                                  'Computer Science and Applications',
+                                                  'Computer Science &a; Applications',
+                                                  'Computer Engineering', 'Computer Science']:
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter']:
                                 rec['fc'] = 'f'
@@ -2068,9 +2074,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Departament de Física Aplicada i Electromagnetisme',
                                                       'Departament de Física Atòmica, Molecular i Nuclear',
                                                       'Departament de Física de la Terra i Termodinàmica',
-                                                      'Departament de Fisica Teòrica']:
+                                                      'Departament de Fisica Teòrica',
+                                                      'CIENCIAS FÍSICO MATEMÁTICAS Y CIENCIAS DE LA TIERRA']:
                                 rec['fac'].append(fac['value'])
-                                rec['note'].append('%s=%s' % (key.upper(), fac['value']))
+                                rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
                     #supervisor
                     elif key in ["dc.contributor.advisor", 'local.contributor.advisor',
@@ -2102,6 +2109,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for extent in thesis['metadata'][key]:
                             if re.search('\d\d p', extent['value']):
                                 rec['pages'] = re.sub('.*?(\d\d+) p.*', r'\1', extent['value'])
+                            elif re.search('\d\d leaves', extent['value']):
+                                rec['pages'] = re.sub('.*?(\d\d+) leaves.*', r'\1', extent['value'])
                             else:
                                 rec['note'].append('EXTENT='+extent['value'])
                         done.append(key)
@@ -2149,14 +2158,14 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
                                 print('    skip "%s"' % (degree['value']))
-                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate']:
+                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate', 'Dissertation', 'doctoral', 'Ph. D.', 'dissertation']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
                     #keywords
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
                                  'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled',
-                                 'dc.subject.other']:
+                                 'dc.subject.lcc', 'dc.subject.other']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
