@@ -14,10 +14,10 @@ import time
 publisher = 'U. Hamburg (main)'
 jnlfilename = 'THESES-HAMBURG-%s' % (ejlmod3.stampoftoday())
 
-pages = 1
+pages = 2
 pagesmultiplier = 10
 skipalreadyharvested = True
-rpp = 20 # andere Werte gehen eh nicht
+rpp = 50 
 years = 2
 
 hdr = {'User-Agent' : 'Magic Browser'}
@@ -28,47 +28,55 @@ if skipalreadyharvested:
 prerecs = []
 recs = []
 artlinks = []
-for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
-    ejlmod3.printprogress("=", [[fac]])
+#for fac in ['510+Mathematik', '530+Physik', '004+Informatik']:
+for (fac, fc) in [('510%3A+Mathematik', 'm'),
+                  ('CMS-Detektor', 'e'), ('ATLAS', 'e'), ('LHC', 'e'),
+                  ('39.22%3A+Astrophysik', 'a'),
+                  ('33.24%3A+Quantenfeldtheorie', 't'),
+                  ('33.23%3A+Quantenphysik', 'k'),
+                  ('33.61%3A+Festk%C4%B6rperphysik', 'f'),
+                  ('530%3A+Physik', ''),
+                  ('004%3A+Informatik', 'c')]:
+    #ejlmod3.printprogress("=", [[fac]])
     for page in range(pages):
-        time.sleep(1)
-        tocurl = 'https://ediss.sub.uni-hamburg.de/simple-search?query=&location=&filter_field_1=subject&filter_type_1=equals&filter_value_1=' + fac + '&crisID=&relationName=&sort_by=bi_sort_2_sort&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(page*rpp)
+        tocurl = 'https://ediss.sub.uni-hamburg.de/simple-search?query=&location=&filter_field_1=dateIssued&filter_type_1=equals&filter_value_1=%5B' + str(ejlmod3.year(backwards=years)+1) + '+TO+' + str(ejlmod3.year()) + '%5D&filter_field_2=subject&filter_type_2=equals&filter_value_2=' + fac + '&relationName=&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(page*rpp)
+        
         ejlmod3.printprogress("=", [[fac], [page+1, pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
         for tr in tocpage.body.find_all('tr'):
             for td in tr.find_all('td', attrs = {'headers' : 't1'}):
                 rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
-                if fac == '510+Mathematik':
-                    rec['fc'] = 'm'
-                elif fac == '004+Informatik':
-                    rec['fc'] = 'c'
+                if fc:
+                    rec['fc'] = fc
                 for a in td.find_all('a'):
                     rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
-                    if ejlmod3.checknewenoughDOI(rec['artlink']):
+                    if ejlmod3.checknewenoughDOI(rec['artlink']) and not rec['artlink'] in artlinks:
                         prerecs.append(rec)
                         artlinks.append(rec['artlink'])
         print('  %4i records so far' % (len(prerecs)))
+        time.sleep(1)
+    time.sleep(5)
 
 
 
 #stopped DDC :-(
-for page in range(pages*pagesmultiplier):
-    time.sleep(3)
-    tocurl = 'https://ediss.sub.uni-hamburg.de/handle/ediss/2?sort_by=2&order=DESC&rpp=' + str(rpp) + '&offset=' + str(page*rpp)
-    ejlmod3.printprogress("=", [['all'], [page+1, pages*pagesmultiplier], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
-    for tr in tocpage.body.find_all('tr'):
-        for td in tr.find_all('td', attrs = {'headers' : 't1'}):
-            rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
-            for a in td.find_all('a'):
-                rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
-                if ejlmod3.checknewenoughDOI(rec['artlink']) and not rec['artlink'] in artlinks:
-                    if ejlmod3.checkinterestingDOI(rec['artlink']):
-                        prerecs.append(rec)
-                        artlinks.append(rec['artlink'])
-    print('  %4i records so far' % (len(prerecs)))
+#for page in range(pages*pagesmultiplier):
+#    time.sleep(3)
+#    tocurl = 'https://ediss.sub.uni-hamburg.de/handle/ediss/2?sort_by=2&order=DESC&rpp=' + str(rpp) + '&offset=' + str(page*rpp)
+#    ejlmod3.printprogress("=", [['all'], [page+1, pages*pagesmultiplier], [tocurl]])
+#    req = urllib.request.Request(tocurl, headers=hdr)
+#    tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
+#    for tr in tocpage.body.find_all('tr'):
+#        for td in tr.find_all('td', attrs = {'headers' : 't1'}):
+#            rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
+#            for a in td.find_all('a'):
+#                rec['artlink'] = 'https://ediss.sub.uni-hamburg.de' + a['href']
+#                if ejlmod3.checknewenoughDOI(rec['artlink']) and not rec['artlink'] in artlinks:
+#                    if ejlmod3.checkinterestingDOI(rec['artlink']):
+#                        prerecs.append(rec)
+#                        artlinks.append(rec['artlink'])
+#    print('  %4i records so far' % (len(prerecs)))
     
     
 
