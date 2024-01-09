@@ -105,7 +105,7 @@ with Session() as session:
                         rec['license']['statement'] = payload[0].upper() + '-' + payload[1].upper()
 
                 if title == 'dc.type':
-                    if data != 'doctoralThesis':
+                    if not data in ['doctoralThesis', 'doctoral thesis']:
                         print('    skip', data)
                         jump = True
 
