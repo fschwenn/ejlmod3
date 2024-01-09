@@ -13,13 +13,33 @@ import os
 
 publisher = 'KIT, Karlsruhe'
 jnlfilename = 'THESES-KIT-%s' % (ejlmod3.stampoftoday())
-pages = 4 
+pages = 10
 skipalreadyharvested = True
+boring = ['Fakultät für Geistes- und Sozialwissenschaften (GEISTSOZ)', 'Institut für Kolbenmaschinen (IFKM)',
+          'nstitut für Technik der Informationsverarbeitung (ITIV)', 'Institut für Nukleare Entsorgung (INE)',
+          'Institut für Organische Chemie (IOC)', 'Institut für Telematik (TM)',
+          '3D Matter Made to Order (3DMM2O)Institut für Funktionelle Grenzflächen (IFG)',
+          'Fakultät für Chemieingenieurwesen und Verfahrenstechnik (CIW)',
+          'Fakultät für Chemie und Biowissenschaften (CHEM-BIO)',
+          'Fakultät für Wirtschaftswissenschaften (WIWI)', 'Institut für Volkswirtschaftslehre (ECON)',
+          'Institut für Angewandte Biowissenschaften (IAB)KIT-Bibliothek (BIB)',
+          'Institut für Angewandte Biowissenschaften (IAB)', 'Institut für Anthropomatik und Robotik (IAR)',
+          'Institut für Biomedizinische Technik (IBT)', 'Institut für Bio- und Lebensmitteltechnik (BLT)',
+          'Institut für Finanzwirtschaft, Banken und Versicherungen (FBV)',
+          'Institut für Funktionelle Grenzflächen (IFG)',  'Institut für Produktionstechnik (WBK)',
+          'Institut für Industrielle Informationstechnik (IIIT)',
+          'Institut für Regelungs- und Steuerungssysteme (IRS)',
+          'Institut für Technische Chemie und Polymerchemie (ITCP)',
+          'Institut für Technische Thermodynamik und Kältetechnik (TTK)',
+          'Institut für Thermische Verfahrenstechnik (TVT)',
+          'Fakultät für Bauingenieur-, Geo- und Umweltwissenschaften (BGU)',
+          'Fakultät für Elektrotechnik und Informationstechnik (ETIT)', 'Fakultät für Maschinenbau (MACH)',
+          'Institut für Angewandte Materialien – Werkstoffkunde (IAM-WK)', 'Institut für Hydromechanik (IFH)']
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
-options.add_argument('--headless')
+#options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -27,7 +47,9 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 prerecs = []
 for page in range(pages):
-    tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,*&tab=kit&sortby=date&vid=KIT&facet=local5,include,istHochschulschrift&mfacet=local3,include,istFachPhys,1&mfacet=local3,include,istFachMath,1&mode=simple&offset=' + str(10*page) + '&fn=search'
+    tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,*&tab=kit&sortby=date&vid=KIT&facet=local8,include,istHochschulschrift&mfacet=local3,include,istFachPhys,1&mfacet=local3,include,istFachMath,1&mode=simple&offset=' + str(10*page) + '&fn=search'
+    tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,*&tab=kit&sortby=date&vid=KIT&facet=rtype,include,dissertations&mfacet=local3,include,istFachPhys,1&mfacet=local3,include,istFachMath,1&mode=simple&offset=' + str(10*page) + '&fn=search'
+    tocurl = 'https://primo.bibliothek.kit.edu/primo-explore/search?query=any,contains,Hochschulschrift,AND&pfilter=creationdate,exact,2-YEAR,AND&tab=kit_evastar&search_scope=KIT_Evastar&vid=KIT&facet=local8,include,istDissertation&mode=advanced&offset=' + str(10*page) + '&came_from=sort'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     newrecs = []
     try:
@@ -45,6 +67,7 @@ for page in range(pages):
             rec = {'jnl' : 'BOOK', 'tc' : 'T', 'note' : [], 'keyw' : [], 'supervisor' : []}
             rec['data-recordid'] = div2['data-recordid']
             rec['artlink'] = 'https://primo.bibliothek.kit.edu/primo-explore/fulldisplay?docid=' + div2['data-recordid']+ '&context=L&vid=KIT&lang=de_DE'
+            rec['artlink'] = 'https://primo.bibliothek.kit.edu/permalink/f/dirnb3/' + div2['data-recordid']
             if ejlmod3.checkinterestingDOI(rec['artlink']):
                 prerecs.append(rec)
             else:
@@ -68,39 +91,79 @@ for rec in prerecs:
         driver.get(rec['artlink'])
         time.sleep(4)        
         artpage = BeautifulSoup(driver.page_source, features="lxml")
-    tabelle = {}
-    for div in artpage.body.find_all('div', attrs = {'class' : 'full-view-inner-container'}):
-        for div2 in div.find_all('div', attrs = {'class' : 'standorte'}):
-            for div3 in div2.find_all('div', attrs = {'class' : 'item-details-element-container'}):
-                rec['keyw'] += re.split(' \/ ', div3.text.strip())
-        for div2 in div.find_all('div', attrs = {'class' : 'full-view-section-content'}):
-            for div3 in div2.find_all('div', attrs = {'class' : 'layout-block-xs'}):
-                for span in div3.find_all('span', attrs = {'class' : 'bold-text'}):
-                    for span2 in div3.find_all('span', attrs = {'class' : 'ng-binding'}):
-                        if span.text.strip() in list(tabelle.keys()):
-                            tabelle[span.text.strip()].append(span2.text.strip())
-                        else:
-                            tabelle[span.text.strip()] = [span2.text.strip()]
-    if 'Titel' in list(tabelle.keys()):
-        rec['tit'] = re.sub(' *\/ (von|by).*', '', tabelle['Titel'][0])
-    if 'Jahr' in list(tabelle.keys()):
-        rec['year'] = tabelle['Jahr'][0]
-    if 'Sprache' in list(tabelle.keys()):
-        if tabelle['Sprache'][0] == 'Deutsch':
-            rec['language'] = 'German'
-    if 'Verfasser' in list(tabelle.keys()):
-        rec['autaff'] = [[ re.sub(' *\[.*', '', tabelle['Verfasser'][0]), publisher ]]
-    if 'Auflage / Umfang' in list(tabelle.keys()):
-        if re.search('\d\d+ Seiten', tabelle['Auflage / Umfang'][0]):
-            rec['pages'] = re.sub('.*?(\d\d+) Seiten.*', r'\1', tabelle['Auflage / Umfang'][0])
-    if 'Identifikator' in list(tabelle.keys()):
-        for ide in tabelle['Identifikator']:
-            if re.search('DOI: 10', ide):
-                rec['doi'] = re.sub('.*?(10.*)', r'\1', ide)
-            elif re.search('\D978.?\d.?\d.?\d', ide):
-                isbn = re.sub('\-', '', re.sub('.*?(978.*[\dX]).*', r'\1', ide))
-                if not isbn in isbns:
-                    isbns.append(isbn)
+    ouf = open('/tmp/kit' + re.sub('\W', '', rec['artlink']), 'w')
+    ouf.write(artpage.prettify())
+    ouf.close()
+    #title
+    for div in artpage.body.find_all('div', attrs = {'id' : 'kitopen_primo_titel'}):
+        rec['tit'] = div.text.strip()
+    #author
+    for div in artpage.body.find_all('div', attrs = {'id' : 'KIT_KITopen_allauthors'}):
+        for span in div.find_all('span'):
+            rec['autaff'] = [[ span.text.strip() ]]
+        for a in div.find_all('a'):
+            if a.has_attr('href') and re.search('orcid\.org', a['href']):
+                rec['autaff'][-1].append(re.sub('.*orcid.org\/', 'ORICD:', a['href']))
+        rec['autaff'][-1].append(publisher)
+
+    for div in artpage.body.find_all('div', attrs = {'class' : 'layout-block-xs'}):
+        for span in div.find_all('span', attrs = {'class' : 'bold-text'}):
+            spant = span.text.strip()
+        for div2 in div.find_all('div', attrs = {'class' : 'ng-binding'}):
+            #institut
+            if spant in ['Zugehörige Institution(en) am KIT', 'Fakultät', 'Institut']:
+                institut = div2.text.strip()
+                if institut in ['Institut für Angewandte und Numerische Mathematik (IANM)',
+                                'Institut für Algebra und Geometrie (IAG)',
+                                'Institut für Analysis (IANA)']:
+                    rec['fc'] = 'm'
+                elif institut in ['Institut für Astroteilchenphysik (IAP)']:
+                    rec['fc'] = 'a'
+                elif institut in ['Institut für Theorie der Kondensierten Materie (TKM)']:
+                    rec['fc'] = 'f'
+                elif institut in ['Institut für Quantenmaterialien und -technologien (IQMT)']:
+                    rec['fc'] = 'k'
+                elif institut in ['Institut für Experimentelle Teilchenphysik (ETP)']:
+                    rec['fc'] = 'e'
+                elif institut in ['Institut für Theoretische Teilchenphysik (TTP)']:
+                    rec['fc'] = 'tp'
+                elif institut in ['Fakultät für Informatik (INFORMATIK)']:
+                    rec['fc'] = 'c'
+                elif institut in boring:
+                    keepit = False
+                    print('   skip "%s"' % (institut))
+                else:
+                    rec['note'].append('INST:::'+institut)
+            #language
+            if spant in ['Sprache']:
+                lang = div2.text.strip()
+                if lang == 'Deutsch':
+                    rec['language'] = 'German'
+                elif lang != 'Englisch':
+                    rec['note'].append('LANG:::' + lang)
+            #pages
+            if spant in ['Umfang']:
+                umfang = div2.text.strip()
+                if re.search('\d\d', umfang):
+                    rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', umfang)
+            #date
+            if spant in ['Prüfungsdatum']:
+                rec['date'] = div2.text.strip()
+            if spant in ['Publikationsjahr']:
+                rec['year'] = div2.text.strip()
+            #supervisor
+            if spant in ['Referent/Betreuer']:
+                for br in div2.find_all('br'):
+                    br.replace_with('XXX')
+                for sv in re.split('XXX', re.sub('[\n\t\r]', '', div2.text.strip())):
+                    rec['supervisor'].append([ sv ])
+    #PID
+    for span in artpage.body.find_all('span', attrs = {'id' : 'hiddenId'}):
+        for a in span.find_all('a'):
+            if a.has_attr('href') and re.search('doi\.org', a['href']):
+                rec['doi'] = re.sub('.*doi.org\/', '', a['href'])
+            
+
     if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
         print('   already in backup')
         continue
@@ -153,10 +216,11 @@ for rec in prerecs:
                                 rec['pages'] = re.sub('.*?(\d\d\d+).*', r'\1', tds[1].text.strip())
                         #supervisor
                         elif re.search('Betreuer', tds[0].text):
-                            for br in tds[1].find_all('br'):
-                                br.replace_with(';;;')
-                            for sv in re.split(' *;;; *', tds[1].text.strip()):
-                                rec['supervisor'].append([ re.sub('Prof\. ', '', re.sub('Dr\. ', '', sv)) ])
+                            if not rec['supervisor']:
+                                for br in tds[1].find_all('br'):
+                                    br.replace_with(';;;')
+                                    for sv in re.split(' *;;; *', tds[1].text.strip()):
+                                        rec['supervisor'].append([ re.sub('Prof\. ', '', re.sub('Dr\. ', '', sv)) ])
                         #date
                         elif re.search('Pr.fungsdatum', tds[0].text):
                             rec['MARC'] = [ ['500', [('a', 'Presented on ' + re.sub('(\d\d).(\d\d).(\d\d\d\d)', r'\3-\2-\1', tds[1].text.strip()))] ] ]
@@ -177,8 +241,11 @@ for rec in prerecs:
                                 rec['fc'] = 'e'
                             elif institut in ['Institut für Theoretische Teilchenphysik (TTP)']:
                                 rec['fc'] = 'tp'
+                            elif institut in boring:
+                                keepit = False
+                                print('   skip "%s"' % (institut))
                             else:
-                                rec['note'].append(tds[1].text.strip())
+                                rec['note'].append('INST:::'+institut)
                         #urn
                         elif tht == 'Identifikator':
                             for br in tds[1].find_all('br'):
