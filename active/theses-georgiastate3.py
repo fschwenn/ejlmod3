@@ -15,6 +15,7 @@ import ssl
 publisher = 'Georgia State U.'
 jnlfilename = 'THESES-GeorgiaStateU-%s' % (ejlmod3.stampoftoday())
 years = 2
+skipalreadyharvested = True
 
 #bad certificate
 ctx = ssl.create_default_context()
@@ -22,7 +23,11 @@ ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 hdr = {'User-Agent' : 'Magic Browser'}
 deps = [('math', 'm'), ('phy_astr', ''), ('cs', 'c')]
-recs = []
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
+prerecs = []
 i = 0
 for (dep, fc) in deps:
     i += 1
@@ -50,10 +55,11 @@ for (dep, fc) in deps:
                             rec = {'tc' : 'T', 'jnl' : 'BOOK', 'year' : str(year), 'supervisor' : []}
                             rec['artlink'] = a['href']
                             if fc: rec['fc'] = fc
-                            recs.append(rec)
+                            prerecs.append(rec)
 
-for (i, rec) in enumerate(recs):
-    ejlmod3.printprogress('-', [[i+1, len(recs)], [rec['artlink']]])
+recs = []
+for (i, rec) in enumerate(prerecs):
+    ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         req = urllib.request.Request(rec['artlink']+'?show=full', headers=hdr)
         artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
@@ -80,6 +86,8 @@ for (i, rec) in enumerate(recs):
     for div in artpage.find_all('div', attrs = {'id' : ['advisor1', 'advisor2']}):
         for p in div.find_all('p'):
             rec['supervisor'].append([p.text.strip()])
-    ejlmod3.printrecsummary(rec)
+    if not 'doi' in rec or not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        recs.append(rec)
+        ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
