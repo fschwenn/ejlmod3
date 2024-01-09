@@ -23,6 +23,8 @@ issue = sys.argv[4]
 #cnum = sys.argv[5]
 #fc = sys.argv[6]
 
+skipalreadyharvested = True
+
 boring = ['Editorial', 'Comment', 'Q&A', 'News & Views', 'Obituary',
           'News Q&A', 'Correspondence', 'News And Views', 'Career Q&A',
           'Career News', 'Outlook', 'Technology Feature', 'Book Review', 'Obituary', 'News',
@@ -30,15 +32,17 @@ boring = ['Editorial', 'Comment', 'Q&A', 'News & Views', 'Obituary',
           'research-highlight', 'Research Highlight', 'Research Briefing', 'Meeting Report',
           'Futures', 'Where I Work', 'Books & Arts', 'Expert Recommendation', 'Measure for Measure',
           'News Round-up', 'News & Views', 'Q&a', 'q-and-a', 'Nature Index', 'nature-index',
-          'News and views', 'Career Feature', 'News and Views']
-boring += ['Research Highlights']
+          'News and views', 'Career Feature', 'News and Views', 'News Feature']
+boring += ['Research Highlights', 'Interview', 'Commentary', 'Matters Arising',
+           'Perspective', 'Why it matters', 'Why it Matters', 'Q & A',
+           'Reverse Engineering']
 
 if re.search('springer', toclink):
     urltrunc = 'https://link.springer.com'
 else:
     urltrunc = 'https://www.nature.com'
 
-jnlfilename = re.sub(' ', '_', "%s%s.%s" % (jnl, vol, issue))
+jnlfilename = re.sub(' ', '_', "%s%s.%s_%s" % (jnl, vol, issue, ejlmod3.stampoftoday()))
 if len(sys.argv) > 5:
     cnum = sys.argv[5]
     jnlfilename += '_' + cnum
@@ -47,10 +51,13 @@ if len(sys.argv) > 5:
 print("%s %s, Issue %s" % (jnl, vol, issue))
 print("get table of content... from %s" % (toclink))
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 def get_records(url):
     global jnlfilename
     recs = []
+    monography = False
     print(('get_records:'+url))
     try:
         page = urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(url)
@@ -61,13 +68,23 @@ def get_records(url):
         sys.exit(0)
     #booktitle
     if jnl == 'BOOK':
+        #book series
+        bookseries = False
+        for div in pages[url].find_all('div', attrs = {'class' : 'c-book-evaluation-divider'}):
+            for p in div.find_all('p', attrs = {'data-test' : 'series-link'}):
+                for a in p.find_all('a'):
+                    bookseries = [('a', a.text.strip())]
+                    if re.search('volume \d', p.text):
+                        bookseries.append(('v', re.sub('.*volume (\d+).*', r'\1', p.text.strip())))
         for h1 in pages[url].find_all('h1', attrs = {'data-test' : 'book-title'}):
             booktitle = h1.text.strip()
             print('BOOK: %s' % (booktitle))
             jnlfilename = re.sub('\W', '_', booktitle)
             for p in pages[url].find_all('p', attrs = {'data-test' : 'book-subtitle'}):
                 booktitle += ': ' + p.text.strip()
-            rec = {'jnl' : jnl, 'tit' : booktitle, 'tc' : 'B', 'isbns' : []}
+            rec = {'jnl' : jnl, 'tit' : booktitle, 'tc' : 'B', 'isbns' : [], 'refs' : []}
+            if bookseries:
+                rec['bookseries'] = bookseries
             if len(sys.argv) > 5:
                 rec['cnum'] = cnum
                 rec['tc'] = 'K'
@@ -84,6 +101,20 @@ def get_records(url):
                         rec['autaff'].append([span.text.strip() + ' (Ed.)'])
                     for p in li.find_all('p', attrs = {'class': 'c-article-author-affiliation__address'}):
                         rec['autaff'][-1].append(p.text.strip())
+            #authors
+            for div in pages[url].find_all('div', attrs = {'data-test' : 'author-info'}):
+                monography = True
+                rec['autaff'] = []
+                for li in div.find_all('li', attrs = {'class': 'c-article-authors-listing__item'}):
+                    for span in li.find_all('span', attrs = {'class': 'c-article-authors-search__title'}):
+                        rec['autaff'].append([span.text.strip()])
+                    for p in li.find_all('p', attrs = {'class': 'c-article-author-affiliation__address'}):
+                        rec['autaff'][-1].append(p.text.strip())
+            #abstract
+            for section in pages[url].find_all('section'):
+                for h2 in section.find_all('h2', attrs = {'id' : 'about-this-book'}):
+                    for div in section.find_all('div', attrs = {'class' : 'c-book-section'}):
+                        rec['abs'] = div.text.strip()
             #ISBNS, pages[url]s
             for li in pages[url].find_all('li', attrs = {'class': 'c-bibliographic-information__list-item'}):
                 for span2 in li.find_all('span', attrs = {'class': 'c-bibliographic-information__value'}):
@@ -101,13 +132,13 @@ def get_records(url):
                                              ('b', 'online')])
                     elif spant == 'Number of Pages':
                         rec['pages'] = re.sub('\D', '', span2t)
-                    elif spant == 'Series Title':
+                    elif spant == 'Series Title' and not bookseries:
                         rec['bookseries'] =  [('a', span2t)]
                     elif spant == 'Copyright Information':
                         rec['date'] = re.sub('.*([12]\d\d\d).*', r'\1', span2t)
             recs.append(rec)
     else:
-        booktitle = False   
+        booktitle = False
     #content spread over several pages?
     numpag = pages[url].body.findAll('span', attrs={'class': 'number-of-pages'})
     print('numpage=', numpag)
@@ -222,6 +253,8 @@ def get_records(url):
                                 if rec['artlink'] in artlinks:
                                     print('   %s alredady in list' % (rec['artlink']))
                                 else:
+                                    if monography:
+                                        rec['chapterofmonography'] = True
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
                     for h5 in li.find_all('h5'):
@@ -241,6 +274,8 @@ def get_records(url):
                                 if rec['artlink'] in artlinks:
                                     print('   %s alredady in list' % (rec['artlink']))
                                 else:
+                                    if monography:
+                                        rec['chapterofmonography'] = True
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
         if not foundsection:
@@ -257,6 +292,8 @@ def get_records(url):
                         if rec['artlink'] in artlinks:
                             print('   %s alredady in list' % (rec['artlink']))
                         else:
+                            if monography:
+                                rec['chapterofmonography'] = True
                             recs.append(rec)
                             artlinks.append(rec['artlink'])            
         ejlmod3.printprogress('+', [[i+1, len(pages)], [tocurl], [len(recs)]])
@@ -275,6 +312,9 @@ for rec in prerecs:
     if not 'artlink' in rec:
         ejlmod3.printprogress('-', [[i, len(prerecs)], [len(recs)]])
         ejlmod3.printrecsummary(rec)
+        recs.append(rec)
+        continue
+    elif re.search('www.nature.com\/collections', rec['artlink']):
         continue
     if issue != '0':
         rec['issue'] = issue
@@ -287,8 +327,10 @@ for rec in prerecs:
         rec['tc'] = 'C'
 #        rec['motherisbn'] = '9783034890786'
     elif vol == '0' or jnl == 'BOOK':
-         rec['tc'] = 'S'
+         rec['tc'] = 'K'
          #rec['fc'] = 'g'
+    elif jnl in ['Lect.Notes Comput.Sci.', 'Lect.Notes Phys.Monogr.']:
+        rec['tc'] = 'C'
     else:
         rec['tc'] = 'P'
     if len(sys.argv) > 6:
@@ -328,10 +370,19 @@ for rec in prerecs:
     #article type
     if 'citation_article_type' in rec:
         for at in rec['citation_article_type']:
+            print('    citation_article_type:', at[24:])
             if at[24:] in boring:
                 keepit = False                
             elif not at[24:] in ['Article', 'Letter', 'Review Article', 'Publisher Correction']:
                 rec['note'].append(at)
+    for li in artpage.find_all('li', attrs = {'data-test' : 'article-category'}):
+        print('    article-category:', li.text)
+        if li.text in boring:
+            keepit = False
+        elif li.text == 'Review Article':
+            rec['tc'] += 'R'
+        elif not li.text in ['Article', 'Letter', 'Publisher Correction']:
+            rec['note'].append(li.text)
     #license
     for a in artpage.body.find_all('a', attrs = {'rel' : 'license'}):
         if a.has_attr('href') and re.search('creativecomm', a['href']):
@@ -446,7 +497,16 @@ for rec in prerecs:
             for div in artpage.body.find_all('div', attrs = {'class' : 'section__content'}):
                 for p in div.find_all('p'):
                     rec['abs'] = p.text.strip()
-    if keepit:
+
+    if 'chapterofmonography' in rec:
+        if 'refs' in rec and rec['refs']:
+            print('  chapter of monography - just adding %i references of this chapter to the other %i references of the book' % (len(rec['refs']), len(recs[0]['refs'])))
+            recs[0]['refs'] += rec['refs']
+        else:
+            print('  chapter of monography')
+    elif 'doi' in rec and skipalreadyharvested and rec['doi'] in alreadyharvested:
+        print('    %s already in backup' % (rec['doi']))        
+    elif keepit:
         rec['tit'] = re.sub('\\\\\(', '$', re.sub('\\\\\)', '$', rec['tit']))
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
@@ -454,6 +514,44 @@ for rec in prerecs:
             print('      %s %s, %s-%s' % (rec['jnl'], rec['vol'], rec['p1'], rec['p2']))
         else:
             print('      %s %s, %s' % (rec['jnl'], rec['vol'], rec['p1']))
+
+
+sample = {'10.1007/978-3-030-25027-0_9' : {'all' : 30, 'core' : 28},
+          '10.1007/978-94-011-1980-1_6' : {'all' : 34, 'core' : 26},
+          '10.1007/978-3-540-70583-3_25' : {'all' : 29, 'core' : 24},
+          '10.1007/978-1-4612-4728-9' : {'all' : 38, 'core' : 22},
+          '10.1007/978-1-4939-9084-9' : {'all' : 39, 'core' : 21},
+          '10.1007/978-3-662-02520-8' : {'all' : 49, 'core' : 20},
+          '10.1007/978-1-4757-6568-7' : {'all' : 31, 'core' : 20},
+          '10.1007/978-3-540-47620-7' : {'all' : 47, 'core' : 16},
+          '10.1007/978-94-009-0491-0' : {'all' : 22, 'core' : 16},
+          '10.1007/978-3-319-16721-3' : {'all' : 18, 'core' : 16},
+          '10.1007/978-0-387-40065-5' : {'all' : 26, 'core' : 15},
+          '10.1007/978-3-319-96878-0_5' : {'all' : 18, 'core' : 15},
+          '10.1007/978-0-387-30440-3_428' : {'all' : 15, 'core' : 15},
+          '10.1007/978-3-319-99046-0' : {'all' : 31, 'core' : 14},
+          '10.1007/978-3-540-46360-3' : {'all' : 22, 'core' : 14},
+          '10.1007/978-3-319-59939-7_5' : {'all' : 17, 'core' : 14},
+          '10.1007/978-3-319-29360-8_3' : {'all' : 17, 'core' : 14},
+          '10.1007/978-3-642-74626-0_8' : {'all' : 45, 'core' : 13},
+          '10.1007/978-3-030-44223-1_23' : {'all' : 13, 'core' : 13},
+          '10.1007/978-1-4614-6336-8' : {'all' : 27, 'core' : 12},
+          '10.1007/978-3-642-65138-0' : {'all' : 22, 'core' : 12},
+          '10.1007/978-3-642-14162-1_24' : {'all' : 13, 'core' : 11},
+          '10.1007/978-3-319-70697-9_9' : {'all' : 12, 'core' : 11},
+          '10.1007/978-1-4615-3386-3_34' : {'all' : 12, 'core' : 10},
+          '10.1007/978-3-642-14623-7_37' : {'all' : 11, 'core' : 10},
+          '10.1007/978-3-030-45724-2_10' : {'all' : 10, 'core' : 10}}
+for rec in recs:
+    if 'doi' in rec and rec['doi'] in sample:
+        if 'note' in rec:
+            rec['note'] += ['reharvest_based_on_refanalysis',
+                            '%i citations from INSPIRE papers' % (sample[rec['doi']]['all']),
+                            '%i citations from CORE INSPIRE papers' % (sample[rec['doi']]['core'])]
+        else:
+            rec['note'] = ['reharvest_based_on_refanalysis',
+                           '%i citations from INSPIRE papers' % (sample[rec['doi']]['all']),
+                           '%i citations from CORE INSPIRE papers' % (sample[rec['doi']]['core'])]
         
 
                 
