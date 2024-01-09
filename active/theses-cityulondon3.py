@@ -47,19 +47,22 @@ for y in range(years):
     prerecs = []
     tocurl = 'https://openaccess.city.ac.uk/view/divisions/CITYPHD/%i.html' % (year)
     ejlmod3.printprogress('=', [[y+1, years], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(2)
-    for p in tocpage.find_all('p'):
-        for a in p.find_all('a'):
-            if a.has_attr('href') and re.search('openaccess.city.ac.uk\/id', a['href']):
-                j += 1
-                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'year' : str(year), 'supervisor' : [], 'note' : []}
-                rec['tit'] = a.text.strip()
-                rec['doi'] = '30.3000/CityULondon/' + re.sub('\D', '', a['href'])
-                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
-                    if ejlmod3.checkinterestingDOI(rec['doi']):
-                        prerecs.append(rec)
+    try:
+        req = urllib.request.Request(tocurl, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        time.sleep(2)
+        for p in tocpage.find_all('p'):
+            for a in p.find_all('a'):
+                if a.has_attr('href') and re.search('openaccess.city.ac.uk\/id', a['href']):
+                    j += 1
+                    rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'year' : str(year), 'supervisor' : [], 'note' : []}
+                    rec['tit'] = a.text.strip()
+                    rec['doi'] = '30.3000/CityULondon/' + re.sub('\D', '', a['href'])
+                    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                        if ejlmod3.checkinterestingDOI(rec['doi']):
+                            prerecs.append(rec)
+    except:
+        print('  page not found')
     print('  %4i records so far (%4i checked)' % (len(prerecs), j))
 
 recs = []
