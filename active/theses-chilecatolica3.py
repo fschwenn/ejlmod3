@@ -76,10 +76,13 @@ with Session() as session:
                     rec['autaff'].append([author])
 
                 # Get the issued date
-                rec['date'] = article_data.get('dateIssued')[0]
-                if int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
-                       keepit = False
-                       ejlmod3.addtoooldDOI(rec['hdl'])
+                try:
+                    rec['date'] = article_data.get('dateIssued')[0]
+                    if int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+                        keepit = False
+                        ejlmod3.addtoooldDOI(rec['hdl'])
+                except:
+                    print('  no date!?')
 
                 # Get the link
                 rec['link'] = article_data.get('dc.identifier.uri')[0]
