@@ -2,6 +2,7 @@
 #harvest theses from Puebla U.
 #JH: 2022-06-07
 #FS: 2022-09-04
+#FS: 2024-01-09
 
 
 import getopt
@@ -14,7 +15,7 @@ import ejlmod3
 import undetected_chromedriver as uc
 #from selenium import webdriver
 from bs4 import BeautifulSoup
-from time import sleep
+import time
 
 # Initiate webdriver
 #driver = webdriver.PhantomJS()
@@ -33,7 +34,7 @@ jnlfilename = 'THESES-PUEBLA-%s' % (ejlmod3.stampoftoday())
 recs = []
 
 rpp = 50
-pages = 2
+pages = 3
 skipalreadyharvested = True
 
 boring = ['Facultad de Ciencias Químicas', 'Área de Ciencias Sociales y Humanidades',
@@ -42,74 +43,51 @@ boring = ['Facultad de Ciencias Químicas', 'Área de Ciencias Sociales y Humani
 boring += ['Facultad de Economía', 'Facultad de Derecho y Ciencias Sociales',
            'Facultad de Arquitectura', 'Instituto de Fisiología',
            'nstituto de Ciencias de Gobierno y Desarrollo Estratégico<',
-           'Facultad de Filosofía y Letras']
+           'Facultad de Filosofía y Letras',
+           'Área de Ciencias Sociales y Humanidades',
+           'Área Económico Administrativa', 'BIOLOGÍA Y QUÍMICA']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
-                                                   
-def get_sub_site(url):
-    keepit = True
-    print('[%s] --> Harversting Data' % url)
-    driver.get(url)
+else:
+    alreadyharvested = []
 
-    rec = {'tc': 'T', 'jnl': 'BOOK', 'supervisor': [], 'autaff': [], 'keyw': [], 'link' : url, 'note' : []}
 
-    artpage = BeautifulSoup(driver.page_source, 'lxml')
-    ejlmod3.metatagcheck(rec, artpage, ['DC.rights', 'DC.subject', 'citation_title', 'citation_language',
-                                        'citation_date', 'DC.identifier', 'DCTERMS.abstract',
-                                        'citation_title', 'citation_pdf_url'])
+baseurl = 'https://repositorioinstitucional.buap.mx'
 
-    rows = artpage.find_all('tr', attrs={'class': 'ds-table-row'})
-    for row in rows:
-        columns = row.find_all('td')
-        label = columns[0].text
-        data = columns[1].text
-
-        # Get the supervisor
-        if label == 'dc.contributor.advisor':
-            rec['supervisor'].append([data.split(';')[0]])
-
-        # Get the author
-        elif label == 'dc.contributor.author':
-            rec['autaff'].append([data, publisher])
-
-        # Check if it is really a PhD
-        elif label == 'dc.type.degree':
-            if data != 'Doctorado':
-                keepit = False
-
-        #department
-        elif label in ['dc.thesis.degreegrantor', 'dc.thesis.degreediscipline']:
-            if data in boring:
-                keepit = False
-            else:
-                rec['note'].append(label+': '+data)
-
-    if keepit:
-        if not skipalreadyharvested or not 'hdl' in rec or not rec['hdl'] in alreadyharvested:
-            recs.append(rec)
-            ejlmod3.printrecsummary(rec)
-    else:
-        ejlmod3.adduninterestingDOI(url)
-    return
-
+recs = []
 for page in range(pages):
-    to_curl = 'https://repositorioinstitucional.buap.mx/handle/20.500.12371/7/discover?rpp=' + str(rpp) + '&etal=0' \
-                                                                                                          '&group_by' \
-                                                                                                          '=none&page='\
-              + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc '
-    ejlmod3.printprogress("=", [[page+1, pages], [to_curl]])
-    driver.get(to_curl)
-    for article in BeautifulSoup(driver.page_source, 'lxml').find_all('div', attrs={'class': 'col-sm-9 '
-                                                                                             'artifact-description'}):
-        article_link = article.find_all('a')
-        if len(article_link) == 1:
-            url = 'https://repositorioinstitucional.buap.mx%s?show=all' % article_link[0].get('href')
-            if ejlmod3.checkinterestingDOI(url):
-                get_sub_site(url)
-                sleep(4)
-            else:
-                print('[%s] --> is uninteresting' % url)
-    sleep(10)
-
+    tocurl = 'https://repositorioinstitucional.buap.mx/collections/93b25a1c-3323-4825-89ea-148db1250f42?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    try:
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    except:
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 
+                                               'dc.date.issued', 'dc.rights.uri',
+                                               'dc.subject.classification', 'dc.language.iso',
+                                               'dc.department', 'dc.description.abstract',
+                                               'dc.identifier.uri',  'dc.thesis.degreediscipline',
+                                               'dc.subject', 'dc.title',
+                                               'dc.rights.uri', 'dc.subject.lcc']:
+                            boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+
+
+
+
+
+
+
