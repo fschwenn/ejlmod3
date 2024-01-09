@@ -22,8 +22,6 @@ typecode = 'P'
 publisher = 'World Scientific'
 url = sys.argv[1]
 jnlfilename = sys.argv[2]
-if re.search('worldscibooks',url):
-    jnlname = 'BOOK '
 if re.search('ijmpcs',url):
     jnlname = 'Int.J.Mod.Phys.Conf.Ser.'
     typecode = 'C'
@@ -91,10 +89,11 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'purchase-options-con
 
 
 recs = []
-typecode = 'P'
+
 subject = False
 for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     rec = {'note' : note.copy(), 'jnl' : jnlname, 'autaff' : []}
+    #rec['fc'] = 'b'
     if year:
         rec['year'] = year
     if motherisbn:
@@ -251,4 +250,5 @@ for i in range(len(recs)):
                 if re.search('PDF download', a.text):
                     recs[i]['FFT'] = urltrunk + a['href']
     ejlmod3.printrecsummary(recs[i])
+
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
