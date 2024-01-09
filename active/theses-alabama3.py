@@ -2,59 +2,65 @@
 #harvest theses from Alabama U.
 #FS: 2021-09-15
 #FS: 2023-04-11
+#FS: 2024-01-08
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
+import undetected_chromedriver as uc
 import re
 import ejlmod3
 import time
 
 skipalreadyharvested = True
 rpp = 10
-pages = 1
+pages = 2
 
 publisher = 'Alabama U.'
 jnlfilename = 'THESES-ALABAMA-%s' % (ejlmod3.stampoftoday())
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
     
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+baseurl = 'https://ir.ua.edu'
+
+
 recs = []
-for page in range(pages):
-    for dep in ['120', '126']:
-        tocurl = 'https://ir.ua.edu/handle/123456789/' + dep + '/discover?rpp=' + str(rpp) + '&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
-        ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
+for (fc, dep) in [('', '2254008d-7c6d-44ed-a558-b4f4d528e4a9'),
+                  ('m', 'c85afc3c-09ee-4721-8865-81f277a1cd17'),
+                  ('c', '9b9eccd5-0566-4a81-b0c3-6868c0e77001'),
+                  ('c', '6fcf7a33-64f8-48bf-98ef-826ffe8da3f0')]:
+    for page in range(pages):
+        tocurl = 'https://ir.ua.edu/collections/' + dep + '?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+        ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
         try:
-            tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-            time.sleep(3)
+            driver.get(tocurl)
+            time.sleep(5)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
-            print("retry %s in 180 seconds" % (tocurl))
-            time.sleep(180)
-            tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
-        for rec in ejlmod3.getdspacerecs(tocpage, 'https://ir.ua.edu', fakehdl=True):
-            if dep == '120':
-                rec['fc'] = 'm'
-            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
-                if not rec['link'] in ['https://ir.ua.edu/handle/123456789/8322']:
-                    recs.append(rec)
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
-    try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(3)
-    except:
-        print("retry %s in 180 seconds" % (rec['link']))
-        time.sleep(180)
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-    ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DCTERMS.issued', 'DCTERMS.abstract',
-                                        'DC.subject', 'citation_pdf_url', 'citation_date',
-                                        'DCTERMS.extent', 'DC.rights'])
-    rec['autaff'][-1].append(publisher)
-    ejlmod3.printrecsummary(rec)
-
+            time.sleep(60)
+            driver.get(tocurl)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
+        for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 
+                                                   'dc.date.issued', 'dc.rights.uri', 'dc.format.extent',
+                                                   'dc.contributor.department', 'dc.rights', 
+                                                   'dc.description.abstract', 'dc.identifier.uri',
+                                                   'dc.subject', 'dc.title',  'etdms.degree.discipline',
+                                                   'etdms.degree.name', 'etdms.degree.department',],
+                                alreadyharvested=alreadyharvested, fakehdl=True):
+            rec['autaff'][-1].append(publisher)
+            ejlmod3.printrecsummary(rec)
+            #print(rec['thesis.metadata.keys'])
+            recs.append(rec)
+        print('  %i records so far' % (len(recs)))
+        time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
