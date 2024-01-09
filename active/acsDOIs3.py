@@ -181,6 +181,8 @@ for doi in sample:
                     rec['autaff'][-1].append(re.sub('.*\/', r'ORCID:', a['href']))
                 for div2 in span.find_all('div', attrs = {'class' : 'loa-info-affiliations-info'}):
                     rec['autaff'][-1].append(div2.text.strip())
+    if not 'autaff' in rec:
+        ejlmod3.metatagcheck(rec, artpage, ['dc.Creator'])
     #pages
     for span in artpage.find_all('span', attrs = {'class' : 'cit-fg-pageRange'}):
         rec['p1'] = re.sub('\D*(\d+).*', r'\1', span.text.strip())
