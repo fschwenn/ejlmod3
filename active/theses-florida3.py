@@ -1,25 +1,28 @@
 #-*- coding: utf-8 -*-
 #harvest theses from Florida U.
 #FS: 2021-04-29
+#FS: 2024-01-03
 
 import os
 import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import time
 import ejlmod3
-import undetected_chromedriver as uc
-from selenium.webdriver.support.ui import WebDriverWait
+#import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 publisher = 'Florida U.'
 
 rpp = 24
-pages = 15+40
+pages = 666
 skipalreadyharvested = True
-startyear = ejlmod3.year(backwards=1)
+startyear = ejlmod3.year(backwards=2)
 stopyear = ejlmod3.year()
 boring = ['aerodynamics', 'birds', 'disease', 'religion', 'archaeology', 'hormones',
           'biocollections', 'dental', 'aircraft', 'rhetoric', 'potato', 'paleontology',
@@ -66,7 +69,7 @@ boring += ["Accounting", "Advertising", "Aerospace Engineering", "Agricultural a
            "Dentistry", "Design, Construction and Planning", "Design, Construction, and Planning",
            "Design, Construction, and Planning Doctorate", "Digital Arts and Sciences", "Geological Sciences",
            "Early Childhood Education", "Economics", "Educational Leadership", "Educational Psychology",
-           "Electrical and Computer Engineering", "English", "English Education", "Entomology and Nematology",
+           "English", "English Education", "Entomology and Nematology",
            "Environmental and Global Health", "Environmental Engineering Sciences", "Environmental Horticulture",
            "Clinical Investigation (IDP)", "Coastal and Oceanographic Engineering", "Epidemiology",
            "Family, Youth and Community Sciences", "Finance, Insurance and Real Estate", "Genetics (IDP)",
@@ -124,31 +127,35 @@ boring += ['Plant Pathology Thesis, Ph.D.', 'Animal Sciences Thesis, Ph.D.', 'Ar
            'Genetics and Genomics Thesis, Ph.D.', 'Geology Thesis, Ph.D.', 'Linguistics Thesis, Ph.D.',
            'Music Education Thesis, Ph.D.', 'Romance Languages Thesis, Ph.D.', 'Sociology Thesis, Ph.D.',
            'Wildlife Ecology and Conservation Thesis, Ph.D.', 'Business', 'Theatre',
-           'Sustainable Development Practice field practicum report, M.D.P.',
+           'Sustainable Development Practice field practicum report, M.D.P.', 'Design, Construction and Planning',
            'Business Administration dissertation, D.B.A.', 'Theatre and Dance',
            'Sustainable Development Practice field practicum report M.D.P.']
 
-
 jnlfilename = 'THESES-FloridaU-%s' % (ejlmod3.stampoftoday())
 
-options = uc.ChromeOptions()
-#options.add_argument('--headless')
-options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
+options = Options()
+options.add_argument("--headless")
 options.add_argument("--enable-javascript")
-chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-driver = uc.Chrome(version_main=chromeversion, options=options)
-driver.implicitly_wait(60)
+options.add_argument("--incognito")
+options.add_argument("--nogpu")
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1200,1980")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument('--disable-blink-features=AutomationControlled')
+driver = webdriver.Chrome(options=options)
 
 prerecs = []
 uninteresting = []
 backup = []
 if skipalreadyharvested:
-    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=5)
 
 driver.get('https://ufdc.ufl.edu/')
 time.sleep(120)
 for page in range(pages):
+    if page >= pages:
+        continue
     tocurl = 'https://ufdc.ufl.edu/results?datehi=' + str(stopyear) + '-31-12&datelo=' + str(startyear) + '-01-01&filter=type%3Atheses&sort=desc&page=' + str(page+1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
@@ -157,7 +164,13 @@ for page in range(pages):
 #        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'BriefView_title__31xSy')))
         time.sleep(5)
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
-        #print(tocpage)
+        ##print(tocpage)
+        for div in tocpage.find_all('div', attrs = {'class' : 'px-md-3'}):
+            for h2 in div.find_all('h2'):
+                h2t = h2.text.strip()
+                if re.search('\d Results', h2t):
+                    results = int(re.sub('.*?(\d+) Results.*', r'\1', h2t))
+                    pages = (results - 1) // rpp + 1
         sections = tocpage.find_all('article')
         for section in sections:
             for div in section.find_all('div'):
@@ -192,7 +205,7 @@ for page in range(pages):
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
         print(tocpage.text)
         break
-    time.sleep(10)
+    time.sleep(6)
 
 i = 0
 recs = []
@@ -245,8 +258,10 @@ for rec in prerecs:
             if dep in boring:
                 keepit = False
                 print('   skip "%s"' % (dep))
+            elif dep in ['Mathematics']:
+                rec['fc'] = 'm'
             else:
-                rec['note'].append(dep)
+                rec['note'].append('DEP:::'+dep)
     #500
     for df in artpage.find_all('datafield', attrs = {'tag' : ['500', '590']}):
         for sf in df.find_all('subfield', attrs = {'code' : 'a'}):
@@ -282,21 +297,24 @@ for rec in prerecs:
     if not dfs:
         time.sleep(1)
         print('     try', rec['link'])
-        try:
+#        try:
+        if 1>0:
             driver.get(rec['link'])
+            time.sleep(2.5)
             #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'my-3')))
             artpage = BeautifulSoup(driver.page_source, features="lxml")
+            artfilename = '/tmp/florida_%s.html' % (re.sub('\W', '', rec['artlink']))
+            ouf = open(artfilename, 'w')
+            ouf.write(artpage.prettify())
+            ouf.close()
+            time.sleep(1.5)
+            #print(40*'=')
             #print(artpage)
-
-
-            #scheiss JavaScript
-            
-            print(artpage.text)
-            time.sleep(5)
+            #print(40*'+')
             #title
             for h1 in artpage.find_all('h1'):
                 rec['tit'] = h1.text
-            for a in artpage.body.find_all('a'):
+            for a in artpage.find_all('a'):
                 if a.has_attr('href'):
                     #author
                     if re.search('results\?creator=', a['href']):
@@ -306,6 +324,14 @@ for rec in prerecs:
                     #date
                     elif re.search('publication_date=', a['href']):
                         rec['date'] = a.text.strip()
+                    #subject
+                    elif re.search('filter=subject_keyword', a['href']):
+                        subject = re.sub(' UF Dissertations.*', '', re.sub(' [tT]hesis.*', '', a.text.strip()))
+                        if subject in boring:
+                            keepit = False
+                            print('   skip "%s"' % (subject))
+                        else:
+                            rec['note'].append('SUB:::' + subject)
             #pages
             for div in artpage.find_all('div', attrs = {'class' : 'my-3'}):
                 if re.search('\d+ pages\)', div.text):
@@ -328,39 +354,54 @@ for rec in prerecs:
                     if pt == 'Abstract:':
                         rec['abs'] = li.text.strip()                
             #department
-            for div in artpage.body.find_all('div', attrs = {'class' : 'content-css'}):
-                for span in div.find_all('span'):
-                    spant = span.text.strip()
-                    if re.search('Major department: ', spant):
-                        print(artpage)
-                        dep = re.sub('Major department: ', '', spant)
-                        dep = re.sub('\.$', '', dep).strip()
-                        if dep in boring:
-                            keepit = False
-                            print('   skip "%s"' % (dep))
-                        else:
-                            rec['note'].append(dep)
-            #subjects
-            for div in artpage.find_all('div', attrs = {'class' : 'citation-module'}):
-                for span in div.find_all('span', attrs = {'class' : 'identifier'}):
-                    if re.search('Subjects', span.text):
-                        for li in div.find_all('li'):
-                            subject = li.text.strip()
-                            if subject in boring:
+            if keepit:
+                for div in artpage.body.find_all('div', attrs = {'class' : 'content-css'}):
+                    for span in div.find_all('span'):
+                        spant = span.text.strip()
+                        if re.search('Major department: ', spant):
+                            print(artpage)
+                            dep = re.sub('Major department: ', '', spant)
+                            dep = re.sub('\.$', '', dep).strip()
+                            if dep in boring:
                                 keepit = False
-                                print('   skip "%s"' % (subject))
-                            elif reboringdegree.search(subject):
-                                keepit = False
-                                print('   skip "%s"' % (subject))                                
+                                print('   skip "%s"' % (dep))
+                            elif dep in ['Mathematics']:
+                                rec['fc'] = 'm'
+                            elif dep in ['Computer Science']:
+                                rec['fc'] = 'c'
                             else:
-                                rec['note'].append(subject)     
-            ejlmod3.printrecsummary(rec)                           
-            if not 'tit' in rec or not rec['autaff']:
-                embargo = True
-                print('    failed to extract author or title')
-        except:
-            embargo = True
-            print('    failed')
+                                rec['note'].append('DEP:::' + dep)
+            #subjects
+            if keepit:
+                for div in artpage.find_all('div', attrs = {'class' : 'citation-module'}):
+                    for span in div.find_all('span', attrs = {'class' : 'identifier'}):
+                        if re.search('Subjects', span.text):
+                            for li in div.find_all('li'):
+                                subject = li.text.strip()
+                                if subject in boring:
+                                    keepit = False
+                                    print('   skip "%s"' % (subject))
+                                elif reboringdegree.search(subject):
+                                    keepit = False
+                                    print('   skip "%s"' % (subject))  
+                                elif subject in ['Mathematics']:
+                                    rec['fc'] = 'm'                              
+                                else:
+                                    rec['note'].append('SUBJECT:::'+subject)
+            if keepit:
+                if not 'tit' in rec or not rec['autaff']:
+                    embargo = True
+                    print('    failed to extract author or title')
+                elif re.search('Record for a UF thesis.*t display until thesis is accessible', rec['tit']):
+                    embargo = True
+                    print('    %s' % (re.sub('.*UF thesis. *', '', rec['tit'])))
+                else:
+                    ejlmod3.printrecsummary(rec)                           
+                
+#        except:
+#            embargo = True
+#            print('    failed')
+#            ejlmod3.printrec(rec)
     if keepit:
         if not embargo and rec['autaff']:
             rec['autaff'][-1].append(publisher)
@@ -368,6 +409,7 @@ for rec in prerecs:
             recs.append(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['doi'])
+    time.sleep(5)
 
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
