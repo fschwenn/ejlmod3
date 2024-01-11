@@ -86,8 +86,12 @@ prerecs = []
 artlinks = []
 for (j, tocurl) in enumerate(tocurls):
     ejlmod3.printprogress('=', [[j+1, len(tocurls)], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    try:
+        req = urllib.request.Request(tocurl, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    except:
+        print('  could not open web pages')
+        continue
     ps = tocpage.body.find_all('p')
     i = 0 
     for p in ps:
