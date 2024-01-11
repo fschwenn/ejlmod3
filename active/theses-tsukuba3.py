@@ -61,10 +61,17 @@ i = 0
 recs = []
 for rec in prerecs:
     i += 1
-    disstyp = False
+    disstyp = False    
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
-    driver.get(rec['link'])
-    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    try:
+        driver.get(rec['link'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+    except:
+        print(' ... wait 20s')
+        time.sleep(20)
+        driver.get(rec['link'])
+        time.slee(2)
+        artpage = BeautifulSoup(driver.page_source, features="lxml")        
     for span in artpage.find_all('span', attrs = {'class' : 'pull-right'}):
         st = re.sub('[\n\t\r]', '', span.text.strip())
         if re.search('handle.net', st):
@@ -72,7 +79,12 @@ for rec in prerecs:
         elif  re.search('doi.org', st):
             rec['doi'] = re.sub('.*doi.org\/', '', st)
     time.sleep(2)    
-    artjson = requests.get(rec['link'] + '/export/json').json()          
+    try:
+        artjson = requests.get(rec['link'] + '/export/json').json()
+    except:
+        print(' ... wait 20s')
+        time.sleep(20)
+        artjson = requests.get(rec['link'] + '/export/json').json()        
     time.sleep(4)
     #date
     if 'item_12_date_granted_46' in list(artjson['metadata'].keys()):
