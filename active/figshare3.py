@@ -461,16 +461,79 @@ uncategories = ['Aboriginal and Torres Strait Islander Information and Knowledge
 uncategories += ['Early English languages', 'Educational administration, management and leadership', 'Education assessment and evaluation',
                  'Biosecurity science and invasive species ecology', 'Other literatures in English', 'Zoology not elsewhere classified',
                  'Biosecurity science and invasive species ecology']
+boring = ['Economics Theses', 'Institute of Development Studies Theses', 'Law Theses', 'Biology Theses',
+          'International Relations Theses', 'Accounting and Finance Theses', 'Anthropology Theses', 'Art History Theses',
+          'Biochemistry Theses', 'Biology and Environmental Science Theses', 'Business and Management Theses', 'Chemistry Theses',
+          'Education Theses', 'Engineering and Design Theses', 'English Theses', 'Geography Theses', 'History Theses',
+          'International Development Theses', 'Management Theses', 'Media and Film Theses', 'Neuroscience Theses',
+          'Philosophy Theses', 'Politics Theses', 'Psychology Theses', 'Social Work and Social Care Theses',
+          'Sociology and Criminology Theses', 'SPRU - Science Policy Research Unit Theses', 'American Studies Theses',
+          'Sussex Centre for Genome Damage Stability Theses', 'Faculty of Medicine, Nursing and Health Sciences',
+          'BSMS Neuroscience Theses', 'Music Theses', 'Faculty of Art, Design and Architecture', 'Faculty of Law', 'Fine Art', 'Law',
+          'Monash Sustainability Institute', 'Monash Sustainable Development Institute', 'Creative Arts', 'Design', 'English',
+          'Sport, Exercise and Health Sciences', 'Architecture, Building and Civil Engineering', 'Accounting', 'Biological Sciences',
+          'Business and Economics (Monash University Malaysia)', 'Chemical & Biological Engineering', 'Civil Engineering',
+          'Econometrics and Business Statistics', 'Economics', 'Education', 'Faculty of Arts', 'Faculty of Business and Economics',
+          'Faculty of Education', 'Faculty of Engineering', 'Faculty of Pharmacy and Pharmaceutical Sciences',
+          'Human Centred Computing', 'Management', 'Mechanical and Aerospace Engineering', 'Tepper School of Business',
+          'School of Curriculum, Teaching and Inclusive Education', 'School of Education, Culture and Society',
+          'School of Language, Literatures, Cultures and Linguistics', 'School of Media, Film and Journalism',
+          'School of Pharmacy (Malaysia)', 'School of Philosophical, Historical & International Studies',
+          'School of Sciences (Monash University Malaysia)', 'School of Social Sciences (Monash Australia)',
+          'Monash University Accident Research Centre (MUARC)', 'Monash University Accident Research Centre',
+          'Architecture', 'Chemical Engineering', 'Civil and Environmental Engineering',  'Human-Computer Interaction Institute',
+          'Language Technologies Institute', 'Philosophy', 'School of History, Politics and International Relations',
+          'School of Geography, Geology and the Environmen', 'Department of Chemistry',
+          'Department of Molecular & Cell Biology', 'Bishop Grosseteste University',
+          'College of Life Sciences', 'College of Social Sciences, Arts, and Humanities',
+          'Department of Allied Health professions', 'Department of Archaeology and Ancient History',
+          'Department of Cardiovascular Sciences', 'Department of Cardiovascular Science,',
+          'Department of Clinical Psychology', 'Department of Economics, Finance and Accounting',
+          'Department of English', 'Department of Genetics and Genome Biology',
+          'Department of Geography', 'Department of Health Sciences', 'Department of Health Science',
+          'Department of Molecular & Cell Biology', 'Department of Molecular and Cell Biology',
+          'Department of Neuroscience, Psychology and Behaviour', 'Social Work',
+          'Department of Neuroscience, Psychology, and Behaviour',
+          'Department of Politics and International Relations', 'Department of Population Health Sciences',
+          'Department of Respiratory Sciences', 'Leicester Business School',
+          'Leicester Cancer Research Centre', 'Leicester Law School', 'Communication and Culture',
+          'Mahmoud Ehnesh School of Engineering', 'Newman College/Bishops Grosseteste',
+          'Politics and International Relations', 'School of Archaeology and Ancient History',
+          'School of Arts', 'School of Business', 'School of Chemistry', 'School of Criminology',
+          'School of Education', 'School of Engineering', 'Architecture',
+          'School of Geography, Geology and the Environment', 'Biomedical Engineering',
+          'School of History, Politics & International Relations',
+          'School of Media, Communication and Sociology', 'School of Media, Communication, and Sociology',
+          'School of Museum Studies', 'School of Neuroscience, Psychology and Behaviour',
+          'School of Psychology & Vision Sciences', 'School of Psychology and Vision Sciences',
+          'Aerospace Engineering', 'Biomedical Physics', 'Digital Media', 'Documentary Media',
+          'Environmental Applied Science and Management', 'Fashion', 'Department of Management',
+          'Film and Photography Preservation and Collection Management',
+          'Immigration and Settlement Studies', 'Management (TRSM)', 'Master of Science in Management',
+          'Mechanical and Industrial Engineering', 'Nursing', 'Public Policy and Administration',
+          'Urban Development', 'Agricultural Economics', 'Botany and Plant Pathology',
+          'Educational Studies', 'Hospitality and Tourism Management', 'Nutrition Science',
+          'Political Science', 'Psychological Sciences', 'Speech, Language, and Hearing Sciences',
+          'Technology Leadership and Innovation', 'Cardiovascular Sciences',
+          'Department of Genetics & Genome Biology', 'Department of Respiratory Science',
+          'Department of Sociology', 'History', 'School of Engineering, University of Leicester',
+          'School of History, Politics, and International Relations', 'School of Management',
+          'Australian Institute of Health Innovation', 'Department of Applied Finance',
+          'Department of Media, Communications, Creative Arts, Languages & Literature',
+          'Department of Philosophy', 'Dept of Applied Finance', 'Macquarie Law School',
+          'Macquarie School of Education', 'Macquarie School of Social Sciences',
+          'School of Psychological Sciences', 'Comparative Pathobiology']
 #try and error to find server-name: it's "lboro" because  https://lboro.figshare.com/ exists
 thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'melbourne' : 'U. Melbourne (main)', #2
                          'brunel' : 'Brunel U.', #no theses 
                          'auckland' : 'Auckland U.', #6
                          'leicester' : 'Leicester U.',
+                         'sussex' : 'Sussex U.',
                          'monash' : 'Monash U.',
                          'ryerson' : 'Ryerson U.', 
                          'wgtn' : 'Victoria U., Wellington',#no theses ???
-                         'wellington' : 'Victoria U., Wellington',
+                         'wellington' : 'Victoria U., Wellington',#no theses ???
                          'lboro' : 'Loughborough U.',
                          'mq' : 'Macquarie U.',
                          'hammer' : 'Purdue U.'} 
@@ -505,8 +568,11 @@ elif srv == 'su':
 elif srv in list(thesesstandardservers.keys()):
     publisher = thesesstandardservers[srv]
     jnl = 'BOOK'
-    for cat in list(cattofc.keys()):
-        payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :category: %s AND :item_type: thesis" % (srv, cat)}))
+#    for cat in list(cattofc.keys()):
+#        payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :category: %s AND :item_type: thesis" % (srv, cat)}))
+    for y in range(2):
+        payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :posted_date: %i AND :item_type: thesis" % (srv, ejlmod3.year(backwards=y))}))
+        payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :publication_date: %i AND :item_type: thesis" % (srv, ejlmod3.year(backwards=y))}))
     alloweditems = ['thesis']
 #search at figshare directly
 elif srv == 'figshare':
@@ -570,22 +636,64 @@ for rec in prerecs:
             submitter = 'submitter: ' + cf['value']
         elif cf['name'] == 'ORCID of Submitting Author':
             submitter += ', ORCID: ' + cf['value']
-        elif cf['name'] == 'Degree Name':
-            for dn in cf['value']:
-                rec['note'].append('DEGREE:::'+dn)
-        elif cf['name'] == 'Advisor(s)':
-            for sv in re.split(' *\n *', cf['name']):
+        elif cf['name'] == 'Language':
+            for lg in cf['value']:
+                rec['language'] = lg
+        elif cf['name'] in ['Qualification level', 'Qualification name',
+                            'Degree Type', 'Degree Name']:
+            if type(cf['value']) == type(''):
+                degs = [cf['value']]
+            else:
+                degs = cf['value']
+            for deg in degs:
+                if deg in ['master', 'bachelor', 'masters', 'mphil', 'MASTERS', 'Doctor of Juridical Science',
+                           'Masters', 'MPHIL', 'Master of Science (MS)', "Master's Thesis", 'DClinPsy', 'MD',
+                           'DPsych', 'DSocSci', 'EdD', 'Master of Arts', 'Bachelor of Arts',
+                           'Bachelor of Science', 'Master of Science', 'Master of Architecture',
+                           'Master of Applied Science', 'Master of Social Work', 'Thesis MRes']:
+                    keepit = False
+                    print('    skip "%s"' % (deg))
+                    ejlmod3.adduninterestingDOI(rec['url_public_api'])
+                elif not deg in ['phd', 'doctoral', 'PhD', 'Ph.D.', 'dissertation', 'DOCTORATE',
+                                 'Doctoral', 'Dissertation', 'Doctor of Philosophy (PhD)',
+                                 'Thesis PhD']:
+                    rec['note'].append('DEGREE:::' + deg)                    
+        elif cf['name'] in ['Advisor(s)', 'Supervisor(s)', 'Thesis Advisor', 'Principal Supervisor', 'Advisor/Supervisor/Committee Chair']:
+            for sv in re.split(' *[;\n] *', cf['name']):
                 if 'supervisor' in list(rec.keys()):
                     rec['supervisor'].append([sv])
                 else:
                     rec['supervisor'] = [[sv]]
-        elif cf['name'] == 'Department':
-            for dep in cf['value']:
-                rec['note'].append('department: '+dep)
+        elif cf['name'] in ['Department', 'Department affiliated with', 'Department, School or Centre', 'Faculty',
+                            'School', 'Author affiliation', 'Program', 'Department, Centre or School'] and keepit:
+            if type(cf['value']) == type(''):
+                deps = [cf['value']]
+            else:
+                deps = cf['value']
+            for dep in deps:
+                if dep in boring:
+                    keepit = False
+                    print('    skip "%s"' % (dep))
+                    ejlmod3.adduninterestingDOI(rec['url_public_api'])
+                elif dep in ['Informatics Theses', 'Computer Science']:
+                    rec['fc'] = 'c'
+                elif dep in ['Mathematics Theses', 'Mathematics', 'Applied Mathematics']:
+                    rec['fc'] = 'm'
+                elif not dep in ['Physics and Astronomy Theses', 'Physics and Astronomy',
+                                 'Department of Physics and Astronomy',
+                                 'School of Computing and Mathematical Sciences.',
+                                 'School of Computing and Mathematical Sciences',
+                                 'School of Physics and Astronomy',
+                                 'School of Physics & Astronomy']:
+                    rec['note'].append('DEPARTMENT:::'+dep)
+        elif cf['name'] == 'Pages':
+            rec['pages'] = re.sub('\.0$', '', cf['value'])
+        elif cf['name'] == 'ISBN':
+            rec['isbn'] = cf['value']
     if submitter:
         rec['note'].append(submitter)
     #doctype
-    if 'defined_type_name' in artjson:
+    if 'defined_type_name' in artjson and keepit:
         if artjson['defined_type_name'] == 'preprint':
             rec['tc'] = ''
         elif artjson['defined_type_name'] == 'thesis':
@@ -602,10 +710,10 @@ for rec in prerecs:
             rec['tc'] = ''
         if not artjson['defined_type_name'] in alloweditems:
             keepit = False
-            print('  skip "%s"' % (artjson['defined_type_name']))
-            ejlmod3.adduninterestingDOI(rec['url_public_api'])
+            print('    skip "%s"' % (artjson['defined_type_name']))
+            ejlmod3.adduninterestingDOI(rec['url_public_api'])            
     #categories
-    if 'categories' in artjson:
+    if 'categories' in artjson and keepit:
         for cat in artjson['categories']:
             if cat['title'] in cattofc:
                 rec['note'].append('category: ' + cat['title'])
@@ -619,7 +727,7 @@ for rec in prerecs:
                 rec['note'].append('category: ' + cat['title'] + '???')
                 if skipnonlistedcategories or cat['title'] in uncategories:
                     keepit = False
-                    print('  skip "%s"' % (cat['title']))
+                    print('    skip "%s"' % (cat['title']))
                     ejlmod3.adduninterestingDOI(rec['url_public_api'])
                     if cat['title'] in nonlistedcategories:
                         nonlistedcategories[cat['title']] += 1
