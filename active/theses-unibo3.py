@@ -62,8 +62,11 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
     tocurl = 'http://amsdottorato.unibo.it/view/year/%i.html' % (year)
     print(tocurl)
     hdr = {'User-Agent' : 'Magic Browser'}
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    try:
+        req = urllib.request.Request(tocurl, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+    except:
+        continue    
     time.sleep(3)
     for p in tocpage.body.find_all('p'):
         keepit = True
