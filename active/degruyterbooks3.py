@@ -26,7 +26,7 @@ publisher = 'De Gruyter'
 serial = sys.argv[1]
 skipalreadyharvested = True
 rpp = 100
-years = 2*10
+years = 2
 
 
 jnlfilename = 'dg' + serial + ejlmod3.stampoftoday()
