@@ -43,10 +43,13 @@ def get_subside(url):
         ejlmod3.metatagcheck(rec, soup, ['citation_author', 'citation_doi'])
         rec['autaff']
     except:
-        sleep(60)
-        soup = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(url), features="lxml")
-        ejlmod3.metatagcheck(rec, soup, ['citation_author', 'citation_doi'])
-        
+        try:
+            sleep(60)
+            soup = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(url), features="lxml")
+            ejlmod3.metatagcheck(rec, soup, ['citation_author', 'citation_doi'])
+        except:
+            return
+            
 
     # Get the title
     title_section = soup.find_all('strong', attrs={'property': 'name'})
