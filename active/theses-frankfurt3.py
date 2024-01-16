@@ -20,8 +20,10 @@ publisher = 'Goethe U., Frankfurt (main)'
 jnlfilename = 'THESES-FRANKFURT-%s' % (ejlmod3.stampoftoday())
 hdr = {'User-Agent' : 'Magic Browser'}
 pages = 3
+years = 2
 rpp = 10
 skipalreadyharvested = True
+skipoldones = True
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
@@ -45,7 +47,8 @@ for (institute, fc) in [('Physik', ''), ('Informatik', 'c'), ('Mathematik', 'm')
                 rec['tit'] = a.text.strip()
                 if fc:
                     rec['fc'] = fc
-                prerecs.append(rec)
+                if skipoldones and ejlmod3.checknewenoughDOI(rec['artlink']):
+                    prerecs.append(rec)
         print('   %4i records so far' % (len(prerecs)))
 
 
@@ -80,11 +83,17 @@ for rec in prerecs:
             #date
             elif tht == 'Release Date:':
                 rec['date'] = tdt
+                if re.search('[12]\d\d\d', rec['date']):
+                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
             #number of pages
             elif tht in ['Pagenumber:', 'Page Number:']:
                 rec['pages'] = re.sub('\D*(\d+).*', r'\1', tdt)
     if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
+        if skipoldones and 'year' in rec and int(rec['year']) <= ejlmod3.year(backwards=years):
+            print('     skip "%s"' % (rec['year']))
+            ejlmod3.addtoooldDOI(rec['artlink'])
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
