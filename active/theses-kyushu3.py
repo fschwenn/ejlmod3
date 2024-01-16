@@ -34,19 +34,18 @@ hdr = {'User-Agent' : 'Magic Browser'}
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))        
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 
 prerecs = []
 for page in range(pages):
-    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=2&appname=Netscape&version=5&cmode=0&kywd=&smode=1&year1_exp=' + str(startyear) + '&year2_exp=' + str(stopyear) + '&file_exp[]=4&dpmc_exp[]=all&txtl_exp=2&sort_exp=6&disp_exp=' + str(rpp) + '&start=' + str(page*rpp+1)
-    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B167334399927692&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=6&fc_val=c_string_disser_degreetype%23%40%23110&fc_val=c_int_disser_degreeyear%23%40%23%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D&cmode=0&chk_st=0&check=00000000000000000000000000000000000000000000000000'
+    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B170496029119865&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=0&fc_val=c_int_disser_degreeyear%23%40%23%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D&fc_val=c_int_disser_degreeyear%23%40%232023&cmode=0&chk_st=0&check=00000000000000000000000000000000000000000000000000'
+    
+    
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
