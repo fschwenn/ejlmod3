@@ -2,138 +2,142 @@
 #harvest theses from Universität Erlangen-Nürnberg
 #FS: 2019-11-04
 #FS: 2022-09-22
+#FS: 2024-01-12
 
 import getopt
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
-import codecs
 import time
 import json
-skipalreadyharvested = True
 
-numofpages = 1
+skipalreadyharvested = True
+pages = 15
+rpp = 60
+bunchsize = 10
+years = 3
+
+
 publisher = 'Erlangen - Nuremberg U.'
-boring = ['54', '55', '56', '57', '58', '59']
-hdr = {'User-Agent' : 'Magic Browser'}
+
+boring = ['Abteilung für Nephropathologie, Pathologisches Institut', 'Chair of Medicinal Chemistry',
+          'Department Chemie und Pharmazie, Lehrstuhl für Organische Chemie II, Nikolaus-Fiebiger-Str. 10, 91058 Erlangen',
+          'Department Chemie und Pharmazie, Lehrstuhl für Physikalische Chemie II',
+          'Department Chemistry &a; Pharmacy', 'Department für Chemie und Pharmazie',
+          'GeoZentrum Nordbayern, Department of Geography and Geosciences, Friedrich-Alexander University Erlangen-Nürnberg, Erlangen, Germany',
+          'Medizinische Fakultät / Frauenklinik', 'Medizinische Fakultät / Hautklinik',
+          'Medizinische Fakultät / Mikrobiologisches Institut - Klinische Mikrobiologie, Immunologie und Hygiene',
+          'Medizinische Fakultät', 'Naturwissenschaftliche Fakultät / Department Biologie',
+          'Naturwissenschaftliche Fakultät / Department Chemie und Pharmazie',
+          'Universitätsklinikum Erlangen / Institut für Klinische und Molekulare Virologie',
+          'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU) / Naturwissenschaftliche Fakultät / Department Chemie und Pharmazie Lehrstuhl für Physikalische Chemie I',
+          'Medizinische Fakultät / Humangenetisches Institut',
+          'Medizinische Fakultät / Institut für Biochemie',
+          'Medizinische Fakultät / Medizinische Fakultät -ohne weitere Spezifikation-',
+          'Medizinische Fakultät / Medizinische Klinik 5 - Hämatologie und Internistische Onkologie',
+          'Medizinische Fakultät / Neurologische Klinik',
+          'Medizinische Fakultät / Plastisch- und Handchirurgische Klinik',
+          'Medizinische Fakultät / Radiologisches Institut',
+          'Naturwissenschaftliche Fakultät / Department Geographie und Geowissenschaften']
+
 recs = []
 prerecs = []
 jnlfilename = 'THESES-ERLANGEN-%s' % (ejlmod3.stampoftoday())
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
+baseurl = 'https://open.fau.de'
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
-    
-links = []
-for dep in ['Department+Physik', 'Department+Mathematik', 'Naturwissenschaftliche+Fakult%C3%A4t']:
-    for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
-        tocurl = 'https://opus4.kobv.de/opus4-fau/solrsearch/index/search/searchtype/simple/query/%2A%3A%2A/browsing/true/doctypefq/doctoralthesis/start/0/rows/100/institutefq/' + dep + '/yearfq/' + str(year)
-        ejlmod3.printprogress('=', [[year, dep], [tocurl]])
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-        time.sleep(3)
-        for div in tocpage.body.find_all('div', attrs = {'class' : 'results_title'}):
-            for a in div.find_all('a'):
-                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : []}
-                rec['link'] = 'https://opus4.kobv.de' + a['href']
-                rec['tit'] = a.text.strip()
-                if dep == 'Department+Mathematik':
-                    rec['fc'] = 'm'
-                if rec['link'] in links:
-                    print('  already in list')
-                elif ejlmod3.checkinterestingDOI(rec['link']):
-                    prerecs.append(rec)
-                    links.append(rec['link'])
-        print(' %i records so far' % (len(prerecs)))
-                
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
-            
-i = 0
-for rec in prerecs:
-    i += 1
-    keepit = True
-    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['link']], [len(recs)]])
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+options.headless=True
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
+
+recs = []
+for page in range(pages):
+    tocurl = 'https://open.fau.de/collections/ba3206ae-7d66-437a-91c5-dca309c94211?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        time.sleep(10)
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        divs = tocpage.find_all('div', attrs = {'class' : 'pagination-info'})
+        1 / len(divs)
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue
-    ejlmod3.metatagcheck(rec, artpage, ['DC.Description', 'DC.description', 'DC.Subject', 'DC.subject', 'DC.Rights',
-                                        'DC.rights', 'citation_pdf_url', 'DC.Identifier', 'DC.identifier', 'citation_language',
-                                        'citation_date'])
-    for table in artpage.body.find_all('table', attrs = {'class' : 'frontdoordata'}):
-        for tr in table.find_all('tr'):
-            for th in tr.find_all('th'):
-                tht = th.text.strip()
-            for td in tr.find_all('td'):
-                tdt = td.text.strip()
-                #Supervisor
-                if tht == 'Advisor:':
-                    rec['supervisor'] = [[tdt, 'Erlangen - Nuremberg U.']]
-                #number of pages
-                elif tht == 'Pagenumber:':
-                    if re.search('^\d+$', tdt):
-                        rec['pages'] = tdt
-                #year
-                elif tht == 'Year of Completion:':
-                    rec['year'] = tdt
-                #Language
-                elif tht == 'Language:':
-                    if tdt == 'German':
-                        rec['language'] = 'german'
-                        #translated title
-                        for h3 in artpage.body.find_all('h3', attrs = {'class' : 'titlemain'}):
-                            rec['transtit'] = h3.text.strip()
-                #author (becaus of ORCID)
-                elif tht == 'Author:':
-                    orcid = False
-                    for a in td.find_all('a', attrs = {'class' : 'orcid-link'}):
-                        orcid = re.sub('.*\/', 'ORCID:', a['href'])
-                        a.replace_with('')
-                    tdt = td.text.strip()
-                    if orcid: 
-                        rec['autaff'] = [[ tdt, orcid, 'Erlangen - Nuremberg U.']]
-                    else:
-                        rec['autaff'] = [[ tdt, 'Erlangen - Nuremberg U.']]
-                #date
-                elif tht == 'Release Date:':
-                    rec['date'] = tdt
-                #DDC
-                elif tht == 'Dewey Decimal Classification:':
-                    for a in td.find_all('a'):
-                        ddc = re.sub('.*\D(\d\d\d?).*', r'\1', a.text)
-                        if ddc[:2] in boring or ddc[0] in ['1', '2', '3', '4', '6', '7', '8', '9']:
-                            keepit = False
-                        elif ddc[:2] == '00':
-                            rec['fc'] = 'c'
-                        elif ddc[:2] == '51':
-                            rec['fc'] = 'm'
-                        elif ddc[:2] == '52':
-                            rec['fc'] = 'c'
-                        else:
-                            rec['note'].append(a.text)
-    if keepit:
-        if skipalreadyharvested and 'urn' in rec and rec['urn'] in alreadyharvested:
-            print('    already in backup')
+        print('  ... wait 60s')
+        time.sleep(60)
+        driver.get(tocurl)
+        time.sleep(2)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    for div in tocpage.find_all('div', attrs = {'class' : 'pagination-info'}):
+        for span in div.find_all('span'):
+            spant = span.text.strip()
+            if re.search('\d of \d', spant):
+                total = int(re.sub('.*\d of (\d+).*', r'\1', spant))
+                allpages = (total-1) // rpp + 1
+                if allpages < pages:
+                    pages = allpages
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author',
+                                               'dc.date.issued', 'dc.rights.uri',
+                                               'dc.contributor.department', 'dc.rights',
+                                               'dc.description.abstract', 'dc.identifier.uri',
+                                               'dc.subject', 'dc.title',  'thesis.degree.discipline',
+                                               'thesis.degree.name', 'dc.language.iso', 'dc.provenance',
+                                               'dc.type', 'local.subject.fakultaet'],
+                            boring=boring, alreadyharvested=alreadyharvested, fakehdl=True):
+        if 'DC.TYPE=article' in rec['note'] or 'DC.TYPE=preprint' in rec['note'] or 'DC.TYPE=review' in rec['note']:
+            print('    skip non-thesis')
         else:
-            recs.append(rec)
+            if 'date' in rec:
+                rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])
+                if int(rec['year']) <= ejlmod3.year(backwards=years):
+                    print('    skip %s' % (rec['year']))
+                    continue
+            #correct PDF-link and ORCIDs
+            if 'link' in rec and 'pdf_url' in rec:
+                driver.get(rec['link'])
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
+                for ds in artpage.find_all('ds-file-download-link'):
+                    for a in ds.find_all('a'):
+                        if a.has_attr('href') and re.search('download', a['href']):
+                            rec['pdf_url'] = baseurl + a['href']
+                orcids = {}
+                for a in artpage.find_all('a'):
+                    if a.has_attr('href') and re.search('orcid.org\/\d{4}', a['href']):
+                        orcid = re.sub('.*orcid.org\/', 'ORCID:', a['href'])
+                        name = a.text.strip()
+                        if name == rec['autaff'][0][0]:
+                            rec['autaff'] = [[ name, orcid ]]
+                        else:
+                            orcids[name] = orcid
+                if 'supervisor' in rec and orcids:
+                    newsv = []
+                    for sv in rec['supervisor']:
+                        if sv[0] in orcids:
+                            newsv.append([sv[0], orcids[sv[0]]])
+                        else:
+                            newsv.append(sv)
+                    rec['supervisor'] = newsv
+            rec['autaff'][-1].append(publisher)
             ejlmod3.printrecsummary(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['link'])
-            
-
+            #ejlmod3.printrec(rec)
+            #print(rec['thesis.metadata.keys'])
+            recs.append(rec)
+    #ejlmod3.writenewXML(recs, publisher, jnlfilename + '.%03i_of_%i' % (page+1, pages), retfilename='retfiles_special')
+    print('  %i records so far' % (len(recs)))
+    if page >= pages:
+        break
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+
 
