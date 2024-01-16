@@ -73,7 +73,8 @@ reboring = [re.compile('[Rr]equirement.* [Dd]egree .*(Master|Bachelor|MSc|M.Sc.|
             re.compile('[Pp]artial [Ff]ull?fill?ment.* [Dd]egree.*(Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
             re.compile('[sS]ubmitted.* [Ff]ull?fill?ment.*(Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
             re.compile('[sS]ubmitted.* [dD]egree.*(Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
-            re.compile('partial fulfilment of an? (Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)')]
+            re.compile('partial fulfilment of an? (Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
+            re.compile('Faculty of Commerce')]
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-WITWATERSRAND-%s' % (ejlmod3.stampoftoday())
 
@@ -100,16 +101,10 @@ for page in range(pages):
                                                                       'dc.description.abstract', 'dc.faculty',
                                                                       'dc.identifier.uri', 'dc.language.iso',
                                                                       'dc.phd.title', 'dc.school', 'dc.title',
-                                                                      'dc.type', 'dc.description'], boringfacs):
+                                                                      'dc.type', 'dc.description'],
+                            boring=boringfacs, alreadyharvested=alreadyharvested):
         rec['autaff'][-1].append(publisher)
         keepit = True
-        #check backup
-        if rec['hdl'] in alreadyharvested:
-            print('   %s already in backup' % (rec['hdl']))
-            continue
-        elif rec['hdl'] in allhdls:
-            print('   %s already in list' % (rec['hdl']))
-            continue
         #check PhD
         if 'dc.type' in rec and rec['dc.type'] in ['Article']:
             keepit = False            
@@ -132,6 +127,8 @@ for page in range(pages):
             recs.append(rec)
         else:
             ejlmod3.adduninterestingDOI(rec['hdl'])
+            if not 'hdl' in rec:
+                ejlmod3.printrec(rec)
     print('  %4i records so far' % (len(recs)))
     time.sleep(3)
     
