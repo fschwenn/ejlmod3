@@ -72,7 +72,7 @@ jnldict = {'uzku'  : {'tit' : 'Uch.Zapiski Kazan Univ.',
            'mzm'   : {'tit' : 'Mat.Zametki',
                       'publisher' : 'Steklov Mathematical Institute of Russian Academy of Sciences', 
                       'embargo' : 3},
-           'sm'    : {'tit' : 'Mat.Sbornik',
+           'sm'    : {'russtit' : 'Mat.Sbornik', 'tit' : 'Sbornik Math.',
                       'publisher' : 'Steklov Mathematical Institute of Russian Academy of Sciences', 
                       'embargo' : 3},
            'mmj'   : {'tit' : 'Moscow Math.J.',
@@ -138,7 +138,7 @@ for table in tocpage.body.find_all('table', attrs = {'cellpadding' : '5'}):
         for b in td.find_all('b'):
             artlinks.append(b.text)
         for a in td.find_all('a', attrs = {'class' : 'SLink'}):
-            if a.has_attr('href') and not re.search('^ *Editorial', a.text) and not re.search('php\/getFT.phtml', a['href']):
+            if a.has_attr('href') and not re.search('^ *Editorial', a.text) and not re.search('php\/', a['href']):
                 if not a.has_attr('title') and not re.search('http', a['href']):
                     artlinks.append('http://www.mathnet.ru' + a['href'])
 
@@ -179,6 +179,18 @@ for (i, artlink) in enumerate(artlinks):
     for span in articlepage.body.find_all('span', attrs = {'class' : 'red'}):
         for font in span.find_all('font', attrs = {'size' : '+1'}):
             rec['tit'] = font.text.strip()
+    #pages
+    for td in articlepage.body.find_all('td', attrs = {'width' : '70%'}):
+        tdt = td.text.strip()
+        if re.search('Pages? *\d', tdt):
+            pages = re.sub('.*Pages? *', '', pages)
+            if re.search('^\d+$', pages):
+                rec['p1'] = pages
+            elif re.search('^\d+\D*\d+$', pages):
+                rec['p1'] = re.sub('\D.*', '', pages)
+                rec['p2'] = re.sub('.*\D', '', pages)
+            else:
+                print('???', pages)
     #abstract and keywords and pages and language and DOI
     for table in articlepage.body.find_all('table', attrs = {'width' : '100%'}):
         for textrow in re.split('[\t\n]+', table.text):
@@ -187,14 +199,14 @@ for (i, artlink) in enumerate(artlinks):
             elif textrow == 'Keywords:':
                 rec['keyw'] = []
             elif 'abs' in rec and not rec['abs']:
-                rec['abs'] = textrow
+                rec['abs'] = re.sub('Bibliography:.*titles.*', '', textrow)
             elif 'keyw' in rec and not rec['keyw']:
                 rec['keyw'] = re.split(' *, *', textrow)
-            elif re.search('^\\\\pages \d', textrow) and 'p1' not in rec:
-                pages = re.split('\-+', textrow[7:].strip())
-                rec['p1'] = pages[0]
-                if len(pages) > 1:
-                    rec['p2'] = pages[1]
+#            elif re.search('^\\\\pages \d', textrow) and 'p1' not in rec:
+#                pages = re.split('\-+', textrow[7:].strip())
+#                rec['p1'] = pages[0]
+#                if len(pages) > 1:
+#                    rec['p2'] = pages[1]
             elif textrow == ' References (in Russian):':
                 rec['language'] = 'Russian'
                 if 'in Russian' not in rec['note']:
@@ -258,6 +270,28 @@ for (i, artlink) in enumerate(artlinks):
                     rec['refs'].append([('x', trt)])
             print(' %i references found' % (len(rec['refs'])))
             time.sleep(3)
+    #russian version
+    if 'russtit' in jnldict[jrnid]:
+        for div in articlepage.body.find_all('div', attrs = {'class' : 'around-button'}):            
+            for b in div.find_all('b'):
+                if b.text.strip() == 'Russian version:':
+                    rec['alternatejnl'] = jnldict[jrnid]['russtit']
+                    rec['alternatevol'] = rec['vol']
+                    rec['alternateissue'] = rec['issue']
+                    pages = re.sub('[\n\t\r]', '', div.text.strip())
+                    pages = re.sub('.*Russian version.*Pages? *', '', pages)
+                    pages = re.sub(' *DOI.*', '', pages).strip()
+                    #print(rec['p1'], pages)
+                    if re.search('^\d+$', pages):
+                        rec['alternatep1'] = pages
+                    elif re.search('^\d+\D*\d+$', pages):
+                        rec['alternatep1'] = re.sub('\D.*', '', pages)
+                        rec['alternatep2'] = re.sub('.*\D', '', pages)
+                    else:
+                        print('???', pages)
+                    for a in div.find_all('a'):
+                        if a.has_attr('href') and re.search('doi.org', a['href']):
+                            rec['MARC'] = [  ('0247', [('2', 'DOI'), ('a', re.sub('.*doi.org\/', '', a['href']))]) ]
     ejlmod3.printrecsummary(rec)
     recs.append(rec)
 
