@@ -12,17 +12,21 @@ import ejlmod3
 import time
 
 publisher = 'Princeton U.'
-pages = 1
+pages = 1+1
+skipalreadyharvested = True
 
 sections = [('dsp01t722h882n', 'Physics'),
             ('dsp015m60qr913', 'Astrophysics'),
             ('dsp01pg15bd903', 'Plasma'),
             ('dsp018c97kq43p', 'ComputerScience'),
             ('dsp01v692t6222', 'Mathematics')]
-sections = [('dsp018c97kq43p', 'ComputerScience')]
 hdr = {'User-Agent' : 'Magic Browser'}
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested('THESES-PRINCETON')
+
 for section in sections:
-    jnlfilename = 'THESES-PRINCETON-%s-%s' % (ejlmod3.stampoftoday(), section[1])    
+    jnlfilename = 'THESES-PRINCETON-%s-%s' % (ejlmod3.stampoftoday(), section[1])
     recs = []
     for page in range(pages):
         tocurl = 'https://dataspace.princeton.edu/jspui/handle/88435/' + section[0] + '?offset=' + str(20*page)
@@ -44,7 +48,8 @@ for section in sections:
                         rec['fc'] = 'm'
                     elif section == 'Computer Science':
                         rec['fc'] = 'c'
-                    recs.append(rec)
+                    if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                        recs.append(rec)
     i = 0
     for rec in recs:
         rec['link'] = rec['artlink']
@@ -60,7 +65,7 @@ for section in sections:
                 artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
             except:
                 print("no access to %s" % (rec['artlink']))
-                continue    
+                continue
         ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DCTERMS.issued', 'DC.subject',
                                             'DCTERMS.abstract', 'citation_pdf_url'])
         for meta in artpage.head.find_all('meta'):
@@ -76,5 +81,5 @@ for section in sections:
                 for a in td.find_all('a'):
                     rec['supervisor'].append([a.text.strip()])
         ejlmod3.printrecsummary(rec)
-    
+
     ejlmod3.writenewXML(recs, publisher, jnlfilename)
