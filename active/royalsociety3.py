@@ -40,20 +40,23 @@ if   (jnl == 'prs'):
     issn = '1364-5021'
     url = 'PRSLA'
     jnlname = 'Proc.Roy.Soc.Lond.'
-    vol = 'A' + vol
     urltrunk = 'http://rspa.royalsocietypublishing.org'
     urltrunk = 'https://royalsocietypublishing.org/toc/rspa'
 elif (jnl == 'prts'):
     issn = '1364-503x'
     url = 'PTRSA'
-    vol = 'A' + vol
     jnlname = 'Phil.Trans.Roy.Soc.Lond.'
     urltrunk = 'http://rsta.royalsocietypublishing.org'
     urltrunk = 'https://royalsocietypublishing.org/toc/rsta'
 
 jnlfilename = "%s%s.%s" % (jnl,vol,issue)
-toclink = "%s/content/%s/%s.toc" % (urltrunk, re.sub('^[A-Z]', '', vol), issue)
-toclink = "%s/%s/%s/" % (urltrunk, re.sub('^[A-Z]', '', vol), issue)
+toclink = "%s/content/%s/%s.toc" % (urltrunk, vol, issue)
+if   (jnl == 'prs'):
+    toclink = "%s/%s/%s/" % (urltrunk, re.sub('^[A-Z]', '', vol), issue)
+    vol = 'A' + vol
+else:
+    toclink = "%s/%i/%s/%s/" % (urltrunk, 1642 + int(vol), vol, issue)
+    vol = 'A' + vol
 
 print("%s%s, Issue %s" %(jnlname,vol,issue))
 print("get table of content... from %s" % (toclink))
