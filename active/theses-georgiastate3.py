@@ -43,7 +43,7 @@ for (dep, fc) in deps:
             except:
                 continue
             if child.name:
-                if child.name == 'h4':
+                if child.name in ['h3', 'h4']:
                     for span in child.find_all('span'):
                         year = int(re.sub('.*([12]\d\d\d).*', r'\1', span.text.strip()))
                         print(year)
@@ -75,7 +75,7 @@ for (i, rec) in enumerate(prerecs):
             continue
     ejlmod3.metatagcheck(rec, artpage, ['bepress_citation_title', 'bepress_citation_pdf_url',
                                         'keywords', 'description', 'bepress_citation_author',
-                                        'bepress_citation_doi'])
+                                        'bepress_citation_doi', 'bepress_citation_date'])
     #ORCID
     for div in artpage.find_all('div', attrs = {'id' : 'orcid'}):
         if re.search('Author ORCID ', div.text):
