@@ -98,13 +98,13 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (1, ['osa3XXX.py', 'optica', pryear-2013, prmonth]),
         (3, ['theses-oregon3.py']),
         (2, ['theses-aachen3.py']),
-        (2, ['theses-oatdXXX.py', '0', '5']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '5', '10']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '10', '15']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '15', '20']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '20', '25']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '25', '30']), #proteced by Claudflare
-        (2, ['theses-oatdXXX.py', '30', '35']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '0', '5']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '5', '10']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '10', '15']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '15', '20']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '20', '25']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '25', '30']), #proteced by Claudflare
+        (2, ['theses-oatd3XXX.py', '30', '35']), #proteced by Claudflare
         (1, ['mdpi.sftp3.py', 'symmetry']),
         (1, ['mdpi.sftp3.py', 'sensors']),
         (1, ['cjp3XXX.py', 'cjp', pryear-1922, prmonth]),
