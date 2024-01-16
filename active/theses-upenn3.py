@@ -93,10 +93,12 @@ for rec in prerecs:
         ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url', 'citation_title', 'citation_author'])
         time.sleep(1)
     for tr in artpage.find_all('tr'):
+        #print(tr)
         tds = tr.find_all('td')
-        if len(tds) == 3:
+        if len(tds) >= 2:
             th = tds[0].text.strip()
             td = tds[1].text.strip()
+            #print(' -> ', th, td)
         # Get the author name
         if th == 'dc.contributor.author':
             rec['autaff'] = [[td]]
@@ -110,7 +112,7 @@ for rec in prerecs:
         elif th in ['dc.description.abstract', 'abstract']:
             rec['abs'] = td
         # Get the keywords
-        elif th in ['dc.subject', 'subject']:
+        elif th in ['dc.subject', 'dc.subject.other', 'subject']:
             rec['keyw'].append(td)
         # Get the title
         elif th in ['dc.title', 'title']:
@@ -127,7 +129,10 @@ for rec in prerecs:
                 if td in ['M.Sc.', 'B.Sc.', 'D.Sc.', 'M.A.', 'B.A.', "Master's degree",
                           'Master of Applied Positive Psychology', 'Doctor of Social Work (DSW)',
                           'Master of Science in Animal Welfare and Behavior (MSc AWB)',
-                          'Master of Science in Historic Preservation (MSHP)']:
+                          'Master of Science in Historic Preservation (MSHP)',
+                          'Master of Environmental Studies (MES)',
+                          'DScD (Doctor of Science in Dentistry)',
+                          'Doctor of Science in Dentistry']:
                     print('\tskip "%s"' % (td))
                     keepit = False
                 else:
@@ -163,6 +168,7 @@ for rec in prerecs:
                 pass
             else:
                 ejlmod3.printrecsummary(rec)
+                ejlmod3.printrec(rec)
                 recs.append(rec)
         else:
             print('   not able to harvest')
