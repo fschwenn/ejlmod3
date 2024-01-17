@@ -7,126 +7,121 @@ from requests import Session
 from time import sleep
 import ejlmod3
 import re
+import json
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+
 
 publisher = 'Waseda U.'
 recs = []
 years = 2
+rpp = 100
 skipalreadyharvested = True
 jnlfilename = 'THESES-WASEDA-%s' % (ejlmod3.stampoftoday())
+deps = [('Advanced Science and Engineering', '338'),
+        ('Creative Science and Engineering', '341'),
+        ('Fundamental Science and Engineering', '347')]
+
 
 if skipalreadyharvested:    
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-with Session() as session:
-    index: str = "https://waseda.repo.nii.ac.jp/index.php?action=pages_view_main&active_action" \
-                 "=repository_view_main_item_snippet&index_id=338&pn=1&count=20&order=7&lang=japanese&page_id=13" \
-                 "&block_id=21"
+searchstrings = {}
+for (dep, q) in deps:
+    searchstrings[dep] = []
+    for y in range(years):
+        #print('octoral.*' + dep + '.*' + str(ejlmod3.year(backwards=y)))
+        searchstrings[dep].append(re.compile('octoral.*' + dep + '.*' + str(ejlmod3.year(backwards=y))))
 
-    index_resp = session.get(index)
+options = Options()
+#options.add_argument("--headless")
+options.add_argument("--enable-javascript")
+options.add_argument("--incognito")
+options.add_argument("--nogpu")
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1200,1980")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument('--disable-blink-features=AutomationControlled')
+driver = webdriver.Chrome(options=options)
 
-    if index_resp.status_code != 200:
-        print("# Error: Can't open page ({})".format(index))
-        exit(0)
+theseslinks = ['https://waseda.repo.nii.ac.jp/records/78514',
+               'https://waseda.repo.nii.ac.jp/records/78481',
+               'https://waseda.repo.nii.ac.jp/records/78511']
+if theseslinks:
+    index = 'https://waseda.repo.nii.ac.jp'
+    recs = []
+    for (i, thesislink) in enumerate(theseslinks):
+        ejlmod3.printprogress('-', [[i+1, len(theseslinks)], [thesislink]])
+        
+        driver.get(thesislink)
+        sleep(5)
+        data_soup = BeautifulSoup(driver.page_source, 'lxml')
 
-    index_soup = BeautifulSoup(index_resp.content.decode('utf-8'), 'lxml')
+        rec = {'tc': 'T', 'jnl': 'BOOK', 'link' : thesislink}
 
-    tables = index_soup.find_all('table', attrs={'class': 'list_table'})
+        ejlmod3.metatagcheck(rec, data_soup, ['citation_publication_date',
+                                              'citation_title', 'citation_author'])
+        for pre in data_soup.find_all('pre', attrs = {'class' : 'hide'}):
+            scripttjson = json.loads(pre.text.strip())
+            #print(scripttjson.keys())
+            if 'permalink_uri' in scripttjson:
+                rec['hdl'] = re.sub('.*handle.net\/', '', scripttjson['permalink_uri'])
+            if 'item_10006_biblio_info_24' in scripttjson:
+                if 'bibliographicPageEnd' in scripttjson['item_10006_biblio_info_24']['attribute_value_mlt']:
+                    rec['pages'] = scripttjson['item_10006_biblio_info_24']['attribute_value_mlt']['bibliographicPageEnd']
+            if 'item_files' in scripttjson:
+                size = 0
+                for datei in scripttjson['item_files']['attribute_value_mlt']:
+                    if datei['size'] > size:
+                        rec['pdf_url'] = datei['url']['url']
+                        size = datei['size']
+                    
+        recs.append(rec)
+        ejlmod3.printrecsummary(rec)
+        sleep(5)
 
-    for table in tables:
-        for tr in table.find_all('tr'):
-            cols = tr.find_all('td')
-            if len(cols) >= 2:
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)        
+else:
+    print('Scheiß Javascript - Links per Hand raussuchen -> theseslinks')
+    index = 'https://waseda.repo.nii.ac.jp'
+    driver.get(index)
+    index_soup = BeautifulSoup(driver.page_source, 'lxml')
+    lines = []
+    for div in index_soup.find_all('div'):
+        if div.has_attr('ng-init'):
+            scriptt = div['ng-init']
+            scriptt = re.sub('[\n\t]', '', scriptt)[10:-2]
+            #print(scriptt[:100])
+            #print(scriptt[-100:])
+            scripttjson = json.loads(scriptt)
+            if "condition_setting"  in scripttjson:
+                for cs in scripttjson["condition_setting"]:
+                    if "check_val" in cs:
+                        lines += cs["check_val"]
+    print(len(lines))
 
-                if len(cols[1].find_all('span')) != 0:
-                    a = cols[1].find_all('span')[0].find_all('a')[0]
-                    year_link = a.get('href')
-                    print(year_link)
-
-                    if re.search('20\d\d', a.text):
-                        year = int(re.sub('.*?(20\d\d).*', r'\1', a.text.strip()))
-                        print('  ', year)
-                        if year <= ejlmod3.year(backwards=years):
-                            continue
-                    year_resp = session.get(year_link)
-
-                    if year_resp.status_code != 200:
-                        print("# Error: Can't open page ({})".format(year_link))
-                        continue
-
-                    year_soup = BeautifulSoup(year_resp.content.decode('utf-8'), 'lxml')
-
-                    articles = year_soup.find_all('div', attrs={'class': 'item_title'})
-
-                    if not articles:
-                        articles = []
-                        for table in year_soup.find_all('table', attrs={'class': 'list_table'}):
-                            #print('     table')
-                            for a in table.find_all('a'):
-                                #print('       ', a)
-                                if a.has_attr('href') and re.search('index_id', a['href']) and re.search('20', a.text):
-                                     subyear_link = a['href']
-                                     print('         ', subyear_link)
-                                     subyear_resp = session.get(subyear_link)
-                                     subyear_soup = BeautifulSoup(subyear_resp.content.decode('utf-8'), 'lxml')
-                                     for article in subyear_soup.find_all('div', attrs={'class': 'item_title'}):
-                                         #print('            article')
-                                         articles.append(article)
-                                     sleep(3)                            
-                                     
-                    for article in articles:
-                        article_link = article.find_all('a')[0].get('href')
-
-                        print("# Harvesting data:", article_link)
-                        article_resp = session.get(article_link)
-                        sleep(5)
-
-                        if article_resp.status_code != 200:
-                            print("# Error! Can't open article page:", article_link)
-                            continue
-
-                        article_soup = BeautifulSoup(article_resp.content.decode('utf-8'), 'lxml')
-                        
-                        oai = article_soup.find_all('img', attrs={'src': 'https://waseda.repo.nii.ac.jp/images'
-                                                                         '/repository/default/oai_pmh.png'})
-                        if len(oai) == 1:
-                            data_link = oai[0].parent.get('href')
-
-                            data_resp = session.get(data_link)
-
-                            if data_resp.status_code != 200:
-                                print("# Error! Can't access data:", article_link)
-                                continue
-
-                            data_soup = BeautifulSoup(data_resp.content.decode('utf-8'), 'xml')
-
-                            rec = {'tc': 'T', 'jnl': 'BOOK', 'link' : article_link}
-
-                            metadata = data_soup.find('metadata')
-                            rec['tit'] = metadata.find('title').text
-                            if metadata.find('language').text == 'jpn':
-                                rec['language'] = 'japanese'
-                            splitted_hdl = metadata.find('URI').text.split('/')
-                            rec['hdl'] = '{}/{}'.format(splitted_hdl[-2], splitted_hdl[-1])
-                            if skipalreadyharvested and rec['hdl'] in alreadyharvested:
-                                continue
-                            # Get the creator
-                            rec['autaff'] = [[metadata.find('creator').text, publisher]]
-
-                            # Pages
-                            try:
-                                rec['pages'] = int(metadata.find('epage').text) - int(metadata.find('spage').text)
-                            except:
-                                pass
-                            try:
-                                rec['transtit'] = metadata.find('alternative').text
-                            except:
-                                pass
-                            rec['date'] = metadata.find('dateofgranted').text
-                            ejlmod3.metatagcheck(rec, article_soup, ['citation_pdf_url'])
-                            recs.append(rec)
-                            ejlmod3.printrecsummary(rec)
-                            sleep(5)                            
-                        sleep(5)
-            sleep(5)
-
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+    for (dep, q) in deps:
+        ejlmod3.printprogress('\n', [[dep]])
+        subqs = []
+        for line in lines:
+            if 'contents' in line:                                
+                for sstring in searchstrings[dep]:
+                    if sstring.search(line['contents']):
+                        q = line['id']
+                        if not q in subqs:
+                            subqs.append(q)
+                            print('   ', line['contents'])
+        recs = []
+        for (i, q) in enumerate(subqs):
+            toclink = 'https://waseda.repo.nii.ac.jp/search?page=1&size=' + str(rpp) + '&sort=-createdate&search_type=2&q=' + str(q)
+            ejlmod3.printprogress('=', [[dep], [i+1, len(subqs)], [toclink]])
+            sleep(30)
+            driver.get(toclink)
+            toc_soup = BeautifulSoup(driver.page_source, 'lxml')
+            #print(toc_soup.prettify())
+            
