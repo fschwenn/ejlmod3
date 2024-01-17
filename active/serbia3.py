@@ -148,4 +148,4 @@ for rec in recs:
     ejlmod3.printrecsummary(rec)
     
 jnlfilename = '%s%s.%s' % (jnl, rec['vol'], rec['issue'])
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
