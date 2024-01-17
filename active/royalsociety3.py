@@ -84,6 +84,7 @@ divs = tocpage.body.find_all('div', attrs = {'class' : 'issue-item'})
 for (i, div) in enumerate(divs):
     rec = {'jnl' : jnlname, 'tc' : 'P', 'vol' : vol, 'issue' : issue, 'autaff' : [], 'autaff2' : []}
     artlink = False
+    keepit = True
     for h5 in div.find_all('h5', attrs = {'class' : 'issue-item__title'}):
         for a in h5.find_all('a'):
             artlink = "%s%s" % ('https://royalsocietypublishing.org', a['href'])
@@ -119,6 +120,8 @@ for (i, div) in enumerate(divs):
         ejlmod3.metatagcheck(rec, artpage, ['dc.Subject', 'dc.Date'])
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'dc.Type'}):
             rec['note'] = [ meta['content'] ]
+            if meta['content'] == 'editorial':
+                keepit = False
         #abstract
         for div in artpage.find_all('div', attrs = {'class' : 'abstractInFull'}):
             rec['abs'] = div.text.strip()
@@ -128,30 +131,32 @@ for (i, div) in enumerate(divs):
                 rec['license'] = {'url' : lic['xlink:href']}
                 rec['FFT'] = re.sub('\/doi\/', '/doi/pdf/', artlink)
         #authors
-        for div in artpage.find_all('div', attrs = {'class' : 'accordion-tabbed__tab-mobile'}):
-            #name
-            for span in div.find_all('span'):
-                rec['autaff2'].append([span.text.strip()])
-            #ORCID
-            for p in div.find_all('p', attrs = {'class' : 'orcid-account'}):
-                for a in p.find_all('a'):
-                    rec['autaff2'][-1].append(re.sub('.*org\/', 'ORCID:', a.text.strip()))
-            #email
-            if len(rec['autaff2'][-1]) < 2:
-                for a in div.find_all('i', attrs = {'class' : 'icon-Email'}):
-                    rec['autaff2'][-1].append(re.sub('mailto:', 'EMAIL:', a['title']))
-            #affiliation
-            for div2 in div.find_all('div', attrs = {'class' : 'author-info'}):
-                for a in div2.find_all('a'):
-                    a.decompose()
-                ps = []
-                for p in div2.find_all('p'):
-                    pt = p.text.strip()
-                    if pt:
-                        ps.append(pt)
-                if len(ps) > 1:
-                    rec['autaff2'][-1] += ps[1:]
-        if len(rec['autaff2']) >= len(rec['autaff']):
+        for div0 in artpage.find_all('div', attrs = {'class' : 'meta__authors'}):
+            for div in div0.find_all('div', attrs = {'class' : 'accordion-tabbed__tab-mobile'}):
+                #name
+                for span in div.find_all('span'):
+                    rec['autaff2'].append([span.text.strip()])
+                #ORCID
+                for p in div.find_all('p', attrs = {'class' : 'orcid-account'}):
+                    for a in p.find_all('a'):
+                        rec['autaff2'][-1].append(re.sub('.*org\/', 'ORCID:', a.text.strip()))
+                #email
+                if len(rec['autaff2'][-1]) < 2:
+                    for a in div.find_all('i', attrs = {'class' : 'icon-Email'}):
+                        rec['autaff2'][-1].append(re.sub('mailto:', 'EMAIL:', a['title']))
+                #affiliation
+                for div2 in div.find_all('div', attrs = {'class' : 'author-info'}):
+                    for a in div2.find_all('a'):
+                        a.decompose()
+                    ps = []
+                    for p in div2.find_all('p'):
+                        pt = p.text.strip()
+                        if pt:
+                            ps.append(pt)
+                    if len(ps) > 1:
+                        rec['autaff2'][-1] += ps[1:]#
+#        if len(rec['autaff2']) >= len(rec['autaff']):
+        if rec['autaff2']:
             rec['autaff'] = rec['autaff2']
 
     except:
@@ -183,7 +188,7 @@ for (i, div) in enumerate(divs):
                 rec['refs'].append([('x', lit)])
     except:
         print('    ...could not get reference page ...')
-    if 'doi' in rec:
+    if 'doi' in rec and keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
