@@ -44,7 +44,7 @@ tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml
 time.sleep(1)
 recs = []
 for tr in tocpage.body.find_all('tr'):
-    rec = {'auts' : [], 'year' : year, 'vol' : vol, 'keyw' : [],
+    rec = {'year' : year, 'vol' : vol, 'keyw' : [],
            'issue' : issue, 'jnl' : jnlname, 'note' : [], 'tc' : "P"}
     for a in tr.find_all('a'):
         if a.has_attr('href'):
@@ -54,7 +54,7 @@ for tr in tocpage.body.find_all('tr'):
 if not recs:
     for a in tocpage.body.find_all('a'):
         if a.has_attr('href') and re.search('publication\/\d+', a['href']):
-             rec = {'auts' : [], 'year' : year, 'vol' : vol, 'keyw' : [],
+             rec = {'year' : year, 'vol' : vol, 'keyw' : [],
                     'issue' : issue, 'jnl' : jnlname, 'note' : [], 'tc' : "P"}
              rec['artlink'] = a['href']
              recs.append(rec)
