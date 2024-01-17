@@ -11,6 +11,14 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
 
 def spie(volume):
     jnlname = 'Proc.SPIE Int.Soc.Opt.Eng.'
@@ -53,11 +61,15 @@ def spie(volume):
         print('  get [%i/%i] %s' % (i, len(recs), rec['artlink']))
         try:
             time.sleep(20)
-            articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            #articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            driver.get(rec['artlink'])
+            articlepage = BeautifulSoup(driver.page_source, features="lxml")
         except:
             print('retry %s in 5 minutes' % (rec['artlink']))
             time.sleep(300)
-            articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            #articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            driver.get(rec['artlink'])
+            articlepage = BeautifulSoup(driver.page_source, features="lxml")
         for meta in articlepage.head.find_all('meta'):
             if meta.has_attr('name'):
                 if meta['name'] == 'citation_author':
