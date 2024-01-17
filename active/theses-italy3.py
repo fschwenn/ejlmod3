@@ -108,21 +108,38 @@ for page in range(pages):
                     rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : []}
                     rec['artlink'] = universities[uni][1] + a['href'] + '?mode=full.716'
                     rec['hdl'] = re.sub('.*handle\/', '', a['href'])
+        if not rec:
+            for td in tr.find_all('td'):
+                for a in td.find_all('a'):
+                    if a.has_attr('href') and re.search('handle\/\d+', a['href']):
+                        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : []}
+                        rec['hdl'] = re.sub('.*handle\/(\d+\/\d+).*', r'\1', a['href'])
+                        rec['artlink'] = universities[uni][1] +'/handle/' + rec['hdl'] + '?mode=full.716'                    
         if rec:
             recsfound = True
-            for td in tr.find_all('td', attrs = {'headers' : 't2'}):
-                if re.search('[12]\d\d\d', td.text):
-                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', re.sub('[\n\t\r]', '', td.text.strip()))
-                    if int(rec['year']) >= ejlmod3.year(backwards=years):
-                        if ejlmod3.checkinterestingDOI(rec['hdl']):
-                            if rec['hdl'] in alreadyharvested:
-                                print('    %s already in backup' % (rec['hdl']))
-                            else:
-                                prerecs.append(rec)
-                    else:
-                        print('    %s too old (%s)' % (rec['hdl'], rec['year']))                        
+            tds = tr.find_all('td', attrs = {'headers' : 't2'})
+            if tds:
+                for td in tds:
+                    if re.search('[12]\d\d\d', td.text):
+                        rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', re.sub('[\n\t\r]', '', td.text.strip()))
+                        if int(rec['year']) >= ejlmod3.year(backwards=years):
+                            if ejlmod3.checkinterestingDOI(rec['hdl']):
+                                if rec['hdl'] in alreadyharvested:
+                                    print('    %s already in backup' % (rec['hdl']))
+                                else:
+                                    prerecs.append(rec)
+                        else:
+                            print('    %s too old (%s)' % (rec['hdl'], rec['year']))                        
+                    elif ejlmod3.checkinterestingDOI(rec['hdl']):
+                        print('(YEAR?)', td.text)
+                        if rec['hdl'] in alreadyharvested:
+                            print('    %s already in backup' % (rec['hdl']))
+                        else:
+                            prerecs.append(rec)
+            elif ejlmod3.checkinterestingDOI(rec['hdl']):
+                if rec['hdl'] in alreadyharvested:
+                    print('    %s already in backup' % (rec['hdl']))
                 else:
-                    print('(YEAR?)', td.text)
                     prerecs.append(rec)
     if not recsfound:
         for a in tocpage.find_all('a', attrs = {'class' : 'list-group-item-action'}):
