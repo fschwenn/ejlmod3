@@ -2,10 +2,12 @@
 #harvest theses from UCM, Somosaguas
 #FS: 2021-11-30
 #FS: 2023-04-28
+#FS: 2024-01-21
 
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
+#import urllib.request, urllib.error, urllib.parse
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
@@ -17,110 +19,63 @@ publisher = 'UCM, Somosaguas'
 jnlfilename = 'THESES-UniversidadComplutenseDeMadrid-%s' % (ejlmod3.stampoftoday())
 
 hdr = {'User-Agent' : 'Magic Browser'}
-years = 1
+years = 3
+rpp = 60
+pages = 15
 skipalreadyharvested = True
 
-deps = [('216', 'Madrid U.', ''),
-        ('219', 'UCM, Madrid, Dept. Phys.', 'a'),
-        ('222', 'UCM, Madrid, Dept. Phys.', ''),
-        ('217', 'UCM, Madrid, Dept. Phys.', ''),
-        ('6', 'UCM, Madrid, Dept. Phys.', ''),
-        ('256', 'UCM, Madrid, Dept. Math.', 'm'),
-        ('255', 'UCM, Madrid, Dept. Math.', 'm'),
-        ('257', 'UCM, Madrid, Dept. Math.', 'm'),
-        ('9132', 'UCM, Madrid, Dept. Math.', 'm'),
-        ('251', 'UCM, Madrid, Dept. Math.', 'c'),
-        ('9152', 'UCM, Madrid, Dept. Math.', 'a'),
-        ('9', 'UCM, Madrid, Dept. Math.', 'm'),
-        ('252', 'UCM, Madrid, Dept. Math.', 'a'),
-        ('9149', 'ICMAT, Madrid', 'm'),
-        ('9150', 'UCM, Somosaguas', 'm'),
-        ('9141', 'UCM, Somosaguas', ''),
-        ('18', 'UCM, Somosaguas', 'c'),
-        ('2403', 'UCM, Somosaguas', 'c'),
-        ('457', 'UCM, Somosaguas', 'c')]
+
+boring = ['Fac. de Bellas Artes', 'Fac. de Ciencias Biológicas',
+          'Fac. de Ciencias Económicas y Empresariales', 'Fac. de Ciencias Químicas',
+          'Fac. de Derecho', 'Fac. de Educación', 'Fac. de Enfermería, Fisioterapia y Podología',
+          'Fac. de Filosofía', 'Fac. de Geografía e Historia', 'Fac. de Medicina',
+          'Fac. de Veterinaria', 'Facultad de Medicina', 'Facultad de Filosofía y Letras',
+          'Universidad Complutense de Madrid. Facultad de Medicina',
+          'Fac. de Ciencias Políticas y Sociología', 'Fac. de Farmacia', 'Fac. de Filología',
+          'Fac. de Psicología', 'Fac. de Trabajo Social', 'Fac. de Psicología', 
+          'Fac. de Trabajo Social']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
-#bad certificate
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
-links = []
+baseurl = 'https://docta.ucm.es'
+
+
+
 recs = []
-for (depnr, aff, fc) in deps:
-    tocurl = 'https://eprints.ucm.es/view/divisions/%s.html' % (depnr)
-    print(tocurl)
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    time.sleep(5)
-    for div in tocpage.body.find_all('div', attrs = {'class' : 'ep_view_page'}):
-        h2t = ''
-        for child in div.children:
-            try:
-                child.name
-            except:
-                continue
-            if child.name == 'h2':
-                h2t = child.text
-            if child.name == 'p' and h2t in ['Thesis', 'Tesis']:
-                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
-                rec['affiliation'] = aff
-                if fc:
-                    rec['fc'] = fc
-                for a in child.find_all('a'):
-                    rec['link'] = a['href']
-                    rec['doi'] = '30.3000/UniversidadComplutenseDeMadrid/' + re.sub('\D', '', a['href'])
-                    a.decompose()
-                pt = re.sub('[\n\t\r]', '', child.text.strip())
-                if re.search('\([12]\d\d\d\)', pt):
-                    rec['date'] = re.sub('.*\(([12]\d\d\d)\).*', r'\1', pt)
-                if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
-                    if not rec['link'] in links:
-                        if 'date' in list(rec.keys()):
-                            if int(rec['date']) >= ejlmod3.year()-years:
-                                recs.append(rec)
-                        else:
-                            recs.append(rec)
-                        links.append(rec['link'])
-        print('  %4i records so far' % (len(recs)))
-
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
-    try:        
-        req = urllib.request.Request(rec['link'], headers=hdr)
-        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+for page in range(pages):
+    tocurl = baseurl + '/collections/1ec1a8a8-1138-4284-99a5-8907e46de1f3?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    try:
+        driver.get(tocurl)
         time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features="lxml")
-        except:
-            print("no access to %s" % (rec['link']))
-            continue
-    ejlmod3.metatagcheck(rec, artpage, ['DC.title', 'DC.language', 'DC.contributor',
-                                        'DC.description'])
-    for meta in artpage.head.find_all('meta'):
-        if meta.has_attr('name'):
-            #date
-            if meta['name'] == 'DC.date':
-                if not re.search('embargo', meta['content']):
-                    rec['date'] = meta['content']
-            #FFT
-            elif meta['name'] == 'DC.identifier':
-                if re.search('\.pdf$', meta['content']):
-                    rec['hidden'] = meta['content']
-            #author
-            elif meta['name'] == 'DC.creator':
-                rec['autaff'] = [[ meta['content'], rec['affiliation'] ]]
-            #subject
-            elif meta['name'] == 'DC.subject':
-                rec['note'].append(meta['content'])
-    ejlmod3.printrecsummary(rec)
-
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 
+                                               'dc.date.issued', 'dc.subject.keyword',
+                                               'dc.description.faculty', 
+                                               'dc.rights', 'dc.language.iso', 
+                                               'dc.description.abstract', 'dc.identifier.uri',
+                                               'dc.title'],
+                            boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        if 'date' in rec and re.search('[12]\d\d\d', rec['date']) and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+            print('    too old:', rec['date'])
+        else:
+            recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
