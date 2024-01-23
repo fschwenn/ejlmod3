@@ -16,6 +16,7 @@ jnlfilename = 'THESES-ELPASO-%s' % (ejlmod3.stampoftoday())
 
 pages = 2
 skipalreadyharvested = True
+years = 2
 
 basetocurl = 'https://scholarworks.utep.edu/open_etd/index.'
 tocextension = 'html'
@@ -62,17 +63,19 @@ for i in range(pages):
                 name = child.name
             except:
                 continue
-            if name == 'h4':
+            if name in ['h3',  'h4']:
                 for span in child.find_all('span'):
                     date = span.text.strip()
+                    ejlmod3.printprogress('~~~', [[date]])
             elif name == 'p':
                 #year = int(re.sub('.*(20\d\d).*', r'\1', rec['date']))
-                if int(date) >= ejlmod3.year() - 1*10:
+                if int(date) > ejlmod3.year(backwards=years):
                     rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : [], 'supervisor' : []}
                     for a in child.find_all('a'):
                         if reproperlink.search(a['href']):
                             rec['tit'] = a.text.strip()
                             rec['link'] = a['href']
+                            print('  ', a['href'])
                             a.replace_with('')                            
                             if ejlmod3.checkinterestingDOI(rec['link']):
                                 prerecs.append(rec)
