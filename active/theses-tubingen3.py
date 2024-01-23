@@ -28,6 +28,7 @@ else:
 recs = []
 for fac in ['Physik', 'Sonstige+-+Mathematik+und+Physik', 'Mathematik', 'Informatik']:
     tocurl = 'https://publikationen.uni-tuebingen.de/xmlui/handle/10900/42126/discover?rpp=' + str(rpp) + '&filtertype_0=dateIssued&filtertype_1=fachbereich&filter_0=[' + startyear + '+TO+' + str(ejlmod3.year()+1) + ']&filter_relational_operator_1=equals&filter_1=' + fac + '&filter_relational_operator_0=equals&filtertype=type&filter_relational_operator=equals&filter=Dissertation'
+    tocurl = 'https://publikationen.uni-tuebingen.de/xmlui/handle/10900/42126/discover?rpp=' + str(rpp) + '&filtertype_0=dateIssued&filtertype_1=fachbereich&filter_0=[' + startyear + '+TO+' + str(ejlmod3.year()+1) + ']&filter_relational_operator_1=equals&filter_1=' + fac + '&filter_relational_operator_0=equals&filtertype=type&filter_relational_operator=equals&filter=PhDThesis'
     
     ejlmod3.printprogress('=', [[fac], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
