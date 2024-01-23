@@ -631,6 +631,8 @@ def writeXML(recs,dokfile,publisher):
             xmlstring += marcxml('0247',[('a',rec['hdl']), ('2','HDL'), ('9',publisher)])
         #URN
         if 'urn' in rec:
+            rec['urn'] = re.sub('^urn:urn:', 'urn:', rec['urn'])
+            rec['urn'] = re.sub('^URN:URN:', 'URN:', rec['urn'])
             xmlstring += marcxml('0247',[('a',rec['urn']), ('2','URN'), ('9',publisher)])
 #        elif not 'doi' in rec.keys() and not 'hdl' in rec.keys():
 #            if len(liste) > 2 or rec.has_key('isbn') or rec.has_key('isbns'):
@@ -1954,6 +1956,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
             scriptt = re.sub('&q;', '"', re.sub('[\n\t]', '', script.contents[0].strip()))
             break
         else:
+            #print(script)
             scriptt = False
     if scriptt:
         try:
@@ -2043,8 +2046,9 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.contributor.author.department', 'dc.contributor.department',
                                  'local.contributor.corporatename', 'dc.degree.programme',
                                  'unsw.relation.faculty', 'unsw.relation.school',
-                                 'dc.contributor.other', 'dc.department',
-                                 'dc.thesis.degreediscipline', 'local.subject.fakultaet']:
+                                 'dc.description.faculty', 'dc.contributor.other', 'dc.department',
+                                 'dc.thesis.degreediscipline', 'local.subject.fakultaet',
+                                 'dc.description.department']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2053,7 +2057,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Department of Mathematics and Statistics',
                                                   'School of Mathematics &a; Statistics',
                                                   'Departament d&s;Anàlisi Matemàtica',
-                                                  'Departament de Matemàtiques',
+                                                  'University of Delaware, Department of Mathematical Sciences',
+                                                  'Departament de Matemàtiques', 'Fac. de Ciencias Matemáticas',
                                                   'Naturwissenschaftliche Fakultät / Department Mathematik',
                                                   'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), Naturwissenschaftliche Fakultät, Department Mathematik, Lehrstuhl für Algebra und Geometrie (Knop)']:
                                 rec['fc'] = 'm'
@@ -2072,9 +2077,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['fc'] = 'g'
                             elif fac['value'] in ['Computer Science', 'Computational Science and Engineering',
                                                   'Department of Computer Science',
-                                                  'Departament d&s;Informàtica',
+                                                  'Departament d&s;Informàtica', 'Fac. de Informática',
                                                   'Computer Science and#38; Applications',
                                                   'Computer Science and Applications',
+                                                  'University of Delaware, Department of Computer and Information Sciences',
                                                   'Computer Science &a; Applications',
                                                   'Computer Engineering', 'Computer Science',
                                                   'Technische Fakultät / Department Informatik']:
@@ -2086,8 +2092,9 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'School of Physics', 'Facultat de Física',
                                                       'Departament de Física Aplicada i Electromagnetisme',
                                                       'Departament de Física Atòmica, Molecular i Nuclear',
+                                                      'University of Delaware, Department of Physics and Astronomy',
                                                       'Departament de Física de la Terra i Termodinàmica',
-                                                      'Departament de Fisica Teòrica',
+                                                      'Departament de Fisica Teòrica', 'Fac. de Ciencias Físicas',
                                                       'CIENCIAS FÍSICO MATEMÁTICAS Y CIENCIAS DE LA TIERRA',
                                                       'Naturwissenschaftliche Fakultät / Department Physik',
                                                       'Department Physik', 'Naturwissenschaftliche Fakultät',
@@ -2186,7 +2193,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     #keywords
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
                                  'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled',
-                                 'dc.subject.lcc', 'dc.subject.other']:
+                                 'dc.subject.lcc', 'dc.subject.other', 'dc.subject.keyword']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
