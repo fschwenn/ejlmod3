@@ -18,15 +18,24 @@ import json
 
 publisher = 'Penn State University'
 rpp = 100
+skipalreadyharvested = True
+years = 2
 
 jnlfilename = 'THESES-PENNSTATE-%s' % (ejlmod3.stampoftoday())
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 recs = []
-for (topic, fc) in [('Physics', ''), ('Computer+Science+and+Engineering', 'c'),
-                    ('Mathematics', 'm'), ('Astronomy+and+Astrophysics', 'a')]:
-    for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
+deps = [(0, 'Physics', ''), (1, 'Computer+Science+and+Engineering', 'c'),
+        (2, 'Mathematics', 'm'), (3, 'Astronomy+and+Astrophysics', 'a')]
+for (i, topic, fc) in deps:
+    for y in range(years):
+        j = 1 + i * years + y
+        year = ejlmod3.year(backwards=y)
         tocurl = 'https://etda.libraries.psu.edu/?f%5Bdegree_name_ssi%5D%5B%5D=PHD&f%5Bprogram_name_ssi%5D%5B%5D=' + topic + '&f%5Byear_isi%5D%5B%5D=' + str(year) + '&per_page=' + str(rpp) + '&sort=year-desc'
-        ejlmod3.printprogress('=', [[topic, year], [tocurl]])
+        tocurl = 'https://etda.libraries.psu.edu/?f%5Bdegree_name_ssi%5D%5B%5D=PHD&f%5Bprogram_name_ssi%5D%5B%5D=' + topic + '+(PHD)' + '&f%5Byear_isi%5D%5B%5D=' + str(year) + '&per_page=' + str(rpp) + '&sort=year-desc'
+        ejlmod3.printprogress('=', [[j, years*len(deps)], [topic, year], [tocurl]])
         try:
             tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
             time.sleep(3)
@@ -42,7 +51,8 @@ for (topic, fc) in [('Physics', ''), ('Computer+Science+and+Engineering', 'c'),
                 rec['tit'] = a.text.strip()
                 if fc:
                     rec['fc'] = fc
-                recs.append(rec)
+                if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                    recs.append(rec)
         print('  %4i records so far' % (len(recs)))
 
 i = 0
