@@ -55,21 +55,24 @@ for i in range(pages):
                 name = child.name
             except:
                 continue
-            if name == 'h4':
+            if name in ['h3', 'h4']:
                 for span in child.find_all('span'):
                     date = span.text.strip()
+                    ejlmod3.printprogress('~~~~~~', [[date]])
             elif name == 'p':
                 #year = int(re.sub('.*(20\d\d).*', r'\1', rec['date']))
                 if int(date) > ejlmod3.year(backwards=years):
-                    if child.has_attr('class') and 'article-listing' in child['class']:
+#                    if child.has_attr('class') and 'article-listing' in child['class']:
                         rec = {'jnl' : 'BOOK', 'tc' : 'T', 'date' : date, 'note' : []}
-                        for a in child.find_all('a'):                    
-                            rec['tit'] = a.text.strip()
-                            rec['artlink'] = a['href']
-                            a.replace_with('')
-                        if ejlmod3.checkinterestingDOI(rec['artlink']):
-                            prerecs.append(rec)
-    print('  ', len(prerecs))
+                        for a in child.find_all('a'):
+                            if a.has_attr('href') and re.search('\/oa_diss', a['href']):
+                                rec['tit'] = a.text.strip()
+                                rec['artlink'] = a['href']
+                                print('   ', rec['artlink'])
+                                a.replace_with('')
+                                if ejlmod3.checkinterestingDOI(rec['artlink']):
+                                    prerecs.append(rec)
+    print('  ', len(prerecs), 'records so far')
     tocextension = '%i.html' % (i+2)
 
 i = 0
