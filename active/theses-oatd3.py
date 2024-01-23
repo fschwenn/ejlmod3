@@ -13,6 +13,7 @@ import re
 import ejlmod3
 import unicodedata
 
+from inspirelabslib3 import *
 
 import time
 import json
@@ -20,6 +21,9 @@ import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import urllib3
+
+urllib3.disable_warnings()
 
 
 singlewords = ["2HDM", "ABJM", "antibaryon", "antifermion", "antifield",
@@ -96,6 +100,8 @@ nodedicatedharvester = ['aberdeen', 'ankara', 'arkansas', 'bremen', 'brazil', 'b
                         'udel', 'uiuc', 'ulm-diss', 'utk-diss', 'urecht', 'uwm', 'vrije',
                         'wustl', 'wvu']
 dontcheckforpdf = ['ethos']
+rereportnumbersinlinks = [re.compile('.*rwth\-aachen.de.*?(RWTH\-\d+\-\d+).*'),
+                          re.compile('.*www.theses.fr\/(.*)')]
 
 wordsperquery = 10
 searches = []
@@ -136,11 +142,13 @@ else:
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.get('https://oatd.org/')
+time.sleep(20)
 
 
 comment = Comment('Kommentar')
 #check already harvested
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1))]
 redoki = re.compile('THESES.OATD')
 renodoi = re.compile('^I\-\-NODOI:(.*)\-\-$')
@@ -381,9 +389,10 @@ for rec in prerecs:
                 if not 'doi' in rec:
                     print('    ... check for DOI at %s' % (serverlink))
                     for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_doi', 'bepress_citation_doi', 'eprints.doi', 'eprints.doi_name', 'DC.Identifier.doi']}):
-                        rec['doi'] = meta['content']
-                        rec['note'].append('DOI from reposerver')
-                        print('          ', meta['content'])
+                        if re.search('^10\.\d', meta['content']):
+                            rec['doi'] = meta['content']
+                            rec['note'].append('DOI from reposerver')
+                            print('          ', meta['content'])
                     if not 'doi' in rec:
                         for meta in serverpage.find_all('meta', attrs = {'name' : 'DC.identifier'}):
                             if re.search('doi.org', meta['content']):
@@ -396,6 +405,30 @@ for rec in prerecs:
                                 rec['note'].append('HDL from reposerver')
             except:
                 print('           failed')
+        #ckeck whether DOI/HDL/URN already is in INSPIRE. check whether link contains report number (that is already in INSPIRE).
+        if 'doi' in rec and perform_inspire_search_FS('doi:"%s"' % (rec['doi'])):
+            print('    %s already in INSPIRE' % (rec['doi']))
+            continue
+        elif 'hdl' in rec and perform_inspire_search_FS('persistent_identifiers.value:"%s"' % (rec['hdl'])):
+            print('    %s already in INSPIRE' % (rec['hdl']))
+            continue
+        elif 'urn' in rec and perform_inspire_search_FS('persistent_identifiers.value:"%s"' % (rec['urn'])):
+            print('    %s already in INSPIRE' % (rec['urn']))
+            continue
+        elif 'link' in rec:
+            time.sleep(1)
+            rn = False
+            for rernl in rereportnumbersinlinks:
+                if not rn and rernl.search(rec['link']):
+                    rn = rernl.sub(r'\1', rec['link'])
+                    print('    extracted report number "%s" from link "%s"' % (rn, rec['link']))
+                    if 'rn' in rec:
+                        rec['rn'].append(rn)
+                    else:
+                        rec['rn'] = [rn]
+            if rn and perform_inspire_search_FS('rn:%s' % (rn)):
+                print('    %s already in INSPIRE' % (rn))
+                continue
         #pseudoDOI?
         if not 'doi' in rec and not 'hdl' in rec:
             if not 'link' in rec:
