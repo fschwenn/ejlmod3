@@ -31,7 +31,7 @@ for page in range(pages):
     for tr in tocpage.body.find_all('tr', attrs = {'class' : 'ep_search_result'}):
         rec = {'tc' : 'T', 'jnl' : 'BOOK', 'autaff' : [], 'supervisor' : [], 'note' : [], 'fc' : []}
         for a in tr.find_all('a'):
-            if not re.search('(zip|pdf)$', a['href']):
+            if not re.search('(zip|pdf|mp4|jpg|avi|m4v)$', a['href']):
                 rec['link'] = a['href']
                 rec['doi'] = '20.2000/Nottingham/'+re.sub('\D', '', a['href'])
                 if not rec['doi'] in ['20.2000/Nottingham/289862']:
