@@ -248,7 +248,8 @@ jc['42979'] = ['sncomputsci', 'SN Comput.Sci.', '', '', 'P'] # requested on 2023
 jc['43246'] = ['communmater', 'Commun.Mater.', '', '', 'P'] # requested on 2023-11-14
 jc['43538'] = ['pindiannsa', 'Proc.Indian Natl.Sci.Acad.', '', '', 'P'] # requested on 2023-11-14
 jc['43588'] = ['natcomputatsci', 'Nature Computat.Sci.', '', '', 'P'] # requested on 2023-11-14
-
+#to be asked for
+jc['11432'] = ['scichinainfsci', 'Sci.China Inf.Sci.', '', '', 'P']
 
 #known conferences
 confdict = {'Proceedings of the 7th International Conference on Trapped Charged Particles and Fundamental Physics (TCP 2018), Traverse City, Michigan, USA, 30 September-5 October 2018' : 'C18-09-30',
