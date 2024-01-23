@@ -41,6 +41,7 @@ for div in tocpage.body.find_all('div', attrs = {'role' : 'article'}):
     for d2 in div.find_all('div', attrs = {'property' : 'dc:title'}):
         rec['rn'] = [ d2.text.strip() ]
         rec['doi'] = '20.2000/PANDA/' + d2.text.strip()
+        print('   ', rec['rn'])
     for section in div.find_all('section', attrs = {'class' : 'field field-name-field-publication-title field-type-text field-label-above view-mode-teaser'}):
         for d2 in section.find_all('div', attrs = {'class' : 'field-items'}):
             rec['tit'] = d2.text.strip()
