@@ -91,7 +91,7 @@ def get_records(url):
             if len(sys.argv) > 6:
                 rec['fc'] = sys.argv[6]
 
-            rec['fc'] = 'm'
+#            rec['fc'] = 'k'
             ejlmod3.metatagcheck(rec, pages[url], ['doi', 'prism.volume', 'prism.number'])
             #editors
             for div in pages[url].find_all('div', attrs = {'data-test' : 'editor-info'}):
@@ -553,6 +553,6 @@ for rec in recs:
                            '%i citations from INSPIRE papers' % (sample[rec['doi']]['all']),
                            '%i citations from CORE INSPIRE papers' % (sample[rec['doi']]['core'])]
         
-
+#    rec['fc'] = 'k'
                 
 ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
