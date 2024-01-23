@@ -13,37 +13,52 @@ import ssl
 
 jnlfilename = 'THESES-RoyalHolloway-%s' % (ejlmod3.stampoftoday())
 
-startyear = ejlmod3.year(backwards=1)
-stopyear = ejlmod3.year()
+years = 3
 publisher = 'Royal Holloway, U. of London'
+skipalreadyharvested = True
 
-
-
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+    
 hdr = {'User-Agent' : 'Magic Browser'}
 #bad certificate
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
-deps = [('department-of-physics(54da7e90-0544-4dbe-bd6d-4e85fa8f7465)', ''),
-        ('department-of-mathematics(7ff3623d-1e5a-45d1-8ab1-6929b58c0f0b)', 'm')]
+deps = [('department-of-physics', ''),
+        ('department-of-mathematics', 'm'),
+        ('department-of-computer-science', 'c')]
 recs = []
 for (dep, fc) in deps:
-    tocurl = 'https://pure.royalholloway.ac.uk/portal/en/organisations/' + dep + '/publications.html?query=&organisationName=&organisations=&type=%2Fdk%2Fatira%2Fpure%2Fresearchoutput%2Fresearchoutputtypes%2Fthesis%2Fdoc&language=+&publicationYearsFrom=' + str(startyear) + '&publicationYearsTo=' + str(stopyear) + '&publicationcategory=&peerreview=&openAccessPermissionStatus='
+#    tocurl = 'https://pure.royalholloway.ac.uk/portal/en/organisations/' + dep + '/publications.html?query=&organisationName=&organisations=&type=%2Fdk%2Fatira%2Fpure%2Fresearchoutput%2Fresearchoutputtypes%2Fthesis%2Fdoc&language=+&publicationYearsFrom=' + str(startyear) + '&publicationYearsTo=' + str(stopyear) + '&publicationcategory=&peerreview=&openAccessPermissionStatus='
+    tocurl = 'https://pure.royalholloway.ac.uk/en/organisations/' + dep + '/publications/?type=%2Fdk%2Fatira%2Fpure%2Fresearchoutput%2Fresearchoutputtypes%2Fthesis%2Fdoc'
     print(tocurl)
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
-    for h2 in tocpage.body.find_all('h2'):
-        for a in h2.find_all('a'):
-            rec = {'tc' : 'T', 'note' : [], 'jnl' : 'BOOK', 'supervisor' : []}
-            rec['link'] = a['href']
-            rec['tit'] = a.text.strip()
-            if fc:
-                rec['fc'] = fc
-            if re.search('\(....+\)', a['href']):
-                rec['doi'] = '20.2000/RoyalHolloway/' + re.sub('.*\((.*)\).*', r'\1', a['href'])
-            else:
-                rec['doi'] = '20.2000/RoyalHolloway/' + re.sub('\W', '', re.sub('.*\/', '', a['href'])[:-4])
-            recs.append(rec)
+    for li in tocpage.body.find_all('li', attrs = {'class' : 'list-result-item'}):
+        for h3 in li.find_all('h3'):
+            for a in h3.find_all('a'):
+                rec = {'tc' : 'T', 'note' : [], 'jnl' : 'BOOK', 'supervisor' : []}
+                rec['link'] = a['href']
+                rec['tit'] = a.text.strip()
+                if fc:
+                    rec['fc'] = fc
+                if re.search('\(....+\)', a['href']):
+                    rec['doi'] = '20.2000/RoyalHolloway/' + re.sub('.*\((.*)\).*', r'\1', a['href'])
+                else:
+                    rec['doi'] = '20.2000/RoyalHolloway/' + re.sub('\W', '', re.sub('.*\/', '', a['href'])[:-4])
+                for span in li.find_all('span', attrs = {'class' : 'date'}):
+                    if re.search('^[12]\d\d\d', span.text):
+                        rec['year'] = span.text
+                        if int(span.text) <= ejlmod3.year(backwards=years):
+                            if fc != 'c':
+                                alreadyharvested.append(rec['doi'])
+                            #print('      skip "%s"' % (span.text))
+                if not rec['doi'] in alreadyharvested:
+                    recs.append(rec)
+    print('    %i records so far ' % (len(recs)))
     time.sleep(5)
 
 i = 0
@@ -63,9 +78,8 @@ for rec in recs:
         except:
             print("no access to %s" % (rec['link']))
             continue
-    #author
-    for ul in artpage.find_all('ul', attrs = {'class' : 'relations persons'}):
-        rec['autaff'] = [[ ul.text.strip(), publisher ]]
+    ejlmod3.metatagcheck(rec, artpage, ['citation_keywords', 'citation_pdf_url', 'citation_publication_date', 'citation_author'])
+    rec['autaff'][-1].append(publisher)
     for tr in artpage.find_all('tr'):
         tht = ''
         for th in tr.find_all('th'):
@@ -80,9 +94,9 @@ for rec in recs:
                 for span in td.find_all('span'):
                     rec['date'] = span.text.strip()
     #date
-    if not 'date' in recs:
-        for span in artpage.find_all('span', attrs = {'class' : 'date'}):
-            rec['date'] = span.text.strip()            
+    #if not 'date' in recs:
+    #    for span in artpage.find_all('span', attrs = {'class' : 'date'}):
+    #        rec['date'] = span.text.strip()            
     #license
     for div in artpage.find_all('div', attrs = {'class' : 'creative_commons_license'}):
         for a in div.find_all('a'):
@@ -104,8 +118,6 @@ for rec in recs:
         divt = re.sub('[\n\t\r]', ' ', div.text.strip())
         if re.search('[12]\d\d\d\. *\d\d+ p\.', divt):
             rec['pages'] = re.sub('.*[12]\d\d\d\. *(\d\d+) p\..*', r'\1', divt)
-            if not 'date' in rec:
-                rec['date'] =re.sub('.*([12]\d\d\d)\. *\d\d+ p\..*', r'\1', divt)
     ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
