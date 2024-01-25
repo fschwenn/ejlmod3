@@ -6,7 +6,8 @@
 import getopt
 import sys
 import os
-import urllib.request, urllib.error, urllib.parse
+#import urllib.request, urllib.error, urllib.parse
+import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
@@ -24,6 +25,14 @@ hdr = {'User-Agent' : 'Magic Browser'}
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=5)
 
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+
+driver.get('https://spiral.imperial.ac.uk')
+time.sleep(20)
 recs = []
 deps = [('1240', ''), ('1241', 'm'), ('6103', 'm'), ('1232', 'c')]
 i = 0
@@ -33,8 +42,10 @@ for (dep, fc) in deps:
         i += 1
         tocurl = 'https://spiral.imperial.ac.uk/handle/10044/1/' + dep + '/simple-search?location=10044%2F1%2F' + dep +'&query=&filter_field_1=dateIssued&filter_type_1=equals&filter_value_1=%5B' + startyear + '+TO+2040%5D&rpp=' + str(rpp) + '&sort_by=dc.date.issued_dt&order=DESC&etal=5&submit_search=Update&start=' + str(rpp*page)
         ejlmod3.printprogress("=", [[i, len(deps)*pages], [dep], [page+1, pages], [tocurl]])
-        req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        #req = urllib.request.Request(tocurl, headers=hdr)
+        #tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
         for tr in tocpage.body.find_all('tr'):
             rec = {'tc' : 'T', 'jnl' : 'BOOK', 'supervisor' : []}
             for a in tr.find_all('a'):
@@ -55,13 +66,17 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['artlink']]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(3)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['artlink']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+            #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
             print("no access to %s" % (rec['artlink']))
             continue    
