@@ -47,33 +47,40 @@ for (i, tr) in enumerate(trs):
     arturl = False
     if note:
         rec['note'] = [note]
-        if note == 'Accelerators: Physics, Performance, and R&D for future facilities':
+        if note in ['Accelerators: Physics, Performance, and R&D for future facilities',
+                    'T13 Accelerators for HEP']:
             rec['fc'] += 'b'
-        elif note == 'Astroparticle Physics and Cosmology':
-            rec['fc'] += 'a'
         elif note == 'Computing and Data Handling':
             rec['fc'] += 'c'
-        elif note in ['Dark Matter', 'Workshop on Tensions in Cosmology']:
+        elif note in ['Joint T03+T10 Dark Matter + Searches for New Physics',
+                      'T10 Searches for New Physics']:
+            rec['fc'] += 'e'
+        elif note in ['Dark Matter', 'Workshop on Tensions in Cosmology',
+                      'S02-AA Astronomy and Astrophysics',
+                      'T03 Dark Matter',
+                      'Astroparticle Physics and Cosmology']:
             rec['fc'] += 'a'
-        elif note in ['Detectors for Future Facilities, R&D, novel techniques', 'Future facilities']:
-            rec['fc'] += 'i'
+        elif note in ['T01 Astroparticle Physics and Gravitational Waves']:
+            rec['fc'] += 'ag'
         elif note in ['Formal Theory', 'Workshop on Holography and the Swampland',
-                      'Workshop on Holography and the Swampland',
+                      'T11 Quantum Field and String Theory',
+                      'Workshop on Holography and the Swampland',                      
                       'Workshop on Noncommutative and Generalized Geometry in String Theory, Gauge Theory and Related Physical Models']:
             rec['fc'] += 't'
-        elif note == 'Operation, Performance and Upgrade (incl. HL-LHC) of Present Detectors':
+        elif note in ['Operation, Performance and Upgrade (incl. HL-LHC) of Present Detectors',
+                      'S15-MI Metrology and Instrumentation',
+                      'T12 Detector R&D and Data Handling',
+                      'Detectors for Future Facilities, R&D, novel techniques', 'Future facilities']:
             rec['fc'] += 'i'
-        elif note == 'S02-AA Astronomy and Astrophysics':
-            rec['fc'] = 'a'
-        elif note in ['S03-GC Gravitation and Cosmology', 'Workshop on Features of a Quantum de Sitter Universe']:
+        elif note in ['S03-GC Gravitation and Cosmology', 'Workshop on Features of a Quantum de Sitter Universe',
+                      'T02 Gravitation and Cosmology']:
             rec['fc'] = 'g'
         elif note == 'S06-CMPSP Condensed Matter Physics and Statistical Physics':
             rec['fc'] = 'f'
         elif note in ['S10-MG Meteorology and Geophysics', 'S11-EPASE Environmental Physics – Alternative Sources of Energy',
-                      'S13-BMP Biophysics and Medical Physics', 'S14-PEHPP Physics Education, History and Philosophy of Physics']:
+                      'S13-BMP Biophysics and Medical Physics', 'S14-PEHPP Physics Education, History and Philosophy of Physics',
+                      'T14 Outreach, Education and EDI']:
             rec['fc'] = 'o'
-        elif note == 'S15-MI Metrology and Instrumentation':
-            rec['fc'] = 'i'
     #cnum
     if len(sys.argv) > 4:
         rec['cnum'] = sys.argv[4]
