@@ -109,6 +109,29 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('o', ['Chem.Rev.', 'Adv.Funct.Mater.', 'Theor.Chem.Acc.', 'J.Math.Chem.', 'Phys.Chem.Chem.Phys.', 'Angew.Chem.Int.Ed.', 'J.Chem.Theor.Comput.']),
                   ('ac', ['Liv.Rev.Comput.Astrophys.', 'Comput.Astrophys.Cosmol.']),
                   ('ms', ['J.Am.Statist.Assoc.'])]
+#add field code based on collaboration
+fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
+              'CDF' : 'e', 'D0' : 'e', 'DEZERO' : 'e',
+              'BABAR' : 'e', 'BaBar' : 'e',
+              'CLEO' : 'e',
+              'BESIII' : 'e',
+              'DELPHI' : 'e', 'ALEPH' : 'e', 'L3' : 'e', 'OPAL' : 'e',
+              'COMPASS' : 'e', 'MADMAX' : 'e', 'ALPS' : 'e',
+              'Belle' : 'e', 'Belle II' : 'e',
+              'ZEUS' : 'e', 'H1' : 'e', 'HERMES' : 'e',
+              'PHENIX' : 'ex', 'STAR' : 'ex',
+              'CLAS' : 'x', 'NA49' : 'x', 'ISOLDE' : 'x',
+              'NA62' : 'e', 'NA64' : 'e',
+              'IceCube' : 'a', 'Pierre Auger' : 'a', 'MAGIC' : 'a', 'KM3NeT' : 'a',
+              'HESS' : 'a', 'H.E.S.S.' : 'a', 'Fermi-LAT' : 'a', 'VERITAS' : 'a',
+              'DES' : 'a', 'ANTARES' : 'a', 'SDSS' : 'a', 'HAWC' : 'a',
+              'Telescope Array' : 'a', 'JEM-EUSO' : 'a', 'ARGO-YBJ' : 'a',
+              'Planck' : 'a', 'CTA' : 'a', 'KM3NeT4RR project' : 'a',
+              'LIGO' : 'g', 'VIRGO' : 'g', 'Virgo' : 'g', 'KAGRA' : 'g',
+              'LISA Pathfinder' : 'g', 'NANOGrav' : 'g',
+              'UKQCD' : 'l', 'JLQCD' : 'l', 'MILC' : 'l', 'Fermilab Lattice' : 'l',
+              'HAL QCD' : 'l'}
+              
 #rearrange the lists into a dictionary
 jnltofc = {}
 for (fc, jnllist) in fcjournalliste:
@@ -667,25 +690,10 @@ def writeXML(recs,dokfile,publisher):
         if 'pacs' in rec:
             for pacs in rec['pacs']:
                 xmlstring += marcxml('084',[('a',pacs), ('2','PACS')])
-        #COLLABRATION
+        #COLLABRATION (1)
         if 'col' in rec:
             if type(rec['col']) != type([]):
                 rec['col'] = [rec['col']]
-            newcolls = []
-            for col in rec['col']:
-                for original in coll_split(col):
-                    (coll, author) = coll_cleanforthe(original)
-                    coll = coll_clean710(coll)
-                    newcolls.append(coll)
-                    if author:
-                        try:
-                            print('found author %s in collaboration string %s' % (author, original))
-                        except:
-                            print('found author in collaboration string')
-            for col in newcolls:
-                xmlstring += marcxml('710',[('g',col)])
-                if 'exp' not in rec and col in colexpdict:
-                    xmlstring += marcxml('693',[('e',colexpdict[col])])
         #arXiv NUMBER
         if 'arxiv' in rec:
             if re.search('^[0-9]',rec['arxiv']):
@@ -710,9 +718,6 @@ def writeXML(recs,dokfile,publisher):
                     xmlstring += marcxml('035', [('9', 'OSTI'), ('a', rn[5:])])
                 else:
                     xmlstring += marcxml('037', [('a', rn)])
-        #EXPERIMENT
-        if 'exp' in rec:
-            xmlstring += marcxml('693',[('e',rec['exp'])])
         #PDF LINK
         if 'pdf' in rec:
             if re.search('^http', rec['pdf']):
@@ -819,9 +824,11 @@ def writeXML(recs,dokfile,publisher):
                     for scoll in coll_split(coll):
                         newcolls.append(re.sub('^the ', '', coll_clean710(scoll), re.IGNORECASE))
                     for col in newcolls:
-                        xmlstring += marcxml('710',[('g',col)])
-                        if 'exp' not in rec and col in colexpdict:
-                            xmlstring += marcxml('693',[('e',colexpdict[col])])
+                        if 'col' in rec:
+                            if not col in rec['col']:
+                                rec['col'].append(col)
+                        else:
+                            rec['col'] = [col]
                     if author:
                         autaff[0] = author
                     else:
@@ -897,10 +904,11 @@ def writeXML(recs,dokfile,publisher):
                         for scoll in coll_split(coll):
                             newcolls.append(re.sub('^the ', '', coll_clean710(scoll), re.IGNORECASE))
                         for col in newcolls:
-                            if not re.search('(CHINESENAME|ORCID|EMAIL)', col):
-                                xmlstring += marcxml('710',[('g',col)])
-                                if 'exp' not in rec and col in colexpdict:
-                                    xmlstring += marcxml('693',[('e',colexpdict[col])])
+                            if 'col' in rec:
+                                if not col in rec['col']:
+                                    rec['col'].append(col)
+                            else:
+                                rec['col'] = [col]
                         if author:
                             entry = author
                         else:
@@ -948,6 +956,37 @@ def writeXML(recs,dokfile,publisher):
             for aut in longauts:
                 xmlstring += marcxml(marc,aut)
                 marc = '700'
+        #COLLABRATION (2)
+        if 'col' in rec:
+            newcolls = []
+            for col in rec['col']:
+                for original in coll_split(col):
+                    (coll, author) = coll_cleanforthe(original)
+                    coll = coll_clean710(coll)
+                    newcolls.append(coll)
+                    if author:
+                        try:
+                            print('found author %s in collaboration string %s' % (author, original))
+                        except:
+                            print('found author in collaboration string')
+            for col in newcolls:
+                xmlstring += marcxml('710',[('g',col)])
+                if col in fccolliste:
+                    if 'fc' in rec:
+                        for fc in fccolliste[col]:
+                            if fc in rec['fc']:
+                                print('  col:%s + fc:%s' % (col, fc))
+                            else:
+                                rec['fc'] += fc
+                                print('  col:%s -> fc:%s' % (col, fc))
+                    else:
+                        rec['fc'] = fccolliste[col]
+                        print('  col:%s -> fc:%s' % (col, fccolliste[col]))
+                if 'exp' not in rec and col in colexpdict:
+                    xmlstring += marcxml('693',[('e',colexpdict[col])])
+        #EXPERIMENT
+        if 'exp' in rec:
+            xmlstring += marcxml('693',[('e',rec['exp'])])
         #REFERENCES
         if 'refs' in rec:
             #print(' extracting %i refs for record %i of %i' % (len(rec['refs']),i,len(recs)))
@@ -2048,7 +2087,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'unsw.relation.faculty', 'unsw.relation.school',
                                  'dc.description.faculty', 'dc.contributor.other', 'dc.department',
                                  'dc.thesis.degreediscipline', 'local.subject.fakultaet',
-                                 'dc.description.department']:
+                                 'dc.description.department', 'dc.degree.department',
+                                 'dc.thesis.degree.discipline', ]:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2056,7 +2096,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             elif fac['value'] in ['Mathematics', 'Applied Mathematics', 'Mathematics &a; Statistics',
                                                   'Department of Mathematics and Statistics',
                                                   'School of Mathematics &a; Statistics',
-                                                  'Departament d&s;Anàlisi Matemàtica',
+                                                  'Departament d&s;Anàlisi Matemàtica', 'Mathematics and Statistics',
                                                   'University of Delaware, Department of Mathematical Sciences',
                                                   'Departament de Matemàtiques', 'Fac. de Ciencias Matemáticas',
                                                   'Naturwissenschaftliche Fakultät / Department Mathematik',
