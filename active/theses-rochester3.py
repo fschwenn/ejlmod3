@@ -22,13 +22,12 @@ departments = [('PHYS', 'Rochester U.', '59', ''),
 hdr = {'User-Agent' : 'Magic Browser'}
 jnlfilename = 'THESES-ROCHESTER-%s' % (ejlmod3.stampoftoday())
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(backwards=2), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 
 recs = []
 prerecs = []
@@ -119,7 +118,10 @@ for rec in prerecs:
             if lt == 'Contributor(s):':
                 if re.search('Thesis Advisor', tr.text):
                     for a in tr.find_all('a'):
-                        rec['supervisor'].append([a.text.strip()])
+                        if a.has_attr('href') and re.search('orcid.org\/', a['href']):
+                            rec['supervisor'][-1].append(re.sub('.*orcid.org\/', 'ORCID:', a['href']))
+                        else:
+                            rec['supervisor'].append([re.sub(' \(.*', '', a.text.strip())])
             #keywords
             if lt == 'Subject Keywords:':
                 rec['keyw'] = re.split('; ', tr.text.strip())
