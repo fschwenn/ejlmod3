@@ -61,6 +61,7 @@ for line in  re.split('<HR>', lines):
         artfilname = "%s/%s.%s" %(tmpdir,jnlfilename,recnr)
         if not os.path.isfile(artfilname):
             print("lynx -source \"%s/%s\" > %s\n" %(urltrunk,url,artfilname))
+            time.sleep(3)
             os.system("lynx -source \"%s/%s\" > %s" %(urltrunk,url,artfilname))
         artfil = open(artfilname,'r')
         rec = {}
@@ -88,7 +89,7 @@ for line in  re.split('<HR>', lines):
             #print aline
             #DOI
             if re.search('<P><[Bb]>DOI', aline):
-                rec['doi'] = akzenteabstreifen(re.sub('.*<P><[Bb]>DOI:.*(10.33581.*?) *<.*', r'\1', aline.strip()))
+                rec['doi'] = akzenteabstreifen(re.sub('.*<P><[Bb]>DOI:.*(10.[0-9]+\/.*?) *<.*', r'\1', aline.strip()))
                 aline = re.sub('<P><[Bb]>DOI:? *<\/[Bb]>.*?<', '<', aline)
             #keywords 
             if re.search('<P><[Bb]>Key words', aline):
