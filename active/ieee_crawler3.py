@@ -516,7 +516,7 @@ def ieee(number):
             oufname = re.sub('[ \.]','',jnlname).lower()
         if 'vol' in rec: oufname += '.'+rec['vol']
         if 'issue' in rec:
-            oufname += '.'+rec['issue']
+            oufname += '.'+rec['issue'] + '_'+ejlmod3.stampoftoday()
         else:
             oufname += '_'+ejlmod3.stampoftoday()
         if 'cnum' in rec: oufname += '.'+rec['cnum']
