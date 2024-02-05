@@ -82,18 +82,19 @@ for rec in prerecs:
         for tr in table.find_all('tr'):
             for th in tr.find_all('th'):
                 tht = th.text.strip()
+                #print(tht)
             for td in tr.find_all('td'):
                 #date
-                if tht == 'Data de Defesa:':
+                if tht in ['Data de Defesa:', 'Ano de defesa:']:
                     rec['date'] = td.text.strip()
                 #author
-                elif tht == 'Autor/a:':
+                elif tht in ['Autor/a:', 'Autor(a) principal:']:
                     rec['auts'] = [ td.text.strip() ]
                 #language
                 elif tht == 'Idioma:':
                     rec['language'] = td.text.strip()
                 #link
-                elif tht in ['Download Texto Completo:', 'Online Access:']:
+                elif tht in ['Download Texto Completo:', 'Online Access:', 'Link de acesso:']:
                     for a in tr.find_all('a'):
                         if re.search('orcid.org', a['href']):
                             continue
@@ -105,6 +106,8 @@ for rec in prerecs:
                             rec['notes'].append('should also be harvested by theses-saopaulo.py')
                         elif re.search('repositorio\.unesp\.br', a['href']):
                             rec['notes'].append('should also be harvested by theses-unsep.py')
+                        elif re.search('doi.org\/10.\d', a['href']):
+                            rec['doi'] = re.sub('.*doi.org\/', '', a['href'])
                 #aff
                 elif re.search('Institui', tht):
                     rec['aff'] = [ td.text.strip() + ', Brasil' ]
