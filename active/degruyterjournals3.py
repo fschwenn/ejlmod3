@@ -76,7 +76,14 @@ else:
     tocurl = "%s/view/j/%s.%s.%s.issue-%s/issue-files/%s.%s.%s.issue-%s.xml" % (urltrunc, journal, year, vol, iss, journal, year, vol, iss)        
 print(tocurl)
 
-tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+try:
+    tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+except:
+    tocurl = 'https://www.degruyter.com/journal/key/%s/%s/%s/html' % (journal, vol, iss)
+    print(tocurl)
+    time.sleep(5)
+    tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+    
 
 for h1 in tocpage.find_all('h1'):
     h1t = h1.text.strip()
