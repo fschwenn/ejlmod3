@@ -35,7 +35,8 @@ links = []
 for div in tocpage.body.find_all('div', attrs = {'class' : 'section'}):
     for h2 in div.find_all('h2'):
         section = h2.text.strip()
-        for div2 in div.find_all('div', attrs = {'class' : 'title'}):
+#        for div2 in div.find_all('div', attrs = {'class' : 'title'}):
+        for div2 in div.find_all('h3', attrs = {'class' : 'title'}):
             for a in div2.find_all('a'):
                 rec = {'tc' : 'P', 'jnl' : 'Phys.Sci.Tech..', 'note' : []}
                 rec['artlink'] = a['href']
