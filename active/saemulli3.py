@@ -14,7 +14,7 @@ import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
 
-publisher = 'Korean physical Society'
+publisher = 'Korean Physical Society'
 tc = 'P'
 vol = sys.argv[1]
 issue = sys.argv[2]
