@@ -1,61 +1,71 @@
 # -*- coding: utf-8 -*-
 #harvest theses from Andes U., Bogota
 #FS: 2020-08-28
+#FS: 2024-01-29
 
-import urllib.request, urllib.error, urllib.parse
+
+import undetected_chromedriver as uc
 import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
+import os
 import time
 
 publisher = 'Andes U., Bogota'
 jnlfilename = 'THESES-BOGOTA-%s' % (ejlmod3.stampoftoday())
 years = 3
+rpp = 20
+pages = 2
+boring = []
 
-hdr = {'User-Agent' : 'Magic Browser'}
+skipalreadyharvested = True
+
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 recs = []
-for (fc, dep) in [('', '52401'), ('m', '52426')]:
-    tocurl = 'https://repositorio.uniandes.edu.co/handle/1992/' + dep
-    ejlmod3.printprogress('=', [[dep], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    for div in tocpage.body.find_all('div', attrs = {'class' : 'artifact-description'}):
-        rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'autaff' : []}
-        if fc: rec['fc'] = fc
-        for h4 in div.find_all('h4'):
-            for a in h4.find_all('a'):
-                rec['link'] = 'https://repositorio.uniandes.edu.co' + a['href'] #+ '?show=full'
-                rec['hdl'] = re.sub('.*handle\/', '', a['href'])
-        for span in div.find_all('span', attrs = {'class' : 'date'}):
-            rec['year'] = re.sub('.*?([12]\d\d\d).*', r'\1', span.text.strip())
-            if int(rec['year']) > ejlmod3.year(backwards=years):
-                recs.append(rec)
-            else:
-                print('  skip', rec['year'])
+baseurl = 'https://repositorio.uniandes.edu.co'
 
-i = 0
-for rec in recs:
-    i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['link']]])
-    try:
-        req = urllib.request.Request(rec['link'], headers=hdr)
-        artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-        time.sleep(3)
-    except:
+for (fc, dep) in [('', 'd06819b0-1c54-4c28-b6d3-a67cec690836'),
+                  ('m', '1eb45f49-2a12-409b-89d7-946248148b31')]:
+    for page in range(pages):
+        tocurl = baseurl + '/collections/' + dep + '?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+        ejlmod3.printprogress('=', [[fc,dep], [page+1, pages], [tocurl]])
         try:
-            print("retry %s in 180 seconds" % (rec['link']))
-            time.sleep(180)
-            req = urllib.request.Request(rec['link'], headers=hdr)
-            artpage = BeautifulSoup(urllib .request.urlopen(req), features="lxml")
+            driver.get(tocurl)
+            time.sleep(5)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
-            print("no access to %s" % (rec['link']))
-            continue
-    ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DC.title', 'citation_language',
-                                        'DCTERMS.issued', 'DC.subject', 'DCTERMS.abstract',
-                                        'citation_pdf_url'])
-    rec['autaff'][-1].append(publisher)
-    ejlmod3.printrecsummary(rec)
-
+            time.sleep(60)
+            driver.get(tocurl)
+            time.sleep(5)
+            tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        
+        for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor',
+                                                   'dc.contributor.author', 'dc.date.issued',
+                                                   'dc.description.abstract', 'dc.identifier',
+                                                   'dc.format.extent', 'dc.subject.keyword',
+                                                   'dc.subject.themes'
+                                                   'dc.identifier.uri', 'dc.language.iso', 'dc.rights.uri',
+                                                   'dc.title', 'thesis.degree.discipline',
+                                                   'thesis.degree.level', 'thesis.degree.name'],
+                                boring=boring, alreadyharvested=alreadyharvested):
+            rec['autaff'] = [[ rec['autaff'][0][0], publisher ]]
+            if fc:
+                rec['fc'] = fc
+            ejlmod3.printrecsummary(rec)
+            #print(rec['thesis.metadata.keys'])
+            recs.append(rec)
+        print('  %i records so far' % (len(recs)))
+        time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
 
