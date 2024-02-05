@@ -39,6 +39,10 @@ for (dep, fc) in [('443', ''), ('570', 'm'), ('645', 'c')]:
                     if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
                         if ejlmod3.checkinterestingDOI(rec['hdl']):
                             recs.append(rec)
+                        else:
+                            print('   ', rec['hdl'], 'uninteresting')
+                    else:
+                        print('   ', rec['hdl'], 'in backup')                        
         print('  %4i records so far' % (len(recs)))
     time.sleep(10)
 
