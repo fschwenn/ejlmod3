@@ -26,7 +26,7 @@ if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
     options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
+#    options.add_argument('--no-sandbox')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/home/schwenn/tmp'
@@ -274,7 +274,8 @@ def ieee(number):
             for div in page.body.find_all('div', attrs = {'class' : 'Dashboard-header'}):
                 divt = re.sub('[\n\t\r]', ' ', div.text.strip())
                 divt = re.sub(',', '', divt)
-                numberofarticles = int(re.sub('.* of +(\d+).*', r'\1', divt))
+                if re.search(' of \d', divt):
+                    numberofarticles = int(re.sub('.* of +(\d+).*', r'\1', divt))
         #get links to individual articles
         articlelinks = []
         resultitems = page.body.find_all('h2', attrs = {'class' : 'result-item-title'})
@@ -285,10 +286,11 @@ def ieee(number):
                 for a in links:
                     if a.text.strip() in ['Title Page I', 'Title Page II',
                                           'Title Page III', 'Title Page IV',
-                                          'Copyright', 'Table of Contents',
+                                          'Copyright', 'Table of Contents', 
                                           'Message from the AI4I 2022 General Co-Chairs',
                                           'Message from the AI4I 2022 Program Co-Chairs',
-                                          'Program', 'Welcome Message', 'Advance Program']:
+                                          'Program', 'Welcome Message', 'Advance Program',
+                                          'IEEE Xplore Digital Library']:
                         notproperarticles += 1
                     else:
                         #print a
@@ -330,27 +332,38 @@ def ieee(number):
             continue
         #rec['note'] = ['Konferenz ?']
         artfilename = '%s/ieee_%s.%s' % (tmpdir, number, re.sub('https', 'http', re.sub('\W', '', articlelink)))
-        if not os.path.isfile(artfilename):
+        if not os.path.isfile(artfilename) or int(os.path.getsize(artfilename)) == 0:
             time.sleep(20)
-            try:
-                os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, articlelink))
-            except:
-                print("retry in 300 seconds")
-                time.sleep(300)
-                os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, articlelink))
-        inf = open(artfilename, 'r')
-        articlepage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
-        inf.close()
+#            try:
+#                os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, articlelink))
+#            except:
+#                print("retry in 300 seconds")
+#                time.sleep(300)
+#                os.system("wget -T 300 -t 3 -q -O %s %s" % (artfilename, articlelink))
+            driver.get(articlelink)
+            articlepage = BeautifulSoup(driver.page_source, features="lxml")
+            artfile = codecs.open(artfilename, mode='w', encoding='utf8')
+            artfile.write(str(articlepage))
+            artfile.close()
+        else:
+            inf = open(artfilename, 'r')
+            articlepage = BeautifulSoup(''.join(inf.readlines()), features="lxml")
+            #print(articlepage.text)
+            inf.close()
         rec = {'keyw' : [], 'autaff' : [], 'note' : [articlelink]}
         #rec['fc'] = 'kc'
         #metadata now in javascript
         for script in articlepage.find_all('script', attrs = {'type' : 'text/javascript'}):
+            #print('A')
             #if re.search('global.document.metadata', script.text):
             if script.contents and len(script.contents):
+                #print('B')
                 if re.search('[gG]lobal.document.metadata', script.contents[0]):
+                    #print('C')
                     gdm = re.sub('[\n\t]', '', script.contents[0]).strip()
                     gdm = re.sub('.*[gG]lobal.document.metadata=(\{.*\}).*', r'\1', gdm)
                     gdm = json.loads(gdm)
+                    
         if 'sections' in gdm:
             if 'references' in gdm['sections']:
                 if gdm['sections']['references'] in ['true', 'True']:
@@ -443,7 +456,7 @@ def ieee(number):
         #references
         if hasreferencesection:
                 refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('https?', 'http', re.sub('\W', '', articlelink)))
-                if not os.path.isfile(refilename) and host == 'l00schwenn':                    
+                if (not os.path.isfile(refilename) or int(os.path.getsize(refilename)) == 0) and host == 'l00schwenn':                    
                     iref += 1
                     print('  try to get references since %s not found' % (refilename))
                     action_process = Process(target=addreferences, args=(refsdict, articlelink))
