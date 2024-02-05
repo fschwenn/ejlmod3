@@ -181,11 +181,11 @@ for (i, rec) in enumerate(prerecs):
     #abstract
     for div in apage.body.find_all('div', attrs = {'class' : 'abstractInFull'}):
         rec['abs'] = div.text.strip()
-    if not 'abs' in rec:
-        for div in apage.body.find_all('div', attrs = {'class' : 'hlFld-Abstract'}):
-            for h2 in div.find_all('h2'):
+    for div in apage.body.find_all('div', attrs = {'class' : 'hlFld-Abstract'}):
+        if not 'abs' in rec:
+            for h2 in div.find_all('h2', attrs = {'id' : 'abstract'}):
                 h2.decompose()
-            rec['abs'] = div.text.strip()        
+                rec['abs'] = div.text.strip()        
     #pages
     for span in apage.body.find_all('span', attrs = {'class' : 'contentItemPageRange'}):
         pages = re.sub('[Pp]ages? *', '', span.text).strip()
@@ -193,6 +193,16 @@ for (i, rec) in enumerate(prerecs):
             [rec['p1'], rec['p2']] = re.split('\-', pages)
         except:
             rec['p1'] = re.sub('Article: ', '', pages)
+    if not 'p1' in rec:
+        for div in apage.body.find_all('div', attrs = {'class' : 'itemPageRangeHistory'}):
+            for span in div.find_all('span'):
+                st = span.text.strip()
+                if re.search('[Pp]ages? *\d+\-\d+', st):
+                    [rec['p1'], rec['p2']] = re.split('\-', re.sub('.*[Pp]ages? *', '', st))
+                    #print('      ', rec['p1'], '-', rec['p2'])
+                elif re.search('Article: ', st):
+                    rec['p1'] = re.sub('Article: ', '', st)
+                    
 
     #references
     for ul in rpage.body.find_all('ul', attrs = {'class' : 'references numeric-ordered-list'}):
@@ -205,12 +215,18 @@ for (i, rec) in enumerate(prerecs):
                         rdoi = re.sub('.*=', ', DOI: ', a['href'])
                         a.replace_with('')
                     elif re.search('Web of Science', a.text):
-                        if not rdoi:
-                            rdoi = re.sub('.*doi=', ', DOI: ', a['href'])
-                            rdoi = re.sub('\&.*', '', rdoi)
+# link now contains doi of this article plus some key                
+#                        if not rdoi:
+#                            rdoi = re.sub('.*doi=', ', DOI: ', a['href'])
+#                            rdoi = re.sub('\&.*', '', rdoi)
                         a.replace_with('')
                     elif re.search('(PubMed|Taylor|Google Scholar)', a.text):
-                        a.replace_with('')                        
+                        a.replace_with('')
+            for ul in li.find_all('ul'):
+                if ul.has_attr('data-target'):
+                    if re.search('^10\.\d+\/', ul['data-target']):
+                        rdoi = ', DOI: ' + ul['data-target']
+                        ul.decompose()
             lit = re.sub('\. *$', '', li.text)
             lit = re.sub('\xa0', ' ', li.text)
             lit = re.sub('[\n\t]', ' ', lit)
@@ -221,6 +237,7 @@ for (i, rec) in enumerate(prerecs):
                 rdoi = re.sub('%2F', '/', rdoi)
                 rdoi = re.sub('%28', '(', rdoi)
                 rdoi = re.sub('%29', ')', rdoi)
+                #print('     ', rdoi)
                 rec['refs'].append([('x',  re.sub(',\s*,', ',', lit + rdoi))])
             else:
                 rec['refs'].append([('x', lit)])
