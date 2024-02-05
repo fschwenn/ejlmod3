@@ -159,6 +159,10 @@ elif (jnl == 'jcc'):
     issn = '1096-987x'
     doitrunk = '10.1002/jcc'
     jnlname = 'J.Comput.Chem.'
+elif (jnl == 'ietqc'):
+    issn = '2632-8925'
+    doitrunk = '10.1049/qtc2'
+    jnlname = 'IET Quant.Commun.'
     
 
     
@@ -225,7 +229,8 @@ for issue in re.split(',', issues):
                                                                   'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                   'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
-                                                                  'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Author Profile']:
+                                                                  'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Author Profile',
+                                                                  'GUEST EDITORIAL']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
