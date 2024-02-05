@@ -59,7 +59,7 @@ for page in range(pages):
                 if re.search('^[12]\d\d\d$', year):
                     rec['year'] = year
                     if int(rec['year']) <= ejlmod3.year(backwards=years):
-                        #print('    %s too old' % (rec['year']))
+                        print('    %s too old' % (rec['year']))
                         keepit = False
             for dt in dl.find_all('dt'):
                 for a in dt.find_all('a'):
@@ -67,6 +67,8 @@ for page in range(pages):
                     if keepit:
                         if ejlmod3.checkinterestingDOI(rec['link']):
                             prerecs.append(rec)
+                        else:
+                            print('    %s uninteresting' % (rec['link']))
     print('  %4i records so far' % (len(prerecs)))
     time.sleep(5)
 
