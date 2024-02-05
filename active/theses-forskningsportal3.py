@@ -319,11 +319,11 @@ publisherdata = '/afs/desy.de/group/library/publisherdata/nora'
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
+for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
     recs = []
     jnlfilename = 'THESES-FORSKNINGSPORTAL-%s_%i' % (ejlmod3.stampoftoday(), year)
     os.system('wget -q -O %s/nora-data-all-%i.json.gz https://local.forskningsportal.dk/local-data/extract/%s/json/nora-data-all-%i.json.gz' % (publisherdata, year, ejlmod3.stampoftoday()[:7], year))
-    time.sleep(5)
+    time.sleep(25)
     os.system('cd %s && gunzip nora-data-all-%i.json.gz' % (publisherdata, year))
 
     inf = open('%s/nora-data-all-%i.json' % (publisherdata, year), 'r')
@@ -461,6 +461,6 @@ for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
 #            break
 
     ejlmod3.writenewXML(recs, publisher, jnlfilename)
-    os.system('mv %s/nora-data-all-%i.json %s/done' % (publisherpath, year, publisherpath))
+    os.system('mv %s/nora-data-all-%i.json %s/done' % (publisherdata, year, publisherdata))
 
 
