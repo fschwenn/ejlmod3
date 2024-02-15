@@ -25,6 +25,8 @@ expdict = {'CMS' : 'CERN-LHC-CMS', 'CMS---CERN LHC' : 'CERN-LHC-CMS',
            'LHCb' : 'CERN-LHC-LHCb',
            'ALPHA AD-5' : 'CERN-ALPHA',
            'SHip' : 'CERN-SPS-SHIP',
+           'SHiP' : 'CERN-SPS-SHIP',
+           'SHIP' : 'CERN-SPS-SHIP',
            'COMPASS NA58' : 'CERN-NA-058',
            'TOTEM' : 'CERN-LHC-TOTEM',
            'ALICE' : 'CERN-LHC-ALICE',
@@ -42,7 +44,8 @@ expdict = {'CMS' : 'CERN-LHC-CMS', 'CMS---CERN LHC' : 'CERN-LHC-CMS',
            'RD50' : 'CERN-RD-050',
            'RD51' : 'CERN-RD-051',
            'RD52' : 'CERN-RD-052',
-           'RD53' : 'CERN-RD-053'}
+           'RD53' : 'CERN-RD-053',
+           'AWAKE' : 'CERN-AWAKE'}
 
 
 if skipalreadyharvested:    
