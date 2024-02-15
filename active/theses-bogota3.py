@@ -22,7 +22,7 @@ boring = []
 skipalreadyharvested = True
 
 if skipalreadyharvested:
-    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=6)
 else:
     alreadyharvested = []
 
