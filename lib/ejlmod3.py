@@ -386,7 +386,8 @@ def writeXML(recs,dokfile,publisher):
         recdate = False
         if rec['jnl'] in ['Astron.Astrophys.', 'Mon.Not.Roy.Astron.Soc.',
                           'Astronom.J.', 'Adv.Astron.', 'Astron.Nachr.']:
-            arXivfromADS(rec)
+            if not 'arxiv' in rec:
+                arXivfromADS(rec)
         liste = []
         i += 1
         if 'doi' in rec:
@@ -1106,7 +1107,9 @@ def writeXML(recs,dokfile,publisher):
         if 'typ' in rec:
             xmlstring += marcxml('595',[('a',rec['typ'])])
         #FIELD CODE
-        if rec['jnl'] in jnltofc:
+        if 'jnl' == 'JACoW' and re.search('ICALEPCS', rec.get('vol', '')):
+            rec['fc'] = 'c'
+        elif rec['jnl'] in jnltofc:
             if not 'fc' in rec:
                 rec['fc'] = ''
             for fc in jnltofc[rec['jnl']]:
@@ -2070,6 +2073,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for pid in thesis['metadata'][key]:
                             rec['urn'] = pid['value']
                         done.append(key)
+                    elif key in ['uulm.dissISBN', 'dc.identifier.isbn']:
+                        for pid in thesis['metadata'][key]:
+                            rec['isbn'] = pid['value']
+                        done.append(key)
                     elif key in ['dc.identifier.uri']:
                         for pid in thesis['metadata'][key]:
                             if re.search('doi.org\/10', pid['value']):
@@ -2092,7 +2099,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.description.faculty', 'dc.contributor.other', 'dc.department',
                                  'dc.thesis.degreediscipline', 'local.subject.fakultaet',
                                  'dc.description.department', 'dc.degree.department',
-                                 'dc.thesis.degree.discipline', ]:
+                                 'dc.thesis.degree.discipline',  'uulm.affiliationGeneral',
+                                 'uulm.affiliationSpecific']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2104,12 +2112,23 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'University of Delaware, Department of Mathematical Sciences',
                                                   'Departament de Matemàtiques', 'Fac. de Ciencias Matemáticas',
                                                   'Naturwissenschaftliche Fakultät / Department Mathematik',
-                                                  'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), Naturwissenschaftliche Fakultät, Department Mathematik, Lehrstuhl für Algebra und Geometrie (Knop)']:
+                                                  'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), Naturwissenschaftliche Fakultät, Department Mathematik, Lehrstuhl für Algebra und Geometrie (Knop)',
+                                                  'Institut für Algebra und Zahlentheorie',
+                                                  'Institut für Angewandte Analysis',
+                                                  'Institut für Numerische Mathematik',
+                                                  'Institut für Analysis', 'Institut für Statistik',
+                                                  'Institut für Stochastik',
+                                                  'Institut für Reine Mathematik',
+                                                  'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
                                 rec['fc'] = 'm'
                             elif fac['value'] in ['Statistics', 'Mathematical Statistics',
                                                   'Statistical Science']:
                                 rec['fc'] = 's'
-                            elif fac['value'] in ['Centre for Quantum Computation &a; Communication Technology']:
+                            elif fac['value'] in ['Centre for Quantum Computation &a; Communication Technology',
+                                                  'Institut für Komplexe Quantensysteme',
+                                                  'Institut für Quantenmaterie',
+                                                  'Institut für Quantenoptik',
+                                                  'Institut für Quantenphysik']:
                                 rec['fc'] = 'k'
                             elif fac['value'] in ['Astronomy', 'Astronomy and Astrophysics',
                                                   'Departament d&s;Astronomia i Astrofísica',
@@ -2127,9 +2146,13 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'University of Delaware, Department of Computer and Information Sciences',
                                                   'Computer Science &a; Applications',
                                                   'Computer Engineering', 'Computer Science',
-                                                  'Technische Fakultät / Department Informatik']:
+                                                  'Technische Fakultät / Department Informatik',
+                                                  'Institut für Softwaretechnik und Programmiersprachen'
+                                                  'Institut für Theoretische Informatik',
+                                                  'THU.IFI Institut für Informatik']:
                                 rec['fc'] = 'c'
-                            elif fac['value'] in ['Condensed Matter']:
+                            elif fac['value'] in ['Condensed Matter',
+                                                  'Institut für Festkörperphysik']:
                                 rec['fc'] = 'f'
                             elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
                                                       'Physics', 'Applied Mathematics and Scientific Computation',
@@ -2193,6 +2216,33 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for lang in thesis['metadata'][key]:
                             rec['language'] = lang['value']
                         done.append(key)
+                    #ddc
+                    elif key in ['dc.subject.ddc']:
+                        for ddcd in thesis['metadata'][key]:
+                            ddc = ddcd['value']
+                            if re.search('\d\d\d', ddc):
+                                if re.search('\d\d\d\.\d+', ddc):
+                                    ddcnum = re.sub('.*?(\d\d\d\.\d+).*', r'\1', ddc)
+                                else:
+                                    ddcnum = re.sub('.*?(\d\d\d).*', r'\1', ddc)
+                                if ddcnum[0] in ['1', '2', '3', '4', '6', '7', '8', '9']:
+                                    keepit = False
+                                    print('    skip "%s"' % (ddc))
+                                elif ddcnum[:2] in ['54', '55', '56', '57', '58', '59']:
+                                    keepit = False
+                                    print('    skip "%s"' % (ddc))
+                                elif ddcnum[:3] == '004':
+                                    rec['fc'] = 'c'
+                                elif ddcnum[:3] == '510':
+                                    rec['fc'] = 'm'
+                                elif ddcnum[:3] == '520':
+                                    rec['fc'] = 'a'                                                          
+                                elif 'ddc' in rec:
+                                    rec['ddc'].append(ddc)
+                                else:
+                                    rec['ddc'] = [ ddc ]
+                            else:
+                                rec['note'].append('DDC:::' + ddc)                                    
                     #description
                     elif key in ['dc.description']:
                         for descr in thesis['metadata'][key]:
@@ -2239,7 +2289,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     #keywords
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
                                  'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled',
-                                 'dc.subject.lcc', 'dc.subject.other', 'dc.subject.keyword']:
+                                 'dc.subject.lcc', 'dc.subject.other', 'dc.subject.keyword',
+                                 'dc.subject.mesh', 'dc.subject.lcsh', 'dc.subject.gnd']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
