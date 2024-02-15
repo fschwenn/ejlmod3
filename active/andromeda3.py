@@ -151,5 +151,6 @@ elif jnl in ['acp']:
             if rec['auts']:
                 ejlmod3.printrecsummary(rec)
                 recs.append(rec)
-                    
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
+if recs:
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)
