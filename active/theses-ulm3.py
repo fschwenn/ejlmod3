@@ -2,15 +2,18 @@
 #harvest theses from Ulm
 #JH: 2023-04-01
 #FS: 2023-08-15
+#FS: 2024-02-14
 
 from bs4 import BeautifulSoup
 from requests import Session
-from time import sleep
+import time
 import ejlmod3
+import undetected_chromedriver as uc
+import re
+import os
 
-
-rpp = 50
-pages = 10
+rpp = 40
+pages = 30
 skipalreadyharvested = True
 
 recs = []
@@ -67,99 +70,67 @@ boring = ['Institut für Theoretische Chemie', 'Institut für Analytische und Bi
           'Kompetenzzentrum "Ulm Peptide Pharmaceuticals (U-PEP)"',
           'Stabsstelle Zentrum für Lehrentwicklung (ZLE)', 'THU.IAF Institut für Angewandte Forschung',
           'Werkstoffe der Mikrotechnik']
+boring += ['Institute of Molecular Biology and Biotechnology of Prokaryotes.',
+           'Institut für Volkswirtschaftslehre', 'Medizinische Fakultät',
+           'Medizinische Faultät']
+boring += ['Abschlussarbeit (Master; Diplom)', 'Beitrag zu einer Konferenz',
+           'Erratum', 'Wissenschaftlicher Artikel',
+           'Abschlussarbeit (Bachelor)', 'Bewegte Bilder',
+           'Forschungsdaten', 'Konferenzband',
+           'Wissenschaftlicher Beitrag',
+           'Zeitschriftenheft', 'Buch', 'Rezension']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
-with Session() as session:
-    for page in range(pages):
-        tocurl = 'https://oparu.uni-ulm.de/xmlui/browse?rpp=' + str(rpp) + '&offset=' + str(rpp*page) + '&etal=-1&sort_by=2&type=resourcetype&value=Dissertation&order=DESC'
-        ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
-        page_resp = session.get(tocurl)
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
-        if page_resp.status_code != 200:
-            print("# Error: Can't reach site:", tocurl)
-            continue
 
-        prerecs += ejlmod3.getdspacerecs(BeautifulSoup(page_resp.content.decode('utf-8'), 'lxml'), 'https://oparu.uni-ulm.de', fakehdl=True)
-        sleep(10)
-        print('  %4i records so far' % (len(prerecs)))
-        
-for (i, rec) in enumerate(prerecs):
-    keepit = True
-    ejlmod3.printprogress('-', [[i+1, len(prerecs)], [rec['link']], [len(recs)]])
-    if not ejlmod3.checkinterestingDOI(rec['link']):
-        continue
+baseurl = 'https://oparu.uni-ulm.de'
+collection = 'fb3824de-4a02-44c0-a144-112baa4efa9e'
+
+
+
+for page in range(pages):
+    tocurl = baseurl + '/collections/' + collection + '?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    tocurl = baseurl + '/search?query=&spc.page=' + str(page+1) + '&spc.sf=dc.date.issued&spc.sd=DESC&spc.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        article_resp = session.get(rec['link'] + '?show=full')
-        if article_resp.status_code != 200:
-            print("# Error: Can't reach site:", rec.get('link'))
-            continue
-        article_soup = BeautifulSoup(article_resp.content.decode('utf-8'), 'lxml')
+        driver.get(tocurl)
+        time.sleep(10)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        sleep(30)
-        article_resp = session.get(rec['link'] + '?show=full')
-        if article_resp.status_code != 200:
-            print("# Error: Can't reach site:", rec.get('link'))
-            continue
-        article_soup = BeautifulSoup(article_resp.content.decode('utf-8'), 'lxml')
-        
-    sleep(6)
-    # Get the faculty
-    faculty = article_soup.find_all('b', string='Fakultät')
-    if len(faculty) == 1:
-        row = faculty[0].parent.parent.parent
-        cols = row.find_all('td')
-        rec['note'] = ["Faculty: " + cols[1].text]
-    # Get the institution
-    for tr in article_soup.find_all('tr'):
-        tds = tr.find_all('td')
-        if tds:
-            tdt = tds[0].text.strip()
-            if tdt in ['Fakultät', 'Faculty']:
-                fac = tds[1].text.strip()
-                if fac in boring:
-                    keepit = False
-                elif not fac in ['Fakultät für Mathematik und Wirtschaftswissenschaften',
-                                 'Fakultät für Naturwissenschaften']:
-                    rec['note'].append('FAC:::' + fac)
-            elif tdt == 'Institution':
-                ins = tds[1].text.strip()
-                if ins in boring:
-                    keepit = False
-                elif ins in ['Institut für Algebra und Zahlentheorie',
-                             'Institut für Angewandte Analysis',
-                             'Institut für Numerische Mathematik',
-                             'Institut für Analysis', 'Institut für Statistik',
-                             'Institut für Stochastik',
-                             'Institut für Reine Mathematik',
-                             'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
-                    rec['fc'] = 'm'
-                elif ins in ['Institut für Festkörperphysik']:
-                    rec['fc'] = 'f'
-                elif ins in ['Institut für Quantenphysik']:
-                    rec['fc'] = 'k'
-                elif ins in ['Institut für Softwaretechnik und Programmiersprachen',
-                             'Institut für Theoretische Informatik',
-                             'THU.IFI Institut für Informatik']:
-                    rec['fc'] = 'c'
-                elif not ins in ['Institut für Experimentelle Physik',
-                                 'Institut für Komplexe Quantensysteme',
-                                 'Institut für Theoretische Physik',
-                                 'Institut für Verteilte Systeme',
-                                 'Institut für Mikrowellentechnik', 'Sonstige',
-                                 'Institut für Quantenoptik', 'Institut für Quantenmaterie',
-                                 'Universität Ulm', 'Institut für Künstliche Intelligenz']:
-                    rec['note'].append('INS:::' + ins)
-    if keepit:
-        ejlmod3.metatagcheck(rec, article_soup, ["DC.creator", "DCTERMS.issued", "DCTERMS.abstract",
-                                                 "DC.language", "DC.rights", "DC.subject", "DC.title",
-                                                 "citation_doi", "citation_pdf_url"])
-        if not skipalreadyharvested or not 'doi' in rec or not rec['doi'] in alreadyharvested:
+        time.sleep(60)
+        driver.get(tocurl)
+        time.sleep(10)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.author', 'dc.subject',
+                                               'dc.subject.ddc', 'dc.subject.gnd',
+                                               'dc.subject.lcsh', 'dc.title',
+                                               'dc.type', 'dc.identifier.urn',
+                                               'dc.date.issued', 'dc.identifier.doi',
+                                               'dc.description.abstract', 'dc.language.iso',
+                                               'uulm.affiliationGeneral',
+                                               'uulm.affiliationSpecific',
+                                               'dc.subject.mesh',
+                                               'uulm.dissISBN'], boring=boring, alreadyharvested=alreadyharvested):
+        if 'autaff' in rec and rec['autaff']:
             rec['autaff'][-1].append(publisher)
-            ejlmod3.printrecsummary(rec)
-            recs.append(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['link'])
+        else:
+            rec['autaff'] = [[ 'Dee, John' ]] 
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+
+
+
+
