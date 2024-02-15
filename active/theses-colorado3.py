@@ -26,7 +26,7 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 recs = []
-for (affurl, aff, affname, pages) in departments:    
+for (affurl, affname, pages) in departments:    
     for page in range(pages):
         tocurl = urltrunc + '/catalog?f%5Bacademic_affiliation_sim%5D%5B%5D=' + affurl + '&f%5Bresource_type_sim%5D%5B%5D=Dissertation&locale=en&per_page=' + str(rpp) + '&sort=system_create_dtsi+desc&page=' + str(page+1)
         ejlmod3.printprogress("-", [[affname], [page+1, pages], [tocurl]])
