@@ -36,7 +36,7 @@ jnl = {'1538-3881': ['Astron.J.', '', '', 'P'],
        '1538-4357': ['Astrophys.J.Lett.', 'Astrophys.J.', '', 'P'],
        '2041-8205': ['Astrophys.J.Lett.', 'Astrophys.J.', '', 'P'],
        '0067-0049': ['Astrophys.J.Supp.', '', '', 'P'],
-       '1009-9271': ['Chin.J.Astron.Astrophys.', '', '', 'P'],
+       '1009-9271': ['Chin.J.Astron.Astrophys.', '', '', 'P'], #from 2009 on: Research in Astronomy and Astrophysics
        '1009-1963': ['Chin.Phys.', '', '', 'P'],
        '1674-1056': ['Chin.Phys.', '', 'B', 'P'],
        '1674-1137': ['Chin.Phys.', '', 'C', 'P'],
@@ -81,7 +81,7 @@ jnl['0253-6102'] = ['Commun.Theor.Phys.', '', '', 'P'] #Communications in Theore
 jnl['0004-6256'] = ['Nucl.Fusion', '', '', 'P'] #Nuclear Fusion#yepp
 jnl['0029-5515'] = ['Nucl.Fusion', '', '', 'P'] #Nuclear Fusion#yepp
 jnl['2040-8986'] = ['J.Opt.', '', '', 'P'] #Journal of Optics#yepp
-jnl['1749-4699'] = ['Comput.Sci.Dis.', '', '', 'P'] #Computational Science & Discovery
+jnl['1749-4699'] = ['Comput.Sci.Dis.', '', '', 'P'] #ceased publication with the 2015 volume
 jnl['1555-6611'] = ['Laser Phys.', '', '', 'P'] #Laser Physics#yepp
 jnl['1612-202X'] = ['Laser Phys.Lett.', '', '', 'P'] #Laser Physics Letters #yepp
 jnl['2515-5172'] = ['Res.Notes AAS', '', '', 'P']
@@ -429,6 +429,7 @@ def convertarticle(issn, vol, isu, artid):
         return []
     else:
         print('do not know journal with ISSN:%s' % (issn))
+        os.system('echo "check https://iopscience.iop.org/journal//%s" | mail -s "[IOP] unknown journal" %s' % (issn, 'florian.schwennsen@desy.de'))
         sys.exit(0)
         rec = {'jnl' : issn, 'note' : [], 'keyw' : [], 'aff' : [], 'refs' : []}
     ###read metadata
