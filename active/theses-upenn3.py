@@ -12,7 +12,7 @@ import time
 import undetected_chromedriver as uc
 
 publisher = 'UPenn, Philadelphia'
-pages = 6
+pages = 7
 rpp = 40
 skipalreadyharvested = True
 boring = ['City & Regional Planning', 'Romance Languages', 'Cell & Molecular Biology',
@@ -34,7 +34,8 @@ boring = ['City & Regional Planning', 'Romance Languages', 'Cell & Molecular Bio
           'Cell and Molecular Biology', 'Chief Learning Officer', 'East Asian Languages and Civilizations',
           'Epidemiology and Biostatistics', 'Ethics and Legal Studies', 'Genomics and Computational Biology',
           'Materials Science and Engineering', 'Mechanical Engineering and Applied Mechanics',
-          'Operations, Information and Decisions']
+          'Operations, Information and Decisions', 'Francophone, Italian, and Germanic Studies',
+          'Near Eastern Languages and Civilizations', 'Spanish and Portuguese Studies']
 
 jnlfilename = 'THESES-UPENN-%s' % (ejlmod3.stampoftoday())
 
@@ -132,6 +133,8 @@ for rec in prerecs:
                           'Master of Science in Historic Preservation (MSHP)',
                           'Master of Environmental Studies (MES)',
                           'DScD (Doctor of Science in Dentistry)',
+                          'Doctor of Science in Dentistry (DScD)',
+                          'Masters of Applied Positive Psychology', 'EdD', 
                           'Doctor of Science in Dentistry']:
                     print('\tskip "%s"' % (td))
                     keepit = False
