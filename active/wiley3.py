@@ -190,6 +190,8 @@ else:
     driver = uc.Chrome(version_main=chromeversion, options=options)
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
+driver.get('http://onlinelibrary.wiley.com')
+time.sleep(15)
 prerecs = []
 for issue in re.split(',', issues):
     print("%s %s, Issue %s" %(jnlname,vol,issue))
@@ -230,7 +232,7 @@ for issue in re.split(',', issues):
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                   'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
                                                                   'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Author Profile',
-                                                                  'GUEST EDITORIAL']:
+                                                                  'GUEST EDITORIAL', 'Editorial']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
@@ -263,7 +265,7 @@ for issue in re.split(',', issues):
                                                                     'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                     'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                     'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
-                                                                    'PREFACE', 'COVER PICTURE', 'CONTENTS']:
+                                                                    'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Editorial']:
                 keepit = False
         for h2 in div.find_all('h2'):
             tit = h2.text.strip()
