@@ -54,6 +54,11 @@ elif (jnl == '4open'):
     jnlname = '4open'
     urltrunk = 'https://www.4open-sciences.org/articles/fopen/abs/'
     tc = 'P'
+elif (jnl == 'itmweb'):
+    jnlname = 'ITM Web Conf.'
+    urltrunk = 'https://www.itm-conferences.org/articles/itmconf/abs/'
+    tc = 'C'
+    
 
 if (jnl == '4open'):
     jnlfilename = "%s%s.%s_%s" % (jnl, year, issue, ejlmod3.stampoftoday())
