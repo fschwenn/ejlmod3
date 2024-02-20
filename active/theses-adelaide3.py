@@ -77,7 +77,10 @@ uninterestingdepartments = ['School of Animal and Veterinary Sciences', 'Adelaid
                             'School of Economics and Public Policy', 'School of History',
                             'School of Humanities : European Languages and Linguistics',
                             'School of Humanities : Historical and Classical Studies', 'School of Humanities : Linguistics',
-                            'School of Humanities', 'School of Medicine : Psychiatry']
+                            'School of Humanities', 'School of Medicine : Psychiatry',
+                            'School of Social Sciences : Politics and International Relations',
+                            'School of Humanities : English, Creative Writing and Film',
+                            'South Australian Immunogenomics Cancer Institute (SAiGENCI)']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
