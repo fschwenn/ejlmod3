@@ -74,7 +74,7 @@ for page in range(pages):
                                                'dc.department', 'dc.description.abstract',
                                                'dc.identifier.uri',  'dc.thesis.degreediscipline',
                                                'dc.subject', 'dc.title',
-                                               'dc.rights.uri', 'dc.subject.lcc']:
+                                               'dc.rights.uri', 'dc.subject.lcc'],
                             boring=boring, alreadyharvested=alreadyharvested):
         rec['autaff'][-1].append(publisher)
         ejlmod3.printrecsummary(rec)
