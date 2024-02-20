@@ -48,7 +48,9 @@ boring += ['Archaeology', 'Communication and Media Studies', 'Medicine – Immun
            'Language', 'Oncology', 'Psychology--Industrial', 'Virology', 'Biochemistry',
            'Biological Sciences', 'Biology', 'Chemistry', 'Disaster Risk and Resilience', 'Ecology',
            'Environmental Chemistry', 'Environmental Sciences', 'Psychology',
-           'Speech and Language Sciences', 'Water Resource Management']
+           'Speech and Language Sciences', 'Water Resource Management', 'Biophysics',
+           'Biostatistics', 'Educational Psychology', 'Education--Social Sciences',
+           'History--Ancient', 'Microbiology', 'Neuroscience']
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
