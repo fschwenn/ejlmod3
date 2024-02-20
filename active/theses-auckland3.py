@@ -79,7 +79,13 @@ boring = ['Mechanical Engineering', 'Politics', 'Biology', 'Chemistry', 'Urban P
           'Medical and Health Science', 'Medical Education', 'Molecular Medicine Pathology',
           'Chemical and Mateirals Engineering', 'Musicology', 'PhD Education',
           'Obstetrics', 'Phamacy', 'Sport and Exercise Science', 'Translation and Interpretin',
-          'Classics and Ancient History', 'Pharmaceutical Sciences', 'Spanish']
+          'Classics and Ancient History', 'Pharmaceutical Sciences', 'Spanish',
+          'Applied Linguistics & TESOL', 'Applied Linguistics / TESOL', 'Business', 'Painting',
+          'Structural Engineering', 'Empathic Computing', 'Health science', 'Neuroscience',
+          'Design', 'Media, Film, and Television', 'Operations Management',
+          'Political Science and International Relations', 'Renaissance Literature',
+          'Environment', 'Higher Education', 'Media and Screen Studies', 'music',
+          'Entrepreneurial Mindset Education']
 
 recs = []
 prerecs = []
