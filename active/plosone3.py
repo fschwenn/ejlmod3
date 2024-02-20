@@ -22,8 +22,6 @@ wheretosearch = 'abstract' # everywhere? title?
 
 skipalreadyharvested = True
 
-ejldir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
@@ -60,8 +58,13 @@ for qiskeyword in qiskeywords:
 #    tocurl = 'https://journals.plos.org/plosone/search?unformattedQuery=abstract%3A%22%22' + qiskeyword + '%22%22&q=abstract%3A%22%22' + qiskeyword + '%22%22&sortOrder=DATE_NEWEST_FIRST&utm_content=b&utm_campaign=ENG-467'
     apiurl = 'https://api.plos.org/search?q=' + wheretosearch + ':%22' + qiskeyword + '%22%20and%20journal:%22PLoS%20ONE%22%20and%20publication_date:[' + startstamp + 'T00:00:00Z%20TO%20' + ejlmod3.stampoftoday() + 'T23:59:59Z]&fl=id,publication_date&rows=' + str(rpp) + '&wt=xml'
     ejlmod3.printprogress('=', [[i, len(qiskeywords), qiskeyword], [apiurl]])
-    driver.get(apiurl)
-    apipages = [BeautifulSoup(driver.page_source, features="lxml")]
+    try:
+        driver.get(apiurl)
+        apipages = [BeautifulSoup(driver.page_source, features="lxml")]
+    except:
+        time.sleep(random.randint(100,115))
+        driver.get(apiurl)
+        apipages = [BeautifulSoup(driver.page_source, features="lxml")]        
     time.sleep(random.randint(10,15))
     for result in apipages[0].find_all('result'):
         numfound = int(result['numfound'])
@@ -70,8 +73,13 @@ for qiskeyword in qiskeywords:
         for page in range(pages-1):
             nexturl = apiurl + '&start=' + str(1+rpp*(page+1))
             ejlmod3.printprogress('=', [[i, len(qiskeywords), qiskeyword], [page+1, pages], [nexturl]])
-            driver.get(nexturl)
-            apipages.append(BeautifulSoup(driver.page_source, features="lxml"))
+            try:
+                driver.get(nexturl)
+                apipages.append(BeautifulSoup(driver.page_source, features="lxml"))
+            except:
+                time.sleep(random.randint(100,115))
+                driver.get(nexturl)
+                apipages.append(BeautifulSoup(driver.page_source, features="lxml"))
             time.sleep(random.randint(10,15))
     for apipage in apipages:
         for doc in apipage.find_all('doc'):
