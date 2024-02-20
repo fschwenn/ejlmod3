@@ -54,7 +54,7 @@ for (fc, dep) in [('', '2254008d-7c6d-44ed-a558-b4f4d528e4a9'),
                                                    'dc.contributor.department', 'dc.rights', 
                                                    'dc.description.abstract', 'dc.identifier.uri',
                                                    'dc.subject', 'dc.title',  'etdms.degree.discipline',
-                                                   'etdms.degree.name', 'etdms.degree.department',],
+                                                   'etdms.degree.name', 'etdms.degree.department'],
                                 alreadyharvested=alreadyharvested, fakehdl=True):
             rec['autaff'][-1].append(publisher)
             ejlmod3.printrecsummary(rec)
