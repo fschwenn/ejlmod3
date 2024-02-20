@@ -31,7 +31,9 @@ boring += ['Department of Economics', 'Department of Management', 'Department of
            'Cultural Policy and Management', 'Department of Cultural Management and Policy',
            'Faculty of Actuarial Science & Insurance', 'Health Sciences', 'Human Computer Interaction Design',
            'Human-Computer Interaction Design', 'Institute of Health Science', 'Law', 'Music', 'Psychology',
-           'Radiography', 'School of Engineering and Mathematical Sciences', 'Sociology']
+           'Radiography', 'School of Engineering and Mathematical Sciences', 'Sociology',
+           'Department of Performing Arts', 'Guildhall School of Music & Drama',
+           'Department of Language and Communication Science']
 
 publisher = 'London, City U.'
 jnlfilename = 'THESES-CityULondon-%s' % (ejlmod3.stampoftoday())
