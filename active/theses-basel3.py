@@ -85,7 +85,13 @@ boring = ['Analytische Chemie', 'Applied Microbiology Research', 'Aquatische Ök
           'Theoretische Petrologie', 'Tissue Engineering', 'Translationale Komplementärmedizin',
           'Translationale Onkologie', 'Translational Immunology', 'Translational Neuroimmunology',
           'Tuberculosis Research', 'Tumorimmunologie']
-
+boring += ['Biopharmacy', 'CardioBiology', 'Computational Pharmacy', 'Dermatologie',
+           'Epidemiology and Household Economics', 'Geschlechterforschung',
+           'Hämatologie / Stammzellforschung', 'Structural tumour biology',
+           'Mathematical Epidemiology', 'Professur für Privatrecht', 'Urgeschichte',
+           'Bildungswissenschaften', 'Brain Ischemia and Regeneration', 'Pharmaceutical Technology',
+           'Professur für Öffentliches Verfahrensrecht, Verfassungsrecht und Verwaltungsrecht',
+           'Developmental Neurobiology and Regeneration']
 
 tocurltrunc = 'https://edoc.unibas.ch/cgi/search/archive/advanced?screen=Search&cache=4845765&order=-date%2Fcreators_name%2Ftitle&_action_search=1&exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Cthesis_status%3Athesis_status%3AANY%3AEQ%3Acomplete%7Ctype%3Atype%3AANY%3AEQ%3Athesis%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow'
 hdr = {'User-Agent' : 'Magic Browser'}
