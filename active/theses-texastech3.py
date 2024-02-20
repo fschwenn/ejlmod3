@@ -107,7 +107,8 @@ boring += ['Agricultural Communications and Education', 'Agricultural Education 
            'Kinesiology and Sport Management', 'Marriage and Family Therapy',
            'Mass Communications', 'National Wind Institute', 'Nutrition, Hospitality and Retailing',
            'Personal Financial Planning', 'Petroleum Engineering', 'Plant and Soil Science',
-           'Systems and Engineering Management', 'Wind Science and Engineering']
+           'Systems and Engineering Management', 'Wind Science and Engineering',
+           'Personal Financial Planning']
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
