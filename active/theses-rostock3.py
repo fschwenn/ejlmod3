@@ -15,15 +15,18 @@ jnlfilename = 'THESES-ROSTOCK-%s' % (ejlmod3.stampoftoday())
 
 rpp = 20
 pages = 1
+skipalreadyharvested = True
 
 boring = []
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 hdr = {'User-Agent' : 'Magic Browser'}
-recs = []
+prerecs = []
 artlinks = []
-for ddc in ['530', '510', '500']:
+for ddc in ['530', '510', '500', '520', '004']:
     for j in range(pages):
-        tocurl = 'http://rosdok.uni-rostock.de/browse/epub?_search=811f238e-c54c-48f3-8b0a-3f35a06f6650&_add-filter=%2Bir.sdnb_class.facet%3ASDNB%3A' + ddc + '&_start=' + str(rpp*j) + '&_add-filter=%2Bir.doctype_class.facet%3Adoctype%3Aepub.dissertation'
+        tocurl = 'http://rosdok.uni-rostock.de/do/browse/epub?_search=811f238e-c54c-48f3-8b0a-3f35a06f6650&_add-filter=%2Bir.sdnb_class.facet%3ASDNB%3A' + ddc + '&_start=' + str(rpp*j) + '&_add-filter=%2Bir.doctype_class.facet%3Adoctype%3Aepub.dissertation'
         ejlmod3.printprogress('=', [[ddc], [j+1, pages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
         tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -36,14 +39,16 @@ for ddc in ['530', '510', '500']:
                     rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : ['DDC:'+ddc]}
                     rec['artlink'] = 'https://rosdok.uni-rostock.de/' + a['href']
                     if not rec['artlink'] in artlinks:
-                        recs.append(rec)
+                        prerecs.append(rec)
                         artlinks.append(rec['artlink'])
         time.sleep(15)
+        print('  %i links so far' % (len(artlinks)))
 
 i = 0
-for rec in recs:
+recs = []
+for rec in prerecs:
     i += 1
-    ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         time.sleep(3)
@@ -72,6 +77,8 @@ for rec in recs:
                 if re.search('(language|Sprach)', label):
                     if word in ['Deutsch', 'German']:
                         rec['language'] = 'German'
-    ejlmod3.printrecsummary(rec)
+    if not 'doi' in rec or not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
