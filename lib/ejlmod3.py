@@ -1977,10 +1977,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Master of Laws (LLM)', 'Master of Nursing (MN)',
                      'Master of Science (MSc)', 'Master of Social Work (MSW)',
                      'Master of Environmental Design (MEDes)',
-                     'Doctor of Business Administration (DBA)',
-                     'Bachelors with Honours', 'Master of Arts',
-                     'Doctor of Education', 'Doctor of Musical Arts',
-                     'Master of Arts (M.A.)', 'Master of Education (M.Ed.)',
+                     'Master of Science', 'M.A.)', 'Master of Education (M.Ed.)',
                      'Master of Environment (M.Env.)', 'Master of Fine Art (M.F.A.)',
                      'Master of Human Rights (M.H.R.)', 'Ed. D.',
                      'Master of Natural Resources Management (M.N.R.M.)',
@@ -2100,7 +2097,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.thesis.degreediscipline', 'local.subject.fakultaet',
                                  'dc.description.department', 'dc.degree.department',
                                  'dc.thesis.degree.discipline',  'uulm.affiliationGeneral',
-                                 'uulm.affiliationSpecific']:
+                                 'etdms.degree.discipline', 'uulm.affiliationSpecific']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2152,6 +2149,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'THU.IFI Institut für Informatik']:
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter',
+                                                  'Condensed matter physics',
                                                   'Institut für Festkörperphysik']:
                                 rec['fc'] = 'f'
                             elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
@@ -2276,6 +2274,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['otits'] = [otit['value']]
                     #degree
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
+                                 'etdms.degree.name',
                                  'thesis.degree.name', "thesis.degree.level", 'dc.degree.name',
                                  'dc.degree.level', 'unsw.thesis.degreetype']:
                         for degree in thesis['metadata'][key]:
