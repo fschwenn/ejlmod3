@@ -117,7 +117,11 @@ boring = ['Programa Doutoral em Materiais e Processamento Avançados',
           'Doutoramento em Sistemas Energéticos e Alterações Climáticas',
           'Doutoramento em Tradução', 'Doutoramento em Turismo',
           'Doutoramento emTurismo', 'Doutoramento Engenharia Civil',
-          'Doutoramento Música']
+          'Doutoramento Música', 'Programa Doutoral em Biorrefinarias',
+          'Programa Doutoral em Biotecnologia',
+          'Programa Doutoral em Território, Risco e Políticas Públicas',
+          'Programa Doutoral em Biorrefinarias',
+          'Programa Doutoral em Inovação em Empresas']
 recs = []
 
 def extract_links(content: str, prafix: str):
