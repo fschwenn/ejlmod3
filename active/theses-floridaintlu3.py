@@ -42,7 +42,7 @@ boringdepartments = ['English', 'Electrical Engineering', 'International Relatio
                      'Spanish', 'Speech-Language Pathology', 'Teaching and Learning']
 boringdegrees = ['Master of Arts (MA)', 'Master of Fine Arts (MFA)',
                  'Master of Science (MS)', 'Doctor of Education (EdD)',
-                 'Master of Music (MM)']
+                 'Master of Music (MM)', 'Doctor of Business Administration']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
