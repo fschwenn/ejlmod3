@@ -33,8 +33,8 @@ for page in range(pages):
     for tr in tocpage.body.find_all('tr'):
         rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'note' : []}
         for td in tr.find_all('td', attrs = {'headers' : 't3'}):
-            rec['year'] = td.text.strip()
-            rec['date'] = td.text.strip()
+            tdt = td.text.strip()
+            rec['date'] = tdt
         for td in tr.find_all('td', attrs = {'headers' : 't1'}):
             for a in td.find_all('a'):
                 rec['tit'] = a.text.strip()
