@@ -92,7 +92,8 @@ boring += ['Business and Information Systems', 'Chemical and Biomolecular Engine
            'College of Forest Resources and Environmental Science', 'Geosciences', 'Geoscience', 
            'Department of Geological and Mining Engineering and Sciences','Health Physics and Diagnostic Sciences',
            'Department of Mathematical Sciences: Business Analytics', 'Economics', 'Geology and Geography',
-           'Naval Architecture and Marine Engineering', 'Ocean Science and Engineering']
+           'Naval Architecture and Marine Engineering', 'Ocean Science and Engineering'.
+           'ducational Psychology, Ph.D.', 'Coastal and Marine Systems Science']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested('THESES')
