@@ -23,6 +23,7 @@ boring += ['Department of Economics', 'Department of Management', 'Department of
            'Department of Civil Engineering', 'Department of Composition', 'Department of English',
            'Department of Finance', 'Department of Journalism', 'Department of Law', 'Department of Pschology',
            'Department of Research', 'Department of Sociology',
+           'Department of Health Services and Management', 'Centre for Maternal and Child Health Research',
            'Department: School of Health Sciences, Division of Health Services Research and Management',
            'Division of Language and communication Science', 'Division of Optometry and Visual Sciences',
            'Faculty of Actuarial Science and Insurance', 'Faculty of Finance, Bayes Business School',
