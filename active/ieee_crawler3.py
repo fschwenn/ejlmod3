@@ -290,7 +290,8 @@ def ieee(number):
                                           'Message from the AI4I 2022 General Co-Chairs',
                                           'Message from the AI4I 2022 Program Co-Chairs',
                                           'Program', 'Welcome Message', 'Advance Program',
-                                          'IEEE Xplore Digital Library']:
+                                          'IEEE Xplore Digital Library',
+                                          'Chief Guest']:
                         notproperarticles += 1
                     else:
                         #print a
