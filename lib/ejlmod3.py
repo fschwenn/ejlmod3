@@ -121,8 +121,9 @@ fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
               'Belle' : 'e', 'Belle II' : 'e',
               'ZEUS' : 'e', 'H1' : 'e', 'HERMES' : 'e',
               'PHENIX' : 'ex', 'STAR' : 'ex',
+              'HADES' : 'x',
               'CLAS' : 'x', 'NA49' : 'x', 'ISOLDE' : 'x',
-              'NA62' : 'e', 'NA64' : 'e',
+              'NA62' : 'e', 'NA64' : 'e', 'NA60+' : 'ex',
               'IceCube' : 'a', 'Pierre Auger' : 'a', 'MAGIC' : 'a', 'KM3NeT' : 'a',
               'HESS' : 'a', 'H.E.S.S.' : 'a', 'Fermi-LAT' : 'a', 'VERITAS' : 'a',
               'DES' : 'a', 'ANTARES' : 'a', 'SDSS' : 'a', 'HAWC' : 'a',
@@ -2281,7 +2282,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
                                 print('    skip "%s"' % (degree['value']))
-                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate', 'Dissertation', 'doctoral', 'Ph. D.', 'dissertation']:
+                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate', 'Dissertation', 'doctoral', 'Ph. D.', 'dissertation', 'Doctoral Dissertation']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
