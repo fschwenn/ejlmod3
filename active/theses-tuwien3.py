@@ -116,7 +116,10 @@ for rec in prerecs:
                         if re.search('authority', a['href']):
                             rec['supervisor'].append([a.text.strip()])
                         elif re.search('orcid.org', a['href']):
-                            rec['supervisor'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+                            try:
+                                rec['supervisor'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+                            except:
+                                rec['supervisor'] = [[ td.text.strip(), re.sub('.*\/', 'ORCID:', a['href']) ]]
             #pages
             elif metadataFieldLabel == 'Number of Pages:':
                 rec['pages'] = td.text.strip()
