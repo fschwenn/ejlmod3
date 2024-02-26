@@ -93,15 +93,16 @@ boring += ['Weitzenhoffer Family College of Fine Arts::School of Music',
            'College of Arts and Sciences', 'Jeannine Rainbolt College of Education',
            'Mewbourne College of Earth and Energy::Conoco Phillips School of Geology and Geophysics',
            'Mewbourne College of Earth and Energy', 'Weitzenhoffer Family College of Fine Arts',
-           'Weitzenhoffer Family College of Fine Arts::School of Visual Arts']
+           'Weitzenhoffer Family College of Fine Arts::School of Visual Arts',
+           'Nutritional+Science,Oklahoma+State+University',
+           'Teaching%2C+Learning+and+Leadership,Oklahoma+State+University',
+           'Petroleum+Engineering,Oklahoma+State+University',
+           'Applied+Educational+Studies--Aviation+and+Space+Option,Oklahoma+State+University']
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = 'THESES-OKLAHO*doki'
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested('THESES-OKLAHOMA')
+else:
+    alreadyharvested = []
 
 hdr = {'User-Agent' : 'Magic Browser'}
 for uni in [('Oklahoma U.', '11244/10476'), ('Oklahome State U.', '11244/10462')]:
