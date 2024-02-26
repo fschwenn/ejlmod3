@@ -21,87 +21,87 @@ articlesperpage = 100
 skipalreadyharvested = True
 jnlfilename = 'THESES-%s-%s_%i' % (abbr.upper(), ejlmod3.stampoftoday(), numberofpages*articlesperpage)
 
-subjectstoskip = ['Biochemistry', 'LGBTQstudies', 'Classicalstudies', 'Microbiology', 'Informationscience', 
-                  'Remotesensing', 'Filmstudies', 'Organicchemistry', 'Internationallaw', 
-                  'Classicalliterature', 'Artificialintelligence', 'Genetics', 'Biomechanics', 
-                  'AfricanAmericanstudies', 'Islamicstudies', 'Africanstudies', 'Philosophy',  
-                  'Biophysics', 'Sustainability', 'EastEuropeanstudies', 'Environmentalstudies',  
-                  'Musichistory', 'Management', 'Womensstudies', 'Cognitivepsychology',  
-                  'Webstudies', 'Arthistory', 'Toxicology', 'Medicalimaging', 'Economictheory',  
-                  'Masscommunication', 'Ecology', 'Nursing', 'Urbanplanning', 'Robotics',  
-                  'Parasitology', 'Environmentalhealth', 'Theoreticalmathematics', 'Education',  
-                  'Agriculture', 'AsianAmericanstudies', 'Statistics', 'Asianhistory',  
-                  'Internationalrelations', 'Physicalanthropology', 'Physicalchemistry',  
-                  'Macroecology', 'Publichealth', 'Geotechnology', 'Neurosciences', 'Biology',  
-                  'Occupationalsafety', 'Asianstudies', 'Developmentalbiology', 'LatinAmericanhistory',  
-                  'Planetology', 'Musicalcomposition', 'Nanotechnology', 'Immunology',  
-                  'Educationalpsychology', 'Quantitativepsychology', 'Economics',  
-                  'Electricalengineering', 'Architecture', 'Bioengineering', 'Pedagogy',  
-                  'Chemistry', 'Archaeology', 'Finance', 'Judaicstudies', 'Africanhistory',  
-                  'Dance', 'Translationstudies', 'Molecularbiology', 'Design', 'Ethnicstudies',  
-                  'Americanstudies', 'Polymerchemistry', 'Slavicstudies', 'Laborrelations',  
-                  'Linguistics', 'Climatechange', 'Psychology', 'Organizationtheory', 'Fluidmechanics',  
-                  'Healthcaremanagement', 'Music', 'Medicine', 'Musictheory', 'Europeanhistory',  
-                  'MaterialsScience', 'Americanhistory', 'Literature', 'Wildlifeconservation',  
-                  'Geology', 'Socialwork', 'Epidemiology', 'Ophthalmology', 'Computationalchemistry',  
-                  'Bioinformatics', 'Mechanicalengineering', 'Physiology', 'Environmentalgeology',  
-                  'Highereducation', 'Language', 'Ancienthistory', 'Dentistry', 'Atmosphericchemistry',  
-                  'History', 'Botany', 'Biostatistics', 'Environmentaleconomics', 'Electromagnetics',  
-                  'Engineering', 'HistoryofOceania', 'Surgery', 'Energy', 'Frenchliterature',  
-                  'Sociology', 'Physicaloceanography', 'Cellularbiology', 'LatinAmericanstudies',  
-                  'Performingartseducation', 'Pharmacology', 'Evolutiondevelopment',  
-                  'MiddleEasternstudies', 'Geophysics', 'Law', 'Civilengineering',  
-                  'Chemicalengineering', 'Laboreconomics', 'Virology', 'Educationpolicy',  
-                  'Biomedicalengineering', 'Foreignlanguageeducation', 'Politicalscience',  
-                  'Demography', 'Logic', 'Publicpolicy', 'Culturalanthropology', 'Englishliterature',  
-                  'Genderstudies', 'Americanliterature', 'LatinAmericanliterature', 
-                  'Environmentalscience', 'Geography', 'Aging', 'Mentalhealth', 'Healthsciences', 
-                  'Aero spaceengineering', 'Religion', 'Russianhistory', 'Conservationbiology', 
-                  'Healtheducation', 'Optics', 'SouthAsianstudies', 'Behavioralsciences', 
-                  'Oncology', 'Sociolinguistics', 'Sociolinguistics', 'Alternativemedicine', 
-                  'Teachereducation', 'Theaterhistory', 'Businessadministration', 'Caribbeanstudies', 
-                  'Clinicalpsychology', 'Artsmanagement', 'Libraryscience', 'Modernliterature', 
-                  'Theater', 'NativeAmericanstudies', 'Educationalleadership', 'Gerontology', 
-                  'Aesthetics', 'Performingarts', 'Environmentalengineering', 'Morphology', 
-                  'Waterresourcesmanagement', 'Economichistory', 'Slavicliterature', 
-                  'Medievalhistory', 'Operationsresearch', 'Scienceeducation', 'Artcriticism', 
-                  'Geochemistry', 'Hydrologicsciences', 'Elementaryeducation', 'Regionalstudies', 
-                  'Industrialengineering', 'Environmentaleducation', 'Alternativeenergy', 
-                  'Geographicinformationscienceandgeodesy', 'Ethics', 'Educationalevaluation', 
-                  'Earlychildhoodeducation', 'Folklore', 'Creativewriting', 'Physicalgeography', 
-                  'Environmentaljustice', 'Kinesiology', 'Modernhistory', 'Mechanics', 
-                  'Educationalphilosophy', 'Fashion', 'Sedimentarygeology', 'Endocrinology', 
+subjectstoskip = ['Biochemistry', 'LGBTQstudies', 'Classicalstudies', 'Microbiology', 'Informationscience',
+                  'Remotesensing', 'Filmstudies', 'Organicchemistry', 'Internationallaw',
+                  'Classicalliterature', 'Artificialintelligence', 'Genetics', 'Biomechanics',
+                  'AfricanAmericanstudies', 'Islamicstudies', 'Africanstudies', 'Philosophy',
+                  'Biophysics', 'Sustainability', 'EastEuropeanstudies', 'Environmentalstudies',
+                  'Musichistory', 'Management', 'Womensstudies', 'Cognitivepsychology',
+                  'Webstudies', 'Arthistory', 'Toxicology', 'Medicalimaging', 'Economictheory',
+                  'Masscommunication', 'Ecology', 'Nursing', 'Urbanplanning', 'Robotics',
+                  'Parasitology', 'Environmentalhealth', 'Theoreticalmathematics', 'Education',
+                  'Agriculture', 'AsianAmericanstudies', 'Statistics', 'Asianhistory',
+                  'Internationalrelations', 'Physicalanthropology', 'Physicalchemistry',
+                  'Macroecology', 'Publichealth', 'Geotechnology', 'Neurosciences', 'Biology',
+                  'Occupationalsafety', 'Asianstudies', 'Developmentalbiology', 'LatinAmericanhistory',
+                  'Planetology', 'Musicalcomposition', 'Nanotechnology', 'Immunology',
+                  'Educationalpsychology', 'Quantitativepsychology', 'Economics',
+                  'Electricalengineering', 'Architecture', 'Bioengineering', 'Pedagogy',
+                  'Chemistry', 'Archaeology', 'Finance', 'Judaicstudies', 'Africanhistory',
+                  'Dance', 'Translationstudies', 'Molecularbiology', 'Design', 'Ethnicstudies',
+                  'Americanstudies', 'Polymerchemistry', 'Slavicstudies', 'Laborrelations',
+                  'Linguistics', 'Climatechange', 'Psychology', 'Organizationtheory', 'Fluidmechanics',
+                  'Healthcaremanagement', 'Music', 'Medicine', 'Musictheory', 'Europeanhistory',
+                  'MaterialsScience', 'Americanhistory', 'Literature', 'Wildlifeconservation',
+                  'Geology', 'Socialwork', 'Epidemiology', 'Ophthalmology', 'Computationalchemistry',
+                  'Bioinformatics', 'Mechanicalengineering', 'Physiology', 'Environmentalgeology',
+                  'Highereducation', 'Language', 'Ancienthistory', 'Dentistry', 'Atmosphericchemistry',
+                  'History', 'Botany', 'Biostatistics', 'Environmentaleconomics', 'Electromagnetics',
+                  'Engineering', 'HistoryofOceania', 'Surgery', 'Energy', 'Frenchliterature',
+                  'Sociology', 'Physicaloceanography', 'Cellularbiology', 'LatinAmericanstudies',
+                  'Performingartseducation', 'Pharmacology', 'Evolutiondevelopment',
+                  'MiddleEasternstudies', 'Geophysics', 'Law', 'Civilengineering',
+                  'Chemicalengineering', 'Laboreconomics', 'Virology', 'Educationpolicy',
+                  'Biomedicalengineering', 'Foreignlanguageeducation', 'Politicalscience',
+                  'Demography', 'Logic', 'Publicpolicy', 'Culturalanthropology', 'Englishliterature',
+                  'Genderstudies', 'Americanliterature', 'LatinAmericanliterature',
+                  'Environmentalscience', 'Geography', 'Aging', 'Mentalhealth', 'Healthsciences',
+                  'Aero spaceengineering', 'Religion', 'Russianhistory', 'Conservationbiology',
+                  'Healtheducation', 'Optics', 'SouthAsianstudies', 'Behavioralsciences',
+                  'Oncology', 'Sociolinguistics', 'Sociolinguistics', 'Alternativemedicine',
+                  'Teachereducation', 'Theaterhistory', 'Businessadministration', 'Caribbeanstudies',
+                  'Clinicalpsychology', 'Artsmanagement', 'Libraryscience', 'Modernliterature',
+                  'Theater', 'NativeAmericanstudies', 'Educationalleadership', 'Gerontology',
+                  'Aesthetics', 'Performingarts', 'Environmentalengineering', 'Morphology',
+                  'Waterresourcesmanagement', 'Economichistory', 'Slavicliterature',
+                  'Medievalhistory', 'Operationsresearch', 'Scienceeducation', 'Artcriticism',
+                  'Geochemistry', 'Hydrologicsciences', 'Elementaryeducation', 'Regionalstudies',
+                  'Industrialengineering', 'Environmentaleducation', 'Alternativeenergy',
+                  'Geographicinformationscienceandgeodesy', 'Ethics', 'Educationalevaluation',
+                  'Earlychildhoodeducation', 'Folklore', 'Creativewriting', 'Physicalgeography',
+                  'Environmentaljustice', 'Kinesiology', 'Modernhistory', 'Mechanics',
+                  'Educationalphilosophy', 'Fashion', 'Sedimentarygeology', 'Endocrinology',
                   'Arteducation',
                   #'Computerscience',
-                  'Italianliterature', 'Landscapearchitecture', 
-                  'Pathology', 'Criminology', 'Communitycollegeeducation', 
-                  'Culturalresourcesmanagement', 'Multimediacommunications', 
-                  'Developmentalpsychology', 'Physicaltherapy', 'Museumstudies', 'Plantsciences', 
-                  'Ancientlanguages', 'Biogeochemistry', 'Environmentallaw', 
-                  'Pharmaceuticalsciences', 'Molecularphysics', 'Educationhistory', 
-                  'PhilosophyofReligion', 'Bilingualeducation', 'Curriculumdevelopment', 
-                  'Hydraulicengineering', 'Readinginstruction', 'Englishasasecondlanguage', 
-                  'Rhetoric', 'Analyticalchemistry', 'Acoustics', 'Biblicalstudies', 'Paleoecology', 
-                  'Scandinavianstudies', 'Asianliterature', 'Militaryhistory', 'Psychobiology', 
-                  'Informationtechnology', 'Packaging', 'Behavioralpsychology', 'Zoology', 
-                  'NorthAfricanstudies', 'Musiceducation', 'Worldhistory', 'SoutheastAsianstudies', 
-                  'Epistemology', 'Specialeducation', 'Socialpsychology', 'Comparativeliterature', 
-                  'Forestry', 'Foodscience', 'Medievalliterature', 'Physiologicalpsychology', 
-                  'Secondaryeducation', 'Socialresearch', 'Nutrition', 'Environmentalmanagement', 
-                  'Transportation', 'Peacestudies', 'Individualfamilystudies', 
-                  'Educationaltestsmeasurements', 'Experimentalpsychology', 'Therapy',  
-                  'Atmosphericsciences', 'Sciencehistory', 'Nanoscience', 'Banking', 'Sexuality',  
-                  'Blackstudies', 'Finearts', 'Paleoclimatescience', 'Publichealtheducation',  
-                  'Systematicbiology', 'NearEasternstudies', 'Spirituality', 'Canadianstudies',  
-                  'Communication', 'Landuseplanning', 'Educationfinance', 'Holocauststudies',  
-                  'Aerospaceengineering', 'Militarystudies', 'Disabilitystudies', 'Modernlanguage',  
-                  'Germanliterature', 'Intellectualproperty', 'Highereducationadministration',  
-                  'Organizationalbehavior', 'Occupationalpsychology', 'Blackhistory',  
-                  'Africanliterature', 'Marketing', 'Mathematicseducation', 'Romanceliterature',  
-                  'Educationaladministration', 'Socialstructure', 'Journalism',  
-                  'Educationalsociology', 'Inorganicchemistry', 'Geomorphology', 'Systemsscience',  
-                  'MiddleEasternhistory', 'Paleontology', 'Adulteducation', 'Europeanstudies',  
-                  'Wildlifemanagement', 'HispanicAmericanstudies', 'Aquaticsciences',  
+                  'Italianliterature', 'Landscapearchitecture',
+                  'Pathology', 'Criminology', 'Communitycollegeeducation',
+                  'Culturalresourcesmanagement', 'Multimediacommunications',
+                  'Developmentalpsychology', 'Physicaltherapy', 'Museumstudies', 'Plantsciences',
+                  'Ancientlanguages', 'Biogeochemistry', 'Environmentallaw',
+                  'Pharmaceuticalsciences', 'Molecularphysics', 'Educationhistory',
+                  'PhilosophyofReligion', 'Bilingualeducation', 'Curriculumdevelopment',
+                  'Hydraulicengineering', 'Readinginstruction', 'Englishasasecondlanguage',
+                  'Rhetoric', 'Analyticalchemistry', 'Acoustics', 'Biblicalstudies', 'Paleoecology',
+                  'Scandinavianstudies', 'Asianliterature', 'Militaryhistory', 'Psychobiology',
+                  'Informationtechnology', 'Packaging', 'Behavioralpsychology', 'Zoology',
+                  'NorthAfricanstudies', 'Musiceducation', 'Worldhistory', 'SoutheastAsianstudies',
+                  'Epistemology', 'Specialeducation', 'Socialpsychology', 'Comparativeliterature',
+                  'Forestry', 'Foodscience', 'Medievalliterature', 'Physiologicalpsychology',
+                  'Secondaryeducation', 'Socialresearch', 'Nutrition', 'Environmentalmanagement',
+                  'Transportation', 'Peacestudies', 'Individualfamilystudies',
+                  'Educationaltestsmeasurements', 'Experimentalpsychology', 'Therapy',
+                  'Atmosphericsciences', 'Sciencehistory', 'Nanoscience', 'Banking', 'Sexuality',
+                  'Blackstudies', 'Finearts', 'Paleoclimatescience', 'Publichealtheducation',
+                  'Systematicbiology', 'NearEasternstudies', 'Spirituality', 'Canadianstudies',
+                  'Communication', 'Landuseplanning', 'Educationfinance', 'Holocauststudies',
+                  'Aerospaceengineering', 'Militarystudies', 'Disabilitystudies', 'Modernlanguage',
+                  'Germanliterature', 'Intellectualproperty', 'Highereducationadministration',
+                  'Organizationalbehavior', 'Occupationalpsychology', 'Blackhistory',
+                  'Africanliterature', 'Marketing', 'Mathematicseducation', 'Romanceliterature',
+                  'Educationaladministration', 'Socialstructure', 'Journalism',
+                  'Educationalsociology', 'Inorganicchemistry', 'Geomorphology', 'Systemsscience',
+                  'MiddleEasternhistory', 'Paleontology', 'Adulteducation', 'Europeanstudies',
+                  'Wildlifemanagement', 'HispanicAmericanstudies', 'Aquaticsciences',
                   'Religioushistory', 'Educationaltechnology']
 subjectstoskip += ['Meteorology', 'Agronomy', 'Chemicaloceanography', 'Vocationaleducation', 'Accounting',
                    'Lawenforcement', 'Agricultureeconomics', 'Petroleumengineering', 'Entomology',
@@ -130,7 +130,7 @@ subjectstoskip += ['Areaplanninganddevelopment', 'Businesseducation', #'Computer
                    'Fisheriesandaquaticsciences', 'Islamicculture', 'Metaphysics', 'Mineralogy',
                    'Molecularchemistry', 'Nuclearengineering', 'Plantbiology', 'Platetectonics',
                    'PoliticalScience', 'Publicadministration', 'SouthAfricanstudies', 'Statisticalphysics',
-                   'SubSaharanAfricastudies', 'BritishandIrishliterature', 'Business', 'GLBTstudies', 
+                   'SubSaharanAfricastudies', 'BritishandIrishliterature', 'Business', 'GLBTstudies',
                    'Continentaldynamics', 'Agricultureeducation', 'Biographies', 'Theology', 'Biologicaloceanography',
                    'Philosophyofscience', 'Sociologyofeducation', 'Animaldiseases', 'MiddleEasternliterature',
                    'Cognitivepsychology', 'Materials Science', 'Public health', 'Demography',
@@ -146,13 +146,11 @@ subjectstoskip += ['AnthropologyArchaeology', 'Architecturalengineering', 'Audio
 		   'Rangemanagement', 'Religiouseducation', 'Systemscience', 'Biomedical engineering',
 		   'Technicalcommunication', 'Textileresearch', 'FrenchCanadianculture']
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 problematiclinks = ['https://escholarship.org/uc/item/3hv4z0z8', 'https://escholarship.org/uc/item/5gw3v7bf', 'https://escholarship.org/uc/item/69m6205w', 'https://escholarship.org/uc/item/49q2s5km', 'https://escholarship.org/uc/item/4xn23688', 'https://escholarship.org/uc/item/8tj5d61d', 'https://escholarship.org/uc/item/28w4j5xc', 'https://escholarship.org/uc/item/6972h04z', 'https://escholarship.org/uc/item/8w73232j', 'https://escholarship.org/uc/item/6cq1w35k', 'https://escholarship.org/uc/item/6ng5b9p6']
 #problematiclinks = []
@@ -239,10 +237,10 @@ for rec in recs:
     #withdrawn?
     withdrawn = False
     for div in artpage.find_all('div', attrs = {'class' : 'c-clientmarkup'}):
-        if re.search('This item has been withdrawn', div.text): 
+        if re.search('This item has been withdrawn', div.text):
             withdrawn = True
             recs.remove(rec)
-    if withdrawn: continue                      
+    if withdrawn: continue
     #req = urllib2.Request(rec['artlink'], headers=hdr)
     #artpage = BeautifulSoup(urllib2.urlopen(req))
     ejlmod3.metatagcheck(rec, artpage, ['citation_abstract', 'citation_online_date', 'citation_pdf_url'])
@@ -251,7 +249,7 @@ for rec in recs:
             #author
             if meta['name'] == 'citation_author':
                 rec['autaff'] = [[ meta['content'], publisher ]]
-            #year 
+            #year
             elif meta['name'] == 'citation_publication_date':
                 rec['year'] = meta['content']
     #for late online
@@ -292,7 +290,7 @@ for rec in recs:
                             rec['autaff'] = [[ author['name'], 'ORCID:%s' % (author['ORCID_id']), publisher ]]
                         if 'email' in list(author.keys()):
                             rec['autaff'] = [[ author['name'], 'EMAIL:%S' % (author['email']), publisher ]]
-                            
+
             #license
             if 'rights' in list(scripttjson.keys()):
                 if scripttjson['rights'] and re.search('creativecommons.org', scripttjson['rights']):
@@ -325,6 +323,8 @@ for rec in recs:
                 rec['fc'] = 'a'
             elif re.search('Condensed', subject):
                 rec['fc'] = 'f'
+            elif re.search('Quantum physics', subject):
+                rec['fc'] = 'k'
             if subject in subjectrecs:
                 subjectrecs[subject].append(rec)
             else:
