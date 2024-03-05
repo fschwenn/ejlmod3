@@ -1,20 +1,28 @@
 # -*- coding: utf-8 -*-
 #harvest theses from HELDA
 #FS: 2019-10-25
+#FS: 2023-11-30
 
-import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
 import os
+#import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+
+Scheiss JavaScript
 
 
 publisher = 'Helsinki U.'
 jnlfilename = 'THESES-HELSINKI-%s' % (ejlmod3.stampoftoday())
-rpp = 50
-numofpages = 3
+rpp = 40
+pages = 3
 skipalreadyharvested = True
 
 boring = ['116 Chemical sciences', '116 Kemia', '116 Kemi', '1171 Geosciences',
@@ -43,64 +51,85 @@ boring = ['116 Chemical sciences', '116 Kemia', '116 Kemi', '1171 Geosciences',
           '5200 Muut yhteiskuntatieteet', '5200 Other social sciences',
           '5200 Övriga samhällsvetenskaper']
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
-hdr = {'User-Agent' : 'Magic Browser'}
-prerecs = []
-for i in range(numofpages):
-    tocurl = 'https://helda.helsinki.fi/handle/10138/18070/browse?rpp=%i&sort_by=2&type=dateissued&offset=%i&etal=-1&order=DESC' % (rpp, i*rpp)
-    ejlmod3.printprogress('=', [[i+1, numofpages], [tocurl]])
-    req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(5)
-    oldones = []
-    for rec in ejlmod3.getdspacerecs(tocpage, 'https://helda.helsinki.fi'):
-        if rec['hdl'] in alreadyharvested:
-            oldones.append(rec['hdl'])
-        else:
-            prerecs.append(rec)
-    if oldones:
-        print('  %4i already in backup (%s)' % (len(oldones), ', '.join(oldones)))
-    print('  %4i records so far' % (len(prerecs)))
-        
+
+#options = uc.ChromeOptions()
+#options.binary_location='/usr/bin/chromium'
+#chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+#driver = uc.Chrome(version_main=chromeversion, options=options)
+
+options = Options()
+#options.add_argument("--headless")
+options.add_argument("--enable-javascript")
+options.add_argument("--incognito")
+options.add_argument("--nogpu")
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1200,1980")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument('--disable-blink-features=AutomationControlled')
+driver = webdriver.Chrome(options=options)
+
+
+baseurl = 'https://helda.helsinki.fi'
+driver.get(baseurl)
+time.sleep(10)    
+
 recs = []
-for (j, rec) in enumerate(prerecs):
-    keepit = True
-    ejlmod3.printprogress('-', [[j, len(prerecs)], [rec['link']], [len(recs)]])
-    req = urllib.request.Request(rec['link'])
-    artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(5)
-    ejlmod3.metatagcheck(rec, artpage, ['citation_date', 'citation_author', 'DC.rights',
-                                        'citation_language', 'citation_pdf_url',
-                                        'DC.identifier', 'DC.type', 'DCTERMS.abstract'])
-    rec['autaff'][-1].append(publisher)                        
-    #repair URN
-    if 'urn' in rec:
-        rec['urn'] = re.sub('–', '-', rec['urn'])
-    #subject
-    for note in rec['note']:
-        if note in ['111 Matematiikka', '111 Matematik', '111 Mathematics']:
-            rec['fc'] = 'm'
-        elif note in ['113 Computer and information sciences', '113 Data- och informationsvetenskap',
-                      '113 Tietojenkäsittely- ja informaatiotieteet']:
-            rec['fc'] = 'c'
-        elif note in ['115 Astronomy, Space science', '115 Avaruustieteet ja tähtitiede',
-                      '115 Rymdvetenskap och astronomi']:
-            rec['fc'] = 'a'
-        elif note in ['112 Statistics and probability', '112 Statistik', '112 Tilastotiede']:
-            rec['fc'] = 's'
-        elif note in boring:
-            keepit = False    
-    if keepit:
-        ejlmod3.printrecsummary(rec)
-        recs.append(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['hdl'])
+for page in range(pages):
+    tocurl = 'https://helda.helsinki.fi/collections/b9c99799-fd50-4802-a8dd-f1d833b10794?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    try:
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        prerecs = ejlmod3.ngrx(tocpage, baseurl, [], boring=boring, alreadyharvested=alreadyharvested)
+        1/len(prerecs)
+    except:
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        prerecs = ejlmod3.ngrx(tocpage, baseurl, [], boring=boring, alreadyharvested=alreadyharvested)
 
+    #print(tocpage)
+    for rec in prerecs:
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        print(rec['thesis.metadata.keys'])
+        recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#        if note in ['111 Matematiikka', '111 Matematik', '111 Mathematics']:
+#            rec['fc'] = 'm'
+#        elif note in ['113 Computer and information sciences', '113 Data- och informationsvetenskap',
+#                      '113 Tietojenkäsittely- ja informaatiotieteet']:
+#            rec['fc'] = 'c'
+#        elif note in ['115 Astronomy, Space science', '115 Avaruustieteet ja tähtitiede',
+#                      '115 Rymdvetenskap och astronomi']:
+#            rec['fc'] = 'a'
+#        elif note in ['112 Statistics and probability', '112 Statistik', '112 Tilastotiede']:
+#            rec['fc'] = 's'
