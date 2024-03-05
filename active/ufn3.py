@@ -32,7 +32,7 @@ for p in tocpage.body.find_all('p'):
             ejlmod3.printprogress('=', [[rubric]])
         elif 'articles' in p['class']:
             for a in p.find_all('a'):
-                rec = {'tc' : 'P', 'year' : year, 'issue' : issue, 'vol' : 'vol', 
+                rec = {'tc' : 'P', 'year' : year, 'issue' : issue, 'vol' : vol, 
                        'jnl' : 'Phys.Usp.', 'note' : ['UspekhiFizicheskikhNauk'], 'pacs' : [],
                        'auts' : [], 'aff' : []}
                 if not rubric in ['Personalia', 'Bibliography',
