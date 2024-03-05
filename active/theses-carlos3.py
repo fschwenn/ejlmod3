@@ -1,150 +1,82 @@
 # -*- coding: utf-8 -*-
 # harvest theses from Carlos III U., Madrid
 # JH: 2019-02-23
+# FS: 2024-03-04
 
 from requests import Session
 from bs4 import BeautifulSoup
-from time import sleep
-from urllib.parse import urlparse, parse_qs
+import time
+import undetected_chromedriver as uc
 import ejlmod3
 import re
+import os
 
 publisher = 'Carlos III U., Madrid'
 jnlfilename = 'THESES-CARLOS-%s' % (ejlmod3.stampoftoday())
 rpp = 100
-pages = 2
-skipalreadyharvested = True
+years = 3
+pages = 3
+skipalreadyharvested = False
 
-boring = ['Filología', 'Biología y Biomedicina', 'Arte', 'Derecho',
-          'Filosofía', 'Historia del Arte', 'Historia',
-          'Ingeniería Industrial', 'Política', 'Sociología',
-          'Biblioteconomía y Documentación', 'Economía', 'Empresa',
-          'Aeronáutica', 'Educación', 'Energías Renovables',
-          'Geografía', 'Materiales', 'Medicina', 'Medio Ambiente',
-          'Literatura', 'Ingeniería Mecánica', 'Fusión',
-          'Robótica e Informática Industrial']
+boring = ['UC3M. Departamento de Biblioteconomía y Documentación', 'UC3M. Departamento de Bioingeniería e Ingeniería Aeroespacial',
+          'UC3M. Departamento de Bioingeniería', 'UC3M. Departamento de Ciencia e Ingeniería de Materiales e Ingeniería Química',
+          'UC3M. Departamento de Ciencias Sociales', 'UC3M. Departamento de Ingeniería Térmica y de Fluidos',
+          'UC3M. Departamento de Derecho Internacional, Eclesiástico y Filosofía del Derecho',
+          'UC3M. Departamento de Derecho Penal, Procesal e Historia del Derecho', 'UC3M. Departamento de Derecho Privado',
+          'UC3M. Departamento de Derecho Público del Estado', 'UC3M. Departamento de Economía de la Empresa',
+          'UC3M. Departamento de Economía', 'UC3M. Departamento de Humanidades: Filosofía, Lenguaje y Literatura',
+          'UC3M. Departamento de Humanidades: Historia, Geografía y Arte', 'UC3M. Departamento de Ingeniería Aeroespacial',
+          'UC3M. Departamento de Ingeniería Mecánica', 'UC3M. Departamento de Ingeniería Telemática',          
+          'UC3M. Departamento de Mecánica de Medios Continuos y Teoría de Estructuras',
+          'UC3M. Instituto de Estudios Internacionales y Europeos Francisco de Vitoria',
+          'Universidad Carlos III de Madrid. Departamento de Comunicación',
+          'Universidad Carlos III de Madrid. Departamento de Humanidades: Filosofía, Lenguaje y Literatura',
+          'Universidad Carlos III de Madrid. Departamento de Humanidades: Historia, Geografía y Arte',
+          'UC3M. Departamento de Derecho Internacional Público, Eclesiástico y Filosofía del Derecho',
+          'UC3M. Departamento de Derecho Social e Internacional Privado', 'UC3M. Departamento de Estadística',
+          'UC3M. Departamento de Periodismo y Comunicación Audiovisual',
+          'UC3M. Departamento de Teoría de la Señal y Comunicaciones',
+          'UC3M. Instituto de Derechos Humanos Gregorio Peces-Barba']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
 
-def dspace_extract_links(content, prafix: str):
-    soup = BeautifulSoup(index_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
-    article_links = soup.find_all('a', {'href': re.compile('/handle/\d{0,}/\d{0,}')})
-    filtered = filter(lambda article: False if article.parent.get('class') is None
-                        else True if 'artifact-title' in article.parent.get('class')
-                        else False, article_links)
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
-    return list(filtered)
+baseurl = 'https://e-archivo.uc3m.es'
+
 
 recs = []
+for page in range(pages):
+    tocurl = baseurl + '/collections/cc71bb4c-3d65-4232-b37c-92f67466fdd9?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
+    try:
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    except:
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
-with Session() as session:
-    for page in range(pages):
-        tocurl = 'https://e-archivo.uc3m.es/handle/10016/2/browse?rpp=' + str(rpp) + '&sort_by=2&type=dateissued&offset=' + str(rpp*page) + '&etal=-1&order=DESC'
-        ejlmod3.printprogress('=', [[page+1, pages], [tocurl], [len(recs)]])
-        try:
-            index_resp = session.get(tocurl)
-            if index_resp.status_code != 200:
-                sleep(30)
-                index_resp = session.get(tocurl)
-                if index_resp.status_code != 200:
-                    print("[{}] --> Error: Can't reach this index page! Skipping this ".format(tocurl))
-                    continue
-        except:
-            sleep(30)
-            index_resp = session.get(tocurl)
-            if index_resp.status_code != 200:
-                print("[{}] --> Error: Can't reach this index page! Skipping this ".format(tocurl))
-                continue
-
-        
-        tocpage = BeautifulSoup(index_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
-        prerecs = ejlmod3.getdspacerecs(tocpage, 'https://e-archivo.uc3m.es', alreadyharvested=alreadyharvested)
-        for (v, rec) in enumerate(prerecs):
-            artlink = rec['link'] + '?show=full'
-            ejlmod3.printprogress('-', [[v+1, len(prerecs)], [artlink], [len(recs)]])
-            jump = False
-            try:
-                site_resp = session.get(artlink)
-                soup = BeautifulSoup(site_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
-            except:
-                print('  try again in 60s')
-                sleep(60)
-                site_resp = session.get(artlink)
-                soup = BeautifulSoup(site_resp.content.decode('utf-8').replace('<?xml version="1.0" encoding="UTF-8"?>', ''), 'lxml')
-            ejlmod3.metatagcheck(rec, soup, ['DC.creator', 'DCTERMS.issued', 'DC.rights', 'DC.subject', 'DC.title',
-                                             'DC.identifier', 'DCTERMS.extent', 'DC.type', 'DC.language',
-                                             'citation_pdf_url'])
-            for row in soup.find_all('tr', attrs={'class': 'ds-table-row'}):
-                cols = row.find_all('td')
-
-                title = cols[0].text
-                data = cols[1].text
-
-                # Get the supervisor
-                if title == 'dc.contributor.advisor':
-                    rec['supervisor'].append([data.replace('\n', '')])
-
-                # Get the abstract
-                if title == 'dc.description.abstract':
-                    if data.find('the') != -1 or data.find('of') != -1 or data.find('if') != -1:
-                        rec['abs'] = data
-
-                # Get the DOI [is not the DOI of the thesis]                
-                #if title == 'dc.relation.haspart':
-                #    rec['doi'] = data.replace('https://doi.org/', '')
-
-                # Get the license
-                if title == 'dc.rights.uri':
-                    payload = data.replace('http://creativecommons.org/licenses/', '').split('/')
-
-                    rec['license']['url'] = data
-                    if len(payload) == 4:
-                        rec['license']['statement'] = payload[0].upper() + '-' + payload[1].upper()
-
-                if title == 'dc.type':
-                    if not data in ['doctoralThesis', 'doctoral thesis']:
-                        print('    skip', data)
-                        jump = True
-
-                # Get the note
-                if title == 'dc.subject.eciencia':
-                    if data in boring:
-#                        print('    skip', data)
-                        jump = True
-                    elif data in ['Informática']:
-                        rec['fc'] = 'c'
-                    elif data in ['Matemáticas']:
-                        rec['fc'] = 'm'
-                    elif data in ['Astronomía']:
-                        rec['fc'] = 'a'
-                    elif not data in ['Física']:
-                        rec['note'].append('dc.subject.eciencia:::'+data)
-
-            # Get the pdf file
-            pdf_section = soup.find_all('div', attrs={'class': 'file-link'})
-            if len(pdf_section) == 1:
-                link = pdf_section[0].find_all('a')
-
-                if len(link) == 1:
-                    params = parse_qs('https://e-archivo.uc3m.es' + link[0].get('href'))
-
-                    if len(params.get('isAllowed')) == 1:
-                        if params.get('isAllowed')[0] == 'y':
-                            rec['FFT'] = 'https://e-archivo.uc3m.es' + link[0].get('href')
-            sleep(5)
-#            v += 1
-            #document type
-            if 'PeerReviewed' in rec['note']:
-                jump = True
-            if not jump:
-                recs.append(rec)
-                ejlmod3.printrecsummary(rec)
-            else:
-                #print("[%s] --> Not a PhD theses! Skipping..." % ('https://e-archivo.uc3m.es' + link.get('href') + '?show=full'))
-                ejlmod3.adduninterestingDOI(artlink)
-                #continue
-        sleep(5)
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author', 'dc.contributor.departamento',  'dc.date.issued', 'dc.description.abstract', 'dc.description.degree', 'dc.identifier.uri', 'dc.language.iso', 'dc.rights.uri', 'dc.subject.eciencia', 'dc.subject.other', 'dc.title'],
+                            boring=boring, alreadyharvested=alreadyharvested):
+        if 'autaff' in rec and rec['autaff']:
+            rec['autaff'][-1].append(publisher)
+        else:
+            rec['autaff'] = [['Doe, John', 'Unlisted']]
+        #print(rec['thesis.metadata.keys'])
+        if 'date' in rec and re.search('[12]\d\d\d', rec['date']) and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+            print('    too old:', rec['date'])
+        else:
+            ejlmod3.printrecsummary(rec)
+            recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
+
