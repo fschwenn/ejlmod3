@@ -90,6 +90,8 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'purchase-options-con
 
 recs = []
 
+#jnlname = 'Subnucl.Ser.'
+
 subject = False
 for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     rec = {'note' : note.copy(), 'jnl' : jnlname, 'autaff' : []}
@@ -107,6 +109,10 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     if len(sys.argv) > 3:
         rec['cnum'] = sys.argv[3]
         typecode = 'C'
+    #fieldcode
+    if len(sys.argv) > 4:
+        rec['fc'] = sys.argv[4]
+    
     for h5 in div.find_all('h5'):
         #title
         rec['tit'] = h5.text.strip()
@@ -144,7 +150,9 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item'}):
     else:
         rec['vol'] = ''
     rec['tc'] = typecode
-    if not rec['tit'] in ['FRONT MATTER', 'Front Matter', 'Back Matter', 'BACK MATTER']:
+    if not rec['tit'] in ['FRONT MATTER', 'Front Matter', 'Back Matter', 'BACK MATTER',
+                          'WELCOME ADDRESSES', 'OTHER TALKS AND POSTERS',
+                          'Welcome Addresses', 'Other Talks and Posters']:
         recs.append(rec)
 
 
