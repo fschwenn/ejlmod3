@@ -265,7 +265,8 @@ for issue in re.split(',', issues):
                                                                     'PERSPECTIVE', 'CONCISE REPORT', 'ISSUE INFORMATION - TOC',
                                                                     'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                     'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
-                                                                    'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Editorial']:
+                                                                    'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Editorial',
+                                                                    'FRONT COVER']:
                 keepit = False
         for h2 in div.find_all('h2'):
             tit = h2.text.strip()
@@ -421,6 +422,7 @@ for rec in prerecs:
     else:
         rec['tc'] = ''
     if keepit:
+#        rec['fc'] = 'ag'
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 #    rec['tc'] = 'C'
