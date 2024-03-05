@@ -46,10 +46,13 @@ for tr in table.find_all('tr'):
         rec['FFT'] = 'https://www-he.scphys.kyoto-u.ac.jp/theses/' + a['href'][2:]
         rec['doi'] = '20.2000/KYOTO/' + re.sub('\W', '', a['href'])
     rec['date'] = tds[2+i].text.strip()
-    if skipalreadyharvested and rec['doi'] in alreadyharvested:
-        print('  %s already in backup' % (rec['doi']))
-    else:        
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+    if 'doi' in rec:
+        if skipalreadyharvested and rec['doi'] in alreadyharvested:
+            print('  %s already in backup' % (rec['doi']))
+        else:        
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
+    else:
+        print(tr)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
