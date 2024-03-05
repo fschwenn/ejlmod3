@@ -103,7 +103,7 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A']),
                   ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.', 'Celest.Mech.Dyn.Astron.', 'Earth Moon Planets', 'Discover Space']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
-                  ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.', 'Leibniz Int.Proc.Inf.', 'Comput.Sci', 'J.Assoc.Comput.Machinery', 'Machine Learning', 'APL Mach.Learn.', 'SN Comput.Sci.', 'Neural Comput.', 'J.Sci.Comput.', 'J.Cryptolog.', 'Stat.Comput.', 'Des.Codes Cryptogr.', 'J.Supercomput.', 'Data Min.Knowl.Discov.', 'Int.J.Comput.Vision', 'J.Big Data', 'J.Comput.Chem.']),
+                  ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.', 'Leibniz Int.Proc.Inf.', 'Comput.Sci', 'J.Assoc.Comput.Machinery', 'Machine Learning', 'APL Mach.Learn.', 'SN Comput.Sci.', 'Neural Comput.', 'J.Sci.Comput.', 'J.Cryptolog.', 'Stat.Comput.', 'Des.Codes Cryptogr.', 'J.Supercomput.', 'Data Min.Knowl.Discov.', 'Int.J.Comput.Vision', 'J.Big Data', 'J.Comput.Chem.', 'Comput.']),
                   ('kc', ['Quantum Machine Intelligence']),
                   ('cm', ['ACM Commun.Comp.Alg.', 'ACM Trans.Math.Software', 'Math.Programming', 'Appl.Algebra Engrg.Comm.Comput.']),
                   ('i', ['IEEE Instrum.Measur.Mag.', 'IEEE Sensors J.', 'IEEE Trans.Circuits Theor.', 'IEEE Trans.Instrum.Measur.', 'Instruments', 'Instrum.Exp.Tech.', 'JAIS', 'JINST', 'Meas.Tech.', 'Measur.Sci.Tech.', 'Metrologia', 'Microscopy Microanal.', 'Rad.Det.Tech.Meth.', 'Rev.Sci.Instrum.', 'Sensors', 'J.Astron.Telesc.Instrum.Syst.', 'EPJ Tech.Instrum.']),
@@ -1983,7 +1983,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Master of Human Rights (M.H.R.)', 'Ed. D.',
                      'Master of Natural Resources Management (M.N.R.M.)',
                      'Master of Nursing (M.N.)', 'Master of Science (M.Sc.)',
-                     'Master of Social Work (M.S.W.)', 'Trabajo de grado - Maestría']
+                     'Master of Social Work (M.S.W.)', 'Trabajo de grado - Maestría',
+                     'Doctorado en Economía',  'Doctorado en Empresa y Finanzas',
+                     'Doctorado en Estudios Avanzados en Derechos Humanos',
+                     'Doctorado en Empresa y Finanzas. Mención Internacional']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -2098,7 +2101,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.thesis.degreediscipline', 'local.subject.fakultaet',
                                  'dc.description.department', 'dc.degree.department',
                                  'dc.thesis.degree.discipline',  'uulm.affiliationGeneral',
-                                 'etdms.degree.discipline', 'uulm.affiliationSpecific']:
+                                 'etdms.degree.discipline', 'uulm.affiliationSpecific',
+                                 'dc.contributor.departamento']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2116,6 +2120,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Institut für Numerische Mathematik',
                                                   'Institut für Analysis', 'Institut für Statistik',
                                                   'Institut für Stochastik',
+                                                  'UC3M. Departamento de Matemáticas',
                                                   'Institut für Reine Mathematik',
                                                   'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
                                 rec['fc'] = 'm'
@@ -2147,7 +2152,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Technische Fakultät / Department Informatik',
                                                   'Institut für Softwaretechnik und Programmiersprachen'
                                                   'Institut für Theoretische Informatik',
-                                                  'THU.IFI Institut für Informatik']:
+                                                  'THU.IFI Institut für Informatik',
+                                                  'UC3M. Departamento de Informática']:
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter',
                                                   'Condensed matter physics',
@@ -2165,7 +2171,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Naturwissenschaftliche Fakultät / Department Physik',
                                                       'Department Physik', 'Naturwissenschaftliche Fakultät',
                                                       'Department Physik / Professur für Theoretische Physik (Prof. Dr. Smith)',
-                                                      'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-']:
+                                                      'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-',
+                                                      'UC3M. Departamento de Física']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
@@ -2290,7 +2297,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
                                  'dc.subject.pquncontrolled', 'dc.subject.pqcontrolled',
                                  'dc.subject.lcc', 'dc.subject.other', 'dc.subject.keyword',
-                                 'dc.subject.mesh', 'dc.subject.lcsh', 'dc.subject.gnd']:
+                                 'dc.subject.mesh', 'dc.subject.lcsh', 'dc.subject.gnd',
+                                 'dc.subject.eciencia']:
                         for keyw in thesis['metadata'][key]:
                             rec['keyw'].append(keyw['value'])
                         done.append(key)
