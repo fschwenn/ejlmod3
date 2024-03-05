@@ -147,5 +147,5 @@ for rec in recs:
             rec['refs'].append([('x', ref)])
     ejlmod3.printrecsummary(rec)
     
-jnlfilename = '%s%s.%s' % (jnl, rec['vol'], rec['issue'])
+jnlfilename = '%s%s.%s_%s' % (jnl, rec['vol'], rec['issue'], ejlmod3.stampoftoday())
 ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
