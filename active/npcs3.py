@@ -10,7 +10,7 @@ import re
 import sys
 #import unicodedata
 #import string
-
+import time
 #from removehtmlgesocks import akzenteabstreifen
 from removehtmlgesocks3 import removehtmlgesocks
 
