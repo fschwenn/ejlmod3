@@ -83,7 +83,7 @@ for qiskeyword in qiskeywords:
             time.sleep(random.randint(10,15))
     for apipage in apipages:
         for doc in apipage.find_all('doc'):
-            rec = {'jnl' : 'PloS One', 'tc' : 'P', 'fc' : 'kc'}
+            rec = {'jnl' : 'PLoS One', 'tc' : 'P', 'fc' : 'kc'}
             for s in doc.find_all('str', attrs = {'name' : 'id'}):
                 rec['doi'] = s.text
             for date in doc.find_all('date', attrs = {'name' : 'publication_date'}):
