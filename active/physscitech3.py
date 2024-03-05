@@ -51,7 +51,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section'}):
 
 for div in tocpage.body.find_all('div', attrs = {'class' : 'title'}):
     for a in div.find_all('a'):
-        rec = {'tc' : 'P', 'jnl' : 'Phys.Sci.Tech..', 'note' : []}
+        rec = {'tc' : 'P', 'jnl' : 'Phys.Sci.Tech.', 'note' : []}
         rec['artlink'] = a['href']
         if not rec['artlink'] in problematiclinks:
             recs.append(rec)
