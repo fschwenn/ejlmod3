@@ -81,18 +81,19 @@ elif (jnl == 'pasj'):
     jnlname = "Publ.Astron.Soc.Jap."
 elif (jnl == 'qjmath'): 
     jnlname = "Quart.J.Math.Oxford Ser."
-elif (jnl == 'bjps'): 
+elif (jnl == 'bjps'): #now at Chicago University Press
     jnlname = "Brit.J.Phil.Sci."
 elif (jnl == 'imrn'): 
     jnlname = "Int.Math.Res.Not."
 elif (jnl == 'nsr'):
     jnlname = "Natl.Sci.Rev."
-elif (jnl == 'astrogeo'):
-    jnlname = 'Astron.Geophys.'
-elif (jnl == 'integrablesystems'):
+elif (jnl == 'astrogeo'): # no real articles
+    jnlname = 'Astron.Geophys.' 
+elif (jnl == 'integrablesystems'): #ceased 2020
     jnlname = 'J.Integrab.Syst.'
 elif (jnl == 'mam'):
     jnlname = 'Microscopy Microanal.'
+    
     
 else:
     print('Dont know journal %s!' % (jnl))
