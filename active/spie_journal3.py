@@ -11,6 +11,12 @@ import re
 import ejlmod3
 import time
 import getopt
+import undetected_chromedriver as uc
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 def spie(jnl, vol, iss):
     if jnl == 'jatis':
@@ -36,7 +42,7 @@ def spie(jnl, vol, iss):
                 for a in div.find_all('a', attrs = {'class' : 'TocLineItemAnchorText1'}):
                     rec['artlink'] = '%s%s' % (urltrunc, a['href'])
                     rec['tit'] = a.text.strip()
-                    if re.search('List of Reviewers', rec['tit']):
+                    if re.search('(List of Reviewers|Editorial)', rec['tit']):
                         continue
                     if not rec['artlink'] in [r['artlink'] for r in recs]:
                         recs.append(rec)
@@ -47,11 +53,15 @@ def spie(jnl, vol, iss):
         print('  get [%i/%i] %s' % (i, len(recs), rec['artlink']))
         try:
             time.sleep(20)
-            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            #artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
             print('retry %s in 5 minutes' % (rec['artlink']))
             time.sleep(300)
-            artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            #artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+            driver.get(rec['artlink'])
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
         for meta in artpage.head.find_all('meta'):
             if meta.has_attr('name'):
                 if meta['name'] == 'citation_author':
@@ -69,11 +79,15 @@ def spie(jnl, vol, iss):
             print('  open [%i/%i] %s' % (i, len(recs), rec['artlink']))
             try:
                 time.sleep(20)
-                artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+                #artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+                driver.get(rec['artlink'])
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
             except:
                 print('retry %s in 5 minutes' % (rec['artlink']))
                 time.sleep(300)
-                artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+                #artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
+                driver.get(rec['artlink'])
+                artpage = BeautifulSoup(driver.page_source, features="lxml")
         autaff = []
         ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_doi',
                                             'citation_abstract', 'citation_keyword',
