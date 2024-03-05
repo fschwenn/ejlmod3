@@ -48,7 +48,7 @@ elif (jnl == 'grl'):
     toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/19448007/%s/%s/%s' % (year, vol, issue)
 elif (jnl == 'agua'):
     year = str(int(vol)+2019)
-    jnlname = 'AGU Adv..'
+    jnlname = 'AGU Adv.'
     toclink = 'https://agupubs.onlinelibrary.wiley.com/toc/2576604x/%s/%s/%s' % (year, vol, issue)
     
 
