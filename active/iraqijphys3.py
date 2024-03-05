@@ -41,7 +41,7 @@ problematiclinnks = ['https://revistasinvestigacion.unmsm.edu.pe/index.php/fisic
 recs = []
 for div in tocpage.body.find_all('h3', attrs = {'class' : 'media-heading'}):
     for a in div.find_all('a'):
-        rec = {'tc' : 'P', 'jnl' : 'Iraqi J.Phys..', 'note' : []}
+        rec = {'tc' : 'P', 'jnl' : 'Iraqi J.Phys.', 'note' : []}
         rec['artlink'] = a['href']
         if not rec['artlink'] in problematiclinnks:
             recs.append(rec)
