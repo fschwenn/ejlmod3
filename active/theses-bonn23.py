@@ -18,7 +18,7 @@ hdr = {'User-Agent' : 'Magic Browser'}
 rpp = 50
 skipalreadyharvested = True
 jnlfilename = 'THESES-BONN-%s' % (ejlmod3.stampoftoday())
-pages = 3
+pages = 2
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
