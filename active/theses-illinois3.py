@@ -47,11 +47,10 @@ for disc in ['Animal Sciences', 'Chemistry', 'Education', 'Aerospace Engineering
              'NaturalResourcesandEnvironmentalScience', 'Recreation,SportandTourism', 'SpeechCommunication']:
     boring.append('thesis.degree.discipline:::' + re.sub('\s', '', disc))
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 def get_sub_site(url, fc, sess, aff):
     if ejlmod3.checkinterestingDOI(url):
@@ -145,7 +144,7 @@ departments = [('Dept.+of+Astronomy', 'Illinois U., Urbana, Astron. Dept.', 'a',
                ('Dept.+of+Computer+Science', 'Illinois U., Urbana (main)', 'c', tocpages),
                ('Dept.+of+Mathematics', 'Illinois U., Urbana, Math. Dept.', 'm', tocpages),
                ('all', 'Illinois U., Urbana (main)', '', tocpages*125)]
-rpp = 25
+rpp = 30
 
 reallinks = []
 with Session() as session:
@@ -153,8 +152,10 @@ with Session() as session:
         for page in range(pages):
             if dep == 'all':
                 tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&&start=' + str(rpp*page)
+                tocurl = 'https://www.ideals.illinois.edu/search?direction=desc&elements%5Bdc%3Acontributor%5D=&elements%5Bdc%3Acreator%5D=&elements%5Bdc%3Adescription%3Aabstract%5D=&elements%5Bdc%3Aidentifier%3Auri%5D=&elements%5Bdc%3Arelation%3Aispartof%5D=&elements%5Bdc%3Asubject%5D=&elements%5Bdc%3Atitle%5D=&elements%5Bdc%3Atype%5D=&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&full_text=&q=&sort=d_element_dc_date_issued&start=' + str(rpp*page)
             else:
                 tocurl = 'https://www.ideals.illinois.edu/items?direction=desc&fq%5B%5D=k_unit_titles%3AGraduate+Dissertations+and+Theses+at+Illinois&sort=d_element_dc_date_issued&fq%5B%5D=k_unit_titles%3A' + dep + '&start=' + str(rpp*page)
+                tocurl = 'https://www.ideals.illinois.edu/search?direction=desc&elements%5Bdc%3Acontributor%5D=&elements%5Bdc%3Acreator%5D=&elements%5Bdc%3Adescription%3Aabstract%5D=&elements%5Bdc%3Aidentifier%3Auri%5D=&elements%5Bdc%3Arelation%3Aispartof%5D=&elements%5Bdc%3Asubject%5D=&elements%5Bdc%3Atitle%5D=&elements%5Bdc%3Atype%5D=&fq%5B%5D=k_unit_titles%3A' + dep + '&fq%5B%5D=k_unit_titles%3ADept.+of+Physics&full_text=&q=&sort=d_element_dc_date_issued&start=' + str(rpp*page)
             ejlmod3.printprogress('=', [[dep], [page+1, pages], [tocurl]])
             index_resp = session.get(tocurl)
 
