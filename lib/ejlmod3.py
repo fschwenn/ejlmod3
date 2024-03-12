@@ -96,7 +96,7 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #list of lists to automatically suggest fieldcodes based on journalname
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
-fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW']),
+fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW', 'J.Plasma Phys.']),
                   ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A', 'Jap.J.Math.', 'Algorithmica', 'Proc.Lond.Math.Soc.', 'Sbornik Math.']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.', 'IET Quant.Commun.']),
@@ -117,13 +117,14 @@ fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
               'CLEO' : 'e',
               'BESIII' : 'e',
               'DELPHI' : 'e', 'ALEPH' : 'e', 'L3' : 'e', 'OPAL' : 'e',
-              'COMPASS' : 'e', 'MADMAX' : 'e', 'ALPS' : 'e',
+              'COMPASS' : 'e', 'MADMAX' : 'e', 'ALPS' : 'e',              
               'Belle' : 'e', 'Belle II' : 'e',
               'ZEUS' : 'e', 'H1' : 'e', 'HERMES' : 'e',
               'PHENIX' : 'ex', 'STAR' : 'ex',
               'HADES' : 'x',
               'CLAS' : 'x', 'NA49' : 'x', 'ISOLDE' : 'x',
               'NA62' : 'e', 'NA64' : 'e', 'NA60+' : 'ex',
+              'ATLAS Liquid Argon Calorimeter Group' : 'i',
               'IceCube' : 'a', 'Pierre Auger' : 'a', 'MAGIC' : 'a', 'KM3NeT' : 'a',
               'HESS' : 'a', 'H.E.S.S.' : 'a', 'Fermi-LAT' : 'a', 'VERITAS' : 'a',
               'DES' : 'a', 'ANTARES' : 'a', 'SDSS' : 'a', 'HAWC' : 'a',
@@ -1986,7 +1987,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Master of Social Work (M.S.W.)', 'Trabajo de grado - Maestría',
                      'Doctorado en Economía',  'Doctorado en Empresa y Finanzas',
                      'Doctorado en Estudios Avanzados en Derechos Humanos',
-                     'Doctorado en Empresa y Finanzas. Mención Internacional']
+                     'Doctorado en Empresa y Finanzas. Mención Internacional',
+                     'Dissertação de mestrado']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -2102,7 +2104,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.description.department', 'dc.degree.department',
                                  'dc.thesis.degree.discipline',  'uulm.affiliationGeneral',
                                  'etdms.degree.discipline', 'uulm.affiliationSpecific',
-                                 'dc.contributor.departamento']:
+                                 'dc.contributor.departamento', 'unesp.campus',
+                                 'unesp.knowledgearea', 'unesp.knowledgeArea', 'unesp.graduateProgram']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2122,6 +2125,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Institut für Stochastik',
                                                   'UC3M. Departamento de Matemáticas',
                                                   'Institut für Reine Mathematik',
+                                                  'Matemática aplicada e computacional',
                                                   'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
                                 rec['fc'] = 'm'
                             elif fac['value'] in ['Statistics', 'Mathematical Statistics',
@@ -2157,6 +2161,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter',
                                                   'Condensed matter physics',
+                                                  'Física da matéria condensada',
                                                   'Institut für Festkörperphysik']:
                                 rec['fc'] = 'f'
                             elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
@@ -2172,7 +2177,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Department Physik', 'Naturwissenschaftliche Fakultät',
                                                       'Department Physik / Professur für Theoretische Physik (Prof. Dr. Smith)',
                                                       'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-',
-                                                      'UC3M. Departamento de Física']:
+                                                      'UC3M. Departamento de Física', 'Física teórica', 'Física',
+                                                      'Física aplicada', 'Física - IGCE']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
@@ -2180,12 +2186,12 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     elif key in ["dc.contributor.advisor", 'local.contributor.advisor',
                                  'dc.contributor.supervisor']:
                         for sv in thesis['metadata'][key]:
-                            rec['supervisor'].append([re.sub(', (19|20).*', '', sv['value'])])
+                            rec['supervisor'].append([re.sub(' \[.*', '', re.sub(', (19|20).*', '', sv['value']))])
                         done.append(key)
                     #author
                     elif key in ['dc.contributor.author', 'dc.creator']:
                         for au in thesis['metadata'][key]:
-                            rec['autaff'].append([re.sub(', (19|20).*', '', au['value'])])
+                            rec['autaff'].append([re.sub(' \[.*', '', re.sub(', (19|20).*', '', au['value']))])
                         done.append(key)
                     elif key in ['dc.contributor.author.orcid', 'dc.creator.orcid']:
                         for au in thesis['metadata'][key]:
