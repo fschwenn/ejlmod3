@@ -88,6 +88,10 @@ for page in range(pages):
             if ejlmod3.checkinterestingDOI(rec['hdl']):
                 if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
                     prerecs.append(rec)
+                else:
+                    print('  ', rec['hdl'], 'already in backup')
+            else:
+                print('  ', rec['hdl'], 'uninteresting')
     time.sleep(5)
 
 i = 0
@@ -130,6 +134,7 @@ for rec in prerecs:
                 dep = td.text.strip()
                 if dep in boringdeps:
                     keepit = False
+                    print('   skip "%s"' % (dep))
                 else:
                     rec['note'].append(dep)
     #license
