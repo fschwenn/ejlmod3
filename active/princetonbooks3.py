@@ -59,7 +59,9 @@ for (series, fc) in serieses:
         for em in li.find_all('em', attrs = {'class' : 'm-book-listing__author'}):
             for a in em.find_all('a'):
                 rec['autaff'].append([a.text.strip()])
-        if not rec['doi'] in alreadyharvested:
+        if rec['doi'] in alreadyharvested:
+            print('   %s already harvested' % (rec['doi']))
+        else:
             prerecs.append(rec)
             alreadyharvested.append(rec['doi'])
     print('  %4i records so far' % (len(prerecs)))
