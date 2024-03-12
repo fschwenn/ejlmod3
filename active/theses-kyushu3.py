@@ -60,6 +60,10 @@ for page in range(pages):
                     if ejlmod3.checkinterestingDOI(rec['hdl']):
                         if not rec['hdl'] in alreadyharvested:
                             prerecs.append(rec)
+                        else:
+                            print(rec['hdl'], 'already harvested')
+                    else:
+                        print(rec['hdl'], 'not interesting')
     time.sleep(2)
         
 
