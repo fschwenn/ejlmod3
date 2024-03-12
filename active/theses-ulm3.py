@@ -13,7 +13,7 @@ import re
 import os
 
 rpp = 40
-pages = 30
+pages = 20
 skipalreadyharvested = True
 
 recs = []
