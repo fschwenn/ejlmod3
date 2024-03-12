@@ -57,6 +57,8 @@ elif (jnl == 'uasa20'):
     jnlname = 'J.Am.Statist.Assoc.'
 elif (jnl == 'tmph20'):
     jnlname = 'Mol.Phys.'
+elif (jnl == 'unse20'):
+    jnlname = 'Nucl.Sci.Eng.'
 
 jnlfilename = "%s.%s.%s.%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
 
@@ -241,6 +243,10 @@ for (i, rec) in enumerate(prerecs):
                 rec['refs'].append([('x',  re.sub(',\s*,', ',', lit + rdoi))])
             else:
                 rec['refs'].append([('x', lit)])
+
+    #rec['tc'] = 'C'
+    #rec['cnum'] = 'C22-09-25.2'
+    
     if 'note' in rec and rec['note'] and rec['note'][0] in ['Book reviews', 'Essay reviews']:
         continue
     elif 'note' in rec and rec['note'] and rec['note'][0] in ['Review Article']:
@@ -250,6 +256,6 @@ for (i, rec) in enumerate(prerecs):
     else:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
-    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
 
 #ejlmod3.writenewXML(recs, publisher, jnlfilename)
