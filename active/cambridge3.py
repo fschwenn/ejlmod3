@@ -22,7 +22,7 @@ skipalreadyharvested = True
 jnlfilename = 'cambridge'+jid + vol
 if len(sys.argv) > 3:
     iss = sys.argv[3]
-    jnlfilename += '.' + iss
+    jnlfilename += '.' + iss +  '_' + ejlmod3.stampoftoday()
 else:
     jnlfilename += '.' + ejlmod3.stampoftoday()
 
@@ -79,7 +79,7 @@ elif jid == 'JFM':
 #    jnlname = 'Commun.Comput.Phys.'
 
 if skipalreadyharvested:
-    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=7)
 
 if jid in ['PHS', 'JFM']:
     supertocurl = 'https://www.cambridge.org/core/journals/%s/all-issues' % (camjnlname)
@@ -115,7 +115,10 @@ else:
         if len(sys.argv) > 3:
             toclink += '&issueId=%s' % (iss)
 
-print(toclink)
+if len(sys.argv) > 3:
+    ejlmod3.printprogress('#', [[jid, vol, iss], [toclink]])
+else:
+    ejlmod3.printprogress('#', [[jid, vol], [toclink]])
 
 #toclink = "https://www.cambridge.org/core/journals/glasgow-mathematical-journal/issue/FF36FC6AD93313180F0F572188FA2F70"
         
@@ -306,4 +309,4 @@ for rec in prerecs:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
