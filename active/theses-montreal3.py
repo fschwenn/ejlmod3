@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
 
 publisher = 'U. Montreal (main)'
 jnlfilename = 'THESES-MONTREAL-%s' % (ejlmod3.stampoftoday())
@@ -17,6 +18,12 @@ jnlfilename = 'THESES-MONTREAL-%s' % (ejlmod3.stampoftoday())
 startyear = ejlmod3.year(backwards=1)
 skipalreadyharvested = True
 rpp = 200
+
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+hdr = {'User-Agent' : 'Magic Browser'}
 
 hdr = {'User-Agent' : 'Magic Browser'}
 if skipalreadyharvested:
@@ -27,9 +34,10 @@ else:
 prerecs = []
 for (fac, fc) in [('2949', 'm'), ('2990', ''), ('2958', 'c')]:
     tocurl = 'https://papyrus.bib.umontreal.ca/xmlui/handle/1866/' + fac + '/discover?filtertype=dateIssued&filter_relational_operator=equals&filter=[' + str(startyear) + '+TO+' + str(ejlmod3.year()) + ']&rpp=' + str(rpp)
+  #  tocurl = 'https://papyrus.bib.umontreal.ca/xmlui/handle/1866/' + fac + '/discover?rpp=10&etal=0&group_by=none&page=2&sort_by=dc.date.issued_dt&order=desc&filtertype_0=dateIssued&filter_relational_operator_0=equals&filter_0=&rpp=' + str(rpp)
     ejlmod3.printprogress('=', [[fac], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
-    tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
+    tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
     for rec in ejlmod3.getdspacerecs(tocpage, 'https://papyrus.bib.umontreal.ca', alreadyharvested=alreadyharvested):
         if fc: rec['fc'] = fc
         prerecs.append(rec)
@@ -41,13 +49,17 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['link']], [len(recs)]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
         time.sleep(3)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['link']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+            #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+            req = urllib.request.Request(rec['link'], headers=hdr)
+            artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
         except:
             print("no access to %s" % (rec['link']))
             continue    
