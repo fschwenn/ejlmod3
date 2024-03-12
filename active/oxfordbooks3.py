@@ -13,6 +13,7 @@ import time
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 
+skipalreadyharvested = True
 
 publisher = 'Oxford University Press'
 urltrunc = 'https://global.oup.com/academic/category/science-and-mathematics'
@@ -41,6 +42,9 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.get('https://global.oup.com/academic/')
 time.sleep(180)
 
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 #scan serieses
 isbnsdone = []
 prerecs = []
@@ -48,7 +52,7 @@ for series in serieses:
     toclink = '%s/%s/%s' % (urltrunc, series, facetsandsort)
     subject = re.sub('.*\/', '', series)
     ejlmod3.printprogress('=', [ [series], [toclink] ])
-    #tocreq = urllib.request.Request(toclink, headers={'User-Agent' : "Magic Browser"}) 
+    #tocreq = urllib.request.Request(toclink, headers={'User-Agent' : "Magic Browser"})
     #toc = BeautifulSoup(urllib.request.urlopen(tocreq), features="lxml")
     driver.get(toclink)
     toc = BeautifulSoup(driver.page_source, features="lxml")
@@ -67,10 +71,10 @@ for series in serieses:
 #scan individual book pages
 i = 0
 recs = []
-for rec in prerecs:        
+for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
-    #artreq = urllib.request.Request(rec['artlink'], headers={'User-Agent' : "Magic Browser"}) 
+    #artreq = urllib.request.Request(rec['artlink'], headers={'User-Agent' : "Magic Browser"})
     #art = BeautifulSoup(urllib.request.urlopen(artreq), features="lxml")
     driver.get(rec['artlink'])
     art = BeautifulSoup(driver.page_source, features="lxml")
@@ -118,18 +122,17 @@ for rec in prerecs:
     #check if already in other subject
     if 'isbns' in rec:
         for isbn in rec['isbns']:
-            if isbn in isbnsdone:
-                print('   [%2i/%2i] delete "%s" because already under other subject or with other ISBN' % (i, len(prerecs), rec['tit']))
-                addrecord = False
-                continue
-            else:
-                isbnsdone.append(isbn)
+            if addrecord:
+                if isbn in isbnsdone:
+                    print('   already under other subject or with other ISBN')
+                    addrecord = False
+                elif skipalreadyharvested and '20.2000/ISBNS/' + isbn[0][1] in alreadyharvested:
+                    print('   already in backup')
+                    addrecord = False
+            isbnsdone.append(isbn)
     if addrecord:
         #print('   [%2i/%2i] added "%s"' % (i, len(prerecs), rec['tit']))
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
-    
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
 
-        
-        
+ejlmod3.writenewXML(recs, publisher, jnlfilename)
