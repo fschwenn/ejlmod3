@@ -53,8 +53,12 @@ if skipalreadyharvested:
     print('%i records in backup' % (len(alreadyharvested)))
     alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
     print('%i records in backup' % (len(alreadyharvested)))
-alreadyharvested.append('http://ieeexplore.ieee.org/document/10189126/')
-alreadyharvested.append('http://ieeexplore.ieee.org/document/10188200/')
+alreadyharvested += ['http://ieeexplore.ieee.org/document/10189126/', 'http://ieeexplore.ieee.org/document/10188200/',
+                     'https://ieeexplore.ieee.org/document/10124765/', 'https://ieeexplore.ieee.org/document/10320394/',
+                     'https://ieeexplore.ieee.org/document/9933640/', 'https://ieeexplore.ieee.org/document/9960719/',
+                     'https://ieeexplore.ieee.org/document/10064079/', 'https://ieeexplore.ieee.org/document/10056256/',
+                     'https://ieeexplore.ieee.org/document/10077437/', 'https://ieeexplore.ieee.org/document/10032538/',
+                     'https://ieeexplore.ieee.org/document/9813584/', 'https://ieeexplore.ieee.org/document/9952203/']
 
 def meta_with_name(tag):
     return tag.name == 'meta' and tag.has_attr('name')
@@ -162,6 +166,8 @@ def translatejnlname(ieeename):
         jnlname = 'IEEE Access'
     elif ieeename in ['IEEE Journal of Solid-State Circuits']:
         jnlname = 'IEEE J.Solid State Circuits'
+    elif ieeename in ['IEEE Open Journal of the Industrial Electronics Society']:
+        jnlname = 'IEEE Open J.Indust.Electron.Soc.'
     elif ieeename in ["IEEE Symposium Conference Record Nuclear Science 2004.",
                       "IEEE Nuclear Science Symposium Conference Record, 2005"]:
         jnlname = 'BOOK'
@@ -322,6 +328,7 @@ def ieee(number):
     jnlname = False
     for articlelink in allarticlelinks:
         i += 1
+        gdm = False
         if (iref % 45) == 0:
             print('\n   [[[ special pause for not to be blocked ]]]\n')
             time.sleep(180)
@@ -364,7 +371,20 @@ def ieee(number):
                     gdm = re.sub('[\n\t]', '', script.contents[0]).strip()
                     gdm = re.sub('.*[gG]lobal.document.metadata=(\{.*\}).*', r'\1', gdm)
                     gdm = json.loads(gdm)
-                    
+        if not gdm:
+            print('   no gdm found - download again in 20s')
+            time.sleep(20)            
+            driver.get(articlelink)
+            articlepage = BeautifulSoup(driver.page_source, features="lxml")
+            artfile = codecs.open(artfilename, mode='w', encoding='utf8')
+            artfile.write(str(articlepage))
+            artfile.close()
+            for script in articlepage.find_all('script', attrs = {'type' : 'text/javascript'}):
+                if script.contents and len(script.contents):
+                    if re.search('[gG]lobal.document.metadata', script.contents[0]):
+                        gdm = re.sub('[\n\t]', '', script.contents[0]).strip()
+                        gdm = re.sub('.*[gG]lobal.document.metadata=(\{.*\}).*', r'\1', gdm)
+                        gdm = json.loads(gdm)
         if 'sections' in gdm:
             if 'references' in gdm['sections']:
                 if gdm['sections']['references'] in ['true', 'True']:
