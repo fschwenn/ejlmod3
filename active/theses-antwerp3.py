@@ -32,6 +32,8 @@ starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=169736026%3A2098
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=173742313%3A534051&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=179714210%3A459699&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=185059054%3A825846&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
+starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=193415727%3A901451&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
+
 br = mechanize.Browser()
 br.set_handle_robots(False)   # ignore robots
 br.set_handle_refresh(False)  # can sometimes hang without this
