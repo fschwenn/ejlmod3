@@ -15,7 +15,9 @@ from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 
 maxtries = 7
-basewait = 60
+basewait = 60/3
+skipalreadyharvested = True
+bunchsize = 10
 
 #ejldir = '/afs/desy.de/user/l/library/dok/ejl'
 
@@ -65,6 +67,7 @@ if (jnl == '4open'):
     toclink = "%s%s/%02i/contents/contents.html" % (urltrunk, year, int(issue))
 else:
     jnlfilename = "%s%s.%s" % (jnl, year, issue)
+    jnlfilename = "%s%s.%s_%s" % (jnl, year, issue, ejlmod3.stampoftoday())
     toclink = "%s%s/%02i/contents/contents.html" % (urltrunk, year, int(issue))
 
 print("get table of content (%s) ..." % (toclink))
@@ -92,7 +95,13 @@ except:
     else:
         tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
 
-
+def tfstrip(x): return x.strip()
+dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
+if skipalreadyharvested:
+    filenametrunc = jnl + '*doki'
+    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*http/http/'| sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
+    alreadyharvested += ejlmod3.getalreadyharvested(jnlfilename)
+    
 recs = []
 i = 0
 articleas = tocpage.find_all('a', attrs = {'class' : 'article_title'})
@@ -107,6 +116,10 @@ for a in articleas:
     #title
     rec['tit'] = a.text.strip()
     artlink = re.sub('(.*\.org)\/.*', r'\1', toclink) + a['href']
+    rec['note'].append(artlink)
+    if skipalreadyharvested and artlink in alreadyharvested:
+        print('  %s already in backup' % (artlink))
+        continue
     ejlmod3.printprogress('-', [[i, len(articleas)], [artlink]])
     #check article page
     time.sleep(10)
@@ -214,9 +227,13 @@ for a in articleas:
                         reference += rdoi
                 rec['refs'].append([('x', reference)])
     if rec['autaff']:
-        recs.append(rec)
-        ejlmod3.printrecsummary(rec)
+        if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
+            print('  %s already in backup' % (rec['doi']))
+        else:
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)            
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
     else:
         print('no authors ?!')
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)
+#ejlmod3.writenewXML(recs, publisher, jnlfilename)
