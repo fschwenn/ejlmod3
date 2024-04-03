@@ -14,7 +14,9 @@ from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 
 
-tmpdir = '/tmp'
+downloadpath = '/tmp'
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+
 def tfstrip(x): return x.strip()
 jnl = sys.argv[1]
 publisher = 'Physical Society of Japan'
@@ -76,6 +78,7 @@ def fsunwrap(tag):
 options = uc.ChromeOptions()
 #options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -230,6 +233,27 @@ for tag in tocpage.body.find_all():
                         rec['refs'].append(iref)
             else:
                 rec['FFT'] = '%s/doi/pdf/%s' % (urltrunc, rec['doi'])
+
+
+        #get fulltext
+        if 'FFT' in rec:
+            targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+            if os.path.isfile(targetfilename):
+                print('     %s already exists' % (targetfilename))
+            else:
+                savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*\/', '', rec['doi'].lower()))
+            if not os.path.isfile(savedfilename):            
+                print('     get %s from %s' % (savedfilename, rec['FFT']))
+                driver.get(rec['FFT'])
+                time.sleep(30)
+            if os.path.isfile(savedfilename):
+                print('     mv %s to %s' % (savedfilename, targetfilename))
+                os.system('mv %s %s' % (savedfilename, targetfilename))
+                time.sleep(300)
+            else:
+                print('     COULD NOT DOWNLOAD PDF')
+                
+                
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
