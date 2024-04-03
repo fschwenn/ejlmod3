@@ -19,12 +19,16 @@ skipalreadyharvested = True
 rpp = 100
 pages = 3
 bunchsize = 10
+downloadpath = '/tmp'
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 driver = uc.Chrome(version_main=chromeversion, options=options)
     
 #scraper = cloudscraper.create_scraper()
@@ -62,7 +66,8 @@ def getdone():
         reg = re.compile('sciadv(\d+)\.(\d+)')
     ejldir = '/afs/desy.de/user/l/library/dok/ejl'
     issues = []
-    for directory in [ejldir+'/backup', ejldir+'/backup/' + str(ejlmod3.year(backwards=1))]:
+    for directory in [ejldir+'/backup', ejldir+'/backup/' + str(ejlmod3.year()),
+                      ejldir+'/backup/' + str(ejlmod3.year(backwards=1))]:
         for datei in os.listdir(directory):
             if reg.search(datei):
                 regs = reg.search(datei)
@@ -114,7 +119,10 @@ def harvestarticle(jnl, rec, i, l, r):
         for span in div.find_all('span', attrs = {'property' : 'familyName'}):
             name = span.text.strip()
         for span in div.find_all('span', attrs = {'property' : 'givenName'}):
-            name += ', ' + span.text.strip()
+            if name:
+                name += ', ' + span.text.strip()
+            else:
+                name = span.text.strip()
         if name:
             rec['autaff'].append([name])
             for a in div.find_all('a', attrs = {'class' : 'orcid-id'}):
@@ -160,6 +168,22 @@ def harvestarticle(jnl, rec, i, l, r):
             else:
                 rec['pdf_url'] = 'https://science.org' + a['href']
     ejlmod3.globallicensesearch(rec, artpage)
+    if 'license' in rec and 'pdf_url' in rec:
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+        else:
+            savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec['pdf_url']))
+            if not os.path.isfile(savedfilename):            
+                print('     get %s from %s' % (savedfilename, rec['pdf_url']))
+                driver.get(rec['pdf_url'])
+                time.sleep(30)
+            if os.path.isfile(savedfilename):
+                print('     mv %s to %s' % (savedfilename, targetfilename))
+                os.system('mv %s %s' % (savedfilename, targetfilename))
+                time.sleep(300)
+            else:
+                print('     COULD NOT DOWNLOAD PDF')
     return True
 
 def harvestissue(jnl, vol, issue):
