@@ -318,6 +318,7 @@ def concert(rawrecs):
 #download metadata feeds
 os.chdir(feeddir)
 done = os.listdir(os.path.join(wspdir, 'done'))
+print('%i files in done' % (len(done)))
 filestodo = []
 
 ftp = FTP("ftp.wspc.com.sg")
@@ -330,10 +331,13 @@ for filename in files:
         #print 'skip "%s"' % (filename)
         numofskipped += 1
     else:
-        print('download "%s"' % (filename))
-        f2 = open(filename,"wb")
-        ftp.retrbinary("RETR " + filename,f2.write)
-        f2.close()
+        if os.path.isfile(os.path.join(feeddir, filename)):
+            print('found "%s"' % (filename))
+        else:
+            print('download "%s"' % (filename))
+            f2 = open(filename,"wb")
+            ftp.retrbinary("RETR " + filename,f2.write)
+            f2.close()
         if re.search('.zip$', filename):
             filestodo.append(filename)
 
@@ -341,8 +345,12 @@ print('skipped %i zip-files, found %i new WSP zip-files to digest' % (numofskipp
 
 #unzip new files
 for zipdatei in filestodo:
-    zfile = zipfile.ZipFile(os.path.join(feeddir, zipdatei))
-    zfile.extractall(wspdir)
+    try:
+        zfile = zipfile.ZipFile(os.path.join(feeddir, zipdatei))
+        zfile.extractall(wspdir)
+    except:
+        print("%s is not a zip file" % (zfile))
+        sys.exit(0)
 
 #checking extracted zip-files
 for datei in os.listdir(wspdir):
