@@ -44,7 +44,7 @@ else:
 prerecs = []
 for page in range(pages):
     tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B170496029119865&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=0&fc_val=c_int_disser_degreeyear%23%40%23%5B' + str(startyear) + '+TO+' + str(stopyear) + '%5D&fc_val=c_int_disser_degreeyear%23%40%232023&cmode=0&chk_st=0&check=00000000000000000000000000000000000000000000000000'
-    
+    tocurl = 'https://catalog.lib.kyushu-u.ac.jp/opac_search/?lang=1&amode=9&start=' + str(page*rpp+1) + '&opkey=B171034162330921&cmode=0&place=&list_disp=' + str(rpp) + '&list_sort=6&cmode=0&chk_st=0&check=0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
     
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
@@ -105,6 +105,7 @@ for rec in prerecs:
                     degree = re.sub('[\n\t\r]', ' ', td.text).strip()
                     if degree in boringdegrees:
                         keepit = False
+                        print('    skip', degree)
                     else:
                         rec['note'].append(degree)
                 #OA
