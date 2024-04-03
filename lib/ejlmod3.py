@@ -125,6 +125,7 @@ fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
               'CLAS' : 'x', 'NA49' : 'x', 'ISOLDE' : 'x',
               'NA62' : 'e', 'NA64' : 'e', 'NA60+' : 'ex',
               'ATLAS Liquid Argon Calorimeter Group' : 'i',
+              'AWAKE' : 'b',
               'IceCube' : 'a', 'Pierre Auger' : 'a', 'MAGIC' : 'a', 'KM3NeT' : 'a',
               'HESS' : 'a', 'H.E.S.S.' : 'a', 'Fermi-LAT' : 'a', 'VERITAS' : 'a',
               'DES' : 'a', 'ANTARES' : 'a', 'SDSS' : 'a', 'HAWC' : 'a',
@@ -1185,7 +1186,8 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Authors Index', 'Masthead', "Publisher's Note", 'Acknowledgment',
             'Index of Authors', 'Editorial Collaborators', 'Editor’s note', 'Reviewers',
             'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover',
-            'New Associate Editor', 'Member Get-A-Member (MGM) Program', 'Cover Art']
+            'New Associate Editor', 'Member Get-A-Member (MGM) Program', 'Cover Art',
+            'Subject Index']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1988,7 +1990,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Doctorado en Economía',  'Doctorado en Empresa y Finanzas',
                      'Doctorado en Estudios Avanzados en Derechos Humanos',
                      'Doctorado en Empresa y Finanzas. Mención Internacional',
-                     'Dissertação de mestrado']
+                     'Dissertação de mestrado', 'M Nursing',
+                     'Professional Paper']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -2026,7 +2029,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [],
                            'autaff' : [], 'degree' : [], 'fac' : []}
                     if fakehdl:
-                        fakedoi = '30.3000/fakehdl/' +  thesis['handle']
+                        fakedoi = '30.3000/' + re.sub('W', '', urltrunc) + '/' +  thesis['handle']
                     else:
                         rec['hdl'] = thesis['handle']
                     rec['thesis.metadata.keys'] = thesis['metadata'].keys()
@@ -2120,9 +2123,11 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), Naturwissenschaftliche Fakultät, Department Mathematik, Lehrstuhl für Algebra und Geometrie (Knop)',
                                                   'Institut für Algebra und Zahlentheorie',
                                                   'Institut für Angewandte Analysis',
+                                                  'Mathematical Sciences.',
                                                   'Institut für Numerische Mathematik',
                                                   'Institut für Analysis', 'Institut für Statistik',
                                                   'Institut für Stochastik',
+                                                  'Mathematical Sciences.',
                                                   'UC3M. Departamento de Matemáticas',
                                                   'Institut für Reine Mathematik',
                                                   'Matemática aplicada e computacional',
@@ -2178,7 +2183,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Department Physik / Professur für Theoretische Physik (Prof. Dr. Smith)',
                                                       'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-',
                                                       'UC3M. Departamento de Física', 'Física teórica', 'Física',
-                                                      'Física aplicada', 'Física - IGCE']:
+                                                      'Física aplicada', 'Física - IGCE', 'Physics.']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
@@ -2223,6 +2228,13 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             else:
                                 rec['note'].append('EXTENT='+extent['value'])
                         done.append(key)
+                    elif key in ['thesis.format.extentlastpage']:
+                        for extent in thesis['metadata'][key]:
+                            if re.search('^\d+$', extent['value']):
+                                rec['pages'] = extent['value']
+                            else:
+                                rec['note'].append('EXTENT='+extent['value'])
+                        done.append(key)                                                        
                     #language
                     elif key in ['dc.language', 'dc.language.iso']:
                         for lang in thesis['metadata'][key]:
