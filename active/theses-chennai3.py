@@ -13,7 +13,8 @@ import time
 
 
 publisher = 'IMSc, Chennai'
-rpp = 100
+rpp = 20
+pages = 4
 skipalreadyharvested = True
 
 
@@ -24,10 +25,12 @@ jnlfilename = 'THESES-CHENNAI-%s' % (ejlmod3.stampoftoday())
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-years = [ejlmod3.year(), ejlmod3.year(backwards=1)]
-for year in years:
-    tocurl = 'https://www.imsc.res.in/xmlui/browse?type=datesubmitted&value=%i&rpp=%i' % (year, rpp)
-    print(year, tocurl)
+#years = [ejlmod3.year(), ejlmod3.year(backwards=1)]
+#for year in years:
+#    tocurl = 'https://www.imsc.res.in/xmlui/browse?type=datesubmitted&value=%i&rpp=%i' % (year, rpp)
+for page in range(pages):
+    tocurl = 'https://www.imsc.res.in/xmlui/handle/123456789/2/recent-submissions?offset=' + str(rpp*page)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl], [len(recs)]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
     time.sleep(2)
