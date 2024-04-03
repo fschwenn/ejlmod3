@@ -28,8 +28,14 @@ for page in range(pages):
     ejlmod3.printprogress("-", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
-    for tr in tocpage.body.find_all('tr', attrs = {'class' : 'ep_search_result'}):
+#    for tr in tocpage.body.find_all('tr', attrs = {'class' : 'ep_search_result'}):
+    for tr in tocpage.body.find_all('div', attrs = {'class' : 'ep_search_result'}):
         rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
+        for div in tr.find_all('div', attrs = {'class' : 'ep_search_result_docs'}):
+            for a in tr.find_all('a'):
+                if a.has_attr('href') and re.search('theses.gla.ac.uk\/\d+.*pdf$', a['href']):
+                    rec['pdf_url'] = a['href']
+            div.decompose()
         for a in tr.find_all('a'):
             if a.has_attr('href') and re.search('theses.gla.ac.uk\/\d+.?', a['href']):
                 rec['link'] = a['href']
@@ -38,6 +44,10 @@ for page in range(pages):
                 if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
                     if ejlmod3.checkinterestingDOI(rec['doi']):
                         prerecs.append(rec)
+                    else:
+                        print('   %s not interesting' % (rec['doi']))
+                else:
+                    print('   %s already in backup' % (rec['doi']))
     print('  %4i records so far' % (len(prerecs)))
     time.sleep(5)
 
@@ -68,10 +78,13 @@ for rec in prerecs:
     for note in rec['note']:
         if note in boringdegrees:
             keepit = False
+            print('   skip "%s"' % (note))
     if keepit:
         if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
             recs.append(rec)
             ejlmod3.printrecsummary(rec)
+        else:
+            print('   %s already in backup' % (rec['doi']))
     else:
         ejlmod3.adduninterestingDOI(rec['doi'])
 
