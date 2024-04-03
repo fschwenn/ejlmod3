@@ -422,11 +422,11 @@ for rec in prerecs:
     else:
         rec['tc'] = ''
     if keepit:
-#        rec['fc'] = 'ag'
+        if len(sys.argv) > 5:
+            rec['tc'] = 'C'
+            rec['cnum'] = sys.argv[5]
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
-#    rec['tc'] = 'C'
-#    rec['cnum'] = 'C19-10-23.1'
         ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
     time.sleep(random.randint(70, 130))
 
