@@ -52,6 +52,8 @@ if skipalreadyharvested:
     filenametrunc = 'IEEE*doki'
     print('%i records in backup' % (len(alreadyharvested)))
     alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
+    alreadyharvested += ejlmod3.getalreadyharvested('ieee')
+    alreadyharvested += ejlmod3.getalreadyharvested('IEEE')
     print('%i records in backup' % (len(alreadyharvested)))
 alreadyharvested += ['http://ieeexplore.ieee.org/document/10189126/', 'http://ieeexplore.ieee.org/document/10188200/',
                      'https://ieeexplore.ieee.org/document/10124765/', 'https://ieeexplore.ieee.org/document/10320394/',
@@ -444,6 +446,9 @@ def ieee(number):
         else:
             rec['doi'] = '30.3000/ieee_%s_%06i' % (number, i)
             rec['link'] = articlelink
+        if skipalreadyharvested and rec['doi'] in alreadyharvested:
+            print('   %s already in backup' % (rec['doi']))
+            continue                              
         if 'isFreeDocument' in gdm and gdm['isFreeDocument']:
             rec['pdf_url'] = urltrunc + gdm['pdfPath']
             rec['pdf_url'] = urltrunc + re.sub('iel7', 'ielx7', gdm['pdfPath'])
