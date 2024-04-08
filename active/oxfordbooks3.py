@@ -48,6 +48,7 @@ if skipalreadyharvested:
 #scan serieses
 isbnsdone = []
 prerecs = []
+reisbn = re.compile('.*\D(978\d+X?)\?prev.*')
 for series in serieses:
     toclink = '%s/%s/%s' % (urltrunc, series, facetsandsort)
     subject = re.sub('.*\/', '', series)
@@ -64,7 +65,16 @@ for series in serieses:
                 rec = {'tit' : a.text.strip(), 'artlink' : artlink, 'note' : [ subject ],
                        'tc' : 'B', 'jnl' : 'BOOK', }
 #                if not artlink in ['https://global.oup.com/academic/product/quantum-fields--from-the-hubble-to-the-planck-scale-9780192873491?prevSortField=8&facet_narrowbytype_facet=Academic%20Research&sortField=8&resultsPerPage=20&start=0&lang=en&cc=de']:
-                prerecs.append(rec)
+                if skipalreadyharvested and reisbn.search(artlink):
+                    isbn = reisbn.sub(r'\1', artlink)
+                    if isbn in alreadyharvested:
+                        print('    %s already in backup' % (isbn))
+                    else:
+                        print('    %s not in backup' % (isbn))
+                        prerecs.append(rec)
+                else:
+                    print('    %s' % (artlink))
+                    prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
     time.sleep(130)
 
