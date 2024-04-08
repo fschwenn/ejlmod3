@@ -160,7 +160,8 @@ for year in years:
         driver.get(tocurl)
         req = urllib.request.Request(starturl, headers=hdr)
         tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
-    for tocpage in tocpages:
+    for (j, tocpage) in enumerate(tocpages):
+        ejlmod3.printprogress("=", [[i, len(years)], [year], [j+1, len(tocpages)]])
         for script in tocpage.find_all('script'):
             if script.contents:
                 scriptt = re.sub('&q;', '"', re.sub('[\n\t]', '', script.contents[0].strip()))
