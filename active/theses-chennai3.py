@@ -79,7 +79,15 @@ for rec in recs:
                 inst = spans[1].text.strip()
                 if inst == 'HBNI': inst = 'HBNI, Mumbai'
             elif spans[0].text.strip() == 'Year:':
-                rec['year'] = spans[1].text.strip()        
+                date = spans[1].text.strip()
+                if re.search('^[21]\d\d\d$', date):
+                    rec['year'] = date                    
+                else:
+                    rec['date'] = date
+            elif spans[0].text.strip() == 'Pages:':
+                pages = spans[1].text.strip()
+                if re.search('\d\d', pages):
+                    rec['pages'] = re.sub('.*?(\d\d+).*', r'\1', pages)
     if degree == 'Ph.D':
         rec['MARC'] = [ ('502', [('b', 'PhD'), ('c', inst), ('d', rec['year'])]) ]
     elif  degree == 'M.Sc':
