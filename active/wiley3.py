@@ -379,6 +379,10 @@ for rec in prerecs:
         for section in artpage.body.find_all('section', attrs = {'id' : 'references-section'}):
             uls = section.find_all('ul', attrs = {'class' : 'rlist'})
             len(uls)
+    if not uls:
+        for section in artpage.body.find_all('section', attrs = {'id' : 'article-references-section-1'}):
+            uls = section.find_all('ul', attrs = {'class' : 'rlist'})
+            len(uls)
     for ul in uls:
         rec['refs'] = []
         for li in ul.find_all('li'):
