@@ -1187,7 +1187,8 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Index of Authors', 'Editorial Collaborators', 'Editor’s note', 'Reviewers',
             'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover',
             'New Associate Editor', 'Member Get-A-Member (MGM) Program', 'Cover Art',
-            'Subject Index']
+            'Subject Index', 'Technical Reviewers', 'General Subject Index',
+            'Rear Cover']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
@@ -1462,7 +1463,7 @@ def globallicensesearch(rec, artpage):
     if not 'license' in rec:
         for a in artpage.body.find_all('a'):
             if a.has_attr('href') and re.search('creativecommons.org', a['href']):
-                rec['license'] = {'url' : a['href']}
+                rec['license'] = {'url' : re.sub('\/doi=10.*', '', a['href'])}
                 if 'pdf_url' in rec:
                     rec['FFT'] = rec['pdf_url']
                 elif 'hidden' in rec:
@@ -1991,7 +1992,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Doctorado en Estudios Avanzados en Derechos Humanos',
                      'Doctorado en Empresa y Finanzas. Mención Internacional',
                      'Dissertação de mestrado', 'M Nursing',
-                     'Professional Paper']
+                     'Professional Paper', 'Report']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -2029,7 +2030,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     rec = {'tc' : 'T', 'keyw' : [], 'jnl' : 'BOOK', 'supervisor' : [], 'note' : [],
                            'autaff' : [], 'degree' : [], 'fac' : []}
                     if fakehdl:
-                        fakedoi = '30.3000/' + re.sub('W', '', urltrunc) + '/' +  thesis['handle']
+                        fakedoi = '30.3000/' + re.sub('\W', '', urltrunc) + '/' +  thesis['handle']
                     else:
                         rec['hdl'] = thesis['handle']
                     rec['thesis.metadata.keys'] = thesis['metadata'].keys()
@@ -2123,7 +2124,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU), Naturwissenschaftliche Fakultät, Department Mathematik, Lehrstuhl für Algebra und Geometrie (Knop)',
                                                   'Institut für Algebra und Zahlentheorie',
                                                   'Institut für Angewandte Analysis',
-                                                  'Mathematical Sciences.',
+                                                  'Mathematical Sciences.', 'Department of Mathematics',
                                                   'Institut für Numerische Mathematik',
                                                   'Institut für Analysis', 'Institut für Statistik',
                                                   'Institut für Stochastik',
@@ -2134,7 +2135,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
                                 rec['fc'] = 'm'
                             elif fac['value'] in ['Statistics', 'Mathematical Statistics',
-                                                  'Statistical Science']:
+                                                  'Statistical Science',
+                                                  'Department of Statistics']:
                                 rec['fc'] = 's'
                             elif fac['value'] in ['Centre for Quantum Computation &a; Communication Technology',
                                                   'Institut für Komplexe Quantensysteme',
@@ -2183,13 +2185,14 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Department Physik / Professur für Theoretische Physik (Prof. Dr. Smith)',
                                                       'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-',
                                                       'UC3M. Departamento de Física', 'Física teórica', 'Física',
-                                                      'Física aplicada', 'Física - IGCE', 'Physics.']:
+                                                      'Física aplicada', 'Física - IGCE', 'Physics.',
+                                                      'Department of Physics']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
                     #supervisor
                     elif key in ["dc.contributor.advisor", 'local.contributor.advisor',
-                                 'dc.contributor.supervisor']:
+                                 'dc.contributor.supervisor', 'dc.description.advisor']:
                         for sv in thesis['metadata'][key]:
                             rec['supervisor'].append([re.sub(' \[.*', '', re.sub(', (19|20).*', '', sv['value']))])
                         done.append(key)
@@ -2207,7 +2210,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for date in thesis['metadata'][key]:
                             rec['date'] = date['value']
                         done.append(key)
-                    elif key in ['dc.date.available', 'dc.date.created']:
+                    elif key in ['dc.date.available', 'dc.date.created', 'dc.date.published']:
                         if not 'date' in rec:
                             for date in thesis['metadata'][key]:
                                 rec['date'] = date['value']
@@ -2300,14 +2303,19 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['otits'] = [otit['value']]
                     #degree
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
-                                 'etdms.degree.name',
+                                 'etdms.degree.name', 'dc.description.level',
                                  'thesis.degree.name', "thesis.degree.level", 'dc.degree.name',
                                  'dc.degree.level', 'unsw.thesis.degreetype']:
                         for degree in thesis['metadata'][key]:
                             if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
                                 print('    skip "%s"' % (degree['value']))
-                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy', 'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.', 'Doctor of Philosophy (PhD)', 'doctoral thesis', 'PhD Doctorate', 'Dissertation', 'doctoral', 'Ph. D.', 'dissertation', 'Doctoral Dissertation']:
+                            elif not degree['value'] in ['Doctor of Philosophy', 'PhD - Doctor of Philosophy',
+                                                         'Doctoral', 'Doctor of Philosophy (Ph.D.)', 'Ph.D.',
+                                                         'Doctor of Philosophy (PhD)', 'doctoral thesis',
+                                                         'PhD Doctorate', 'Dissertation',
+                                                         'doctoral', 'Ph. D.', 'dissertation',
+                                                         'Doctoral Dissertation']:
                                 rec['degree'].append(degree['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), degree['value']))
                         done.append(key)
