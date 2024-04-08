@@ -94,7 +94,7 @@ def getreferencesfromweb(doi):
 def concert(rawrecs):
     recs = []
     print('found %i xml files' % (len(rawrecs)))
-    for rawrec in rawrecs:
+    for (k, rawrec) in enumerate(rawrecs):
         xmlrec = open(rawrec, mode='r')
         wsprecord = BeautifulSoup(''.join(xmlrec.readlines()), features="lxml")
         xmlrec.close()
@@ -152,11 +152,11 @@ def concert(rawrecs):
         if rec['tc'] == 'B':
             for bid in wsprecord.find_all('book-id', attrs = {'pub-id-type' : 'doi'}):
                 rec['doi'] = bid.text
-                print('    . ', rec['doi'])
+                ejlmod3.printprogress('-', [[k+1, len(rawrecs)], [rec['doi']]])
         else:
             for aid in wsprecord.find_all(['article-id', 'book-part-id'], attrs = {'pub-id-type' : 'doi'}):
                 rec['doi'] = aid.text
-                print('    . ', rec['doi'])
+                ejlmod3.printprogress('-', [[k+1, len(rawrecs)], [rec['doi']]])
         #Note
         for sg in wsprecord.find_all('subj-group', attrs = {'subj-group-type' : 'heading'}):
             for s in sg.find_all('subject'):
@@ -349,11 +349,12 @@ for zipdatei in filestodo:
         zfile = zipfile.ZipFile(os.path.join(feeddir, zipdatei))
         zfile.extractall(wspdir)
     except:
-        print("%s is not a zip file" % (zfile))
+        print("%s is not a zip file" % (zipdatei))
         sys.exit(0)
 
 #checking extracted zip-files
-for datei in os.listdir(wspdir):
+folders = os.listdir(wspdir)
+for (k, datei) in enumerate(folders):
     ordner = os.path.join(wspdir, datei)
     if not os.path.isdir(ordner): 
         continue
@@ -361,7 +362,7 @@ for datei in os.listdir(wspdir):
         continue
     jnlfilename = 'WSP__'+datei
     #jnlfilename = datei
-    print(jnlfilename)
+    ejlmod3.printprogress('=', [[k+1, len(folders)], [jnlfilename]])
     rawrecs = []
     for datei2 in os.listdir(ordner):
         if not datei == datei2:
