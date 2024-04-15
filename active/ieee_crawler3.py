@@ -299,7 +299,7 @@ def ieee(number):
                                           'Message from the AI4I 2022 Program Co-Chairs',
                                           'Program', 'Welcome Message', 'Advance Program',
                                           'IEEE Xplore Digital Library',
-                                          'Chief Guest']:
+                                          'Chief Guest', 'Coverpage']:
                         notproperarticles += 1
                     else:
                         #print a
@@ -535,7 +535,7 @@ def ieee(number):
                               'Get Published in the New IEEE Open Journal of the Computer Scoiety',
                               'IEEE Computer Society Jobs Board', 'Ieee Computer Society Jobs Board',
                               'Message from the General Chair', 'Speakers', 'Sponsors and Organizers',
-                              'Copyright and Reprint Permission']:
+                              'Copyright and Reprint Permission', 'Coverpage']:
             if 'pdf_url'  in rec:
                 #download it NOW as availability may change quckly
                 doi1trunk = re.sub('\/.*', '', rec['doi'])
