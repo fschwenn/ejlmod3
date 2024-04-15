@@ -24,6 +24,10 @@ issues = sys.argv[3]
 year = sys.argv[4]
 jnlfilename = re.sub('\/','-',jnl+vol+'.'+re.sub(',', '-', issues)+'_'+ejlmod3.stampoftoday())
 donepath = '/afs/desy.de/group/library/publisherdata/wiley/done'
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+downloadpath = '/tmp'
+
+
 #harvested vi desydoc
 if   (jnl == 'annphys'):
     issn = '1521-3889'
@@ -174,20 +178,18 @@ else:
 
 #scraper = cloudscraper.create_scraper()
 host = os.uname()[1]
+options = uc.ChromeOptions()
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    #options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
+#    options.binary_location='/usr/bin/google-chrome'
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
-    options = uc.ChromeOptions()
     options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
 driver.get('http://onlinelibrary.wiley.com')
@@ -330,6 +332,40 @@ for rec in prerecs:
             rec['p1'] = re.sub('.*, (.+?)\..*', r'\1', meta['content'].strip())
             rec['p1'] = re.sub('.*: (\d+)', r'\1', rec['p1'])
     ejlmod3.globallicensesearch(rec, artpage)
+    if 'license' in rec:        
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+        else:
+            pdfurl = re.sub('\/doi', '/doi/pdf', rec['artlink'])
+            savedfilereg = re.compile('%s . %s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0]), re.sub(' .*', '', rec['tit'])))
+            print('     get PDF from %s' % (pdfurl))
+            driver.get(pdfurl)
+            time.sleep(30)
+            print('        looking for *%s . %s*pdf' % (re.sub('.* ', '', rec['autaff'][0][0]), re.sub(' .*', '', rec['tit'])))
+            for datei in os.listdir(downloadpath):
+                if savedfilereg.search(datei):
+                    savedfilename = '%s/%s' % (downloadpath, datei)
+                    print('     mv %s to %s' % (savedfilename, targetfilename))
+                    os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                    rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                    time.sleep(300)
+            if not os.path.isfile(targetfilename):
+                pdfurl = re.sub('\/doi', '/doi/pdfdirect', rec['artlink'])
+                print('     get PDF from %s' % (pdfurl))
+                driver.get(pdfurl)
+                time.sleep(30)
+                for datei in os.listdir(downloadpath):
+                    if savedfilereg.search(datei):
+                        savedfilename = '%s/%s' % (downloadpath, datei)
+                        print('     mv %s to %s' % (savedfilename, targetfilename))
+                        os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                        rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                        time.sleep(300)
+
+
+    
     #cover picture
     for span in artpage.body.find_all('span', attrs = {'class' : 'primary-heading'}):
         if span.text.strip() == 'Cover Picture':
