@@ -1188,7 +1188,7 @@ untitles = ['Calendar', 'Author Index', 'Editorial', 'News', 'Index', 'Spotlight
             'Classifieds: Jobs and Awards, Products and Services', 'Outside back cover',
             'New Associate Editor', 'Member Get-A-Member (MGM) Program', 'Cover Art',
             'Subject Index', 'Technical Reviewers', 'General Subject Index',
-            'Rear Cover']
+            'Rear Cover', 'AUTHOR INDEX']
 potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), re.compile('Congratulations'),
                      re.compile('[cC]ouncil [iI]nformation'), re.compile('[jJ]ournal [cC]over'),
                      re.compile('[Aa]uthor [iI]ndex'), re.compile('[bB]ack [mM]atter'), re.compile('Message'),
