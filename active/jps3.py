@@ -78,6 +78,7 @@ def fsunwrap(tag):
 options = uc.ChromeOptions()
 #options.add_argument('--headless')
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
