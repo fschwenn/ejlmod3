@@ -257,6 +257,6 @@ for (i, rec) in enumerate(prerecs):
     else:
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
-    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
 
 #ejlmod3.writenewXML(recs, publisher, jnlfilename)
