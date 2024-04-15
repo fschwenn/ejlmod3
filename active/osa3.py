@@ -228,22 +228,27 @@ for rec in prerecs:
     ejlmod3.printrecsummary(rec)
     #store pdf - but only for QIS as OSA likes to block
     for rec2 in recs:
-        if 'FFT' in rec2 and 'fc' in rec2 and 'k' in rec2['fc']:
-            targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec2['doi']), re.sub('[\(\)\/]', '_', rec2['doi']))
-            if os.path.isfile(targetfilename):
-                print('     %s already exists' % (targetfilename))
-            else:
-                savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec2['FFT']))
-                if not os.path.isfile(savedfilename):            
-                    print('     get %s from %s' % (savedfilename, rec2['FFT']))
-                    driver.get(rec2['FFT'])
-                    time.sleep(30)
-                if os.path.isfile(savedfilename):
-                    print('     mv %s to %s' % (savedfilename, targetfilename))
-                    os.system('mv %s %s' % (savedfilename, targetfilename))
-                    time.sleep(300)
+        if 'FFT' in rec2:
+            if 'fc' in rec2 and 'k' in rec2['fc']:
+                targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec2['doi']), re.sub('[\(\)\/]', '_', rec2['doi']))
+                if os.path.isfile(targetfilename):
+                    print('     %s already exists' % (targetfilename))
                 else:
-                    print('     COULD NOT DOWNLOAD PDF')
+                    savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec2['FFT']))
+                    if not os.path.isfile(savedfilename):            
+                        print('     get %s from %s' % (savedfilename, rec2['FFT']))
+                        driver.get(rec2['FFT'])
+                        time.sleep(30)
+                    if os.path.isfile(savedfilename):
+                        print('     mv %s to %s' % (savedfilename, targetfilename))
+                        os.system('mv %s %s' % (savedfilename, targetfilename))
+                        time.sleep(300)
+                    else:
+                        print('     COULD NOT DOWNLOAD PDF')
+            else:
+                print('     remove FFT to avoid blocking')
+                del(rec['FFT'])
+                
 
 
 
