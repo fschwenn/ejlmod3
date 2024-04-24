@@ -61,7 +61,7 @@ def spie(volume):
         i += 1
         print('  get [%i/%i] %s' % (i, len(recs), rec['artlink']))
         try:
-            time.sleep(20)
+            time.sleep(60)
             #articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400), features="lxml")
             driver.get(rec['artlink'])
             articlepage = BeautifulSoup(driver.page_source, features="lxml")
@@ -87,7 +87,7 @@ def spie(volume):
         else:
             print('  open [%i/%i] %s' % (i, len(recs), rec['artlink']))
             try:
-                time.sleep(20)
+                time.sleep(60)
                 articlepage = BeautifulSoup(urllib.request.urlopen(rec['artlink'], timeout=400))
             except:
                 print('retry %s in 5 minutes' % (rec['artlink']))
@@ -98,7 +98,8 @@ def spie(volume):
                                                 'citation_abstract', 'citation_keyword', 'citation_publication_date',
                                                 'citation_author', 'citation_author_institution',
                                                 'citation_author_orcid', 'citation_author_email'])
-        rec['year'] = rec['date'][:4]
+        if 'date' in rec:
+            rec['year'] = rec ['date'][:4]
         for meta in articlepage.head.find_all('meta', attrs = {'name' : 'pdf'}):
             for OA in articlepage.body.find_all('img', attrs = {'src' : "/Content/themes/SPIEImages/OpenAccessIcon.png"}):
                 rec['FFT'] = meta['content']
