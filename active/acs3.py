@@ -15,6 +15,10 @@ publisher = 'ACS'
 jnl =  sys.argv[1]
 vol = sys.argv[2]
 iss = sys.argv[3]
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+downloadpath = '/tmp'
+
+
 jnlfilename = 'acs_%s%s.%s' % (jnl, vol, iss)
 if jnl == 'nalefd': # 1 issue per month
     jnlname = 'Nano Lett.'
@@ -22,9 +26,6 @@ if jnl == 'nalefd': # 1 issue per month
 elif jnl == 'jpccck': # 1 issue per week
     jnlname = 'J.Phys.Chem.'
     letter = 'C'
-elif jnl == 'jctcce': # 1 issue per month
-    jnlname = 'J.Chem.Theor.Comput.'
-    letter = ''
 elif jnl == 'apchd5': # 1 issue per month
     jnlname = 'ACS Photonics'
     letter = ''
@@ -37,28 +38,25 @@ elif jnl == 'chreay': # 1 issue per two weaks
 elif jnl == 'jpcafh': # 1 issue per week
     jnlname = 'J.Phys.Chem.A'
     letter = ''
+elif jnl == 'jctcce': # 1 issue per two weeks
+    jnlname = 'J.Chem.Theor.Comput.'
+    letter = ''
 else:
     print(' unknown journal "%s"' % (jnl))
     sys.exit(0)
 
 host = os.uname()[1]
+options = uc.ChromeOptions()
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/home/schwenn/tmp'
 else:
-    options = uc.ChromeOptions()
-#    options.headless=True
     options.binary_location='/usr/bin/google-chrome'
-    options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    print(chromeversion)
-    driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
+    options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 tocurl = 'https://pubs.acs.org/toc/%s/%s/%s' % (jnl, vol, iss)
@@ -120,7 +118,7 @@ for rec in recs:
         except:            
             print('  keep only', list(rec.keys()))
             continue
-    ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'og:description', 'dc.Date'])     
+    ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'og:description', 'dc.Date'])
     #keywords
     for div in artpage.find_all('div', attrs = {'class' : 'article_header-taxonomy'}):
         if not 'keyw' in rec or not rec['keyw']:
@@ -129,9 +127,32 @@ for rec in recs:
                 rec['keyw'].append(a.text)
     #fulltext
     ejlmod3.globallicensesearch(rec, artpage)
-    if 'license' in rec:
-        for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
-            rec['FFT'] = 'https://pubs.acs.org' + a['href']
+    if 'license' in rec:      
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+        else:
+            for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
+                pdfurl = 'https://pubs.acs.org' + a['href'] + '?download=true'
+                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
+            print('     get PDF from %s' % (pdfurl))
+            driver.get(pdfurl)
+            print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n\n  --> please click download button <--\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
+            time.sleep(300)
+            for datei in os.listdir(downloadpath):
+                if savedfilereg.search(datei):
+                    savedfilename = '%s/%s' % (downloadpath, datei)
+                    print('     mv %s to %s' % (savedfilename, targetfilename))
+                    os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                    rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+
+
+
+
+
+
+                
     #authors
     for span in artpage.find_all('span'):
         divs = span.find_all('div', attrs = {'class' : 'loa-info-name'})
@@ -159,6 +180,8 @@ for rec in recs:
             ref = li.text.strip()
             ref = re.sub('[\n\t\r]', ' ', ref)
             rec['refs'].append([('x', ref)])
+
+
     ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
