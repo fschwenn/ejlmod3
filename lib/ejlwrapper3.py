@@ -557,7 +557,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['aip3YYY.py', 'apr', pryear-2013, prquarter]),
         (3, ['siam3XXX.py', 'sjmael', pryear-1979, prquarter]),
         (2, ['siam3XXX.py', 'sjnaam', pryear-1962, prsixth]),
-        (2, ['degruyterjournals3.py', 'ms', pryear, pryear-1950, prsixth]),
+        (222, ['degruyterjournals3.py', 'ms', pryear, pryear-1950, prsixth]), #now in list to be checked by hand
         (3, ['sciendo3XXX.py', 'nuka', pryear-1955, prquarter]),
         (3, ['siam3XXX.py', 'sjdmec', pryear-1986, prquarter]),
         (2, ['princetonbooks3XXX.py']),
