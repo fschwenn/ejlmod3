@@ -35,7 +35,8 @@ boring = ['Editorial', 'Comment', 'Q&A', 'News & Views', 'Obituary',
           'News and views', 'Career Feature', 'News and Views', 'News Feature']
 boring += ['Research Highlights', 'Interview', 'Commentary', 'Matters Arising',
            'Perspective', 'Why it matters', 'Why it Matters', 'Q & A',
-           'Reverse Engineering']
+           'Reverse Engineering', 'Books & Arts', 'On our bookshelf', 'Obituary',
+           'Mission Control']
 
 if re.search('springer', toclink):
     urltrunc = 'https://link.springer.com'
