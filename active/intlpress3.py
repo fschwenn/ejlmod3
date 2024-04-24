@@ -10,6 +10,7 @@ import sys
 import unicodedata
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
+import time
 
 publisher = 'International Press'
 jnl = sys.argv[1]
@@ -88,6 +89,7 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'list_item'}):
     for a in div.find_all('a'):
         rec['artlink'] = 'http://www.intlpress.com/' + a['href']
         print('.', rec['artlink'])
+        time.sleep(5)
         artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         ejlmod3.metatagcheck(rec, artpage, ['citation_firstpage', 'citation_lastpage', 'citation_year',
                                             'citation_doi', 'citation_title', 'citation_author',
