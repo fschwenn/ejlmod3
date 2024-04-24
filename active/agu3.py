@@ -21,6 +21,8 @@ jnl = sys.argv[1]
 vol = sys.argv[2]
 issue = sys.argv[3]
 skipalreadyharvested = True
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+downloadpath = '/tmp'
 
 if   (jnl == 'jgrsp'):
     year = str(int(vol)+1895)
@@ -55,20 +57,16 @@ elif (jnl == 'agua'):
 
 #scraper = cloudscraper.create_scraper(captcha={'provider': 'anticaptcha', 'api_key': '2871055371ae80947cdd89f4a09b0657'})
 host = os.uname()[1]
+options = uc.ChromeOptions()
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    #options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
-    options = uc.ChromeOptions()
     options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 if len(sys.argv) > 4:
     cnum = sys.argv[4]
@@ -86,16 +84,26 @@ print(toclink)
 #tocpage = BeautifulSoup(''.join(inf.readlines()))
 #inf.close()
 #tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
-driver.get(toclink)
-tocpage = BeautifulSoup(driver.page_source, features="lxml")
-
+try:
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    divs = tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items-container']})
+    divs[1]
+except:
+    print('try again')
+    time.sleep(60)
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    divs = tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items-container']})
+    divs[1]
+    
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 (note1, note2) = (False, False)
 dois = []
 prerecs = []
-for div in tocpage.body.find_all('div', attrs = {'class' : ['card', 'issue-items-container']}):
+for div in divs:
     for child in div.children:
         try:
             child.name
@@ -196,7 +204,41 @@ for rec in prerecs:
     if 'license' in rec:
         #print('check citation_pdf_url')
         ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
-        #print(rec.keys())                            
+        #print(rec.keys())
+            
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+        else:
+            pdfurl = re.sub('\/doi', '/doi/pdf', rec['artlink'])
+            pdfurl = rec['pdf_url']
+            savedfilereg = re.compile('%s . %s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0]), re.sub(' .*', '', rec['tit'])))
+            print('     get PDF from %s' % (pdfurl))
+            driver.get(pdfurl)
+            time.sleep(30)
+            print('        looking for *%s . %s*pdf' % (re.sub('.* ', '', rec['autaff'][0][0]), re.sub(' .*', '', rec['tit'])))
+            for datei in os.listdir(downloadpath):
+                if savedfilereg.search(datei):
+                    savedfilename = '%s/%s' % (downloadpath, datei)
+                    print('     mv %s to %s' % (savedfilename, targetfilename))
+                    os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                    rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                    time.sleep(300)
+            if not os.path.isfile(targetfilename):
+                pdfurl = re.sub('\/doi', '/doi/pdfdirect', rec['artlink'])
+                print('     get PDF from %s' % (pdfurl))
+                driver.get(pdfurl)
+                time.sleep(30)
+                for datei in os.listdir(downloadpath):
+                    if savedfilereg.search(datei):
+                        savedfilename = '%s/%s' % (downloadpath, datei)
+                        print('     mv %s to %s' % (savedfilename, targetfilename))
+                        os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                        rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                        time.sleep(300)
+
+
     #articleID
     if not 'p1' in list(rec.keys()):
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
