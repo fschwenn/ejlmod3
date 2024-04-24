@@ -174,6 +174,7 @@ def harvestarticle(jnl, rec, i, l, r):
             print('     %s already exists' % (targetfilename))
         else:
             savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec['pdf_url']))
+            savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*\/(.*)\?.*', r'\1', rec['pdf_url']))
             if not os.path.isfile(savedfilename):            
                 print('     get %s from %s' % (savedfilename, rec['pdf_url']))
                 driver.get(rec['pdf_url'])
