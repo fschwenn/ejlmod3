@@ -309,4 +309,4 @@ for rec in prerecs:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
