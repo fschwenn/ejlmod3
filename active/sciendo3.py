@@ -12,7 +12,6 @@ import time
 from bs4 import BeautifulSoup
 import json
 
-urltrunc = 'https://www.degruyter.com'
 publisher = 'Sciendo'
 skipalreadyharvested = True
 
@@ -66,7 +65,7 @@ for (i, rec) in enumerate(recs):
                                         'citation_firstpage', 'citation_lastpage', 'citation_pdf_url'])
     #JSON
     for script in artpage.body.find_all('script'):
-        articledata = False
+        (product, articledata) = (False, False)
         if script.contents:
             #scriptt = re.sub('[\n\t]', '', script.text.strip())
             scriptt = re.sub('[\n\t]', '', script.contents[0].strip())
@@ -79,12 +78,21 @@ for (i, rec) in enumerate(recs):
             scripttjson = json.loads(scriptt)
             if 'props' in scripttjson and 'pageProps' in scripttjson['props']:
                 if 'product' in scripttjson['props']['pageProps']:
-                    if 'articleData' in scripttjson['props']['pageProps']['product']:
-                        articledata = scripttjson['props']['pageProps']['product']['articleData']
+                    product = scripttjson['props']['pageProps']['product']
+                    if 'articleData' in product:
+                        articledata = product['articleData']
+        if product:
+            #license
+            if 'license' in product and 'creativeCommonsLicense' in product['license']:
+                rec['license'] = {'statement' : product['license']['creativeCommonsLicense']}            
+            #fulltext
+            if 'citationpdfUrl' in product:
+                rec['pdf_url'] = product['citationpdfUrl']
         if articledata:
             affs = {}
+            #print('articledata.keys() = ', articledata.keys())
             if 'contribGroup' in articledata:
-                #print(articledata['contribGroup'])
+                    #print("articledata['contribGroup'].keys() = ", articledata['contribGroup'].keys())
                     #affiliation
                     if 'aff' in articledata['contribGroup'] and articledata['contribGroup']['aff']:
                         if type(articledata['contribGroup']['aff']) == type({'a' : 1}):
@@ -126,6 +134,7 @@ for (i, rec) in enumerate(recs):
                     #authors
                     if 'contrib' in articledata['contribGroup'] and articledata['contribGroup']['contrib']:
                         for contrib in articledata['contribGroup']['contrib']:
+                            #print('<contrib>', contrib)
                             if 'name' in contrib and contrib['name']:
                                 author = contrib['name']['surname']
                                 if 'prefix' in contrib['name'] and contrib['name']['prefix']:
@@ -150,26 +159,40 @@ for (i, rec) in enumerate(recs):
                             else:
                                 print(contrib, '???')
             #license
-            if 'permissions' in articledata and 'license' in articledata['permissions']:
-                if 'xlink:href' in articledata['permissions']['license']:
-                    href = articledata['permissions']['license']['xlink:href']
-                    if re.search('creativecommons.org', href):
-                        rec['license'] = {'url' : href}
+            if not 'license' in rec:
+                if 'permissions' in articledata and 'license' in articledata['permissions']:
+                    if 'xlink:href' in articledata['permissions']['license']:
+                        href = articledata['permissions']['license']['xlink:href']
+                        if re.search('creativecommons.org', href):
+                            rec['license'] = {'url' : href}
             #abstract
-            if 'abstractContent' in articledata and articledata['abstractContent']:
+            if 'abstrctText' in articledata and articledata['abstrctText']:
+                rec['abs'] = articledata['abstrctText']
+            elif 'abstractContent' in articledata and articledata['abstractContent']:
                 if type(articledata['abstractContent']) == type('hallo'):
                     rec['abs'] = articledata['abstractContent']
                 else:
                     for abstract in articledata['abstractContent']:
-                        print(abstract)
+                        #print(abstract)
                         if not 'language' in abstract or abstract['language'] == 'English':
                             rec['abs'] =  BeautifulSoup(abstract['content'], features='lxml').text.strip()
             #year
             if 'publishYear' in articledata:
                 rec['year'] = str(articledata['publishYear'])
+            #title
+            if 'articleTitle' in articledata:
+                rec['tit'] = articledata['articleTitle']
+            #date
+            if 'publishedDate' in articledata:
+                rec['date'] = articledata['publishedDate']
+            #pages
+            if 'fPage' in articledata:
+                rec['p1'] = articledata['fPage']
+            if 'lPage' in articledata:
+                rec['p2'] = articledata['lPage']
             #keywords
             if 'keywords' in articledata and articledata['keywords']:
-                print(articledata['keywords'])
+                #print(articledata['keywords'])
                 if type(articledata['keywords']) == type('hallo'):
                     rec['keyw'] = [articledata['keywords']]
                 elif type(articledata['keywords']) == type([]):
