@@ -188,10 +188,13 @@ for rec in prerecs:
     for meta in artpage.find_all('meta'):
         if meta.has_attr('name'):
             #print meta['name']
-            if meta['name'] == 'citation_author':                
-                rec['autaff'].append([ meta['content'] ])
-                if meta['content'] in orciddict and orciddict[meta['content']]:
-                    rec['autaff'][-1].append(orciddict[meta['content']])
+            if meta['name'] == 'citation_author':
+                if len(rec['autaff']) > 0 and rec['autaff'][-1][0] == meta['content']:
+                    print('    double "citation_author"')
+                else:
+                    rec['autaff'].append([ meta['content'] ])
+                    if meta['content'] in orciddict and orciddict[meta['content']]:
+                        rec['autaff'][-1].append(orciddict[meta['content']])
             elif meta['name'] == 'citation_author_institution':
                 rec['autaff'][-1].append(meta['content'])
             elif meta['name'] == 'citation_author_orcid':
