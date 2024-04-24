@@ -193,7 +193,7 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 
 urltrunk = 'http://onlinelibrary.wiley.com/doi'
 driver.get('http://onlinelibrary.wiley.com')
-time.sleep(15)
+time.sleep(25)
 prerecs = []
 for issue in re.split(',', issues):
     print("%s %s, Issue %s" %(jnlname,vol,issue))
@@ -206,8 +206,17 @@ for issue in re.split(',', issues):
     ejlmod3.printprogress('##', [[issue, issues], [toclink]])
 
     #tocpage = BeautifulSoup(scraper.get(toclink).text, features="lxml")
-    driver.get(toclink)
-    tocpage = BeautifulSoup(driver.page_source, features="lxml")
+    try:
+        driver.get(toclink)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        divs = tocpage.find_all('div', attrs = {'class' : 'issue-items-container'})
+        divs[1]
+    except:
+        print('try again')
+        time.sleep(40)        
+        driver.get(toclink)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        divs = tocpage.find_all('div', attrs = {'class' : 'issue-items-container'})
 
     for divc in tocpage.find_all('div', attrs = {'class' : 'issue-items-container'}):
         headline = divc.find_all('h3')
@@ -234,7 +243,7 @@ for issue in re.split(',', issues):
                                                                   'Front Cover', 'Inside Front Cover', 'Inside Back Cover',
                                                                   'Back Cover', 'Covers', 'Cover Image', 'Guest Editorial',
                                                                   'PREFACE', 'COVER PICTURE', 'CONTENTS', 'Author Profile',
-                                                                  'GUEST EDITORIAL', 'Editorial']:
+                                                                  'GUEST EDITORIAL', 'Editorial', 'FRONT COVER']:
             keepit = False
         if keepit:
             for div in divc.find_all('div', attrs = {'class' : 'issue-item'}):
