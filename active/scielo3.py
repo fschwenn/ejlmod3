@@ -11,6 +11,7 @@ import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
 import ssl
+import undetected_chromedriver as uc
 
 jnl = sys.argv[1]
 year = sys.argv[2]
@@ -35,18 +36,16 @@ if   (jnl == 'rbef'):
 else:
     print('Dont know journal %s!' % (jnl))
     sys.exit(0)
-
-#bad certificate
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-hdr = {'User-Agent' : 'Magic Browser'}
-
-
+    
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+    
 tocurl = '%s/j/%s/i/%s.v%s' % (trunc, jnl, year, vol)
 print("get table of content of %s%s via %s ..." %(jnlname, year, tocurl))
-req = urllib.request.Request(tocurl, headers=hdr)
-tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+driver.get(tocurl)
+tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 note = ''
 prerecs = []
@@ -94,13 +93,14 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     try:
-        req = urllib.request.Request(rec['artlink'], headers=hdr)
-        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
         time.sleep(3)
     except:
         print('      wait 5 minutes to get', rec['artlink'])
         time.sleep(300)
-        artpage = BeautifulSoup(urllib.request.urlopen(rec['artlink']))
+        driver.get(rec['artlink'])
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['citation_doi', 'citation_publication_date', 'citation_pdf_url',
                                         'citation_firstpage', 'citation_abstract', 'citation_keywords',
                                         'citation_author', 'citation_author_orcid', 'citation_author_affiliation'])
