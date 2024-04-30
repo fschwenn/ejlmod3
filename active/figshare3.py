@@ -522,7 +522,19 @@ boring = ['Economics Theses', 'Institute of Development Studies Theses', 'Law Th
           'Department of Media, Communications, Creative Arts, Languages & Literature',
           'Department of Philosophy', 'Dept of Applied Finance', 'Macquarie Law School',
           'Macquarie School of Education', 'Macquarie School of Social Sciences',
-          'School of Psychological Sciences', 'Comparative Pathobiology']
+          'School of Psychological Sciences', 'Comparative Pathobiology', 'Building Science',
+          'Chemistry', 'College of Social Sciences, Arts and Humanities', 'Consumer Science',
+          'Curriculum and Instruction', 'Department of Accounting and Corporate Governance',
+          'Department of Cardiovascular Science', 'Department of Economics',
+          'Department of Engineering', 'Department of Marketing',
+          'Department of Media, Communication and Sociology',
+          'Department of Media, Communication, and Sociology', 'Design and Creative Arts',
+          'Division of Medical Education Theses', 'Engineering Education',
+          'Evolution, Behaviour and Environment Theses', 'Loughborough Business School',
+          'Materials Science and Engineering', 'Policy Studies', 'Psychology',
+          'Respiratory Sciences', 'Robotics Institute',
+          'School of Geography, Geology, and the Environment', 'School of Social Sciences',
+          'Sociology']
 #try and error to find server-name: it's "lboro" because  https://lboro.figshare.com/ exists
 thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'melbourne' : 'U. Melbourne (main)', #2
@@ -650,7 +662,11 @@ for rec in prerecs:
                            'Masters', 'MPHIL', 'Master of Science (MS)', "Master's Thesis", 'DClinPsy', 'MD',
                            'DPsych', 'DSocSci', 'EdD', 'Master of Arts', 'Bachelor of Arts',
                            'Bachelor of Science', 'Master of Science', 'Master of Architecture',
-                           'Master of Applied Science', 'Master of Social Work', 'Thesis MRes']:
+                           'Master of Applied Science', 'Master of Social Work', 'Thesis MRes',
+                           'Master of Architecture (Professional)', 'Doctor of Education', 'edd',
+                           'Master of Commerce and Administration', 'Master of Interior Architecture',
+                           'Master of Landscape Architecture', 'Master of Music Therapy',
+                           'Master of Science in Mechanical Engineering', 'Thesis masters research']:
                     keepit = False
                     print('    skip "%s"' % (deg))
                     ejlmod3.adduninterestingDOI(rec['url_public_api'])
