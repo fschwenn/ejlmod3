@@ -1202,7 +1202,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('[kK]eynote [sS]peaker'), re.compile('Schedule'), re.compile('[Pp]lenary [sS]peaker'),
                      re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:'),
                      re.compile('occasion of.* anniversary'), re.compile('^[A-Z][a-z]+ Calendar$'),
-                     re.compile('AUTHOR INDEX')]
+                     re.compile('AUTHOR INDEX'), re.compile('Author index')]
 def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
