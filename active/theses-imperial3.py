@@ -32,7 +32,7 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 driver.get('https://spiral.imperial.ac.uk')
-time.sleep(20)
+time.sleep(30)
 recs = []
 deps = [('1240', ''), ('1241', 'm'), ('6103', 'm'), ('1232', 'c')]
 i = 0
@@ -69,7 +69,7 @@ for rec in recs:
         #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['artlink']), features="lxml")
         driver.get(rec['artlink'])
         artpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(3)
+        time.sleep(5)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['artlink']))
