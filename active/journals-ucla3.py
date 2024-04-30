@@ -24,7 +24,7 @@ tocurl = 'https://escholarship.org/uc/%s/%s/%s' % (jnl, vol, iss)
 if jnl == 'combinatorial_theory':
     jnlname = 'Combin.Theor.'
 
-jnlfilename = 'ucla_%s%s.%s'  % (jnl, vol, iss)
+jnlfilename = 'ucla_%s%s.%s_%s'  % (jnl, vol, iss, ejlmod3.stampoftoday())
 problematiclinks = []
 
 recs = []
