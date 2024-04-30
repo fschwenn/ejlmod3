@@ -70,6 +70,7 @@ i = 0
 for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['artlink']]])
+    time.sleep(10)
     req = urllib.request.Request(rec['artlink'], headers=hdr)
     page = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
     ejlmod3.metatagcheck(rec, page, ['citation_firstpage', 'citation_lastpage', 'citation_doi',
