@@ -137,15 +137,24 @@ for rec in recs:
                 pdfurl = 'https://pubs.acs.org' + a['href'] + '?download=true'
                 savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
             print('     get PDF from %s' % (pdfurl))
+            time.sleep(20)
             driver.get(pdfurl)
             print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n\n  --> please click download button <--\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
-            time.sleep(300)
-            for datei in os.listdir(downloadpath):
-                if savedfilereg.search(datei):
-                    savedfilename = '%s/%s' % (downloadpath, datei)
-                    print('     mv %s to %s' % (savedfilename, targetfilename))
-                    os.system('mv "%s" %s' % (savedfilename, targetfilename))
-                    rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+            time.sleep(120)
+            found = False
+            for j in range(18):
+                if not found:
+                    for datei in os.listdir(downloadpath):
+                        if savedfilereg.search(datei):
+                            savedfilename = '%s/%s' % (downloadpath, datei)
+                            print('     mv %s to %s' % (savedfilename, targetfilename))
+                            os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                            found = True
+                if found:
+                    break
+                else:
+                    time.sleep(10)
 
 
 
