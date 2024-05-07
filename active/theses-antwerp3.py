@@ -34,6 +34,7 @@ starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=179714210%3A4596
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=185059054%3A825846&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=193415727%3A901451&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=198150382%3A49448&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
+starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=208382284%3A802416&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 
 br = mechanize.Browser()
 br.set_handle_robots(False)   # ignore robots
@@ -47,7 +48,11 @@ jnlfilename = 'THESES-ANTWERP-%s' % (ejlmod3.stampoftoday())
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 response = br.open(starturl)
-br.form = list(br.forms())[0]
+try:
+    br.form = list(br.forms())[0]
+except:
+    print('\n\nprobaly need to update "UDse"-token')
+    sys.exit(0)
 control = br.form.find_control('FDopc_zv')
 control.value = "(facultyac:a::irc.18)(pubtype:a::pt.13)"
 control.value = "(facultyac:a::irc.18 OR facultyac:a::irc.19)(pubtype:a::pt.13)"
