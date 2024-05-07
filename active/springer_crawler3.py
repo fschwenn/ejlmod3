@@ -92,7 +92,7 @@ def get_records(url):
             if len(sys.argv) > 6:
                 rec['fc'] = sys.argv[6]
 
-#            rec['fc'] = 'k'
+#            rec['fc'] = 'g'
             ejlmod3.metatagcheck(rec, pages[url], ['doi', 'prism.volume', 'prism.number'])
             #editors
             for div in pages[url].find_all('div', attrs = {'data-test' : 'editor-info'}):
@@ -280,7 +280,8 @@ def get_records(url):
                                     recs.append(rec)
                                     artlinks.append(rec['artlink'])
         if not foundsection:
-            for h3 in page.find_all('h3', attrs = {'class' : ['c-card__title', 'c-card-open__heading']}):
+            for h3 in page.find_all('h3', attrs = {'class' : ['c-card__title', 'c-card-open__heading',
+                                                              'app-card-open__heading']}):
                 print('    ~', h3.text.strip())
                 rec = {'jnl' : jnl, 'autaff' : [], 'note' : []}
                 rec['tit'] = h3.text.strip()
@@ -295,6 +296,10 @@ def get_records(url):
                         else:
                             if monography:
                                 rec['chapterofmonography'] = True
+                            if booktitle:
+                                rec['note'].append(booktitle)
+                                if 'isbns' in recs[0] and recs[0]['isbns']:
+                                    rec['motherisbn'] = recs[0]['isbns'][0][0][1]
                             recs.append(rec)
                             artlinks.append(rec['artlink'])            
         ejlmod3.printprogress('+', [[i+1, len(pages)], [tocurl], [len(recs)]])
