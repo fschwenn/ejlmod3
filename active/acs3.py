@@ -163,16 +163,18 @@ for rec in recs:
 
                 
     #authors
+    autaff = []
     for span in artpage.find_all('span'):
         divs = span.find_all('div', attrs = {'class' : 'loa-info-name'})
         if divs:
-            rec['autaff'] = []
             for div in divs:
-                rec['autaff'].append([div.text.strip()])
+                autaff.append([div.text.strip()])
                 for a in span.find_all('a', attrs = {'title' : 'Orcid link'}):
-                    rec['autaff'][-1].append(re.sub('.*\/', r'ORCID:', a['href']))
+                    autaff[-1].append(re.sub('.*\/', r'ORCID:', a['href']))
                 for div2 in span.find_all('div', attrs = {'class' : 'loa-info-affiliations-info'}):
-                    rec['autaff'][-1].append(div2.text.strip())
+                    autaff[-1].append(div2.text.strip())
+    if len(autaff) >= len(rec['autaff']):
+        rec['autaff'] = autaff
     #pages
     for span in artpage.find_all('span', attrs = {'class' : 'cit-fg-pageRange'}):
         rec['p1'] = re.sub('\D*(\d+).*', r'\1', span.text.strip())
