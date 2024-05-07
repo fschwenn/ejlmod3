@@ -26,7 +26,7 @@ import cloudscraper
 import undetected_chromedriver as uc
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
-options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/google-chrome'
 #options.add_argument('--headless')
 #options.add_argument('--no-sandbox')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
