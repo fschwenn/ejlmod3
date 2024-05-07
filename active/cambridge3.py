@@ -189,7 +189,8 @@ for i in range(numpages):
                             if not 'doi' in list(rec.keys()):
                                 rec['note'] = [ note ]
                                 if not note in ['Front Cover (OFC, IFC) and matter', 
-                                                'Back Cover (OBC, IBC) and matter']:
+                                                'Back Cover (OBC, IBC) and matter',
+                                                'PhD Abstract']:
                                     prerecs.append(rec)
                                     print('?', rec['note'])
 
