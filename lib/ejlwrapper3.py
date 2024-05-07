@@ -428,7 +428,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (3, ['theses-regina3XXX.py']),
         (2, ['theses-brussels3XXX.py']),
         (2, ['theses-ljubljana3.py']),
-        (1, ['theses-antwerp3.py']),
+        (1, ['theses-antwerp3XXX.py']),
         (3, ['theses-conicet3.py']),
         (3, ['theses-groningen3.py']),
         (2, ['theses-kyushu3.py']),
@@ -503,7 +503,7 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['theses-ohio3XXX.py']),
         (2, ['theses-coloradomines3.py']),
         (2, ['theses-debrecen3.py']),
-        (2, ['theses-carlos3.py']),
+        (2, ['theses-carlos3XXX.py']),
         (3, ['theses-southdakota3.py']),
         (2, ['theses-valenciapolytechnic3.py']),
         (2, ['theses-sancarlosfederal3.py']),
@@ -563,7 +563,6 @@ jnls = [(1, ['aip3YYY.py', 'rsi', pryear-1929, prmonth]),
         (2, ['princetonbooks3XXX.py']),
         (3, ['siam3XXX.py', 'sjaabq', pryear-2016, prquarter]),
         (2, ['muse3.py', '5']),
-        (1, ['theses-cds3.py']),
         (3, ['osa3XXX.py', 'aop', pryear-2008, prquarter]),
         (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4]),
         (1, ['rsc3XXX.py', 'cp', pryear-1998, prmonth*4-1]),
@@ -633,6 +632,10 @@ if (today.day % 7 == 0):
 else:
     listofcommands.append(['iop3.py'])
     prfil.write(' - iop3.py\n')
+#harvest CDS theses severeal times per month
+if (today.day % 12 == 0):
+    listofcommands.append(['theses-cds3.py'])
+    prfil.write(' - theses-cds3.py\n')
 
 prfil.close()
 
