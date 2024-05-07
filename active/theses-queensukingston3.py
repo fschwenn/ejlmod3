@@ -11,13 +11,18 @@ import sys
 import ejlmod3
 import re
 import undetected_chromedriver as uc
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+
+Scheiss Javascript
 
 publisher = "Queen's U., Kingston"
 jnlfilename = 'THESES-QUEENSUKINGSTON-%s' % (ejlmod3.stampoftoday())
 
 skipalreadyharvested = True
-pages = 50
-rpp = 10 
+pages = 10
+rpp = 50 
 boring = ['Art History', 'Civil Engineering', 'Environmental Studies', 'Rehabilitation Science',
           'Geological Sciences and Geological Engineering', 'Mechanical and Materials Engineering',
           'Political Studies', 'Aging and Health', 'Biology', 'Biomedical and Molecular Sciences',
@@ -28,15 +33,19 @@ boring = ['Art History', 'Civil Engineering', 'Environmental Studies', 'Rehabili
           'Chemistry', 'Electrical and Computer Engineering', 'Gender Studies', 'French Studies',
           'Anatomy and Cell Biology', 'Biochemistry', 'Community Health and Epidemiology', 'English',
           'French', 'Geography', 'German', 'Management', 'Microbiology and Immunology',
-          'Pharmacology and Toxicology', 'Physiology', 'Translational Medicine']
+          'Pharmacology and Toxicology', 'Physiology', 'Translational Medicine',
+          'School of Architecture, Design and Planning,', 'School of Biology & Environmental Science,',
+          'School of Communication and Arts ,', 'School of Design,',
+          'School of Psychology & Counselling,', 'The School of Music,',
+          'UQ Centre for Clinical Research,']
           
 recs = []
 
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
-options.add_argument('--headless')
+#options.binary_location='/usr/bin/chromium'
+#options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
@@ -149,12 +158,24 @@ for page in range(pages):
     tocurl = 'https://qspace.library.queensu.ca/collections/28264e28-1843-437c-abca-776a363a1c1c?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp) 
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     driver.get(tocurl)
-    articles = BeautifulSoup(driver.page_source, 'lxml').find_all('ds-truncatable', attrs={'class': 'ng-star-inserted'})
-    for article in articles:
-        for a in article.find_all('a', attrs={'target' : '_self'}):
-            if a.has_attr('href'):
-                href = "https://qspace.library.queensu.ca%s/full" % (a['href'])
-                get_subsite(href)
+    WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.CLASS_NAME, 'ng-star-inserted')))
+    tocpage = BeautifulSoup(driver.page_source, 'lxml')
+    articles = tocpage.find_all('ds-truncatable', attrs={'class': 'item-list-title'})
+    if not articles:
+        sleep(3)
+        driver.get(tocurl)
+        WebDriverWait(driver, 300).until(EC.presence_of_element_located((By.CLASS_NAME, 'ng-star-inserted')))
+        tocpage = BeautifulSoup(driver.page_source, 'lxml')
+        articles = tocpage.find_all('ds-truncatable', attrs={'class': 'item-list-title'})
+    if articles:
+        for article in articles:
+            print(article)
+            for a in article.find_all('a', attrs={'target' : '_self'}):
+                if a.has_attr('href'):
+                    href = "https://qspace.library.queensu.ca%s/full" % (a['href'])
+                    get_subsite(href)
+    else:
+        print(tocpage.text)
     print('\n  %4i/%4i/%4i records so far\n' % (len(recs), (page+1)*rpp, pages*rpp))
     sleep(10)
 
