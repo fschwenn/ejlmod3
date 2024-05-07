@@ -25,12 +25,14 @@ if skipalreadyharvested:
 
 for page in range(pages):
     tocurl = 'https://searchworks.stanford.edu/?f[genre_ssim][]=Thesis%2FDissertation&f[stanford_dept_sim][]=Department+of+Physics&page=' + str(page) + '&per_page=' + str(recordsperpage)
-    print(tocurl)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     time.sleep(2)
     for div in tocpage.find_all('div', attrs = {'class' : 'document'}):
+        print('div')
         for h3 in div.find_all('h3'):
+            print(' h3')
             for a in h3.find_all('a'):
                 rec = {'tc' : 'T', 'jnl' : 'BOOK', 'artlink' : 'https://searchworks.stanford.edu' + a['href'], 'note' : []}
                 rec['tit'] = re.sub(' \[electronic resource\]', '', a.text.strip()                )
@@ -43,6 +45,8 @@ for page in range(pages):
                     rec['link'] = a['href']
             if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
                 recs.append(rec)
+            elif rec['doi'] in alreadyharvested:
+                print('  ', rec['doi'], ' in backup')
     print('  %4i records so far' % (len(recs)))
 
 i = 0
