@@ -4,6 +4,10 @@
 #FS: 2020-04-03
 #FS: 2023-02-24
 
+#
+# All hidden behinde JavaSCript :-(
+# 
+
 import getopt
 import sys
 import os
@@ -20,23 +24,27 @@ from selenium.webdriver.firefox.options import Options
 
 publisher = 'Queensland U.'
 rpp = 100
-pages = 1 #blaettern funktioniert nicht
+pages = 15 
 startyear = ejlmod3.year(backwards=1)
 stopyear = ejlmod3.year()
-
+skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
-recs = []
-jnlfilename = 'THESES-QUEENSLAND-%s' % (ejlmod3.stampoftoday())
+prerecs = []
+jnlfilename = 'THESES-QUEENSLAND-%sB' % (ejlmod3.stampoftoday())
 
 #driver
 options = uc.ChromeOptions()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 #options.binary_location='/usr/bin/chromium-browser'
 options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/chromium'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
     
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+
 boringunits = ['School of Music,', 'Institute for Molecular Bioscience,',
                'School of Chemical Engineering,', 'School of Mechanical and Mining Engineering,',
                'School of Agriculture and Food Sciences,', 'School of Medicine,',
@@ -214,10 +222,6 @@ boringunits = ['School of Music,', 'Institute for Molecular Bioscience,',
                'School of History, Religion, Philosophy, and Classics,',
                'School of Human Movement and Nutrition Sciences and Mater Research Institute - UQ,',
                'School of Human Movement Studies,',
-               'School of Information Tech & Elec Engineering,',
-               'School of Information Technol and Elec Engineering,',
-               'School of Information Technology and Electrical Engineering (ITEE),',
-               'School of Information Technology and Electrical Enginering,',
                'School of Integrative Systems,',
                'School of Journalism and Communication,',
                'School of Justice,',
@@ -263,30 +267,75 @@ boringunits = ['School of Music,', 'Institute for Molecular Bioscience,',
                'The School of Information Technology and Electrical Engineering,',
                'The School of Languages and Comparative Cultural Studies,',
                'The School of Medicine,', 'Queensland Alliance for Environmental Health Sciences,',
-               'The School of Pharmacy,',
+               'The School of Pharmacy,', 'School of Biology & Environmental Science,',
                'The School of Social Science,',
                'The Sustainable Minerals Institute,',
-               'UQ Diamantina Insitute,',
-               'Veterinary Science and Animal Production,']
+               'UQ Diamantina Insitute,', 'Translational Medicine',
+               'Veterinary Science and Animal Production,', 'Management',
+               'Microbiology and Immunology', 'Pharmacology and Toxicology', 'Physiology', 
+               'School of Architecture, Design and Planning,', 
+               'School of Communication and Arts ,', 'School of Design,',
+               'School of Psychology & Counselling,', 'The School of Music,',
+               'UQ Centre for Clinical Research,', 'Centre for Horticultural Science,']
+boringunits += ['Advanced Water Management Centre, School of Chemical Engineering,',
+                'Art, Design and Architecture,', 'Australian Centre for Water and Environmental Biotechnology,',
+                'Centre for Advanced Imaging (CAI) Research Groups,',
+                'Centre for Hypersonics, School of Mechanical and Mining Engineering,',
+                'Centre for Mined Land Rehabilitation,', 'Centre for Public Awareness of Science,',
+                'College of Law,', 'College of Nursing, Medicine and Health Sciences,', 'CSRH,',
+                'Department of Accounting, Finance & Economics,', 'Department of Anthropology,',
+                'Department of Metallurgical and Materials Engineering,', 'Faculty of Business and Law,',
+                'Faculty of Health,', 'Faculty of Law,', 'Faculty of Medicine, School of Public Health,',
+                'Graduate School of Education,', 'Institute for Molecular Biosciences,',
+                'Macquarie Business School,', 'Queensland Alliance for Agriculture and Food Innovation ,',
+                'Queensland Alliance of Agriculture and Food Innovation,', 'Queensland Conservatorium,',
+                'QUT School of Advertising, Marketing & Public Relations,',
+                'School Mechanical and Mining Engineering,',
+                'School of Agriculture and Food Sciences, School of Veterinary Science,',
+                'School of Agriculture and Food Science,',
+                'School of Agricutural, Environmental and Veterinary Sciences,',
+                'School of Architecture and Built Environment,', 'School of Art, Design and Architecture,',
+                'School of Biological Sciences ,', 'School of Biology,',
+                'School of Biomedical Sciences, Faculty of Health, Queensland University of Technology,',
+                'School of Business ,', 'School of Chemistry and Molecular Biosciences ,',
+                'School of Civil & Environmental Engineering,', 'School of Clinical Sciences,',
+                'School of Design ,', 'School of Earth and Atmospheric Sciences,',
+                'School of Earth, Atmosphere and Environment,', 'School of Education ,',
+                'School of Engineering, Advanced Water Management Centre,',
+                'School of Historical and Philosophical Inquiry, TC Beirne School of Law,',
+                'School of History and Philosophical Inquiry,',
+                'School of Law and Society, Sustainability Research Centre,', 'School of Law ,',
+                'School of Management,', 'Schoolof Mechanical and Mining Engineering ,',
+                'School of Political Science and International Studies School,',
+                'School of Psychology and Counselling,', 'The School of Chemical Engineering,']
 
 
-recs = []
+prerecs = []
+page = 0
+dois = []
+tocurl = 'https://espace.library.uq.edu.au/records/search?page=' + str(page+1) + '&pageSize=' + str(rpp) + '&sortBy=published_date&sortDirection=Desc&activeFacets%5Branges%5D%5BYear+published%5D%5Bfrom%5D=' + str(startyear) + '&activeFacets%5Branges%5D%5BYear+published%5D%5Bto%5D=' + str(stopyear) + '&advancedSearchFields%5B%5D=Scopus+document+type&advancedSearchFields%5B%5D=Genre&advancedSearchFields%5B%5D=Year+published&advancedSearchFields%5B%5D=Published+year+range&advancedSearchFields%5B%5D=Genre&searchQueryParams%5Brek_genre_type%5D%5Bvalue%5D%5B%5D=PhD+Thesis&searchQueryParams%5Brek_genre_type%5D%5Blabel%5D%5B%5D=PhD+Thesis&searchQueryParams%5Brek_display_type%5D%5B%5D=187&searchMode=advanced'
+driver.get(tocurl)
+WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citationContent')))
 for page in range(pages):
-    tocurl = 'https://espace.library.uq.edu.au/records/search?page=' + str(page+1) + '&pageSize=' + str(rpp) + '&sortBy=published_date&sortDirection=Desc&activeFacets%5Branges%5D%5BYear+published%5D%5Bfrom%5D=' + str(startyear) + '&activeFacets%5Branges%5D%5BYear+published%5D%5Bto%5D=' + str(stopyear) + '&advancedSearchFields%5B%5D=Scopus+document+type&advancedSearchFields%5B%5D=Genre&advancedSearchFields%5B%5D=Year+published&advancedSearchFields%5B%5D=Published+year+range&advancedSearchFields%5B%5D=Genre&searchQueryParams%5Brek_genre_type%5D%5Bvalue%5D%5B%5D=PhD+Thesis&searchQueryParams%5Brek_genre_type%5D%5Blabel%5D%5B%5D=PhD+Thesis&searchQueryParams%5Brek_display_type%5D%5B%5D=187&searchMode=advanced'
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
-    driver.get(tocurl)
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citationContent')))
     tocpage = BeautifulSoup(driver.page_source, features="lxml")
-    #print tocpage.body
-    time.sleep(5)
+    #print( tocpage.body)
+    time.sleep(1)
     divs = tocpage.body.find_all('div', attrs = {'class' : 'publicationCitation'})
     for div in divs:
-        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'supervisor' : []}
+        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'note' : [], 'supervisor' : [], 'keyw' : []}
         for span in div.find_all('span', attrs = {'class' : 'citationOrgUnit'}):
             rec['unit'] = span.text.strip()
             rec['note'].append(span.text.strip())
         for span in div.find_all('span', attrs = {'class' : 'citationThesisType'}):
             rec['type'] = span.text.strip()
+            #rec['note'].append('TYPE:::' + rec['type'])
+        for span in div.find_all('span', attrs = {'class' : 'citationTitle'}):
+            rec['tit'] = span.text.strip()
+        for span in div.find_all('span', attrs = {'class' : 'citationAuthors'}):
+            rec['autaff'] = [[ span.text.strip(), publisher ]]
+        for span in div.find_all('span', attrs = {'class' : 'citationDate'}):
+            rec['date'] = re.sub('\D', '', span.text.strip()) 
         for a in div.find_all('a'):
             if re.search('\/view\/', a['href']):
                 rec['artlink'] = 'https://espace.library.uq.edu.au' + a['href']
@@ -294,60 +343,88 @@ for page in range(pages):
         if 'unit' in list(rec.keys()) and rec['unit'] in boringunits:
             print('  skip "%s"' % (rec['unit']))
         else:
-            recs.append(rec)
-            print(rec['doi'])
+            if not rec['unit'] in ['Faculty of Science,', 'School of Mathematics and Physics,']:
+                rec['note'].append('UNIT:::' + rec['unit'])
+            if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                print('  %s already in backup' % (rec['doi']))
+            elif not rec['doi'] in dois:
+                prerecs.append(rec)
+                dois.append(rec['doi'])
+                #print(rec['doi'])
+    print('  %4i records so far' % (len(prerecs)))
+    if page+1 < pages:
+        print('\n  --> click for page %i/%i <--\n' % (page+2, pages))
+        input("\n  --> then press Enter to continue <---\n\n")
 
 
-#buttons = tocpage.body.find_all('button')
-          
-    print('  %4i records so far' % (len(recs)))
-    if len(divs) < rpp:
-        jnlfilename = 'THESES-QUEENSLAND-%s_%i-%i_TOCcompleted' % (ejlmod3.stampoftoday(), startyear, stopyear)
-        break
+
+
 
 j = 0
-for rec in recs:
+reunkw = re.compile('^UQ Theses')
+recs = []
+for rec in prerecs:
     j += 1
-    ejlmod3.printprogress("-", [[j, len(recs)], [rec['artlink']]])
-    try:
-        driver.get(rec['artlink'])
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
-        artpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(5)
-    except:
-        print('  try again in 30s')
-        driver.get(rec['artlink'])
-        #WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
-        artpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(30)
+    ejlmod3.printprogress("-", [[j, len(prerecs)], [rec['artlink']], [len(recs)]])
+#    try:
+    driver.get(rec['artlink'])
+    time.sleep(2)
+    #WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'MuiGrid2-container')))
+    artpage = BeautifulSoup(driver.page_source, features="lxml")
+    time.sleep(5)
+#    except:
+#        print('  try again in 30s')
+#        driver.get(rec['artlink'])
+#        #WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'social-icon')))
+#        artpage = BeautifulSoup(driver.page_source, features="lxml")
+#        time.sleep(30)
+#    print(artpage)
+#    print(artpage.text)
     ejlmod3.metatagcheck(rec, artpage, ['citation_abstract', 'citation_date', 'citation_title',
                                         'citation_keywords', 'citation_authors', 'citation_doi'])
-    rec['autaff'][-1].append(publisher)
-    for div in artpage.body.find_all('div', attrs = {'class' : 'uq-espace-6'}):
-        spans = div.find_all('span')
-        if len(spans) == 2:
-            #Open Access status
-            if spans[0].text.strip() == 'Open access status':
-                rec['oastatus'] = spans[1].text.strip()
-            #pages
-            elif spans[0].text.strip() == 'Total pages':
-                rec['pages'] = spans[1].text.strip()             
-            #supervisor
-            elif spans[0].text.strip() == 'Supervisor(s)':
-                for li in spans[1].find_all('li'):
-                    rec['supervisor'].append([li.text.strip()])
-        #fulltext
-        for a in div.find_all('a'):
-#            for img in a.find_all('img'):
-                if a.has_attr('href') and re.search('\.pdf\?', a['href']):
-                    rec['fulltext'] = re.sub('pdf\?.*', 'pdf', a['href'])
+    #rec['autaff'][-1].append(publisher)
+    spans = {}
+    for div in artpage.body.find_all('div', attrs = {'class' : 'MuiGrid2-container'}):
+        subdivs = div.find_all('div', attrs = {'class' : 'MuiGrid2-container'})
+        if len(subdivs):
+            continue
+        spans = {}
+        for span in div.find_all('span'):            
+            if span.has_attr('data-testid'):
+                spans[span['data-testid']] = span.text.strip()
+        if 'rek-keywords-label' in spans:
+            for li in div.find_all('li'):
+                if not reunkw.search(li.text):
+                    rec['keyw'].append(li.text.strip())
+        elif 'rek-supervisor-label' in spans:
+            for li in div.find_all('li'):
+                rec['supervisor'].append([li.text.strip()])
+        if 'rek-description' in spans:
+            rec['abs'] = spans['rek-description']
+        elif 'rek-total-pages' in spans:
+            rec['pages'] = spans['rek-total-pages']
+        elif 'rek-oa-status-type' in spans:
+            rec['oastatus'] = spans['rek-oa-status-type']        
+        elif 'rek-doi' in spans:
+            rec['doi'] = spans['rek-doi']
+        elif 'rek-date' in spans:
+            rec['date'] = spans['rek-date']     
+        #print(spans.keys())
+    for a in artpage.body.find_all('a', attrs = {'data-analyticsid' : 'file-name-0-download-link'}):
+        rec['fulltext'] = re.sub('pdf\?.*', 'pdf', a['href'])
+                
     #public or hidden PDF
-    if 'fulltext' in list(rec.keys()):
-        if 'oastatus' in list(rec.keys()) and rec['oastatus'] == 'DOI':
+    if 'fulltext' in rec:
+        if 'oastatus' in list(rec.keys()) and rec['oastatus'] in  ['Gold', 'DOI']:
             rec['FFT'] = rec['fulltext']            
         else:
-            rec['hidden'] = rec['fulltext']    
-    ejlmod3.printrecsummary(rec)
+            rec['hidden'] = rec['fulltext']
+    if skipalreadyharvested and rec['doi'] in alreadyharvested:
+        print('    %s already in backup' % (rec['doi']))
+    else:
+        ejlmod3.printrecsummary(rec)
+        recs.append(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
 driver.quit()
