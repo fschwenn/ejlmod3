@@ -48,7 +48,8 @@ boring = ['Cello performance', 'Chemistry', 'Civil Engineering', 'Clarinet perfo
           'Latin American Studies', 'Marine science', 'Neuroscience', 'Nutritional Sciences',
           'Spanish', 'African and African Diaspora Studies', 'Architectural Engineering',
           'Information, Risk, and Operations Management', 'Information Studies']
-boring += ['Doctor of Education', 'Doctor of Musical Arts', 'Artist diploma', 'Master of Music']
+boring += ['Doctor of Education', 'Doctor of Musical Arts', 'Artist diploma', 'Master of Music',
+           'Master of Arts']
 
 
 if skipalreadyharvested:
