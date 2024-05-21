@@ -100,7 +100,7 @@ fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.',
                   ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A', 'Jap.J.Math.', 'Algorithmica', 'Proc.Lond.Math.Soc.', 'Sbornik Math.', 'Mathematical Models and Methods in Applied Sciences', 'Sib.Mat.Zh.']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.', 'IET Quant.Commun.']),
-                  ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A']),
+                  ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A', 'Phys.Status Solidi RRL']),
                   ('a', ['Ann.Rev.Astron.Astrophys.', 'Acta Astron.', 'Acta Astron.Sin.', 'Adv.Astron.', 'Astron.Astrophys.', 'Astron.Astrophys.Lib.', 'Astron.Astrophys.Rev.', 'Astron.Geophys.', 'Astron.J.', 'Astron.Lett.', 'Astron.Nachr.', 'Astron.Rep.', 'Astrophys.Bull.', 'Astrophysics', 'Astrophys.J.', 'Astrophys.J.Lett.', 'Astrophys.J.Supp.', 'Astrophys.Space Sci.', 'Astrophys.Space Sci.Libr.', 'Astrophys.Space Sci.Proc.', 'Chin.Astron.Astrophys.', 'Exper.Astron.', 'Front.Astron.Space Sci.', 'Int.J.Astrobiol.', 'J.Astron.Space Sci.', 'J.Astrophys.Astron.', 'J.Atmos.Sol.Terr.Phys.', 'JCAP', 'J.Korean Astron.Soc.', 'Mon.Not.Roy.Astron.Soc.', 'Nat.Astron.', 'New Astron.', 'Open Astron.', 'Publ.Astron.Soc.Austral.', 'Publ.Astron.Soc.Jap.', 'Publ.Astron.Soc.Pac.', 'Res.Astron.Astrophys.', 'Res.Notes AAS', 'Rev.Mex.Astron.Astrofis.', 'Space Sci.Rev.', 'Nature Astron.', 'Galaxies', 'Mem.Soc.Ast.It.', 'Astronomy', 'Bulg.Astron.J.', 'Celest.Mech.Dyn.Astron.', 'Earth Moon Planets', 'Discover Space']),
                   ('g', ['Class.Quant.Grav.', 'Gen.Rel.Grav.', 'Living Rev.Rel.']),
                   ('c', ['Comput.Softw.Big Sci.', 'J.Grid Comput.', 'J.Open Source Softw.', 'SoftwareX', 'GESJ Comp.Sci.Telecomm.', 'J.Assoc.Comput.Machinery', 'ACM Comput.Surveys', 'SIAM J.Sci.Comput.', 'SIAM J.Comput.', 'Leibniz Int.Proc.Inf.', 'Comput.Sci', 'J.Assoc.Comput.Machinery', 'Machine Learning', 'APL Mach.Learn.', 'SN Comput.Sci.', 'Neural Comput.', 'J.Sci.Comput.', 'J.Cryptolog.', 'Stat.Comput.', 'Des.Codes Cryptogr.', 'J.Supercomput.', 'Data Min.Knowl.Discov.', 'Int.J.Comput.Vision', 'J.Big Data', 'J.Comput.Chem.', 'Comput.']),
@@ -1086,6 +1086,16 @@ def writeXML(recs,dokfile,publisher):
                 rec['note'] += rec['notes']
             else:
                 rec['note'] = rec['notes']
+        if 'artlink' in rec:
+            if 'note' in rec:
+                rec['note'].append(rec['artlink'])
+            else:
+                rec['note'] = [rec['artlink']]
+        elif 'link' in rec:
+            if 'note' in rec:
+                rec['note'].append(rec['link'])
+            else:
+                rec['note'] = rec['link']            
         if 'note' in rec:
             if not 'fc' in rec:
                 for comment in rec['note']:
@@ -2003,7 +2013,9 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                      'Doctorado en Estudios Avanzados en Derechos Humanos',
                      'Doctorado en Empresa y Finanzas. Mención Internacional',
                      'Dissertação de mestrado', 'M Nursing',
-                     'Professional Paper', 'Report']
+                     'Professional Paper', 'Report', 'PeriodicalPart', 'article',
+                     'Collection', 'Dataset', 'PeriodicalPart', 'preprint',
+                     'workingPaper', 'report', 'Tesis de Pregrado']
     global checkedmetatags
     for tag in listofkeys:
         if not tag in checkedmetatags:
@@ -2120,7 +2132,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                  'dc.thesis.degree.discipline',  'uulm.affiliationGeneral',
                                  'etdms.degree.discipline', 'uulm.affiliationSpecific',
                                  'dc.contributor.departamento', 'unesp.campus',
-                                 'unesp.knowledgearea', 'unesp.knowledgeArea', 'unesp.graduateProgram']:
+                                 'unesp.knowledgearea', 'unesp.knowledgeArea', 'unesp.graduateProgram',
+                                 'local.affiliation', 'dc.description.program']:
                         for fac in thesis['metadata'][key]:
                             if fac['value'] in boring:
                                 print('    skip "%s"' % (fac['value']))
@@ -2139,11 +2152,12 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Institut für Numerische Mathematik',
                                                   'Institut für Analysis', 'Institut für Statistik',
                                                   'Institut für Stochastik',
-                                                  'Mathematical Sciences.',
+                                                  'Mathematical Sciences.', 'Fakultät für Mathematik (MATH)',
                                                   'UC3M. Departamento de Matemáticas',
                                                   'Institut für Reine Mathematik',
                                                   'Matemática aplicada e computacional',
-                                                  'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie']:
+                                                  'Institut für Zahlentheorie und Wahrscheinlichkeitstheorie',
+                                                  'Institut für Angewandte und Numerische Mathematik (IANM)Scientific Computing Center (SCC)']:
                                 rec['fc'] = 'm'
                             elif fac['value'] in ['Statistics', 'Mathematical Statistics',
                                                   'Statistical Science',
@@ -2175,12 +2189,18 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                   'Institut für Softwaretechnik und Programmiersprachen'
                                                   'Institut für Theoretische Informatik',
                                                   'THU.IFI Institut für Informatik',
-                                                  'UC3M. Departamento de Informática']:
+                                                  'UC3M. Departamento de Informática',
+                                                  'Universidad Técnica Federico Santa María. Departamento de Informática',
+                                                  'Institut für Theoretische Informatik (ITI)Scientific Computing Center (SCC)',
+                                                  'Institut für Theoretische Informatik (ITI)',
+                                                  'Scientific Computing Center (SCC)']:
                                 rec['fc'] = 'c'
                             elif fac['value'] in ['Condensed Matter',
                                                   'Condensed matter physics',
                                                   'Física da matéria condensada',
-                                                  'Institut für Festkörperphysik']:
+                                                  'Institut für Festkörperphysik',
+                                                  'Institut für Theoretische Festkörperphysik (TFP)',
+                                                  'Institut für Nanotechnologie (INT)Institut für Theoretische Festkörperphysik (TFP)']:
                                 rec['fc'] = 'f'
                             elif not fac['value'] in ['Physics And Astronomy', 'Physics and Astronomy',
                                                       'Physics', 'Applied Mathematics and Scientific Computation',
@@ -2197,7 +2217,10 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                       'Naturwissenschaftliche Fakultät / Naturwissenschaftliche Fakultät -ohne weitere Spezifikation-',
                                                       'UC3M. Departamento de Física', 'Física teórica', 'Física',
                                                       'Física aplicada', 'Física - IGCE', 'Physics.',
-                                                      'Department of Physics']:
+                                                      'Department of Physics', 'Fakultät für Physik (PHYSIK)',
+                                                      'Institut für Angewandte Physik (APH)',
+                                                      'Institut für Theoretische Physik (ITP)',
+                                                      'Physikalisches Institut (PHI)']:
                                 rec['fac'].append(fac['value'])
                                 rec['note'].append('%s=%s' % (key, fac['value']))
                         done.append(key)
@@ -2233,6 +2256,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['pages'] = re.sub('.*?(\d\d+) p.*', r'\1', extent['value'])
                             elif re.search('^\d+$', extent['value']):
                                 rec['pages'] = extent['value']
+                            elif re.search('^\d+ [Hh]\.$', extent['value']):
+                                rec['pages'] = re.sub(' [Hh].', '', extent['value'])
                             elif re.search('\d\d Seiten', extent['value']):
                                 rec['pages'] = re.sub('.*?(\d\d+) Seiten.*', r'\1', extent['value'])
                             elif re.search('\d\d leaves', extent['value']):
@@ -2316,7 +2341,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
                                  'etdms.degree.name', 'dc.description.level',
                                  'thesis.degree.name', "thesis.degree.level", 'dc.degree.name',
-                                 'dc.degree.level', 'unsw.thesis.degreetype']:
+                                 'dc.degree.level', 'unsw.thesis.degreetype',
+                                 'dc.description.degree']:
                         for degree in thesis['metadata'][key]:
                             if degree['value'] in boring or degree['value'] in boringdegrees:
                                 keepit = False
@@ -2328,7 +2354,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                                          'doctoral', 'Ph. D.', 'dissertation',
                                                          'Doctoral Dissertation']:
                                 rec['degree'].append(degree['value'])
-                                rec['note'].append('%s=%s' % (key.upper(), degree['value']))
+                                rec['note'].append('%s=%s' % (key, degree['value']))
                         done.append(key)
                     #keywords
                     elif key in ['dc.subject', 'dc.subject.keywords', 'dc.subject.rvm',
@@ -2377,5 +2403,6 @@ def getalreadyharvested(jnlfilename, years=3):
     for i in range(years):
         filestosearch += '%s/%i/*%s ' % (dokidir, now.year-i, filenametrunc)
     alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep URLDOC | sed 's/.*URLDOC=//' | sed 's/;//' " % (filestosearch))))
+    alreadyharvested += list(map(tfstrip, os.popen("cat %s | grep '^I..http'|sed 's/^...//'|sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), filenametrunc))
     return alreadyharvested
