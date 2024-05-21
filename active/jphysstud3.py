@@ -32,7 +32,7 @@ print("get table of content... from %s" % (toclink))
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
+#options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
