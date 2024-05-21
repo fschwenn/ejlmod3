@@ -64,8 +64,14 @@ for year in years:
         for (subdom, fc) in domains[dom]:
             tocurl = 'https://tel.archives-ouvertes.fr/search/index/?q=%2A&domain_t=' + subdom + '&producedDateY_i=' + str(year) + '&rows=' + str(rpp)
             ejlmod3.printprogress("=", [[year], [subdom], [tocurl]])
-            req = urllib.request.Request(tocurl, headers=hdr)
-            tocpages = [BeautifulSoup(urllib.request.urlopen(req), features="lxml")]
+            try:
+                req = urllib.request.Request(tocurl, headers=hdr)
+                tocpages = [BeautifulSoup(urllib.request.urlopen(req), features="lxml")]
+            except:
+                print('  try again')
+                time.sleep(30)
+                req = urllib.request.Request(tocurl, headers=hdr)
+                tocpages = [BeautifulSoup(urllib.request.urlopen(req), features="lxml")]
             time.sleep(5)
             for div in tocpages[0].body.find_all('div', attrs = {'class' : 'results-header'}):
                 divt = re.sub('[\n\t\r]', '', div.text.strip())
