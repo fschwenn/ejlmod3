@@ -41,7 +41,10 @@ def get_sub_site(url):
     rec['date'] = rec_data.get('dc.date.issued')[0].get('value')
 
     # Get the abstract
-    rec['abs'] = rec_data.get('dc.description.abstract')[0].get('value')
+    try:
+        rec['abs'] = rec_data.get('dc.description.abstract')[0].get('value')
+    except:
+        pass
 
     # Get the handle
     rec['hdl'] = re.sub('.*handle.net\/', '', rec_data.get('dc.identifier.uri')[0].get('value'))
