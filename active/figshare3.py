@@ -544,7 +544,6 @@ thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'sussex' : 'Sussex U.',
                          'monash' : 'Monash U.',
                          'ryerson' : 'Ryerson U.', 
-                         'wgtn' : 'Victoria U., Wellington',#no theses ???
                          'wellington' : 'Victoria U., Wellington',#no theses ???
                          'lboro' : 'Loughborough U.',
                          'mq' : 'Macquarie U.',
@@ -626,9 +625,12 @@ for (aff, payload) in payloads:
             if article['timeline']['firstOnline'][:10] > startdate:
                 if not article['url_public_api'] in articleurls:
                     if ejlmod3.checkinterestingDOI(article['url_public_api']):
-                        prerecs.append(rec)
-                        articleurls.append(article['url_public_api'] )
-        print('  %4i records so far' % (len(prerecs)))
+                        if skipalreadyharvested and article['url_public_api'] in alreadyharvested:
+                            print('   %s already in backup' % (article['url_public_api']))
+                        else:
+                            prerecs.append(rec)
+                            articleurls.append(article['url_public_api'])
+        print('  %4i records so far (checked %i)' % (len(prerecs), len(r)))
         time.sleep(sleepingtime)
         if len(r) < rpp:
             break
