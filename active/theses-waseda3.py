@@ -14,6 +14,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+import os
+import undetected_chromedriver as uc
 
 
 publisher = 'Waseda U.'
@@ -38,16 +40,19 @@ for (dep, q) in deps:
         searchstrings[dep].append(re.compile('octoral.*' + dep + '.*' + str(ejlmod3.year(backwards=y))))
 
 options = Options()
-#options.add_argument("--headless")
-options.add_argument("--enable-javascript")
-options.add_argument("--incognito")
-options.add_argument("--nogpu")
-options.add_argument("--disable-gpu")
-options.add_argument("--window-size=1200,1980")
-options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option('useAutomationExtension', False)
-options.add_argument('--disable-blink-features=AutomationControlled')
-driver = webdriver.Chrome(options=options)
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+#options.add_argument("--enable-javascript")
+#options.add_argument("--incognito")
+#options.add_argument("--nogpu")
+#options.add_argument("--disable-gpu")
+#options.add_argument("--window-size=1200,1980")
+#options.add_experimental_option("excludeSwitches", ["enable-automation"])
+#options.add_experimental_option('useAutomationExtension', False)
+#options.add_argument('--disable-blink-features=AutomationControlled')
+#driver = webdriver.Chrome(version_main=chromeversion, options=options)
 
 theseslinks = ['https://waseda.repo.nii.ac.jp/records/78514',
                'https://waseda.repo.nii.ac.jp/records/78481',
