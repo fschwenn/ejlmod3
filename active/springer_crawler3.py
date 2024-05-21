@@ -231,8 +231,15 @@ def get_records(url):
         page = pages[tocurl]
         foundsection = False
         #print(foundsection)
-        for section in page.body.find_all('section', attrs = {'data-title' : 'book-toc'}):
-            for li in section.find_all('li', attrs = {'class' : 'c-card'}):                
+        sections = page.body.find_all('section', attrs = {'data-title' : 'book-toc'})
+        for section in sections:
+            lis = section.find_all('li', attrs = {'class' : 'c-card'})
+            if not lis:
+                lis = []
+                for li in section.find_all('li'):
+                    if not li.has_attr('class') and not li.has_attr('data-test'):
+                        lis.append(li)
+            for li in lis:
                 for h3 in li.find_all('h3', attrs = {'data-title' : 'part-title'}):
                     foundsection = True
                     print('    ---', h3.text.strip())
@@ -333,7 +340,7 @@ for rec in prerecs:
         rec['tc'] = 'C'
 #        rec['motherisbn'] = '9783034890786'
     elif vol == '0' or jnl == 'BOOK':
-         rec['tc'] = 'K'
+         rec['tc'] = 'S'
          #rec['fc'] = 'g'
     elif jnl in ['Lect.Notes Comput.Sci.', 'Lect.Notes Phys.Monogr.']:
         rec['tc'] = 'C'
