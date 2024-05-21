@@ -29,7 +29,9 @@ tocurl = 'https://pubs.rsc.org/en/journals/journalissues/' + journal + '#!issuei
 print(tocurl)
 
 options = uc.ChromeOptions()
-options.binary_location='/usr/bin/chromium'
+#options.binary_location='/usr/bin/chromium'
+options.add_argument('--headless')
+options.binary_location='/usr/bin/google-chrome'
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
