@@ -78,22 +78,22 @@ if host == 'l00schwenn':
     options.binary_location='/usr/bin/chromium'
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
-
+else:
+    options = uc.ChromeOptions()
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
+    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+    driver = uc.Chrome(version_main=chromeversion, options=options)
+    
 
 try:
-    if host == 'l00schwenn':
-        driver.get(toclink)
-        tocpage = BeautifulSoup(driver.page_source, features="lxml")
-    else:
-        tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
 except:
     print("wait 2 minutes, retry %s" % (toclink))
     time.sleep(120)
-    if host == 'l00schwenn':
-        driver.get(toclink)
-        tocpage = BeautifulSoup(driver.page_source, features="lxml")
-    else:
-        tocpage = BeautifulSoup(urllib.request.urlopen(toclink), features="lxml")
+    driver.get(toclink)
+    tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
 def tfstrip(x): return x.strip()
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
@@ -128,11 +128,8 @@ for a in articleas:
     tries = 0
     while tries < maxtries:
         try:
-            if host == 'l00schwenn':
-                driver.get(artlink)
-                artpage = BeautifulSoup(driver.page_source, features="lxml")
-            else:
-                artpage = BeautifulSoup(urllib.request.urlopen(artlink), features="lxml")
+            driver.get(artlink)
+            artpage = BeautifulSoup(driver.page_source, features="lxml")
             tries = 2*maxtries
         except:
             tries += 1
