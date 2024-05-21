@@ -261,7 +261,8 @@ for page in range(pages):
 
         if 'artlink' in rec:
             if ejlmod3.checkinterestingDOI(rec['artlink']):
-                prerecs.append(rec)
+                if not skipalreadyharvested or not rec['artlink'] in alreadyharvested:
+                    prerecs.append(rec)
     print('\n  %4i records so far\n' % (len(prerecs)))
 
 i = 0
