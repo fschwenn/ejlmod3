@@ -40,6 +40,8 @@ for (subject, aff, fc) in [('Fizika', 'Zagreb U., Phys. Dept.', ''), ('Matematik
                         rec['fc'] = fc
                     if not skipalreadyharvested or not rec['urn'] in alreadyharvested:
                         recs.append(rec)
+                    else:
+                        print('  ', rec['urn'], 'already in backup')
         print('  %4i records so far' % (len(recs)))
 
 i = 0
