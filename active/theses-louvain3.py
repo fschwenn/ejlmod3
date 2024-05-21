@@ -28,8 +28,14 @@ boringdeps = ['SSH/IACS', 'SSH/ILC', 'SSH/ILC/PCOM', 'SSH/ILC/PLIN', 'SSH/INCA',
               'SSS/IRSS', 'SSS/LDRI', 'SST/ELI', 'SST/ELI/ELIA', 'SST/ELI/ELIB',
               'SST/ELI/ELIC', 'SST/ELI/ELIE', 'SST/IMCN/MODL', 'SST/IMMC/IMAP',
               'SST/LIBST']
-#boringdeps = []
-
+boringdeps += ["SSH/IRIS-L/CERE", "SSH/IRIS-L/CRSP", "SSH/IRIS-L/IEE",
+               "SSH/IRIS-L/SIEJ", "SSH/ISP", "SSH/JURI/PJIE", "SSH/JURI/PJPC",
+               "SSH/LIDAM/ISBA", "SSH/LIDAM/LFIN", "SSH/LIDAM", "SSS/DDUV/BCHM",
+               "SSS/DDUV/CBIO", "SSS/DDUV/GECE", "SSS/DDUV/GEHU", "SSS/DDUV/MEXP",
+               "SSS/DDUV/PHOS", "SSS/IONS/NEUR", "SSS/IREC/CARD", "SSS/IREC/EDIN",
+               "SSS/IREC/LUNS", "SSS/IREC/MEDA", "SSS/IREC/MORF", "SSS/IREC/NMSK",
+               "SSS/IREC/PEDI", "SSS/IREC/REPR", "SST/ELI/ELIM", "SST/IMCN/BSMA",
+               "SST/IMCN/MOST", "SST/IMMC/GCE", "SST/IMMC", "SST/LAB"]
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
@@ -68,7 +74,7 @@ for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
                     rec['hdl'] = re.sub('.*net\/', '', a['href'])
                     rec['tit'] = a.text.strip()
                     if ejlmod3.checkinterestingDOI(rec['hdl']):
-                        if skipalreadyharvested or not rec['hdl'] in alreadyharvested:
+                        if not skipalreadyharvested or not rec['hdl'] in alreadyharvested:
                             prerecs.append(rec)
         print('  %4i records so far' % (len(prerecs)))
 
@@ -128,14 +134,16 @@ for year in [ejlmod3.year(), ejlmod3.year(backwards=1)]:
                         for a in td.find_all('a'):
                             if re.search('^[A-Z][A-Z]', a.text):
                                 dep = re.sub(' .*', '', a.text.strip())
-                                if dep in boringdeps:
+                                if dep in ['SST/IMCN']:
+                                    rec['fc'] = 'f'
+                                elif dep in boringdeps:
                                     try:
                                         print('  skip "%s"' % (a.text.strip()))
                                     except:
                                         print('  skip "%s"' % (dep))
                                     keepit = False
                                 else:
-                                    rec['note'].append(dep)
+                                    rec['note'].append(a.text.strip())
         if keepit:
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
