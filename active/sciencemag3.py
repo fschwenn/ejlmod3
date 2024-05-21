@@ -24,7 +24,7 @@ pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 
 
 options = uc.ChromeOptions()
-options.binary_location='/usr/bin/chromium-browser'
+#options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -130,8 +130,18 @@ def harvestarticle(jnl, rec, i, l, r):
             for div2 in div.find_all('div', attrs = {'property' : ['affiliation', 'organization']}):
                 rec['autaff'][-1].append(div2.text.strip())
         else:
-            rec['autaff'].append([re.sub('View all articles by this author', '', div.text.strip())])
-            print('\n  added "%s" as author - is it ok or a collaboration or ...?\n' % (rec['autaff'][-1][0]))
+            autcol = re.sub('View all articles by this author', '', div.text.strip())
+            if autcol in ["Scottish Genomes Partnership",
+                          "Genomics England Research Consortium",
+                          "Undiagnosed Diseases Network",
+                          "Spina Bifida Sequencing Consortium‡"]:
+                if 'col' in rec:
+                    rec['col'].append(autcol)
+                else:
+                    rec['col'] = [autcol]                    
+            else:
+                rec['autaff'].append([autcol])
+                print('\n  added "%s" as author - is it ok or a collaboration or ...?\n' % (rec['autaff'][-1][0]))
     #abstract
     for section in artpage.find_all('section', attrs = {'id' : 'abstract'}):
         for h2 in section.find_all('h2'):
@@ -185,9 +195,18 @@ def harvestarticle(jnl, rec, i, l, r):
                 time.sleep(300)
             else:
                 print('     COULD NOT DOWNLOAD PDF')
+    #authors of errata
+    if not 'autaff' in rec or not rec['autaff']:
+        if 'tit' in rec an re.search('Erratum for.* by ', rec['tit']):
+            author = re.sub('Erratum for.* by ', '', rec['tit'])
+            author = re.sub(' et al.*', '', author)
+            rec['autaff'] = [[ author ]]
     return True
 
 def harvestissue(jnl, vol, issue):
+    jnlfilename = '%s%s' % (re.sub('\.', '', jnlname.lower()), ejlmod3.stampoftoday())
+    if skipalreadyharvested:
+        alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
     tocurl = 'https://www.science.org/toc/%s/%s/%s' % (jnl, vol, issue)
     print("   get table of content of %s %s.%s via %s ..." % (jnlname, vol, issue, tocurl))
     driver.get(tocurl)
@@ -218,7 +237,9 @@ def harvestissue(jnl, vol, issue):
             rec = {'tc' : 'P', 'jnl' : jnlname, 'vol' : vol, 'issue' : issue,
                    'year' : year, 'autaff' : [], 'note' : [scttit], 'refs' : []}
             rec['artlink'] = 'https://www.science.org%s' % (a['href'])
-            prerecs.append(rec)
+            rec['doi'] = a['href'][5:]
+            if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
+                prerecs.append(rec)
     #check article pages
     i = 0
     recs = []
@@ -227,6 +248,7 @@ def harvestissue(jnl, vol, issue):
         if harvestarticle(jnl, rec, i, len(prerecs), len(recs)):
             ejlmod3.printrecsummary(rec)
             recs.append(rec)
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
     return recs
 
 
