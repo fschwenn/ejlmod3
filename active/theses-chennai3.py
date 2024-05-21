@@ -84,6 +84,7 @@ for rec in recs:
                     rec['year'] = date                    
                 else:
                     rec['date'] = date
+                    rec['year'] = re.sub('.*([12]\d\d\d).*', r'\1', date)
             elif spans[0].text.strip() == 'Pages:':
                 pages = spans[1].text.strip()
                 if re.search('\d\d', pages):
