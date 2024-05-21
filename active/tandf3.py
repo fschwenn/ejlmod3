@@ -67,7 +67,7 @@ jnlfilename = "%s.%s.%s.%s" % (jnl, vol, issue, ejlmod3.stampoftoday())
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 options = uc.ChromeOptions()
-options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
