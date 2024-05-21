@@ -47,9 +47,13 @@ boring = ['Cello performance', 'Chemistry', 'Civil Engineering', 'Clarinet perfo
           'Health Behavior and Health Education', 'Human Development and Family Sciences',
           'Latin American Studies', 'Marine science', 'Neuroscience', 'Nutritional Sciences',
           'Spanish', 'African and African Diaspora Studies', 'Architectural Engineering',
-          'Information, Risk, and Operations Management', 'Information Studies']
+          'Information, Risk, and Operations Management', 'Information Studies',
+          'Cellular and Molecular Biology', 'Civil, Architectural, and Environmental Engineering',
+          'Energy and Earth Resources', 'French and Italian', 'Marine Science']
 boring += ['Doctor of Education', 'Doctor of Musical Arts', 'Artist diploma', 'Master of Music',
-           'Master of Arts']
+           'Master of Arts', 'Master of Science in Computer Sciences',
+           'Master of Science in Energy and Earth Resources', 'Master of Science in Engineering',
+           'Master of Science in Information Studies', 'Master of Science in Marine Science']
 
 
 if skipalreadyharvested:
@@ -60,6 +64,8 @@ else:
 hdr = {'User-Agent' : 'Magic Browser'}
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.get('https://utexas.edu')
