@@ -11,6 +11,7 @@ import re
 import ejlmod3
 import time
 import json
+import ssl
 
 publisher = 'Pakistan Research Repository'
 jnlfilename = 'THESES-PakistanResearchRepository-%s' % (ejlmod3.stampoftoday())
@@ -20,6 +21,10 @@ numofpages = 1
 skipalreadyharvested = True
 
 hdr = {'User-Agent' : 'Magic Browser'}
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 recs = []
@@ -28,7 +33,7 @@ for subject in ['Physics', 'Mathematics', 'Computer+%26+IT']:
         tocurl = 'http://prr.hec.gov.pk/jspui/handle/123456789/1/simple-search?query=&filter_field_1=subject&filter_type_1=equals&filter_value_1=' + subject + '&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(i*rpp)
         ejlmod3.printprogress('=', [[subject], [i+1, numofpages], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features='lxml')
+        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
         for tr in tocpage.body.find_all('tr'):
             for td in tr.find_all('td', attrs = {'headers' : 't2'}):
                 for a in td.find_all('a'):
@@ -49,13 +54,15 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(recs)], [rec['link']]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+        req = urllib.request.Request(rec['link'], headers=hdr)
+        artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
         time.sleep(3)
     except:
         try:
             print("retry %s in 180 seconds" % (rec['link']))
             time.sleep(180)
-            artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']), features='lxml')
+            req = urllib.request.Request(rec['link'], headers=hdr)
+            artpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features='lxml')
         except:
             print("no access to %s" % (rec['link']))
             continue    
