@@ -53,6 +53,7 @@ if host == 'l00schwenn':
     tmpdir = '/home/schwenn/tmp'
 else:
     options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
     tmpdir = '/tmp'
     options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -62,6 +63,7 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 tocurl = 'https://pubs.acs.org/toc/%s/%s/%s' % (jnl, vol, iss)
 print(tocurl)
 driver.get(tocurl)
+time.sleep(30)
 tocpage =  BeautifulSoup(driver.page_source, features="lxml")
 section = False
 recs = []
@@ -135,11 +137,13 @@ for rec in recs:
         else:
             for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
                 pdfurl = 'https://pubs.acs.org' + a['href'] + '?download=true'
-                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
-            print('     get PDF from %s' % (pdfurl))
+                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            print('     get PDF from %s' % (re.sub('epdf', 'pdf', pdfurl)))
             time.sleep(20)
-            driver.get(pdfurl)
-            print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n\n  --> please click download button <--\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub(' .*', '', rec['tit'].lower())))
+            #driver.get(pdfurl)
+            driver.get(re.sub('epdf', 'pdf', pdfurl))
+            #print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n\n  --> please click download button <--\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
             time.sleep(120)
             found = False
             for j in range(18):
