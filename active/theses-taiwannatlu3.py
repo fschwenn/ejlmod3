@@ -165,10 +165,11 @@ for rec in prerecs:
                             rec['note'].append('DEPARTMENT=%s' % (departmentdict[department]))
                         else:
                             rec['note'].append('DEPARTMENT=%s' % (department))
-    if keepit:
-        if not skipalreadyharvested or not rec['doi'] in alreadyharvested:                 
-            recs.append(rec)
-            ejlmod3.printrecsummary(rec)
+    if keepit:        
+        if  skipalreadyharvested or not rec['doi'] in alreadyharvested:
+            if author:
+                recs.append(rec)
+                ejlmod3.printrecsummary(rec)
     else:
         ejlmod3.adduninterestingDOI(rec['nodoi'])
 
