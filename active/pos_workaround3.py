@@ -58,8 +58,11 @@ for (i, tr) in enumerate(trs):
         elif note in ['Dark Matter', 'Workshop on Tensions in Cosmology',
                       'S02-AA Astronomy and Astrophysics',
                       'T03 Dark Matter',
+                      'Parallel session Cosmology and astroparticle physics',
                       'Astroparticle Physics and Cosmology']:
             rec['fc'] += 'a'
+        elif note in ['Parallel session Quantum chromodynamics, strong interactions']:
+            rec['fc'] += 'p'
         elif note in ['T01 Astroparticle Physics and Gravitational Waves']:
             rec['fc'] += 'ag'
         elif note in ['Formal Theory', 'Workshop on Holography and the Swampland',
@@ -67,12 +70,15 @@ for (i, tr) in enumerate(trs):
                       'Workshop on Holography and the Swampland',                      
                       'Workshop on Noncommutative and Generalized Geometry in String Theory, Gauge Theory and Related Physical Models']:
             rec['fc'] += 't'
+        elif note in ['Parallel session Aspects of mathematical physics']:
+            rec['fc'] = 'm'
         elif note in ['Operation, Performance and Upgrade (incl. HL-LHC) of Present Detectors',
                       'S15-MI Metrology and Instrumentation',
                       'T12 Detector R&D and Data Handling',
                       'Detectors for Future Facilities, R&D, novel techniques', 'Future facilities']:
             rec['fc'] += 'i'
         elif note in ['S03-GC Gravitation and Cosmology', 'Workshop on Features of a Quantum de Sitter Universe',
+                      'Parallel session Gravity and its modifications',
                       'T02 Gravitation and Cosmology']:
             rec['fc'] = 'g'
         elif note == 'S06-CMPSP Condensed Matter Physics and Statistical Physics':
