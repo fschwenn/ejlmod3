@@ -27,6 +27,7 @@ def tfstrip(x): return x.strip()
 
 chunksize = 100+900
 numberofissues = 4
+checkonlylastdays = 90
 
 publisher = 'MDPI'
 jnl = sys.argv[1]
@@ -37,7 +38,7 @@ if jnl in ['proceedings', 'psf']:
 
 
 now = datetime.datetime.now()
-startdate = now + datetime.timedelta(days=-90)
+startdate = now + datetime.timedelta(days=-checkonlylastdays)
 stampofstartdate = '%4d-%02d-%02d' % (startdate.year, startdate.month, startdate.day)
 
 conferences = {'Selected Papers from the 1st International Electronic Conference on Universe (ECU 2021)' : 'C21-02-22',
@@ -124,7 +125,7 @@ def quickcheck(jnl, vol):
         return False
     elif jnl == 'condensedmatter' and vol < 6: #normal run
         return False
-    elif jnl == 'applsci' and vol < 11: #k5crontab
+    elif jnl == 'applsci' and vol < 12: #k5crontab
         return False
     elif jnl == 'physics' and vol < 3: #normal run
         return False
@@ -149,6 +150,8 @@ def quickcheck(jnl, vol):
     elif jnl == 'fractalfract' and vol < 5-2:#normal run
         return False
     elif jnl == 'nanomaterials' and vol < 11-2: #k5crontab
+        return False
+    elif jnl == 'computation' and vol < 9-3:
         return False
 
     else:
@@ -231,7 +234,8 @@ for voldir in os.listdir(tmppath):
                         rec['jnl'] = 'Fractal Fract.'
                     elif jnl == 'applsci':
                         rec['jnl'] = 'Appl.Sciences'
-
+                    elif jnl == 'photonics':
+                        rec['jnl'] = 'Photon.'
                     elif jnl == 'computation':
                         rec['jnl'] = 'Comput.'
                     prerecs.append(rec)
