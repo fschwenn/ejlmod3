@@ -25,7 +25,7 @@ host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    options.add_argument('--headless')
+##    options.add_argument('--headless')
 #    options.add_argument('--no-sandbox')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
