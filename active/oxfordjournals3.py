@@ -408,8 +408,16 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
         #no hidden PDF!
         if not 'license' in rec and 'pdf_url' in rec:
             del rec['pdf_url']
+        #errata
+        if not rec['autaff']:
+            for meta in page.head.find_all('meta', attrs = {'property' : 'og:description'}):
+                content = meta['content']
+                if re.search('^This is a correction to:', content):
+                    rec['autaff'].append([re.sub('.*: (.*?),.*', r'\1', content)])
+                else:
+                    rec['note'].append(content)
+
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
-
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
