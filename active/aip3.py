@@ -90,7 +90,8 @@ if host == 'l00schwenn':
     driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
     options = uc.ChromeOptions()
-    options.headless=True
+    #options.headless=True
+    options.add_argument('--headless')
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -309,7 +310,6 @@ def getarticle(artlink, secs):
     #field code for conferences
     if len(sys.argv) > 5:
         rec['fc'] = sys.argv[5]
-    
     #references
     for div in artpage.body.find_all('div', attrs = {'class' : 'ref-list'}):
         rec['refs'] = []
@@ -375,7 +375,7 @@ for (href, secs) in tocheck:
         rec = getarticle(href, secs)
         if 'autaff' in rec and rec['autaff']:
             recs.append(rec)
-            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
+            ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
             if len(recs) % extrabreakafterrecords == 0:
                 print('  --> extra break to stay under the radar <--')
                 time.sleep(700)
@@ -383,7 +383,7 @@ print('%i records for %s' % (len(recs), jnlfilename))
 #if not recs:
 #    print(tocpage.text)
 
-#ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 driver.quit()
 
 
