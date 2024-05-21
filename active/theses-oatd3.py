@@ -128,8 +128,8 @@ jnlfilename = 'THESES-OATD_%s__%s-%s' % (ejlmod3.stampoftoday(), startsearch, st
 host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
-    #options.binary_location='/usr/bin/chromium'
-    options.binary_location='/usr/bin/google-chrome'
+    options.binary_location='/usr/bin/chromium'
+    #options.binary_location='/usr/bin/google-chrome'
     #options.add_argument('--headless')
     #options.add_argument('--no-sandbox')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -184,6 +184,7 @@ for search in searches[startsearch:stopsearch]:
     page = 0
     tocurl = 'https://oatd.org/oatd/search?q=' + search + ' AND ' + date + '&level.facet=doctoral&sort=author&start=' + str(page*rpp+1)
     ejlmod3.printprogress("=", [[i, stopsearch-startsearch], [startsearch+i, len(searches)], [tocurl]])
+    time.sleep(70)
     try:
         driver.get(tocurl)
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citeFormatName')))
@@ -196,7 +197,7 @@ for search in searches[startsearch:stopsearch]:
         tocpages = [BeautifulSoup(driver.page_source, features="lxml")]
     numofpages = 1
     for link in tocpages[0].find_all('link', attrs = {'rel' : 'last'}):
-        time.sleep(25)
+        time.sleep(45)
         numoftheses = int(re.sub('.*=', '', link['href']))
         numofpages = (numoftheses - 1)//rpp + 1
         for j in range(numofpages-1):
@@ -204,19 +205,19 @@ for search in searches[startsearch:stopsearch]:
             tocurl = 'https://oatd.org/oatd/search?q=(' + search + ') AND ' + date + '&level.facet=doctoral&start=' + str(page*rpp+1)
             print(' =={ %i/%i | %i/%i }==={ %s }===' % (i, stopsearch-startsearch, page+1, numofpages, tocurl))
             try:
-                time.sleep(10)
+                time.sleep(30)
                 driver.get(tocurl)
                 WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citeFormatName')))
                 tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
             except:
-                print('   \ wait 10s /')
-                time.sleep(10)
+                print('   \ wait 30s /')
+                time.sleep(30)
                 try:                    
                     driver.get(tocurl)
                     tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
                 except:
-                    print('   \ wait 30s /')
-                    time.sleep(30)
+                    print('   \ wait 120s /')
+                    time.sleep(120)
                     driver.get(tocurl)
                     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citeFormatName')))
                     tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))                    
@@ -275,14 +276,14 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress("-", [[i, len(prerecs)], [rec['repo']], [rec['artlink']], [len(recs)]])
     try:
-        time.sleep(10)
+        time.sleep(30)
         driver.get(rec['artlink'])
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'leftCol')))
         artpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
         try:
-            print('\\\| wait 15s |///')
-            time.sleep(15)
+            print('\\\| wait 45s |///')
+            time.sleep(45)
             driver.get(rec['artlink'])
             artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:
@@ -379,6 +380,7 @@ for rec in prerecs:
             rec['note'].append('REPOLINK:'+serverlink)
             print('    ... check for PDF at %s' % (serverlink))
             try:
+                time.sleep(2)
                 driver.get(serverlink)
                 serverpage = BeautifulSoup(driver.page_source, features="lxml")
                 for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_pdf_url', 'bepress_citation_pdf_url', 'eprints.document_url']}):
@@ -416,7 +418,7 @@ for rec in prerecs:
             print('    %s already in INSPIRE' % (rec['urn']))
             continue
         elif 'link' in rec:
-            time.sleep(1)
+            time.sleep(3)
             rn = False
             for rernl in rereportnumbersinlinks:
                 if not rn and rernl.search(rec['link']):
