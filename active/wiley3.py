@@ -185,7 +185,6 @@ if host == 'l00schwenn':
 #    options.binary_location='/usr/bin/google-chrome'
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 else:
-    options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
