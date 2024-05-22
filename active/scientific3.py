@@ -27,6 +27,7 @@ else:
     now = datetime.datetime.now() 
     cday = '%4d-%02d-%02d-%02d-%02d' % (ejlmod3.year(), now.month, now.day, now.hour, now.minute)
 
+old = 10*33 #XXX
 
 # uninteresting journals:
 juninteresting = ['JBBBE', 'JBBTE', 'MSF', 'RC', 'FoMSE', 'SC', 'EI', 'SBC', 'MSFo', 'CTA', 'EC', 'SBA', 'EH']
@@ -72,7 +73,7 @@ def downloadzipfiles():
                     if not datei in done:
                         if len(jc[journal]) > 3:
                             vol = int(revol.sub(r'\1', datei))
-                            if vol < jc[journal][3]:
+                            if vol < jc[journal][3] - old:
                                 continue                                                    
                         f2 = open(os.path.join(scientificdir, datei), "wb")
                         ftp.retrbinary("RETR " + datei,f2.write)                        
@@ -104,7 +105,7 @@ def harvestvolume(journal, datei):
             jnlfilename = '%s%s' % (jc[journal][0], recs[-1]['vol'])
         else:
             jnlfilename = '%s.%s' % (jc[journal][0], cday)
-        ejlmod3.writenewXML(recs, publisher, jnlfilename)
+        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
         os.system('mv %s/%s %s/done/%s' % (scientificdir, datei, scientificdir, datei))
         os.system('rm %s/*xml' % (scientificdir))
     else:
