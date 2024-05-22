@@ -37,7 +37,7 @@ boringdegrees = ['BA (Bachelor of Arts)', 'MA (Master of Arts)',
 # Initilize Webdriver
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
+#options.binary_location='/usr/bin/chromium'
 
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -85,6 +85,10 @@ for (dep, fc) in deps:
             if ejlmod3.checkinterestingDOI(rec['doi']):
                 if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
                     prerecs.append(rec)
+                else:
+                    print('   %s already in backup' % (  rec['doi']))  
+            else:
+                print('   %s uninteresting' % (  rec['doi']))  
     print('  -{ %4i theses so far }-' % (len(prerecs)))
     time.sleep(10)
 
