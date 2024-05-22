@@ -24,8 +24,8 @@ dois = []
 options = uc.ChromeOptions()
 #options.headless=True'
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
-#options.add_argument('--headless')
+#options.binary_location='/usr/bin/chromium'
+options.add_argument('--headless')
 #options.add_argument("--no-sandbox")
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
