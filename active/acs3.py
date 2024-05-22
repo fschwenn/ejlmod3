@@ -55,7 +55,6 @@ else:
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
     tmpdir = '/tmp'
-    options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
