@@ -57,11 +57,16 @@ boring += ['Fakultät für Architektur (ARCH)', 'Geophysikalisches Institut (GPI
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
-#options.add_argument('--headless')
+#options.binary_location='/usr/bin/chromium'
+options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 
+host = os.uname()[1]
+if host == 'l00schwenn':
+    tmpdir = '/home/schwenn/tmp'
+else:
+    tmpdir = '/afs/desy.de/user/l/library/tmp'
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 prerecs = []
@@ -103,7 +108,7 @@ for rec in prerecs:
     keepit = True
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     isbns = []
-    htmlfilename = '/home/schwenn/tmp/kit' + re.sub('\W', '', rec['artlink'])
+    htmlfilename = tmpdir + '/kit' + re.sub('\W', '', rec['artlink'])
     if os.path.isfile(htmlfilename):
         inf = open(htmlfilename, 'r')
         lines = inf.readlines()
