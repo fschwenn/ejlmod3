@@ -45,7 +45,7 @@ if skipalreadyharvested:
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
+#options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -71,7 +71,12 @@ for page in range(pages):
                        'supervisor' : [], 'keyw' : []}
                 rec['link'] = "https://repository.upenn.edu%s" % (a['href'])
                 if ejlmod3.checkinterestingDOI(rec['link']):
-                    prerecs.append(rec)
+                    if skipalreadyharvested and rec['link'] in alreadyharvested:
+                        print('   %s already in backup' % (rec['link']))
+                    else:
+                        prerecs.append(rec)
+                else:
+                    print('   %s uninteresting' % (rec['link']))
     print('  ', len(prerecs),'records so far')
 
 i = 0
