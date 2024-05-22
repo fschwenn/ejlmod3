@@ -45,9 +45,13 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 
+host = os.uname()[1]
 options = uc.ChromeOptions()
-options.binary_location='/usr/bin/chromium'
-#options.add_argument('--headless')
+#if host == 'l00schwenn':
+#    options.binary_location='/usr/bin/chromium'
+#else:
+options.binary_location='/usr/bin/google-chrome'
+#    options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.implicitly_wait(300)
