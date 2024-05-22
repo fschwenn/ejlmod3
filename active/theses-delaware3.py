@@ -1,179 +1,134 @@
 # -*- coding: utf-8 -*-
 #harvest theses from Delaware
 #JH: 2019-09-11
+#FS: 2024-01-22
 
-from requests import Session
-from time import sleep
+import undetected_chromedriver as uc
+import time
 from bs4 import BeautifulSoup
 import ejlmod3
 import re
+import os
 
 publisher = 'U. Delaware, Newark'
 jnlfilename = 'THESES-DELAWARE-%s' % (ejlmod3.stampoftoday())
 rpp = 100
-pages = 1
-boringdeps = ["University of Delaware, School of Education",
-              "University of Delaware, Department of Plant and Soil Sciences",
-              "University of Delaware, Department of Political Science and International Relations",
-              "Universith of Delaware, Department of Kinesiology and Applied Physiology",
-              "University of Delaware, Biomechanics and Movement Science Program",
-              "University of Delaware, Biomechanics and Movement Science",
-              "University of Delaware, Biomedical Engineering Department",
-              "University of Delaware. ǂb Program in Biomechanics and Movement Science",
-              "University of Delaware, Center for Bioinformatics and Computational Biology",
-              "University of Delaware, Department of Animal and Food Sciences",
-              "University of Delaware, Department of Applied Physiology",
-              "University of Delaware, Department of Art Conservation",
-              "University of Delaware, Department of Art History",
-              "University of Delaware, Department of Behavioral Health and Nutrition",
-              "University of Delaware, Department of Biological Sciences",
-              "University of Delaware, Department of Biomedical Engineering",
-              "University of Delaware, Department of Chemical &amp; Biomolecular Engineering",
-              "University of Delaware, Department of Chemical and Biomolecular Engineering",
-              "University of Delaware, Department of Chemistry and Biochemistry",
-              "University of Delaware, Department of Civil and Environmental Engineering",
-              "University of Delaware. Department of Civil and Environmental Engineering",
-              "University of Delaware, Department of Earth Sciences",
-              "University of Delaware, Department of Economics",
-              "University of Delaware, Department of English",
-              "University of Delaware, Department of Entomology and Wildlife Ecology",
-              "University of Delaware, Department of Entomology and Wildlife Ecology.",
-              "University of Delaware, Department of Geography and Spatial Sciences",
-              "University of Delaware, Department of Geography",
-              "University of Delaware, Department of Geological Sciences",
-              "University of Delaware, Department of History",
-              "University of Delaware, Department of Human Development and Family Sciences",
-              "University of Delaware, Department of Kinesiology and Applied Physiology",
-              "University of Delaware, Department of Kinesiology and Applied Physiology.",
-              "University of Delaware, Department of Linguistics and Cognitive Science",
-              "University of Delaware, Department of Medical and Molecular Sciences",
-              "University of Delaware, Department of Medical Laboratory Sciences",
-              "University of Delaware, Department of Psychological and Brain Sciences",
-              "University of Delaware, Department of Sociology and Criminal Justice",
-              "University of Delaware, Department Sociology and Criminal Justice",
-              "University of Delaware, Disaster Science and Management Program",
-              "University of Delaware, Energy and Environmental Policy Program",
-              "University of Delaware, Institute for Financial Services Analytics",
-              "University of Delaware, School of Marine Science and Policy",
-              "University of Delaware, School of Nursing",
-              "University of Delaware, School of Public Policy and Administration",
-              "University of Delaware, Water Science and Policy Program",
-              "University of Delaware, Center for Bioinformatics and Computational BiologyUniversity of Delaware, Department of Animal and Food Sciences",
-              "University of Delaware, Center for Energy & Environmental Policy",
-              "University of Delaware, Center for Energy and Environmental Policy",
-              "University of Delaware, Department of Chemical & Biomolecular Engineering",
-              "University of Delaware, Department of Chemical and Biochemical Engineering",
-              "University of Delaware,Department of Chemical and Biomolecular Engineering",
-              "University of Delaware, Department of Chemical Engineering",
-              "University of Delaware, Department of Civil & Environmental Engineering",
-              "University of Delaware, Department of Department",
-              "University of Delaware, Department of Dept. of Political Science and International Relations",
-              "University of Delaware, Department of Entomology & Wildlife Ecology",
-              "University of Delaware, Department of Geology",
-              "University of Delaware, Department of History",
-              "University of Delaware, Department of Human Development & Family Studies",
-              "University of Delaware, Department of Human Development and Family",
-              "University of Delaware, Department of Human Development and Family Studies",
-              "University of Delaware, Department of Human Development and Family Studies.",
-              "University of Delaware, Department of Kinesiology & Applied Physiology",
-              "University of Delaware, Department of Kinesiology and Applied Physiology",
-              "University of Delaware, Department of Linguistics & Cognitive Sciences",
-              "University of Delaware, Department of Linguistics & Cognitive Science",
-              "University of Delaware, Department of Linguistics & Cognitive Science.",
-              "University of Delaware, Department of Linguistics and Cognitive Sciences",
-              "University of Delaware, Department of Physical Therapy.",
-              "University of Delaware, Department of Plant & Soil Sciences",
-              "University of Delaware, Department of Political Science & International Relations",
-              "University of Delaware, Department of Psychological & Brain Sciences",
-              "University of Delaware, Department of Psychology",
-              "University of Delaware, Department of School of Marine Science and Policy",
-              "University of Delaware, Department of Sociology & Criminal Justice",
-              "University of Delaware, Department of Sociology and Criminal Justice.",
-              "University of Delaware, Department of Sociology",
-              "University of Delaware, Materials Science and Engineering",
-              "University of Delaware, School of Marine Science & Policy",
-              "University of Delaware, School of Marine Sciences & Policy",
-              "University of Delaware, School of Public Policy & Administration"]
+pages = 4
+years = 2
+skipalreadyharvested = True
+boring = []
+for b in ["School of Education", "Department of Plant and Soil Sciences",
+          "Department of Political Science and International Relations",
+          "Universith of Delaware, Department of Kinesiology and Applied Physiology",
+          "Biomechanics and Movement Science Program",
+          "Biomechanics and Movement Science", "Biomedical Engineering Department",
+          "Program in Biomechanics and Movement Science",
+          "Center for Bioinformatics and Computational Biology",
+          "Department of Animal and Food Sciences", "Department of History",
+          "Department of Applied Physiology", "Department of Art Conservation",
+          "Department of Art History", "Department of Behavioral Health and Nutrition",
+          "Department of Biological Sciences", "Department of Biomedical Engineering",
+          "Department of Chemical &amp; Biomolecular Engineering",
+          "Department of Chemical and Biomolecular Engineering",
+          "Department of Chemistry and Biochemistry",
+          "Department of Civil and Environmental Engineering",
+          "University of Delaware. Department of Civil and Environmental Engineering",
+          "Department of Earth Sciences", "Department of Economics",
+          "Department of English", "Department of Entomology and Wildlife Ecology",
+          "Department of Entomology and Wildlife Ecology.",
+          "Department of Geography and Spatial Sciences",
+          "Department of Geography", "Department of Geological Sciences",          
+          "Department of Human Development and Family Sciences",
+          "Department of Kinesiology and Applied Physiology",
+          "Department of Kinesiology and Applied Physiology.",
+          "Department of Linguistics and Cognitive Science",
+          "Department of Medical and Molecular Sciences",
+          "Department of Medical Laboratory Sciences",
+          "Department of Psychological and Brain Sciences",
+          "Department of Sociology and Criminal Justice",
+          "Department Sociology and Criminal Justice",
+          "Disaster Science and Management Program",
+          "Energy and Environmental Policy Program",
+          "Institute for Financial Services Analytics",
+          "School of Marine Science and Policy",
+          "School of Nursing", "School of Public Policy and Administration",
+          "Water Science and Policy Program",
+          "Center for Bioinformatics and Computational BiologyDepartment of Animal and Food Sciences",
+          "Center for Energy & Environmental Policy",
+          "Center for Energy and Environmental Policy",
+          "Department of Chemical & Biomolecular Engineering",
+          "Department of Chemical and Biochemical Engineering",
+          "University of Delaware,Department of Chemical and Biomolecular Engineering",
+          "Department of Chemical Engineering", "Department of Department",
+          "Department of Civil & Environmental Engineering",
+          "Department of Dept. of Political Science and International Relations",
+          "Department of Entomology & Wildlife Ecology",
+          "Department of Geology", "Department of History",
+          "Department of Human Development & Family Studies",
+          "Department of Human Development and Family",
+          "Department of Human Development and Family Studies",
+          "Department of Human Development and Family Studies.",
+          "Department of Kinesiology & Applied Physiology",
+          "Department of Kinesiology and Applied Physiology",
+          "Department of Linguistics & Cognitive Sciences",
+          "Department of Linguistics & Cognitive Science",
+          "Department of Linguistics & Cognitive Science.",
+          "Department of Linguistics and Cognitive Sciences",
+          "Department of Physical Therapy.", "Department of Sociology",
+          "Department of Plant & Soil Sciences",
+          "Department of Political Science & International Relations",
+          "Department of Psychological & Brain Sciences",
+          "Department of Psychology", 'Department of Physical Therapy',
+          "Department of School of Marine Science and Policy",
+          "Department of Sociology & Criminal Justice",
+          "Department of Sociology and Criminal Justice.",
+          'Department of Health Behavior and Nutrition Sciences',
+          "Materials Science and Engineering",
+          "School of Marine Science & Policy",
+          "School of Marine Sciences & Policy",
+          "School of Public Policy & Administration"]:
+    boring.append(b,)
+    boring.append('University of Delaware, '+b)
+if skipalreadyharvested:
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
+options = uc.ChromeOptions()
+options.binary_location='/usr/bin/chromium'
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
+baseurl = 'https://udspace.udel.edu'
 
 recs = []
-
-
-def get_sub_site(url, sess):
-    keepit = True
-    if not ejlmod3.checkinterestingDOI(url):
-        print('                   ', url)
-        return
-    rec = {'tc': 'T', 'jnl': 'BOOK', 'supervisor': [], 'note' : [], 'link' : url}
-    print('Harvesting data -->', url)
+for page in range(pages):
+    tocurl = baseurl + '/collections/1de73a61-b4e3-4551-8a96-434f1373cfe6?cp.page=' + str(page+1) + '&cp.rpp=' + str(rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        resp = sess.get(url)
-        artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
+        driver.get(tocurl)
+        time.sleep(5)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
-        print('  try %s again in 120s' % (url))
-        sleep(120)
-        resp = sess.get(url)
-        artpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
-        
+        time.sleep(60)
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
 
-    ejlmod3.metatagcheck(rec, artpage, ['DC.creator', 'DC.date', 'DCTERMS.abstract', 'DC.subject', 'DC.title', 'citation_date'])
-    rec['autaff'][-1].append(publisher)
-
-    # Get the rest of the data
-    for row in artpage.find_all('tr'):
-        if len(row.find_all('th')) > 0 and len(row.find_all('td')):
-            title = row.find_all('th')[0].text
-            data = row.find_all('td')[0].text
-
-            # Get the advisor
-            if title == 'Advisor':
-                for br in row.find_all('br'):
-                    br.replace_with(';')
-                for sv in re.split(';', row.find_all('td')[0].text.strip()):
-                    rec['supervisor'].append([sv])
-            # Department
-            elif title == 'Department':
-                dep = data.strip()
-                if dep == 'University of Delaware, Department of Computer and Information Sciences':
-                    rec['fc'] = 'c'
-                elif dep in ['University of Delaware, Department of Mathematical Sciences',
-                             'University of Delaware, Department of Mathematics']:
-                    rec['fc'] = 'm'
-                elif dep in boringdeps:
-                    keepit = False
-                else:
-                    rec['note'].append(dep)
-        # Get the pdf file
-        if row.get('title') is not None:
-            if row.get('title').find('.pdf') != -1:
-                pdf_link = row.find_all('a')
-                if len(pdf_link) == 1:
-                    rec['hidden'] = 'https://udspace.udel.edu' + pdf_link[0].get('href')
-    if keepit:
-        recs.append(rec)
-    else:
-        ejlmod3.adduninterestingDOI(rec['link'])
-    sleep(5)
-    return
-
-
-with Session() as session:
-    for page in range(pages):
-        to_curl = 'https://udspace.udel.edu/handle/19716/12883/browse?rpp=' + str(
-            rpp) + '&sort_by=2&type=dateissued&offset=' + str(page * rpp) + '&etal=-1&order=DESC'
-        ejlmod3.printprogress('=', [[page+1, pages], [to_curl]])
-        index_resp = session.get(to_curl)
-
-        if index_resp.status_code != 200:
-            print('[ERROR] Can\'t reach the website!')
-            continue
-
-        for link_box in BeautifulSoup(index_resp.content.decode('utf-8'), 'lxml').find_all('div', attrs={'class': 'artifact-title'}):
-            link = link_box.find_all('a')
-
-            if len(link) != 1:
-                continue
-            get_sub_site('https://udspace.udel.edu{}?show=full'.format(link[0].get('href')), session)
-        print('   %s records so far' % (len(recs)))
-        sleep(20)
-
+    for rec in ejlmod3.ngrx(tocpage, baseurl, ['dc.contributor.advisor', 'dc.contributor.author',
+                                               'dc.date.issued', 'dc.subject.keyword',
+                                               'dc.description.faculty', 'dc.description.department',
+                                               'dc.description.abstract', 'dc.identifier.uri',
+                                               'dc.rights', 'dc.subject', 'dc.title'],
+                            boring=boring, alreadyharvested=alreadyharvested):
+        rec['autaff'][-1].append(publisher)
+        ejlmod3.printrecsummary(rec)
+        #print(rec['thesis.metadata.keys'])
+        if 'date' in rec and re.search('[12]\d\d\d', rec['date']) and int(re.sub('.*([12]\d\d\d).*', r'\1', rec['date'])) <= ejlmod3.year(backwards=years):
+            print('    too old:', rec['date'])
+        else:
+            recs.append(rec)
+    print('  %i records so far' % (len(recs)))
+    time.sleep(20)
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
