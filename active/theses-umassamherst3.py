@@ -61,7 +61,7 @@ tocextension = 'html'
 
 options = uc.ChromeOptions()
 options.binary_location = '/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
+#options.binary_location='/usr/bin/chromium'
 options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -99,8 +99,11 @@ for i in range(pages):
                                 rec['tit'] = a.text.strip()
                                 rec['artlink'] = a['href']
                                 a.replace_with('')
-                            if ejlmod3.checkinterestingDOI(rec['artlink']):
-                                prerecs.append(rec)
+                            if ejlmod3.checkinterestingDOI(rec['artlink']): 
+                                if skipalreadyharvested and rec['artlink'] in alreadyharvested:
+                                    print('   %s already in backup' % (rec['artlink']))
+                                else:
+                                    prerecs.append(rec)
     print('  ', len(prerecs))
     tocextension = '%i.html' % (i+2)
 
