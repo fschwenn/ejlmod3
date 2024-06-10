@@ -167,7 +167,10 @@ elif (jnl == 'ietqc'):
     issn = '2632-8925'
     doitrunk = '10.1049/qtc2'
     jnlname = 'IET Quant.Commun.'
-    
+elif (jnl == 'adts'):
+    issn = '2513-0390'
+    doitrunk = '10.1002/adts'
+    rec['jnl'] = 'Adv.Theor.Simul.'
 
     
 if skipalreadyharvested:
@@ -319,7 +322,8 @@ for rec in prerecs:
                                                 'citation_lastpage', 'citation_publication_date', 'citation_author',
                                                 'citation_author_institution', 'citation_author_orcid', 
                                                 'citation_author_email'])#'citation_pdf_url' does not resolve
-            rec['autaff'][0]
+            if not re.search('^Corrigendum:', rec['tit']):
+                rec['autaff'][0]
     except:
         print('  ... try again in 90-190 s')
         rec['artlink'] = re.sub('doi\/', 'doi/ftr/', rec['artlink'])
@@ -335,6 +339,20 @@ for rec in prerecs:
         if span.text.strip() in ['Frontispiece', 'Announcement']:
             print('    skip ', span.text)
             continue
+
+
+    for div in artpage.find_all('div', attrs = {'class' : 'corrections-container'}):
+        #print(div)
+        for ul in div.find_all('ul', attrs = {'class' : 'loa-authors-trunc'}):
+            rec['autafferrat'] = []
+            for li in ul.find_all('li'):
+                rec['autafferrat'].append(re.sub(',$', '', li.text.strip()))
+            print("     ( Erratum: rec['autaff']=", rec['autafferrat'], ')')
+
+
+
+
+
     if not 'p1' in rec:
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
             rec['p1'] = re.sub('.*, (.+?)\..*', r'\1', meta['content'].strip())
@@ -465,10 +483,16 @@ for rec in prerecs:
                         rec['refs'].append([('x', '[%s] %s' % (refno, ref[2:]))])
                     else:
                         rec['refs'].append([('x', ref)])
+    #Errata
+    if not 'autaff' in rec or not rec['autaff']:
+        if 'autafferrat' in rec:
+            rec['autaff'] = rec['autafferrat']        
+                
     if not jnl in ['puz']:
         rec['tc'] = typecode
     else:
         rec['tc'] = ''
+    
     if keepit:
         if len(sys.argv) > 5:
             rec['tc'] = 'C'
