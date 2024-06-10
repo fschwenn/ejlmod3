@@ -16,6 +16,7 @@ import undetected_chromedriver as uc
 publisher = 'Northeastern U. (main)'
 rpp = 20
 skipalreadyharvested = True
+years = 3
 
 departments = [('Northeastern U.', '228'), ('Northeastern U., Math. Dept.', '200')]
 jnlfilename = 'THESES-NEU-%s' % (ejlmod3.stampoftoday())
@@ -94,6 +95,9 @@ for rec in prerecs:
                 #date
                 elif dtt == 'Date Awarded:':
                     rec['date'] = re.sub('.*?([12]\d\d\d).*', r'\1', child.text.strip())
+                    if int(rec['date']) <= ejlmod3.year(backwards=years):
+                        keepit = False
+                        print('    to old:', rec['date'])
                 #abstract
                 elif dtt == 'Abstract/Description:':
                     rec['abs'] = child.text.strip()
