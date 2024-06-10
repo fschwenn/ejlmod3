@@ -12,9 +12,7 @@ from bs4 import Comment
 import re
 import ejlmod3
 import unicodedata
-
 from inspirelabslib3 import *
-
 import time
 import json
 import undetected_chromedriver as uc
@@ -24,7 +22,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import urllib3
 
 urllib3.disable_warnings()
-
 
 singlewords = ["2HDM", "ABJM", "antibaryon", "antifermion", "antifield",
                "antigravitation", "antihydrogen", "antihyperon", "antineutrino",
@@ -58,7 +55,8 @@ singlewords = ["2HDM", "ABJM", "antibaryon", "antifermion", "antifield",
                "NMSSM", "odderon", "Pati-Salam", "Peccei-Quinn", "pentaquark",
                "pomeron", "positronium", "pQCD", "Proca", "QCD", "QFT", "quark",
                "quarkonium", "Randall-Sundrum", "Rarita-Schwinger", "Regge",
-               "RHIC", "Salam-Weinberg", "SciBooNE", "S-duality", "Seiberg-Witten ", "semileptonic",
+               "RHIC", "Salam-Weinberg", "SciBooNE", "S-duality", "Seiberg-Witten ",
+               "semileptonic",
                "sfermion", "sine-Gordon", "sinh-Gordon", "Skyrmion", "SLAC", "slepton",
                "sneutrino", "squark", "Supergravity", "SuperKEKB", "superluminal",
                "superstring", "supersymmetry", "SUSY", "T2K", "tachyon", "T-duality",
@@ -80,22 +78,24 @@ dedicatedharvester = ['alabama', 'alberta', 'arizona-diss', 'asu', 'barcelona',
                       'durham', 'ethz', 'freiburg-diss', 'gatech', 'glasgow',
                       'goettingen', 'guelph', 'harvard', 'helsinki', 'heid-diss', 'hokkaido',
                       'houston', 'humboldt-diss', 'jhu', 'ksu', 'ku', 'liverpool',
-                      'lmu-germany', 'louisville', 'lsu-diss', 'lund', 'manchester', 'mcgill', 'melbourne',
-                      'mississippi', 'montana', 'montstate', 'mtu', 'narcis', 'neu', 'ncsu',
-                      'odu', 'ohiolink', 'oregon', 'osaka', 'oviedo', 'poli-torino', 'potsdam-diss', 'princeton', 
-                      'qucosa-diss', 'regensburg-diss', 'regina', 'rice', 'rochester',
-                      'rutgers', 'giessen-diss', 'st-andrews', 'syracuse-diss', 'tamu', 'temple',
-                      'toronto-diss', 'ttu', 'ubc', 'uconn', 'uky-diss', 'umich', 'umn', 'unm', 'unsw', 'upv',
-                      'valencia', 'vandy', 'vcu', 'virginia', 'vt', 'washington', 'wayne',
-                      'whiterose', 'wm-mary', 'wurz-diss', 'york', 'oklahoma-diss']
+                      'lmu-germany', 'louisville', 'lsu-diss', 'lund', 'manchester', 'mcgill',
+                      'melbourne', 'mississippi', 'montana', 'montstate', 'mtu', 'narcis', 'neu',
+                      'ncsu', 'odu', 'ohiolink', 'oregon', 'osaka', 'oviedo', 'poli-torino',
+                      'potsdam-diss', 'princeton', 'qucosa-diss', 'regensburg-diss', 'regina',
+                      'rice', 'rochester', 'rutgers', 'giessen-diss', 'st-andrews', 'syracuse-diss',
+                      'tamu', 'temple', 'toronto-diss', 'ttu', 'ubc', 'uconn', 'uky-diss', 'umich',
+                      'umn', 'unm', 'unsw', 'upv', 'valencia', 'vandy', 'vcu', 'virginia', 'vt',
+                      'washington', 'wayne', 'whiterose', 'wm-mary', 'wurz-diss', 'york',
+                      'oklahoma-diss']
 dedicatedaffiliations = ['Imperial College London', 'University of Edinburgh',
                          'University College London (University of London)',
                          "King's College London (University of London)", 'University of Manchester']
-dedicatedsuboptimalharvester = ['eth', 'fsu', 'karlsruhe-diss', 'stanford', 'texas', 'thueringen', 'thueringen-diss', 'florida']
-nodedicatedharvester = ['aberdeen', 'ankara', 'arkansas', 'bremen', 'brazil', 'bu',  'clemson', 'colo-mines','colostate',
-                        'darmstadt', 'darmstadt2', 'delaware', 'duquesne', 'ethos', 'fiu', 'georgia-state', 
-                        'groningen','iowa', 'jairo', 'jamescook', 'lehigh', 'liberty', 'macquarie-phd',
-                        'maynooth', 'msstate', 'rit', 'siu-diss',
+dedicatedsuboptimalharvester = ['eth', 'fsu', 'karlsruhe-diss', 'stanford', 'texas',
+                                'thueringen', 'thueringen-diss', 'florida']
+nodedicatedharvester = ['aberdeen', 'ankara', 'arkansas', 'bremen', 'brazil', 'bu',  'clemson',
+                        'colo-mines','colostate', 'darmstadt', 'darmstadt2', 'delaware', 'duquesne',
+                        'ethos', 'fiu', 'georgia-state', 'groningen','iowa', 'jairo', 'jamescook',
+                        'lehigh', 'liberty', 'macquarie-phd', 'maynooth', 'msstate', 'rit', 'siu-diss',
                         'south-carolina', 'star-france', 'stellenbosch',
                         'udel', 'uiuc', 'ulm-diss', 'utk-diss', 'urecht', 'uwm', 'vrije',
                         'wustl', 'wvu']
@@ -126,21 +126,14 @@ jnlfilename = 'THESES-OATD_%s__%s-%s' % (ejlmod3.stampoftoday(), startsearch, st
 
 
 host = os.uname()[1]
+options = uc.ChromeOptions()
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    #options.binary_location='/usr/bin/google-chrome'
-    #options.add_argument('--headless')
-    #options.add_argument('--no-sandbox')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
-    options = uc.ChromeOptions()
-    options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.get('https://oatd.org/')
 time.sleep(20)
 
@@ -212,7 +205,7 @@ for search in searches[startsearch:stopsearch]:
             except:
                 print('   \ wait 30s /')
                 time.sleep(30)
-                try:                    
+                try:
                     driver.get(tocurl)
                     tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
                 except:
@@ -220,7 +213,7 @@ for search in searches[startsearch:stopsearch]:
                     time.sleep(120)
                     driver.get(tocurl)
                     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'citeFormatName')))
-                    tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))                    
+                    tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
     page = 0
     for tocpage in tocpages:
         page += 1
@@ -261,8 +254,6 @@ for search in searches[startsearch:stopsearch]:
                     else:
                         print('     (', rec['nodoi'],')')
         print('    %i records so far' % (len(prerecs)))
-#    if not prerecs:
-#        print '[]',tocpage.text
 
 i = 0
 rehdl = re.compile('.*hdl.handle.net\/')
@@ -383,14 +374,20 @@ for rec in prerecs:
                 time.sleep(2)
                 driver.get(serverlink)
                 serverpage = BeautifulSoup(driver.page_source, features="lxml")
-                for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_pdf_url', 'bepress_citation_pdf_url', 'eprints.document_url']}):
+                for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_pdf_url',
+                                                                           'bepress_citation_pdf_url',
+                                                                           'eprints.document_url']}):
                     if not 'FFT' in rec:
                         if meta['content']:
                             rec['FFT'] = meta['content']
                             print('          ', meta['content'])
                 if not 'doi' in rec:
                     print('    ... check for DOI at %s' % (serverlink))
-                    for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_doi', 'bepress_citation_doi', 'eprints.doi', 'eprints.doi_name', 'DC.Identifier.doi']}):
+                    for meta in serverpage.find_all('meta', attrs = {'name' : ['citation_doi',
+                                                                               'bepress_citation_doi',
+                                                                               'eprints.doi',
+                                                                               'eprints.doi_name',
+                                                                               'DC.Identifier.doi']}):
                         if re.search('^10\.\d', meta['content']):
                             rec['doi'] = meta['content']
                             rec['note'].append('DOI from reposerver')
@@ -471,11 +468,11 @@ for rec in prerecs:
 #                numofchunks = (len(prerecs) - 1) // chunksize + 1
 #                jnlfilename = 'THESES-OATD_%s_%s-%s_%i-%i-%i_%i_%02i-%i' % (ejlmod3.stampoftoday(), startyear, stopyear, startsearch, stopsearch, len(searches), chunksize, chunknumber, numofchunks)
 #                crecs = recs[(chunknumber-1)*chunksize:chunknumber*chunksize]
-#                ejlmod3.writenewXML(crecs, publisher, jnlfilename) 
+#                ejlmod3.writenewXML(crecs, publisher, jnlfilename)
     else:
         ejlmod3.adduninterestingDOI(rec['nodoi'])
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special') 
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
 if skipalreadyharvested:
     print('skipped records')
     for (doi, repo) in skippedrecords:
