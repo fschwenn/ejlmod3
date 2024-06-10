@@ -57,9 +57,13 @@ options = uc.ChromeOptions()
 #options.headless=True
 #options.binary_location='/usr/bin/chromium-browser'
 #options.binary_location='/afs/desy.de/user/l/library/tmp/chromedriver109.0.5414.74'
-options.binary_location='/usr/bin/google-chrome'
-options.binary_location='/usr/bin/chromium'
-####options.add_argument('--headless')
+
+host = os.uname()[1]
+if host == 'l00schwenn':
+    options.binary_location='/usr/bin/chromium'
+else:
+    options.binary_location='/usr/bin/google-chrome'
+    options.add_argument('--headless')
 #options.add_argument("--no-sandbox")
 #options.add_argument("--incognito")
 #options.add_argument("--user-data-dir=/home/library/chrome")
@@ -134,6 +138,7 @@ time.sleep(5)
 
 i = 0
 recs = []
+incomplete = False
 for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']]])
@@ -210,8 +215,12 @@ for rec in prerecs:
                     rec['FFT'] = meta['content']
     #references
     j = 0
+    lis = []
     for ol in artpage.find_all('ol', attrs = {'id' : 'referenceById'}):
         lis = ol.find_all('li')
+    if not lis:
+        lis = artpage.find_all('p', attrs = {'class' : 'reference-body'})
+    if lis:
         print('   read %i references' % (len(lis)))
         for li in lis:
             j += 1
@@ -226,7 +235,8 @@ for rec in prerecs:
             rec['refs'].append([('x', ref)])
     if not rec['autaff']:
         del rec['autaff']
-    
+    if not 'doi' in rec:
+        incomplete = True
     recs.append(rec)
     ejlmod3.printrecsummary(rec)
     #store pdf - but only for QIS as OSA likes to block
@@ -256,6 +266,17 @@ for rec in prerecs:
 
 
 
-    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))
+    ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize), retfilename='retfiles_special')
     time.sleep(40-i/10)
-
+if incomplete:
+    good = []
+    bad = []
+    for rec in recs:
+        if 'doi' in rec:
+            good.append(rec)
+        else:
+            bad.append(rec)
+    ejlmod3.writenewXML(good, publisher, jnlfilename+'good')
+    ejlmod3.writenewXML(bad, publisher, jnlfilename+'bad')
+else:
+    ejlmod3.writenewXML(recs, publisher, jnlfilename)
