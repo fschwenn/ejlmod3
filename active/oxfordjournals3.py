@@ -92,13 +92,15 @@ elif (jnl == 'astrogeo'): # no real articles
 elif (jnl == 'integrablesystems'): #ceased 2020
     jnlname = 'J.Integrab.Syst.'
 elif (jnl == 'mam'):
-    jnlname = 'Microscopy Microanal.'
-    
-    
+    jnlname = 'Microscopy Microanal.'        
 else:
     print('Dont know journal %s!' % (jnl))
     sys.exit(0)
 
+boring = ['CHEMISTRY', 'CLINICAL MEDICINE', 'ENVIRONMENT/ECOLOGY',
+          'GUEST EDITORIAL', 'IMMUNOLOGY', 'INTERVIEW',
+          'MOLECULAR BIOLOGY & GENETICS', 'NEUROSCIENCE']
+    
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=2)
 
@@ -359,7 +361,13 @@ for div in tocpage.body.find_all('div', attrs = {'class' : 'section-container'})
             pagreq = urllib.request.Request(artlink, headers={'User-Agent' : "Magic Browser"})
             page = BeautifulSoup(urllib.request.urlopen(pagreq), features="lxml")                               
         if note:
-            rec['note'] = [note]
+            if note in boring:
+                print('  skip', note)
+                continue
+            elif note == 'COMPUTER SCIENCE':
+                rec['fc'] = 'c'
+            else:
+                rec['note'] = [note]
         ejlmod3.metatagcheck(rec, page, ['citation_firstpage', 'citation_lastpage', 'citation_doi',
                                          'citation_title', 'citation_publication_date', 'citation_author',
                                          'citation_author_institution'])
