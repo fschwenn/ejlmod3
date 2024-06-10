@@ -22,9 +22,10 @@ startdate = '%4d-%02d-%02d' % (now.year-1, now.month, now.day)
 srv = sys.argv[1]
 
 rpp = 200
-pages = 2+2
+pages = 2+2 
 bunchsize = 100-90
 sleepingtime = 3
+years = 3
 skipalreadyharvested = True
 skipnonlistedcategories = False
 apiurl = "https://api.figshare.com/v2/articles/search"
@@ -535,6 +536,7 @@ boring = ['Economics Theses', 'Institute of Development Studies Theses', 'Law Th
           'Respiratory Sciences', 'Robotics Institute',
           'School of Geography, Geology, and the Environment', 'School of Social Sciences',
           'Sociology']
+boring += ['Anatomy and Cell Biology', 'Anthropology', 'ANTHROPOLOGY', 'Art and Art History', 'Art History', 'Biobehavioral Nursing Science', 'Biochemistry and Molecular Genetics', 'Bioengineering', 'Biomedical engineering', 'Business Administration', 'Cellular and Molecular Pharmacology', 'Civil, Material and Environmental Engineering', 'Civil, Material, and Environmental Engineering', 'Civil , Materials and Environmental Engineering', 'Civil Materials and Environmental Engineering', 'Civil, Materials and Environmental Engineering', 'Civil, Materials, and Environmental Engineering', 'Civil, Materials and Environment', 'College of Dentistry', 'Communication', 'Criminology, Law, and Justice', 'Curriculum & Instruction', 'Dentistry', 'Department of Biobehavioral Nursing Science', 'Department of Public Policy, Management and Analytics', 'Disability and Human Development', 'Disability Studies', 'Earth and Environmental Sciences', 'Educational Policy Studies', 'Educational Psychology', 'Endodontics', 'Epidemiology & Biostatistics', 'Epidemiology and Biostatistics', 'Epidemiology', 'Germanic Studies', 'Graduate Program in Neuroscience', 'Hematology and Oncology', 'Hispanic and Italian Studies', 'Human Development Nursing Science', 'Industrial Engineering', 'Jane Addams College of Social Work', 'Kinesiology & Nutrition', 'Kinesiology and Nutrition', 'Learning Sciences', 'Mechanical Engineering', 'Medical Education', 'Microbiology and Immunology', 'Museum and Exhibition Studies', 'Neurology & Rehabilitation', 'Neuroscience', 'Oral Biology', 'Oral Sciences', 'Oral Science', 'Orthodontics', 'Pathology', 'Pediatric Dentistry', 'Periodontics', 'Pharmaceutical sciences', 'Pharmaceutical Sciences', 'Pharmaceutical Science', 'Pharmacology', 'Pharmacy Systems, Outcomes & Policy', 'Pharmacy Systems, Outcomes and Policy', 'Pharmacy, Systems, Outcomes and Policy', 'Physical Therapy', 'Physiology and Biophysics', 'Prosthodontics', 'PSCI', 'Public Administration', 'Public Health Sciences-Clinical and Transitional Science', 'Public Health Sciences - Community Health Sciences', 'Public Health Sciences-Community Health Sciences', 'Public Health Sciences-Environmental and Occupational Health Sciences', 'Public Health Sciences-Epidemiology', 'Public Health Sciences-Health Policy Administration', 'Public Health Sciences-Health Policy & Administration', 'Public Health Sciences-Health Policy and Administration', 'Restorative Dentistry', 'Restorative', 'Special Education', 'Urban Planning and Policy']
 #try and error to find server-name: it's "lboro" because  https://lboro.figshare.com/ exists
 thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'melbourne' : 'U. Melbourne (main)', #2
@@ -547,6 +549,7 @@ thesesstandardservers = {'kilthub' : 'Carnegie Mellon U. (main)',
                          'wellington' : 'Victoria U., Wellington',#no theses ???
                          'lboro' : 'Loughborough U.',
                          'mq' : 'Macquarie U.',
+                         'uic' : 'U. Illinois, Chicago',
                          'hammer' : 'Purdue U.'} 
 
 nonlistedcategories = {}
@@ -581,7 +584,7 @@ elif srv in list(thesesstandardservers.keys()):
     jnl = 'BOOK'
 #    for cat in list(cattofc.keys()):
 #        payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :category: %s AND :item_type: thesis" % (srv, cat)}))
-    for y in range(2):
+    for y in range(years-1):
         payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :posted_date: %i AND :item_type: thesis" % (srv, ejlmod3.year(backwards=y))}))
         payloads.append((thesesstandardservers[srv], {"search": ":institution: %s AND :publication_date: %i AND :item_type: thesis" % (srv, ejlmod3.year(backwards=y))}))
     alloweditems = ['thesis']
