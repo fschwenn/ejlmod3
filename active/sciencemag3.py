@@ -24,7 +24,7 @@ pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 
 
 options = uc.ChromeOptions()
-#options.binary_location='/usr/bin/google-chrome'
+options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -197,7 +197,7 @@ def harvestarticle(jnl, rec, i, l, r):
                 print('     COULD NOT DOWNLOAD PDF')
     #authors of errata
     if not 'autaff' in rec or not rec['autaff']:
-        if 'tit' in rec an re.search('Erratum for.* by ', rec['tit']):
+        if 'tit' in rec and re.search('Erratum for.* by ', rec['tit']):
             author = re.sub('Erratum for.* by ', '', rec['tit'])
             author = re.sub(' et al.*', '', author)
             rec['autaff'] = [[ author ]]
