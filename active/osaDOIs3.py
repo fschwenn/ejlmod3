@@ -15,45 +15,51 @@ from selenium.webdriver.common.by import By
 publisher = 'OSA Publishing'
 typecode = 'P'
 bunchsize = 10
-skipalreadyharvested = True
+corethreshold = 15
+skipalreadyharvested = False
 
 jnlfilename = 'OSA_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-sample = {'10.1364/OE.17.010976' : {'all' : 13 , 'core' : 13},
-          '10.1364/OL.26.001714' : {'all' : 14 , 'core' : 14},
-          '10.1364/OL.417851' : {'all' : 10 , 'core' : 10},
-          '10.1364/OPEX.12.003865' : {'all' : 15 , 'core' : 15},
-          '10.1364/PRJ.396115' : {'all' : 50 , 'core' : 50},
-          '10.1364/OPTICA.394667' : {'all' : 15 , 'core' : 15},
-          '10.1364/AOP.411024' : {'all' : 22 , 'core' : 22},
-          '10.1364/JOSAB.6.002023' : {'all' : 33 , 'core' : 33},
-          '10.1364/OE.15.003568' : {'all' : 23 , 'core' : 23},
-          '10.1364/OL.30.002001' : {'all' : 39 , 'core' : 39},
-          '10.1364/OPTICA.388773' : {'all' : 19 , 'core' : 19},
-          '10.1364/JOSAB.32.000A40' : {'all' : 21 , 'core' : 21},
-          '10.1364/OE.417856' : {'all' : 15 , 'core' : 15},
-          '10.1364/OL.4.000205' : {'all' : 63 , 'core' : 63},
-          '10.1364/OPTICA.412211' : {'all' : 22 , 'core' : 22},
-          '10.1364/OE.15.015377' : {'all' : 30 , 'core' : 30},
-          '10.1364/OPTICA.398628' : {'all' : 29 , 'core' : 29},
-          '10.1364/OPTICA.425414' : {'all' : 36 , 'core' : 36},
-          '10.1364/JOSA.31.000488' : {'all' : 53 , 'core' : 53},
-          '10.1364/OPTICA.400751' : {'all' : 49 , 'core' : 49},
-          '10.1364/OPTICA.413657' : {'all' : 22 , 'core' : 22},
-          '10.1364/PRJ.388790' : {'all' : 26 , 'core' : 26},
-          '10.1364/PRJ.428309' : {'all' : 20 , 'core' : 20},
-          '10.1364/OPTICA.387306' : {'all' : 29 , 'core' : 29},
-          '10.1364/OPTICA.4.000611' : {'all' : 21 , 'core' : 21},
-          '10.1364/JOSAB.10.000524' : {'all' : 112 , 'core' : 112},
-          '10.1364/ON.11.2.000011' : {'all' : 47 , 'core' : 47},
-          '10.1364/JOSA.62.000055' : {'all' : 78 , 'core' : 78},
-          '10.1364/OE.16.003032' : {'all' : 94 , 'core' : 94},
-          '10.1364/AOP.1.000238' : {'all' : 87 , 'core' : 87},
-          '10.1364/OE.16.019118' : {'all' : 13 , 'core' : 13},
-          '10.1364/OE.405832' : {'all' : 12 , 'core' : 12},
-          '10.1364/OE.418323' : {'all' : 11 , 'core' : 11}}
+sample = {'10.1364/OPTICA.5.001455' : {'all' : 31, 'core' : 24},
+          '10.1364/OL.37.001008' : {'all' : 30, 'core' : 29},
+          '10.1364/OPTICA.4.001034' : {'all' : 30, 'core' : 19},
+          '10.1364/OPTICA.389482' : {'all' : 29, 'core' : 16},
+          '10.1364/OPTICA.4.001536' : {'all' : 29, 'core' : 12},
+          '10.1364/OL.41.003511' : {'all' : 28, 'core' : 26},
+          '10.1364/OE.16.018790' : {'all' : 27, 'core' : 25},
+          '10.1364/OE.24.009816' : {'all' : 27, 'core' : 18},
+          '10.1364/OPTICA.6.000288' : {'all' : 27, 'core' : 12},
+          '10.1364/OE.18.008587' : {'all' : 26, 'core' : 23},
+          '10.1364/OPTICA.2.000832' : {'all' : 26, 'core' : 18},
+          '10.1364/OL.43.005110' : {'all' : 25, 'core' : 23},
+          '10.1364/OL.42.001588' : {'all' : 24, 'core' : 22},
+          '10.1364/OE.26.031925' : {'all' : 24, 'core' : 13},
+          '10.1364/OPTICA.3.000407' : {'all' : 23, 'core' : 20},
+          '10.1364/OPTICA.388773' : {'all' : 23, 'core' : 16},
+          '10.1364/OE.21.011546' : {'all' : 22, 'core' : 12},
+          '10.1364/OL.35.002454' : {'all' : 21, 'core' : 20},
+          '10.1364/OPTICA.2.000523' : {'all' : 21, 'core' : 19},
+          '10.1364/OPEX.12.003865' : {'all' : 21, 'core' : 16},
+          '10.1364/JOSAB.32.000A56' : {'all' : 21, 'core' : 12},
+          '10.1364/OE.20.014030' : {'all' : 20, 'core' : 19},
+          '10.1364/OPTICA.4.001462' : {'all' : 20, 'core' : 16},
+          '10.1364/OE.20.017411' : {'all' : 20, 'core' : 16},
+          '10.1364/OL.43.002380' : {'all' : 19, 'core' : 16},
+          '10.1364/OE.26.022563' : {'all' : 19, 'core' : 15},
+          '10.1364/OE.27.037214' : {'all' : 19, 'core' : 14},
+          '10.1364/OPTICA.5.001012' : {'all' : 19, 'core' : 13},
+          '10.1364/OE.19.016309' : {'all' : 19, 'core' : 13},
+          '10.1364/JOSAB.32.000A74' : {'all' : 19, 'core' : 13},
+          '10.1364/OPTICA.420973' : {'all' : 19, 'core' : 12},
+          '10.1364/OE.418323' : {'all' : 18, 'core' : 16},
+          '10.1364/OE.25.032227' : {'all' : 18, 'core' : 13},
+          '10.1364/OPTICA.394667' : {'all' : 18, 'core' : 12},
+          '10.1364/OE.25.026453' : {'all' : 17, 'core' : 17},
+          '10.1364/OL.44.002398' : {'all' : 17, 'core' : 15},
+          '10.1364/OL.43.002030' : {'all' : 17, 'core' : 15},
+          '10.1364/OE.417856' : {'all' : 17, 'core' : 15}}
           
 
 
@@ -62,6 +68,8 @@ pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 
 options = uc.ChromeOptions()
 options.binary_location='/usr/bin/chromium'
+options.binary_location='/usr/bin/google-chrome'
+options.add_argument('--headless')
 options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
@@ -74,7 +82,7 @@ missingjournals = []
 for doi in sample:
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
@@ -147,7 +155,7 @@ for doi in sample:
                                         'citation_issue', 'citation_title'])
     #ORCIDs
     orciddict = {}
-    for div in artpage.find_all('div', attrs = {'id' : 'authorAffiliations'}):        
+    for div in artpage.find_all('div', attrs = {'id' : 'authorAffiliations'}): 
         for tr in div.find_all('tr'):
             tds = tr.find_all('td')
             if len(tds) == 2 and re.search('orcid.org', tds[1].text):
@@ -160,7 +168,7 @@ for doi in sample:
     for meta in artpage.find_all('meta'):
         if meta.has_attr('name'):
             #print meta['name']
-            if meta['name'] == 'citation_author':                
+            if meta['name'] == 'citation_author': 
                 rec['autaff'].append([ meta['content'] ])
                 if meta['content'] in orciddict and orciddict[meta['content']]:
                     rec['autaff'][-1].append(orciddict[meta['content']])
@@ -212,7 +220,7 @@ for doi in sample:
                 print('     %s already exists' % (targetfilename))
             else:
                 savedfilename = '%s/%s.pdf' % (downloadpath, re.sub('.*uri=(.*)&.*', r'\1', rec2['FFT']))
-                if not os.path.isfile(savedfilename):            
+                if not os.path.isfile(savedfilename): 
                     print('     get %s from %s' % (savedfilename, rec2['FFT']))
                     driver.get(rec2['FFT'])
                     time.sleep(30)
