@@ -147,8 +147,8 @@ for rec in recs:
             if re.search('^\{', scriptt):
                 try:
                     metadata = json.loads(scriptt)
-                    print("  could  not load JSON")
                 except:
+                    print("  could  not load JSON")
                     metadata = {}
                 if 'page' in metadata:
                     print("   metadata in JSON found")
@@ -205,6 +205,11 @@ for rec in recs:
         for a in section.find_all('a'):
             if a.has_attr('href') and re.search('creativecom', a['href']):
                 rec['license'] = {'url' : a['href']}
+    #Errata
+    if not 'autaff' in rec or not rec['autaff']:
+        if re.search('Correction .*for .* et al', rec['tit']):
+            rec['autaff'] = [[ re.sub('Correction .*for (.*) et al.*', r'\1', rec['tit'])]]
+            print("    Erratum rec['autaff']=", rec['autaff'])
     ejlmod3.printrecsummary(rec)
     time.sleep(10)
 
