@@ -9,13 +9,13 @@ from bs4 import BeautifulSoup
 import re
 import time
 import ejlmod3
-#import undetected_chromedriver as uc
+import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
+#from selenium.webdriver.chrome.options import Options
 
 publisher = 'Florida U.'
 
@@ -104,7 +104,8 @@ boring += ["Accounting", "Advertising", "Aerospace Engineering", "Agricultural a
            "Tourism, Recreation, and Sport Management", "Urban and Regional Planning", "Veterinary Medical Sciences",
            "Veterinary Medicine", "Wildlife Ecology and Conservation", "Women's Studies", "Zoology",
            "Occupational Therapy", "Romance Languages and Literatures"]
-boring += ['Ed.D.', 'M.A.M.C.', 'M.A.', 'M.H.P.', 'M.S.C.M.', 'M.S.', 'M.U.R.P.', 'B.S.', 'M.D.P.', 'D.B.A.', 'B.L.A', 'M.L.A.']
+boring += ['Ed.D.', 'M.A.M.C.', 'M.A.', 'M.H.P.', 'M.S.C.M.', 'M.S.', 'M.U.R.P.',
+           'B.S.', 'M.D.P.', 'D.B.A.', 'B.L.A', 'M.L.A.', 'B.A.']
 reboringdegree = re.compile(' (M\.S\.|Ed\.D\.|M\.A\.|M\.H\.P\.|M\.U\.R\.P\.|B\.S\.|M\.D\.P\.|D\.B\.A\.|B\.L\.A\.|M\.L\.A\.)')
 boring += ['Plant Pathology Thesis, Ph.D.', 'Animal Sciences Thesis, Ph.D.', 'Art History Thesis, Ph.D.',
            'Counseling and Counselor Education Thesis, Ph.D.', 'Curriculum and Instruction Thesis, Ph.D.',
@@ -133,17 +134,22 @@ boring += ['Plant Pathology Thesis, Ph.D.', 'Animal Sciences Thesis, Ph.D.', 'Ar
 
 jnlfilename = 'THESES-FloridaU-%s' % (ejlmod3.stampoftoday())
 
-options = Options()
+#options = Options()
+options = uc.ChromeOptions()
 options.add_argument("--headless")
 options.add_argument("--enable-javascript")
 options.add_argument("--incognito")
 options.add_argument("--nogpu")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1200,1980")
-options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option('useAutomationExtension', False)
+#options.add_experimental_option("excludeSwitches", ["enable-automation"])
+#options.add_experimental_option('useAutomationExtension', False)
 options.add_argument('--disable-blink-features=AutomationControlled')
-driver = webdriver.Chrome(options=options)
+options.binary_location='/usr/bin/google-chrome'
+#options.binary_location='/usr/bin/chromium'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+#driver = webdriver.Chrome(options=options)
 
 prerecs = []
 uninteresting = []
@@ -213,7 +219,7 @@ for rec in prerecs:
     i += 1
     keepit = True
     embargo = False
-    ejlmod3.printprogress('-', [[len(recs), i, len(prerecs)], [rec['artlink']]])
+    ejlmod3.printprogress('-', [[i, len(prerecs)], [rec['artlink']], [len(recs)]])
     #TRY MARC XML
     artfilename = '/tmp/florida_%s' % (re.sub('\W', '', rec['artlink']))
     if not os.path.isfile(artfilename):
@@ -395,8 +401,8 @@ for rec in prerecs:
                 elif re.search('Record for a UF thesis.*t display until thesis is accessible', rec['tit']):
                     embargo = True
                     print('    %s' % (re.sub('.*UF thesis. *', '', rec['tit'])))
-                else:
-                    ejlmod3.printrecsummary(rec)                           
+#                else:
+#                    ejlmod3.printrecsummary(rec)                           
                 
 #        except:
 #            embargo = True
