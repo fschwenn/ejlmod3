@@ -12,8 +12,9 @@ import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
 
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
+corethreshold = 15
 
 jnlfilename = 'OUP_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
@@ -128,7 +129,7 @@ sample = {'10.1093/pasj/psx061' : {'all' : 17 , 'core' : 17},
           '10.1093/mnras/199.4.883' : {'all' : 457 , 'core' : 457},
           '10.1093/comjnl/13.3.317' : {'all' : 71 , 'core' : 71},
           '10.1143/PTP.85.1' : {'all' : 52 , 'core' : 52},
-          '10.1143/PTPS.88.1' : {'all' : 94 , 'core' : 94},
+#          '10.1143/PTPS.88.1' : {'all' : 94 , 'core' : 94},
           '10.1143/PTPS.6.93' : {'all' : 88 , 'core' : 88},
           '10.1093/mnras/stw2759' : {'all' : 192 , 'core' : 192},
           '10.1111/j.1365-2966.2004.08097.x' : {'all' : 264 , 'core' : 264},
@@ -143,6 +144,13 @@ sample = {'10.1093/pasj/psx061' : {'all' : 17 , 'core' : 17},
           '10.1093/acprof:oso/9780198509141.001.0001' : {'all' : 53 , 'core' : 53},
           '10.1093/acprof:oso/9780198509233.001.0001' : {'all' : 75 , 'core' : 75}}
 #          '10.1093/acprof:oso/9780198508717.001.0001' : {'all' : 88 , 'core' : 88}}
+sample = {'10.1093/acprof:oso/9780198525004.001.0001' : {'all' : 84, 'core' : 29},
+          '10.1155/S107379280320917X' : {'all' : 80, 'core' : 58},
+          '10.1093/acprof:oso/9780198509141.001.0001' : {'all' : 66, 'core' : 31},
+          '10.1093/acprof:oso/9780199227259.001.0001' : {'all' : 49, 'core' : 27},
+          '10.1093/nsr/nwz193' : {'all' : 49, 'core' : 12},
+          '10.1093/nsr/nwy088' : {'all' : 21, 'core' : 18},
+          '10.1093/jcde/qwac003' : {'all' : 17, 'core' : 16}}
 
 
     
@@ -337,7 +345,7 @@ missingjournals = []
 for doi in sample:
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
