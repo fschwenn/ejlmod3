@@ -18,8 +18,9 @@ import random
 def tfstrip(x): return x.strip()
 
 publisher = 'Taylor and Francis'
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
+corethreshold = 15
 
 jnlfilename = 'TANDF_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
@@ -92,7 +93,43 @@ sample = {'10.1080/01969727308546046' : {'all' : 14 , 'core' : 14},
           '10.1080/00107151031000110776' : {'all' : 135 , 'core' : 135},
           '10.1080/00268976.2011.552441' : {'all' : 90 , 'core' : 90},
           '10.1080/00107514.2016.1201896' : {'all' : 227 , 'core' : 227}}
-
+sample = {'10.1080/00018732.2015.1055918' : {'all' : 294, 'core' : 74},
+          '10.1080/00107514.2016.1201896' : {'all' : 283, 'core' : 102},
+          '10.1080/00107514.2014.964942' : {'all' : 242, 'core' : 210},
+          '10.1080/00018730701223200' : {'all' : 238, 'core' : 68},
+          '10.1080/00107151031000110776' : {'all' : 174, 'core' : 78},
+          '10.1080/00107510802091298' : {'all' : 151, 'core' : 77},
+          '10.1080/00268976.2011.552441' : {'all' : 140, 'core' : 128},
+          '10.1080/00107510601101934' : {'all' : 137, 'core' : 60},
+          '10.1080/09500349314551321' : {'all' : 117, 'core' : 48},
+          '10.1080/14786440109462720' : {'all' : 111, 'core' : 38},
+          '10.1080/0950034021000011536' : {'all' : 106, 'core' : 63},
+          '10.1080/01621459.1963.10500830' : {'all' : 102, 'core' : 65},
+          '10.1080/09500340.2016.1148212' : {'all' : 93, 'core' : 54},
+          '10.1080/23746149.2016.1230476' : {'all' : 86, 'core' : 37},
+          '10.1080/01621459.1949.10483310' : {'all' : 84, 'core' : 43},
+          '10.1080/00405000.2013.829687' : {'all' : 73, 'core' : 28},
+          '10.1080/14786435.2011.609152' : {'all' : 70, 'core' : 38},
+          '10.1080/00107514.2019.1631555' : {'all' : 62, 'core' : 29},
+          '10.1080/14786437208229210' : {'all' : 60, 'core' : 35},
+          '10.1080/00107514.2018.1488463' : {'all' : 55, 'core' : 26},
+          '10.1080/00268976400100041' : {'all' : 51, 'core' : 37},
+          '10.1080/23746149.2017.1343097' : {'all' : 50, 'core' : 19},
+          '10.1080/23307706.2017.1397554' : {'all' : 36, 'core' : 24},
+          '10.1080/23746149.2018.1457981' : {'all' : 35, 'core' : 26},
+          '10.1080/09500349708231877' : {'all' : 35, 'core' : 19},
+          '10.1080/00107510903257624' : {'all' : 30, 'core' : 17},
+          '10.1080/09500340008232177' : {'all' : 26, 'core' : 13},
+          '10.1080/00107514.2016.1148333' : {'all' : 22, 'core' : 19},
+          '10.1080/09500349414552191' : {'all' : 21, 'core' : 13},
+          '10.1080/09500340601101575' : {'all' : 20, 'core' : 16},
+          '10.1080/00268976.2012.668289' : {'all' : 19, 'core' : 18},
+          '10.1080/09500340008244041' : {'all' : 19, 'core' : 14},
+          '10.1080/09500340308234554' : {'all' : 18, 'core' : 12},
+          '10.1080/00107514.2018.1450720' : {'all' : 17, 'core' : 13},
+          '10.1080/00268976.2019.1580392' : {'all' : 13, 'core' : 10},
+          '10.1080/02635143.2021.1920905' : {'all' : 12, 'core' : 9}}
+    
 i = 0
 recs = []
 missingjournals = []
@@ -101,7 +138,7 @@ for doi in sample:
     rec = {'doi' : doi, 'tc' : 'P', 'autaff' : [], 'keyw' : [], 'refs' : [], 'note' : []}
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
@@ -146,9 +183,19 @@ for doi in sample:
         elif jnl in ['Journal of the American Statistical Association']:
             rec['jnl'] = 'J.Am.Statist.Assoc.'
         elif jnl in ['Neutron News']:
-            rec['jnl'] = 'Neutron News
-        elif jnl in [''Philosophical Magazine']:
+            rec['jnl'] = 'Neutron News'
+        elif jnl in ['Philosophical Magazine']:
             rec['jnl'] = 'Phil.Mag.'
+        elif jnl in ['Journal of Modern Optics, November 20, 2002']:
+            rec['jnl'] = 'J.Mod.Opt.'
+        elif jnl in ['']:
+            rec['jnl'] = ''
+        elif jnl in ['']:
+            rec['jnl'] = ''
+        elif jnl in ['']:
+            rec['jnl'] = ''
+        elif jnl in ['']:
+            rec['jnl'] = ''
         if re.search(', Vol\.', meta['content']):
             rec['vol'] = re.sub('.*Vol\. *(\d+).*', r'\1', meta['content'])
         if re.search(', No\.', meta['content']):
@@ -167,13 +214,25 @@ for doi in sample:
         rec['jnl'] = 'J.Mod.Opt.'
     elif doi in ['10.1080/00107514.2014.964942', '10.1080/00107514.2018.1488463']:
         rec['jnl'] = 'Contemp.Phys.'
-    elif doi in ['10.1080/23746149.2017.1343097', '10.1080/23746149.2018.1457981']:
+    elif doi in ['10.1080/23746149.2017.1343097', '10.1080/23746149.2018.1457981',
+                 '10.1080/23746149.2016.1230476']:
         rec['jnl'] = 'Adv.Phys.X'
     elif doi in ['10.1080/03610927808827599']:
         rec['jnl'] = 'Commun.Stat.'
     elif doi in ['10.1198/106186006X136976']:
         rec['jnl'] = 'J.Comp.Graph.Stat.'
-    elif doi in ['10.1080/00405000.2013.829687']:
+    elif doi in ['10.1080/00018732.2015.1055918']:
+        rec['jnl'] = 'Adv.Phys.'
+    elif doi in ['10.1080/00107514.2016.1201896', '10.1080/00405000.2013.829687',
+                 '10.1080/00107514.2019.1631555', '10.1080/00107514.2016.1148333']:
+        rec['jnl'] = 'Contemp.Phys.'
+    elif doi in ['10.1080/09500340.2016.1148212']:
+        rec['jnl'] = 'J.Mod.Opt.'
+    elif doi in ['10.1080/23307706.2017.1397554']:
+        rec['jnl'] = 'J.Control Decis.'
+    elif doi in ['']:
+        rec['jnl'] = ''
+    elif doi in ['']:
         rec['jnl'] = ''
     elif doi in ['']:
         rec['jnl'] = ''
@@ -239,7 +298,7 @@ for doi in sample:
         rec['refs'] = []
         for li in ul.find_all('li'):
             rdoi = ''
-            for a in li.find_all('a'):                
+            for a in li.find_all('a'): 
                 if a.has_attr('href'):
                     if re.search('Cross[rR]ef', a.text):
                         rdoi = re.sub('.*=', ', DOI: ', a['href'])
@@ -265,6 +324,7 @@ for doi in sample:
             else:
                 rec['refs'].append([('x', lit)])
     if 'note' in rec and rec['note'] and rec['note'][0] in ['Book reviews', 'Essay reviews']:
+        print(rec['note'])
         continue
     elif 'note' in rec and rec['note'] and rec['note'][0] in ['Review Article']:
         rec['tc'] += 'R'
