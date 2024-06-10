@@ -14,8 +14,9 @@ from bs4 import BeautifulSoup
 publisher = 'Cambridge University Press'
 
 tc = 'P'
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
+corethreshold = 15
 
 jnlfilename = 'CAMBRIDGE_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
@@ -33,6 +34,8 @@ sample = {'10.1017/S0305004100013554' : {'all' : 263 , 'core' : 263},
           '10.1017/S0305004100019137' : {'all' : 100 , 'core' : 100},
           '10.1017/hpl.2019.36' : {'all' : 137 , 'core' : 137},
           '10.1017/fmp.2018.3' : {'all' : 26 , 'core' : 26}}
+sample = {'10.1017/S0305004100009580' : {'all' : 86, 'core' : 36},
+          '10.1017/S0305004100021162' : {'all' : 32, 'core' : 23}}
 
 
 reref = re.compile('^reference\-\d')
@@ -54,7 +57,7 @@ for doi in sample:
 
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
@@ -82,15 +85,15 @@ for doi in sample:
             rec['jnl'] = 'Acta Numer.'
         elif meta['content'] == 'Mathematical Proceedings of the Cambridge Philosophical Society':
             rec['jnl'] = 'Math.Proc.Cambridge Phil.Soc.'
-        elif meta['content'] == 'High Power Laser Science and Engineering'
+        elif meta['content'] == 'High Power Laser Science and Engineering':
             rec['jnl'] = 'High Power Laser Sci.Eng.'
-        elif meta['content'] == 'Mathematical Structures in Computer Science'
+        elif meta['content'] == 'Mathematical Structures in Computer Science':
             rec['jnl'] = 'Math.Struct.Comput.Sci.'
-        elif meta['content'] == 'Nagoya Mathematical Journal'
+        elif meta['content'] == 'Nagoya Mathematical Journal':
             rec['jnl'] = 'Nagoya Math.J.'
-        elif meta['content'] == 'Forum of Mathematics, Pi'
+        elif meta['content'] == 'Forum of Mathematics, Pi':
             rec['jnl'] = 'Forum Math.Pi'
-'
+
 
     if not 'jnl' in rec:
         missingjournals.append(meta['content'])
