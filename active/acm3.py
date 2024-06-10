@@ -141,7 +141,7 @@ else:
     elif (jnl == 'toms'): 
         jnlname = 'ACM Trans.Math.Software'
     elif (jnl == 'cacm'): 
-        jnlname = 'J.Assoc.Comput.Machinery'
+        jnlname = 'Commun.ACM'
     elif (jnl == 'csur'): 
         jnlname = 'ACM Comput.Surveys'
     elif (jnl == 'sigsam-cca'):
@@ -386,7 +386,11 @@ for rec in recs:
                 pages = re.split('\D', re.sub('.*pp +(\d+\D\d+).*', r'\1', div2t))
                 rec['p1'] = pages[0]
                 rec['p2'] = pages[1]
-
+    #date
+    if not 'date' in rec:
+        for span in artpage.find_all('span', attrs = {'class' : 'CitationCoverDate'}):
+            rec['date'] = span.text.strip()
+    
 
 
 
