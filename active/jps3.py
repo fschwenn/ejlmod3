@@ -26,7 +26,7 @@ if jnl == 'jpsj':
     vol = sys.argv[2]
     issue = sys.argv[3]
     year = sys.argv[4]
-    jnlfilename = jnl+vol+'.'+issue
+    jnlfilename = jnl+vol+'.'+issue + '_' + ejlmod3.stampoftoday()
     toclink = '%s/toc/%s/%s/%s/%s' % (urltrunc, jnl, year, vol, issue)
     tc = 'P'
 else:
