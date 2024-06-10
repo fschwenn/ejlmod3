@@ -15,8 +15,9 @@ import random
 
 publisher = 'WILEY'
 
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
+corethreshold = 15
 
 jnlfilename = 'WILEY_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
@@ -93,7 +94,28 @@ sample = {'10.1002/adma.202003361' : {'all' : 16 , 'core' : 16},
           '10.1002/wcms.1340' : {'all' : 105 , 'core' : 105},
           '10.1002/andp.19053221004' : {'all' : 196 , 'core' : 196},
           '10.1002/qua.26352' : {'all' : 9 , 'core' : 9}}
-
+sample = {'10.1002/spe.3039' : {'all' : 49, 'core' : 42},
+          '10.1002/047174882X' : {'all' : 40, 'core' : 23},
+          '10.1002/anie.201506556' : {'all' : 33, 'core' : 15},
+          '10.1002/lpor.201500258' : {'all' : 28, 'core' : 19},
+          '10.1002/j.1538-7305.1950.tb00463.x' : {'all' : 27, 'core' : 21},
+          '10.1002/qute.201900141' : {'all' : 27, 'core' : 17},
+          '10.1002/qute.201800091' : {'all' : 26, 'core' : 19},
+          '10.1002/admi.201801449' : {'all' : 25, 'core' : 12},
+          '10.1002/que2.34' : {'all' : 24, 'core' : 20},
+          '10.1002/que2.26' : {'all' : 24, 'core' : 19},
+          '10.1002/wcms.1481' : {'all' : 23, 'core' : 21},
+          '10.1002/qute.201900011' : {'all' : 23, 'core' : 18},
+          '10.1002/adma.202003361' : {'all' : 23, 'core' : 14},
+          '10.1002/9781119019572' : {'all' : 22, 'core' : 16},
+          '10.1002/lpor.200910010' : {'all' : 21, 'core' : 13},
+          '10.1002/andp.201700206' : {'all' : 19, 'core' : 15},
+          '10.1002/9781119009719.ch5' : {'all' : 19, 'core' : 12},
+          '10.1002/net.21751' : {'all' : 18, 'core' : 15},
+          '10.1002/adts.201800182' : {'all' : 17, 'core' : 17},
+          '10.1002/qute.202000005' : {'all' : 17, 'core' : 14},
+          '10.1002/qute.202000044' : {'all' : 16, 'core' : 15},
+          '10.1002/andp.201800347' : {'all' : 16, 'core' : 15}}
 
     
 host = os.uname()[1]
@@ -123,7 +145,7 @@ missingjournals = []
 for doi in sample:
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
@@ -190,7 +212,7 @@ for doi in sample:
         issn = '2511-9044'
         doitrunk = '10.1002/qute.'
         rec['jnl'] = 'Adv.Quantum Technol.'
-    elif (jnl == 'quanteng'):
+    elif jnl in ['quanteng', 'que']:
         issn = '2577-0470'
         doitrunk = '10.1002/que'
         rec['jnl'] = 'Quantum Eng.'
@@ -291,6 +313,9 @@ for doi in sample:
     elif (jnl == 'aic'):
         doitrunk = '10.1002/aic'
         rec['jnl'] = 'Aiche J.'
+    elif (jnl == 'adts'):
+        doitrunk = '10.1002/adts'
+        rec['jnl'] = 'Adv.Theor.Simul.'
     elif (jnl == 'spe'):
         doitrunk = '10.1002/spe'
         rec['jnl'] = 'Software Pract.Exper.'
@@ -300,6 +325,8 @@ for doi in sample:
         rec['jnl'] = 'Annals Eugen.'
     elif re.search('10.1111\/j.2517\-6161', doi):
         rec['jnl'] = 'J.Roy.Statist.Soc.B'
+    elif doi in ['10.1002\/047174882X', '10.1002/j.1538-7305.1950.tb00463.x']:
+        rec['jcl'] = 'Bell Syst.Tech.J.'
     if not 'jnl' in rec:
         missingjournals.append(doi)
         continue
