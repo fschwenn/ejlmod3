@@ -41,6 +41,9 @@ elif jnl == 'jpcafh': # 1 issue per week
 elif jnl == 'jctcce': # 1 issue per two weeks
     jnlname = 'J.Chem.Theor.Comput.'
     letter = ''
+elif jnl == 'ancac3': # 1 issue per two weaks
+    jnlname = 'ACS Nano'
+    letter = ''    
 else:
     print(' unknown journal "%s"' % (jnl))
     sys.exit(0)
