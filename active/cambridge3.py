@@ -83,6 +83,7 @@ if skipalreadyharvested:
 
 if jid in ['PHS', 'JFM']:
     supertocurl = 'https://www.cambridge.org/core/journals/%s/all-issues' % (camjnlname)
+    ejlmod3.printprogress('==', [[supertocurl]])
     supertocfilename = '/tmp/%s.toc' % (camjnlname)
     if not os.path.isfile(supertocfilename):
         os.system('wget -q -O %s %s' % (supertocfilename, supertocurl))
