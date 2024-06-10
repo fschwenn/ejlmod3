@@ -189,10 +189,11 @@ def addreferences(refsdict, articlelink):
     print('    ... from %s%s' % (articlelink, 'references'))
     needtowait = True
     try:
+        time.sleep(20)
         driver.get(articlelink + 'references')
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, 'stats-reference-link-googleScholar')))
         refpage = BeautifulSoup(driver.page_source, features="lxml")
-        time.sleep(40)
+        time.sleep(20)
         needtowait = False
     except:
         print(' wait %i seconds' % (refwait))
@@ -298,7 +299,7 @@ def ieee(number):
                                           'Message from the AI4I 2022 General Co-Chairs',
                                           'Message from the AI4I 2022 Program Co-Chairs',
                                           'Program', 'Welcome Message', 'Advance Program',
-                                          'IEEE Xplore Digital Library',
+                                          'IEEE Xplore Digital Library', 'Society Awards',
                                           'Chief Guest', 'Coverpage']:
                         notproperarticles += 1
                     else:
