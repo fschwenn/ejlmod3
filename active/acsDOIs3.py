@@ -12,76 +12,56 @@ import undetected_chromedriver as uc
 
 publisher = 'ACS'
 
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
+corethreshold = 15
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
 
 jnlfilename = 'ACS_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-sample = {'10.1021/acs.jctc.0c01052' : {'all' : 12 , 'core' : 12},
-          '10.1021/acs.jctc.1c00912' : {'all' : 10 , 'core' : 10},
-          '10.1021/acs.jctc.7b00049' : {'all' : 16 , 'core' : 16},
-          '10.1021/acs.nanolett.0c00339' : {'all' : 21 , 'core' : 21},
-          '10.1021/acs.nanolett.9b03847' : {'all' : 16 , 'core' : 16},
-          '10.1021/acsphotonics.0c00833' : {'all' : 15 , 'core' : 15},
-          '10.1021/acs.jctc.0c00421' : {'all' : 16 , 'core' : 16},
-          '10.1021/acs.jctc.8b00536' : {'all' : 14 , 'core' : 14},
-          '10.1021/acs.jpclett.0c02213' : {'all' : 12 , 'core' : 12},
-          '10.1021/jacs.8b05934' : {'all' : 12 , 'core' : 12},
-          '10.1021/acs.nanolett.5b02561' : {'all' : 17 , 'core' : 17},
-          '10.1021/ct301044e' : {'all' : 19 , 'core' : 19},
-          '10.1021/nl070949k' : {'all' : 17 , 'core' : 17},
-          '10.1021/acs.jpcb.7b10371' : {'all' : 17 , 'core' : 17},
-          '10.1021/acs.jpclett.0c03410' : {'all' : 14 , 'core' : 14},
-          '10.1021/cr2001417' : {'all' : 22 , 'core' : 22},
-          '10.1021/acscentsci.5b00338' : {'all' : 19 , 'core' : 19},
-          '10.1021/acs.jctc.0c00170' : {'all' : 16 , 'core' : 16},
-          '10.1021/acs.jctc.9b00236' : {'all' : 17 , 'core' : 17},
-          '10.1021/jacs.9b00984' : {'all' : 22 , 'core' : 22},
-          '10.1021/acscentsci.8b00788' : {'all' : 19 , 'core' : 19},
-          '10.1021/acs.jctc.9b00963' : {'all' : 20 , 'core' : 20},
-          '10.1021/acs.jctc.0c00666' : {'all' : 25 , 'core' : 25},
-          '10.1021/acsphotonics.9b00250' : {'all' : 55 , 'core' : 55},
-          '10.1021/acs.chemrev.8b00803' : {'all' : 281 , 'core' : 281},
-          '10.1021/acs.jctc.0c00113' : {'all' : 30 , 'core' : 30},
-          '10.1021/acs.jctc.8b00450' : {'all' : 33 , 'core' : 33},
-          '10.1021/acsnano.5b01651' : {'all' : 31 , 'core' : 31},
-          '10.1021/jp040647w' : {'all' : 53 , 'core' : 53},
-          '10.1021/nl303758w' : {'all' : 377 , 'core' : 377},
-          '10.1021/jz501649m' : {'all' : 32 , 'core' : 32},
-          '10.1021/acs.jctc.8b00943' : {'all' : 31 , 'core' : 31},
-          '10.1021/nl401216y' : {'all' : 76 , 'core' : 76},
-          '10.1021/acs.jctc.9b01083' : {'all' : 35 , 'core' : 35},
-          '10.1021/jp970984n' : {'all' : 48 , 'core' : 48},
-          '10.1021/acs.jctc.9b01084' : {'all' : 48 , 'core' : 48},
-          '10.1021/acs.jctc.9b01125' : {'all' : 50 , 'core' : 50},
-          '10.1021/acs.jctc.9b00791' : {'all' : 55 , 'core' : 55},
-          '10.1021/acs.jctc.0c00008' : {'all' : 52 , 'core' : 52},
-          '10.1021/jp030708a' : {'all' : 100 , 'core' : 100},
-          '10.1021/ac60214a047' : {'all' : 157 , 'core' : 157},
-          '10.1021/acs.jctc.8b00932' : {'all' : 63 , 'core' : 63},
-          '10.1021/acs.jctc.8b01004' : {'all' : 92 , 'core' : 92},
-          '10.1021/acsnano.0c03167' : {'all' : 14 , 'core' : 14},
-          '10.1021/acs.nanolett.0c02589' : {'all' : 12 , 'core' : 12}}
+sample = {'10.1021/acs.jctc.7b00174' : {'all' : 32, 'core' : 29},
+          '10.1021/nl070949k' : {'all' : 29, 'core' : 21},
+          '10.1021/acs.nanolett.6b04544' : {'all' : 27, 'core' : 14},
+          '10.1021/acs.jctc.0c00421' : {'all' : 26, 'core' : 21},
+          '10.1021/ct301044e' : {'all' : 26, 'core' : 18},
+          '10.1021/cr2001417' : {'all' : 26, 'core' : 17},
+          '10.1021/acs.nanolett.7b05075' : {'all' : 26, 'core' : 11},
+          '10.1021/acscentsci.5b00338' : {'all' : 25, 'core' : 20},
+          '10.1021/acs.nanolett.9b03847' : {'all' : 25, 'core' : 17},
+          '10.1021/acs.nanolett.9b00900' : {'all' : 25, 'core' : 11},
+          '10.14569/IJACSA.2018.090354' : {'all' : 23, 'core' : 22},
+          '10.1021/acscentsci.8b00788' : {'all' : 23, 'core' : 21},
+          '10.1021/acs.nanolett.5b02561' : {'all' : 23, 'core' : 15},
+          '10.1021/acs.nanolett.9b01316' : {'all' : 23, 'core' : 13},
+          '10.1021/acs.jctc.9b00236' : {'all' : 22, 'core' : 20},
+          '10.1021/acs.jctc.6b00316' : {'all' : 22, 'core' : 16},
+          '10.1021/acs.jpcb.7b10371' : {'all' : 21, 'core' : 17},
+          '10.1021/acsphotonics.0c00833' : {'all' : 21, 'core' : 15},
+          '10.1021/acs.jctc.8b00536' : {'all' : 20, 'core' : 15},
+          '10.1021/acs.jctc.7b00049' : {'all' : 20, 'core' : 12},
+          '10.1021/acs.jctc.0c00170' : {'all' : 19, 'core' : 18},
+          '10.1021/acs.jpclett.9b01117' : {'all' : 19, 'core' : 16},
+          '10.1021/acs.jpclett.0c03410' : {'all' : 18, 'core' : 18},
+          '10.1021/acs.jctc.6b00156' : {'all' : 18, 'core' : 14},
+          '10.1021/acs.nanolett.0c04771' : {'all' : 18, 'core' : 11},
+          '10.1021/jacs.8b05934' : {'all' : 17, 'core' : 16},
+          '10.1021/acs.jpclett.0c02213' : {'all' : 17, 'core' : 16}}
 
 
 host = os.uname()[1]
+options = uc.ChromeOptions()
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/home/schwenn/tmp'
 else:
-    options = uc.ChromeOptions()
-#    options.headless=True
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    print(chromeversion)
-    driver = uc.Chrome(version_main=chromeversion, options=options)
     tmpdir = '/tmp'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
 
 
 i = 0
@@ -134,12 +114,15 @@ for doi in sample:
     elif jnl == 'ac':
         rec['jnl'] = 'Anal.Chem.'
         letter = ''
+    elif jnl == 'ijacsa':
+        rec['jnl'] = 'International Journal of Advanced Computer Science and Applications'
+        letter = ''
     else:
         missingjournals.append(doi)
         continue
         
 
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested and doi in alreadyharvested:
@@ -168,8 +151,38 @@ for doi in sample:
     #fulltext
     ejlmod3.globallicensesearch(rec, artpage)
     if 'license' in rec:
-        for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
-            rec['FFT'] = 'https://pubs.acs.org' + a['href']
+#        for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
+#            rec['FFT'] = 'https://pubs.acs.org' + a['href']
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+        else:
+            for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
+                pdfurl = 'https://pubs.acs.org' + a['href'] + '?download=true'
+                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            print('     get PDF from %s' % (re.sub('epdf', 'pdf', pdfurl)))
+            time.sleep(20)
+            #driver.get(pdfurl)
+            driver.get(re.sub('epdf', 'pdf', pdfurl))
+            #print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n\n  --> please click download button <--\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            time.sleep(120)
+            found = False
+            for j in range(18):
+                if not found:
+                    for datei in os.listdir(downloadpath):
+                        if savedfilereg.search(datei):
+                            savedfilename = '%s/%s' % (downloadpath, datei)
+                            print('     mv %s to %s' % (savedfilename, targetfilename))
+                            os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                            found = True
+                if found:
+                    break
+                else:
+                    time.sleep(10)
+        
     #authors
     for span in artpage.find_all('span'):
         divs = span.find_all('div', attrs = {'class' : 'loa-info-name'})
