@@ -18,9 +18,10 @@ from multiprocessing import Process
 from multiprocessing import Manager
 import codecs
 
-skipalreadyharvested = True
+skipalreadyharvested = False
 bunchsize = 10
 publisher = 'IEEE'
+corethreshold = 15
 
 host = os.uname()[1]
 if host == 'l00schwenn':
@@ -176,7 +177,66 @@ sample = {'10.1109/SFCS.1994.365701' : {'all' : 23 , 'core' : 23},
           '10.1109/18.748992' : {'all' : 9 , 'core' : 9},
           '10.1109/Access.6287639' : {'all' : 10 , 'core' : 10},
           '10.1109/LPT.2018.2810334' : {'all' : 10 , 'core' : 10}}
-          
+sample = {'10.1109/TIT.2009.2032797' : {'all' : 49, 'core' : 27},
+          '10.1109/18.796385' : {'all' : 42, 'core' : 23},
+          '10.1109/TIT.1968.1054108' : {'all' : 38, 'core' : 13},
+          '10.1109/MMM.2020.2993476' : {'all' : 37, 'core' : 19},
+          '10.1109/COMST.2022.3144219' : {'all' : 34, 'core' : 30},
+          '10.1109/TIT.1979.1055985' : {'all' : 34, 'core' : 14},
+          '10.1109/TIT.2002.807289' : {'all' : 33, 'core' : 27},
+          '10.1109/JSTQE.2016.2573218' : {'all' : 33, 'core' : 21},
+          '10.1109/TIT.2011.2161917' : {'all' : 31, 'core' : 26},
+          '10.1109/18.959270' : {'all' : 30, 'core' : 15},
+          '10.1109/MSP.2012.2211477' : {'all' : 29, 'core' : 26},
+          '10.1109/TCAD.2007.911334' : {'all' : 29, 'core' : 25},
+          '10.1109/TIT.2016.2555700' : {'all' : 29, 'core' : 19},
+          '10.1109/18.256484' : {'all' : 28, 'core' : 26},
+          '10.1109/TIT.1978.1055892' : {'all' : 28, 'core' : 23},
+          '10.1109/4235.585893' : {'all' : 27, 'core' : 20},
+          '10.1109/TIT.2008.917696' : {'all' : 27, 'core' : 16},
+          '10.1109/TC.2020.3038063' : {'all' : 26, 'core' : 25},
+          '10.1109/FOCS.2017.45' : {'all' : 26, 'core' : 20},
+          '10.1109/TIT.2009.2021379' : {'all' : 26, 'core' : 19},
+          '10.1109/TIT.2002.806153' : {'all' : 26, 'core' : 15},
+          '10.1109/TC.2015.2409842' : {'all' : 25, 'core' : 23},
+          '10.1109/TIT.2010.2048442' : {'all' : 25, 'core' : 19},
+          '10.1109/TCSI.2018.2853655' : {'all' : 25, 'core' : 17},
+          '10.1109/TIT.2014.2308180' : {'all' : 24, 'core' : 20},
+          '10.1109/TIT.2003.822618' : {'all' : 23, 'core' : 23},
+          '10.1109/18.771249' : {'all' : 23, 'core' : 21},
+          '10.1109/LICS.2019.8785765' : {'all' : 23, 'core' : 20},
+          '10.1109/TIT.2013.2238656' : {'all' : 23, 'core' : 18},
+          '10.1109/TEVC.2002.804320' : {'all' : 23, 'core' : 17},
+          '10.1109/COMST.2018.2864557' : {'all' : 23, 'core' : 17},
+          '10.1109/18.904522' : {'all' : 22, 'core' : 16},
+          '10.1109/TIT.2011.2177772' : {'all' : 22, 'core' : 14},
+          '10.1109/TCOMM.2020.3006201' : {'all' : 22, 'core' : 14},
+          '10.1109/TITS.2019.2891235' : {'all' : 21, 'core' : 20},
+          '10.1109/SFCS.2000.892140' : {'all' : 21, 'core' : 20},
+          '10.1109/MSP.2018.3761723' : {'all' : 21, 'core' : 18},
+          '10.1109/JSAC.2020.2969035' : {'all' : 21, 'core' : 18},
+          '10.1109/CCC.2007.26' : {'all' : 21, 'core' : 17},
+          '10.1109/SFCS.1982.38' : {'all' : 21, 'core' : 15},
+          '10.1109/TIT.2012.2220519' : {'all' : 21, 'core' : 14},
+          '10.1109/TIT.2015.2388576' : {'all' : 20, 'core' : 16},
+          '10.1109/TIT.2010.2054174' : {'all' : 20, 'core' : 13},
+          '10.1109/TIT.2017.2711601' : {'all' : 19, 'core' : 19},
+          '10.1109/TIT.2008.2009798' : {'all' : 19, 'core' : 18},
+          '10.1109/CCC.2009.42' : {'all' : 19, 'core' : 18},
+          '10.1109/FOCS.2018.00038' : {'all' : 19, 'core' : 16},
+          '10.1109/TCAD.2003.811448' : {'all' : 18, 'core' : 16},
+          '10.1109/TNNLS.2020.3009716' : {'all' : 18, 'core' : 15},
+          '10.1109/TC.2018.2882774' : {'all' : 18, 'core' : 15},
+          '10.1109/TIT.2013.2292052' : {'all' : 17, 'core' : 16},
+          '10.1109/MCOM.2019.1800763' : {'all' : 17, 'core' : 16},
+          '10.1109/TKDE.2019.2937491' : {'all' : 17, 'core' : 15},
+          '10.1109/TIT.2015.2422294' : {'all' : 17, 'core' : 14},
+          '10.1109/TIT.2018.2825602' : {'all' : 16, 'core' : 16},
+          '10.1109/FOCS.2018.00039' : {'all' : 16, 'core' : 15},
+          '10.1109/MC.2020.2984871' : {'all' : 16, 'core' : 14},
+          '10.1109/TASC.2008.2012255' : {'all' : 16, 'core' : 13},
+          '10.1109/LICS.2005.1' : {'all' : 15, 'core' : 15}}
+         
 def meta_with_name(tag):
     return tag.name == 'meta' and tag.has_attr('name')
     
@@ -388,7 +448,7 @@ for doi in sample:
     i += 1
     ejlmod3.printprogress('-', [[i, len(sample)], [doi, sample[doi]['all'], sample[doi]['core']], [len(recs)]])
     print(missingjournals)
-    if sample[doi]['core'] < 20:
+    if sample[doi]['core'] < corethreshold:
         print('   too, few citations')
         continue
     if skipalreadyharvested:
@@ -495,7 +555,7 @@ for doi in sample:
     #references
     if hasreferencesection:
             refilename = '%s/ieee.%s.refs' % (tmpdir, re.sub('https?', 'http', re.sub('\W', '', articlelink)))
-            if not os.path.isfile(refilename) and host == 'l00schwenn':                    
+            if not os.path.isfile(refilename) and host == 'l00schwenn': 
                 iref += 1
                 print('  try to get references since %s not found' % (refilename))
                 action_process = Process(target=addreferences, args=(refsdict, articlelink))
