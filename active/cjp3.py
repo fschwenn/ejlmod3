@@ -75,6 +75,7 @@ for rec in recs:
     #WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'citation-content')))
     artpage = BeautifulSoup(driver.page_source, features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['dc.Title', 'dc.Subject', 'dc.Date', 'dc.Identifier', 'dc.Language'])
+    time.sleep(3)
     #abstract
     for section in artpage.body.find_all('section', attrs = {'id' : 'abstract'}):
         for h2 in section.find_all('h2'):
