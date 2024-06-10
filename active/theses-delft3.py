@@ -106,7 +106,7 @@ for line in inf.readlines():
         if len(parts) > 20 and re.search('[a-z]', parts[20]):
             researchgroup = parts[20]
             if researchgroup in boring:
-                #print('   skip', researchgroup)
+                print('   skip', researchgroup)
                 keepit = False
             else:
                 #print(researchgroup)
@@ -114,6 +114,8 @@ for line in inf.readlines():
         if keepit:
             if not skipalreadyharvested or not rec['doi'] in alreadyharvested:
                 recs.append(rec)
+            else:
+                 print('   %s already in backup' % (rec['doi']))
 inf.close()
     
 hdr = {'User-Agent' : 'Magic Browser'}
