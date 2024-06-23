@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-years = 2+3
+years = 2
 skipalreadyharvested = True
 subjects = {'SCPC' :  '', 'SCMA' : 'm', 'SCCM' : 'c', 'SCEC' :  ''}
 boring = ['Environment & Agriculture', 'Arts', 'Behavioral Sciences', 'Bioscience',
@@ -24,6 +24,7 @@ boring = ['Environment & Agriculture', 'Arts', 'Behavioral Sciences', 'Bioscienc
           'Hospitality and Events', 'Law', 'Medicine', 'Nursing & Allied Health',
           'Politics & International Relations', 'Social Sciences', 'Social Work',
           'Tourism', 'Urban Studies', 'Geography', 'Global Development', 'Sports and Leisure']
+backupbunchlength = 100
 
 jnlfilename = 'tandf_books_%s_' % (ejlmod3.stampoftoday())
 publisher = 'Taylor and Francis'
@@ -61,7 +62,6 @@ prerecs = []
 artlinks = []
 publisherrecs = {}
 toclink = 'https://www.taylorfrancis.com/search?sortBy=newest-to-oldest&key=&subject=' + subjectcode + '&from=' + str(ejlmod3.year(backwards=years-1)) + '&to=' + str(ejlmod3.year())
-toclink = 'https://www.taylorfrancis.com/search?sortBy=newest-to-oldest&key=&subject=' + subjectcode + '&from=' + str(ejlmod3.year(backwards=years-1+4)) + '&to=' + str(ejlmod3.year(backwards=4))
 ejlmod3.printprogress('===', [[toclink]])
 driver.get(toclink)
 time.sleep(5)
@@ -86,13 +86,12 @@ for page in range(pages):
                 rec['fc'] = subjects[subjectcode]
             rec['artlink'] = re.sub('\?context.*', '', a['href'])
             doi = re.sub('.*orfrancis.com\/books\/.*?\/(10\..*)\/.*', r'\1', rec['artlink'])
-            if skipalreadyharvested and rec['artlink'] in alreadyharvested:
-                if doi in einzelaufnahmen:
-                    print('   %s already in backup, BUT explicitely request' % (doi))
-                    prerecs.append(rec)
-                    artlinks.append(rec['artlink'])
-                else:
-                    print('   %s already in backup' % (doi))                        
+            if doi in einzelaufnahmen:
+                print('   %s explicitely requested' % (doi))
+                prerecs.append(rec)
+                artlinks.append(rec['artlink'])
+            elif skipalreadyharvested and rec['artlink'] in alreadyharvested:
+                print('   %s already in backup' % (doi))                        
             elif rec['artlink'] in artlinks:
                 print('   %s already in list' % (doi))
             elif ejlmod3.checkinterestingDOI(rec['artlink']):
@@ -158,8 +157,9 @@ for (i, rec) in enumerate(prerecs):
                     for a in div3.find_all('a'):
                         rec['doi'] = re.sub('.*doi.org\/', '', a['href'])
                         if skipalreadyharvested and rec['doi'] in alreadyharvested:
-                            keepit = False
-                            print('    %s already in backup' % (rec['doi']))
+                            if not rec['doi'] in einzelaufnahmen:
+                                keepit = False
+                                print('    %s already in backup' % (rec['doi']))
             for span in div3.find_all('span', attrs = {'class' : 'product-ryt-detail'}):
                 #edition
                 if th == 'Edition':
@@ -213,6 +213,8 @@ for (i, rec) in enumerate(prerecs):
             publisherrecs[rec['publisher']].append(rec)
         else:
             publisherrecs[rec['publisher']] = [rec]
+        if len(recs) % backupbunchlength == 0:
+            ejlmod3.writenewXML(recs[-backupbunchlength:], publisher, jnlfilename + '_' +  str(len(recs)), retfilename='retfiles_special')    
     time.sleep(10)
 
 
@@ -331,7 +333,7 @@ for (i, rec) in enumerate(recsforeinzelaufnahmen):
                         print('  [th???]', th)
         crecs.append(crec)
         ejlmod3.printrecsummary(rec)
-        time.sleep(10)
+        time.sleep(10)            
     ejlmod3.writenewXML(crecs, rec['publisher'], cjnlfilename)#, retfilename='retfiles_special')    
     time.sleep(10)
         
