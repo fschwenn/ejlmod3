@@ -155,5 +155,7 @@ for (dep, fc, aff) in [('Physics', '', 'Temple U.'), ('Mathematics', 'm', 'Templ
                 get_sub_side(item_link, fc, aff)
                 
                 sleep(3)
+            else:
+                print('    %i too old' % (year))
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
