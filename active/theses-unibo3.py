@@ -87,8 +87,13 @@ for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
             span.replace_with('')    
         for a in p.find_all('a'):
             rec['artlink'] =  a['href']
-            if keepit and ejlmod3.checkinterestingDOI(rec['artlink']):                
-                prerecs.append(rec)
+            if keepit and ejlmod3.checkinterestingDOI(rec['artlink']):
+                if skipalreadyharvested and rec['artlink'] in alreadyharvested:
+                    print('   %s already in backup' % (rec['artlink']))
+                elif skipalreadyharvested and re.sub('http:\/\/amsdottorato.unibo.it\/(.*)\/', r'10.48676/unibo/amsdottorato/\1', rec['artlink']) in alreadyharvested:
+                    print('   %s already in backup' % (re.sub('http:\/\/amsdottorato.unibo.it\/(.*)\/', r'10.48676/unibo/amsdottorato/\1', rec['artlink'])))
+                else:
+                    prerecs.append(rec)
 i = 0
 recs = []
 for rec in prerecs:
