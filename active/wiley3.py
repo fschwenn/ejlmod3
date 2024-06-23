@@ -183,6 +183,7 @@ else:
 host = os.uname()[1]
 options = uc.ChromeOptions()
 options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
+options.add_argument('--user-data-dir=/tmp/ChromeProfileWiley')
 if host == 'l00schwenn':
     options.binary_location='/usr/bin/chromium'
 #    options.binary_location='/usr/bin/google-chrome'
@@ -346,12 +347,19 @@ for rec in prerecs:
         for ul in div.find_all('ul', attrs = {'class' : 'loa-authors-trunc'}):
             rec['autafferrat'] = []
             for li in ul.find_all('li'):
-                rec['autafferrat'].append(re.sub(',$', '', li.text.strip()))
+                rec['autafferrat'].append([re.sub(',$', '', li.text.strip())])
             print("     ( Erratum: rec['autaff']=", rec['autafferrat'], ')')
-
-
-
-
+        if not 'autafferrat' in rec:
+            rec['autafferrat'] = []
+            for li in div.find_all('li'):
+                for a in li.find_all('a'):
+                    if a.has_attr('href') and re.search('authored\-by', a['href']):
+                        rec['autafferrat'].append([a.text.strip()])
+            if rec['autafferrat']:
+                print("     ( Erratum: rec['autaff']=", rec['autafferrat'], ')')
+            else:
+                del(rec['autafferrat'])
+                
 
     if not 'p1' in rec:
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'article_references'}):
