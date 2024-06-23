@@ -48,6 +48,7 @@ elif jid == 'PLA':
     jnlname = 'J.Plasma Phys.'
 elif jid == 'IJA':
     jnlname = 'Int.J.Astrobiol.'
+    camjnlname = 'international-journal-of-astrobiology'
 elif jid == 'GMJ':
     jnlname = 'Glasgow Math.J.'    
 elif jid == 'BAZ':
@@ -66,6 +67,7 @@ elif jid == 'SIC':
     jnlname = 'Sci.Context'
 elif jid == 'JMJ':
     jnlname = 'J.Inst.Math.Jussieu'
+    camjnlname = 'journal-of-the-institute-of-mathematics-of-jussieu'
 elif jid == 'MAM':
     jnlname = 'Microscopy Microanal.'
 elif jid == 'PHS':
@@ -81,7 +83,7 @@ elif jid == 'JFM':
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=7)
 
-if jid in ['PHS', 'JFM']:
+if jid in ['PHS', 'JFM', 'IJA', 'JMJ']:
     supertocurl = 'https://www.cambridge.org/core/journals/%s/all-issues' % (camjnlname)
     ejlmod3.printprogress('==', [[supertocurl]])
     supertocfilename = '/tmp/%s.toc' % (camjnlname)
@@ -91,7 +93,7 @@ if jid in ['PHS', 'JFM']:
     toc = BeautifulSoup(''.join(tocf.readlines()), features="lxml")
     tocf.close()
     for li in toc.body.find_all('li', attrs = {'class' : 'accordion-navigation'}):
-        if jid in ['PHS']:
+        if jid in ['PHS', 'JMJ']:
             for a in li.find_all('a', attrs = {'class' : 'row'}):
                 if a.has_attr('aria-label') and re.search('Volume '+vol, a['aria-label']):
                     print(a['aria-label'])
@@ -192,8 +194,11 @@ for i in range(numpages):
                                 if not note in ['Front Cover (OFC, IFC) and matter', 
                                                 'Back Cover (OBC, IBC) and matter',
                                                 'PhD Abstract']:
-                                    prerecs.append(rec)
-                                    print('?', rec['note'])
+                                    if skipalreadyharvested and rec['artlink'] in alreadyharvested:
+                                        print('   %s already in backup' % (rec['artlink']))
+                                    else:
+                                        prerecs.append(rec)
+                                        print('?', rec['note'])
 
 
 #2nd run to get details for individual articles
