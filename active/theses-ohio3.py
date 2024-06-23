@@ -23,8 +23,8 @@ boring = ['Education', 'Educational Leadership', 'Higher Education', 'Fine Arts'
           'Chemical Engineering', 'Chemistry', 'Clinical Psychology',
           'Educational Psychology', 'Engineering', 'Geology', 'Molecular Biology',
           'Nursing', 'Paleontology', 'Social Psychology', 'Adult Education',
-          'Behavioral Psychology', 'Behavioral Sciences', 'Biology',
-          'Biomedical Engineering', 'Biomedical Research', 'Chemical Engineering',
+          'Behavioral Psychology', 'Behavioral Sciences', 'Biology', 'Biomedical Engineering',
+          'Biomedical Research', 'Chemical Engineering', 'Web Studies',
           'Chemistry', 'Clinical Psychology', 'Cognitive Psychology',
           'Counseling Education', 'Counseling Psychology', 'Developmental Psychology',
           'Educational Psychology', 'Education History', 'Education Policy',
@@ -262,7 +262,10 @@ driver = uc.Chrome(version_main=chromeversion, options=options)
 
 driver.get('https://etd.ohiolink.edu')
 sleep(10)
-tocurl = 'https://etd.ohiolink.edu/acprod/odb_etd/etd/r/1501/search-results?token=2233876QZsBdCpQQZnygMSuIvKaDvWd&clear=1001,RP&p1001_page_rows=' + str(rpp)
+if ejlmod3.year() == 2024:
+    tocurl = 'https://etd.ohiolink.edu/acprod/odb_etd/r/etd/search/search-results?token=9294952ONMwVIKVOCznnqTCTvrnwFqa&clear=1001,RP&p1001_page_rows=' + str(rpp)
+else:
+    print('  generate new search token!')
 ejlmod3.printprogress('=', [[1], [tocurl]])
 driver.get(tocurl)
 tocpage = BeautifulSoup(driver.page_source, 'lxml')
@@ -317,11 +320,11 @@ with Session() as session:
                 driver.find_element(By.PARTIAL_LINK_TEXT, 'Next Set').click()
                 #tocpage = BeautifulSoup(driver.page_source, 'lxml')
                 #print(tocpage.text)
-                sleep(5)
+                sleep(15)
             else:
                 print('\n  -> click for page %i\n' % (page+1))
                 ejlmod3.printprogress('==', [[page+1, pages]])
                 driver.find_element(By.LINK_TEXT, str(page + 1)).click()
-                sleep(5)
+                sleep(15)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
