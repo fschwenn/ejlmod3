@@ -16,6 +16,8 @@ publisher = 'U. Liverpool (main)'
 hdr = {'User-Agent' : 'Magic Browser'}
 
 skipalreadyharvested = True
+pages = 20
+rpp = 20 # fix
 
 departmentstoskip = ["Chemistry", "Archaeology, Classics and Egyptology", "Archaeology",  "Architecture",  "Biochemistry",
                      "Biological Sciences",  "Biology",  "Biostatistics",  "Business Administration",
@@ -116,22 +118,36 @@ prerecs = []
 jnlfilename = 'THESES-LIVERPOOL-%s' % (ejlmod3.stampoftoday())
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
-for year in [ejlmod3.year(backwards=1), ejlmod3.year()]:
-    tocurl = 'https://livrepository.liverpool.ac.uk/view/doctype/thesis/%i.html' % (year)
-    print(tocurl)
+
+
+for page in range(pages):
+    tocurl = 'https://livrepository.liverpool.ac.uk/cgi/search/archive/advanced?order=-date%2Fcreators_name%2Ftitle&cache=175302&exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Cthesis_type%3Athesis_type%3AANY%3AEQ%3Aphd%7Ctype%3Atype%3AANY%3AEQ%3Athesis%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&_action_search=1&screen=Search&search_offset=' + str(page*rpp)
+    ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
     time.sleep(2)
-    for p in tocpage.find_all('p'):
-        for a in p.find_all('a'):
-            if a.has_attr('href') and re.search('livrepository.liverpool.ac.uk', a['href']):
-                rec = {'tc' : 'T', 'jnl' : 'BOOK', 'link' : a['href'], 'year' : str(year), 'supervisor' : []}
+    for tr in tocpage.body.find_all('tr', attrs = {'class' : 'ep_search_result'}):
+        rec = {'tc' : 'T', 'jnl' : 'BOOK', 'supervisor' : [], 'note' : []}
+        for a in tr.find_all('a', attrs = {'class' : 'ep_document_link'}):
+            if a.has_attr('href') and re.search('liverpool.ac.uk\/\d+.*pdf$', a['href']):
+                rec['pdf_url'] = a['href']
+                a.decompose()
+        for a in tr.find_all('a'):
+            if a.has_attr('href') and re.search('liverpool.ac.uk\/id\/eprint', a['href']):
+                rec['link'] = a['href']
                 rec['tit'] = a.text.strip()
-                a.replace_with('XXX')
-                pt = re.sub('.*XXX', '', re.sub('[\n\r\t]', '', p.text.strip()))
-                if not reboring.search(pt) and ejlmod3.checkinterestingDOI(rec['link']):
-                    rec['note'] = [ pt ]
+                rec['doi'] = '20.2000/Liverpool/' + re.sub('\D', '', a['href'])
+                if skipalreadyharvested and rec['doi'] in alreadyharvested:
+                    print('   %s already in backup' % (rec['doi']))
+                elif skipalreadyharvested and rec['link'] in alreadyharvested:
+                    print('   %s already in backup' % (rec['link']))
+                elif ejlmod3.checkinterestingDOI(rec['link']):
                     prerecs.append(rec)
+                else:
+                    print('   %s boring' % (rec['doi']))
+    print('  %4i records so far' % (len(prerecs)))
+                    
+            
 
 recs = []
 for (i, rec) in enumerate(prerecs):
@@ -148,7 +164,7 @@ for (i, rec) in enumerate(prerecs):
             except:
                 print('no access to %s' % (rec['link']))
                 continue
-        ejlmod3.metatagcheck(rec, artpage, ['eprints.creators_name', 'eprints.keywords', 'eprints.abstract', #'eprints.creators_orcid', 
+        ejlmod3.metatagcheck(rec, artpage, ['eprints.creators_name', 'eprints.keywords', 'eprints.abstract',# 'eprints.creators_orcid', 
                                             'eprints.date', 'eprints.doi', 'eprints.pages', 'eprints.document_url'])
         for meta in artpage.head.find_all('meta', attrs = {'name' : 'eprints.creators_orcid'}):
             orcid = meta['content'][:19]
@@ -162,6 +178,7 @@ for (i, rec) in enumerate(prerecs):
                 rec['fc'] = 'c'
             elif department in departmentstoskip:
                 keepit = False
+                print('  skip "%s"' % (department))
             else:
                 rec['note'].append(department)
         #supervisor
@@ -181,6 +198,8 @@ for (i, rec) in enumerate(prerecs):
                 recs.append(rec)
                 rec['autaff'][-1].append(publisher)
                 ejlmod3.printrecsummary(rec)
+            else:
+                print('  %s already in backup' % (rec['doi']))
         else:
             ejlmod3.adduninterestingDOI(rec['link'])
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
