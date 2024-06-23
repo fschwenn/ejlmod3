@@ -50,6 +50,7 @@ else:
 
 host = os.uname()[1]
 options = uc.ChromeOptions()
+options.add_argument('--user-data-dir=/tmp/ChromeProfileAcs')
 options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
 if host == 'l00schwenn':
     options.binary_location='/usr/bin/chromium'
@@ -110,14 +111,16 @@ for rec in recs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(recs)], [rec['artlink']]])
     try:
-        time.sleep(60)
+        time.sleep(57)
         driver.get(rec['artlink'])
+        time.sleep(3)
         artpage = BeautifulSoup(driver.page_source, features="lxml")
     except:
         try:
-            print('   wait 10 minutes')
-            time.sleep(600)
+            print('   wait 2 minutes')
+            time.sleep(120)
             driver.get(rec['artlink'])
+            time.sleep(3)
             artpage = BeautifulSoup(driver.page_source, features="lxml")
         except:            
             print('  keep only', list(rec.keys()))
@@ -139,7 +142,7 @@ for rec in recs:
         else:
             for a in artpage.find_all('a', attrs = {'class' : 'pdf-button'}):
                 pdfurl = 'https://pubs.acs.org' + a['href'] + '?download=true'
-                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub('.* ', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub('[\(\)]', '.', re.sub(' .*', '', rec['tit'].lower())))))
             print('     get PDF from %s' % (re.sub('epdf', 'pdf', pdfurl)))
             time.sleep(20)
             #driver.get(pdfurl)
