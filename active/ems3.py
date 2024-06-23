@@ -10,6 +10,7 @@ from sys import argv
 import os
 import ejlmod3
 import re
+import json
 
 publisher = 'European Mathematical Society'
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
@@ -30,8 +31,7 @@ print('%i EMS dokis in backup' % (len(done)))
 
 
 
-def get_sub_site(sess, url, jnlname, tc):
-    print("[%s] --> Harvesting data" % url)
+def get_sub_site(sess, url, jnl, jnlname, tc):
     rec = {'autaff': [], 'jnl': jnlname, 'tc': tc, 'fc' : 'm'}
 
     inner_resp = sess.get(url)
@@ -46,23 +46,81 @@ def get_sub_site(sess, url, jnlname, tc):
         ejlmod3.metatagcheck(rec, artpage, ['citation_title', 'citation_publication_date', 'citation_doi', 'citation_volume', 'citation_issue', 'citation_firstpage', 'citation_lastpage', 'description'])
 
 
+    #read JSON information
+    for script in artpage.find_all('script'):
+        st = script.text.strip()
+        if re.search('^self.__next_f.*articleId', st):
+            stjson = json.loads(re.sub('\\\\', '', re.sub('.*?articleId.*?(\{.*\}).*', r'\1', st)))
+            try:
+                stdict = stjson['children']['description'][3]['article']['data']
+                #print('     ', stdict.keys())
+                #DOI
+                if 'doi' in stdict:
+                    rec['doi'] = stdict['doi']
+                #keywords
+                if 'keywords' in stdict:
+                    rec['keyw'] = stdict['keywords']
+                #pages
+                if 'pageEnd' in stdict:
+                    rec['p2'] = str(stdict['pageEnd'])
+                if 'pageStart' in stdict:
+                    rec['p1'] = str(stdict['pageStart'])
+                #date
+                if 'publishedAt' in stdict:
+                    rec['date'] = stdict['publishedAt'][:10]
+                #title
+                if 'title' in stdict:
+                    rec['tit'] = stdict['title']
+                #abstract
+                if 'abstractMarkdownTex' in stdict:
+                    rec['abs'] = stdict['abstractMarkdownTex']
+                #license
+                if 'licenseUrl' in stdict:
+                    rec['license'] = {'url' : stdict['licenseUrl']}
+                #authors
+                if 'personGroups' in stdict:
+                    for person in stdict['personGroups']['data'][0]['members']['data']:
+                        rec['autaff'].append([person['name']])
+                        if 'organization' in person:
+                            rec['autaff'][-1].append(person['organization'])
+                #volume, issue
+                if 'serialIssue' in stdict:
+                    if 'volume' in stdict['serialIssue']['data']:
+                        rec['vol'] =  str(stdict['serialIssue']['data']['volume'])
+                    if 'issue' in stdict['serialIssue']['data']:
+                        rec['issue'] =  str(stdict['serialIssue']['data']['issue'])
+                #fulltext
+                if 'serialArticleFiles':
+                    if 'url' in stdict['serialArticleFiles']['data'][0]:
+                        rec['pdf_url'] = stdict['serialArticleFiles']['data'][0]['url']
+                        #rec['pdf_url'] = 'https://ems.press/journals/' + jnl + '/articles/' + stdict['serialArticleFiles']['data'][0]['id']
+            except:
+                pass
+                
+                    
+                
+        
+    #title
+    #for h1 in artpage.find_all('h1'):
+    #    rec['tit'] = h1.text.strip()
     # Get the abstract
-    abstract_section = artpage.find_all('div', attrs={'class': 'formatted-text'})
-    if len(abstract_section) == 1:
-        abstract = abstract_section[0].find_all('p')
-        if len(abstract) == 1:
-            rec['abs'] = abstract[0].text
+    if not 'abs' in rec or len(rec['abs']) < 10:
+        abstract_section = artpage.find_all('div', attrs={'class': 'formatted-text'})
+        if len(abstract_section) == 1:
+            abstract = abstract_section[0].find_all('p')
+            if len(abstract) == 1:
+                rec['abs'] = abstract[0].text
 
     #affiliations
-    for div in artpage.find_all('div', attrs={'role' : 'group'}):
-        lis = div.find_all('li', attrs={'class' : 'list-item'})
-        if len(lis):
-            rec['autaff'] = []
-            for li in lis:
-                for h3 in li.find_all('h3'):
-                    rec['autaff'].append([h3.text])
-                for span in li.find_all('span'):
-                    rec['autaff'][-1].append(span.text)
+    #for div in artpage.find_all('div', attrs={'role' : 'group'}):
+    #    lis = div.find_all('li', attrs={'class' : 'list-item'})
+    #    if len(lis):
+    #        rec['autaff'] = []
+    #        for li in lis:
+    #            for h3 in li.find_all('h3'):
+    #                rec['autaff'].append([h3.text])
+    #            for span in li.find_all('span'):
+    #                rec['autaff'][-1].append(span.text)
 
     ejlmod3.printrecsummary(rec)
     return rec
@@ -141,11 +199,15 @@ def get_issue(session, jnl, issnr):
         print("Can't reach the page")
         exit(0)
     tocpage = BeautifulSoup(resp.content.decode('utf-8'), 'lxml')
+    artlinks = []
     for div in  tocpage.find_all('div', attrs={'class': 'content-container'}):
         for a in div.find_all('a'):
             if a.has_attr('href'):
-                recs.append(get_sub_site(session, 'https://ems.press{}'.format(a.get('href')), journal_name, tc))
-                sleep(5)
+                artlinks.append('https://ems.press{}'.format(a.get('href')))
+    for (j, artlink) in enumerate(artlinks):
+        ejlmod3.printprogress('~', [[jnl, issnr], [j+1, len(artlinks)], [artlink]])
+        recs.append(get_sub_site(session, artlink, jnl, journal_name, tc))
+        sleep(5)
     if recs:
         if 'issue' in recs[-1]:
             jnlfilename = 'ems_%s_%s%s.%s' % (issnr, jnl, recs[-1]['vol'], recs[-1]['issue'])
