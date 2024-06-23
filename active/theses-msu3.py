@@ -263,6 +263,10 @@ for page in range(pages):
             if ejlmod3.checkinterestingDOI(rec['artlink']):
                 if not skipalreadyharvested or not rec['artlink'] in alreadyharvested:
                     prerecs.append(rec)
+                else:
+                    print('   %s already in backup' % (rec['artlink']))
+            else:
+                print('   %s boring' % (rec['artlink']))
     print('\n  %4i records so far\n' % (len(prerecs)))
 
 i = 0
