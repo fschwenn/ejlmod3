@@ -16,39 +16,22 @@ skipalreadyharvested = False
 bunchsize = 10
 corethreshold = 15
 pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
-
+downloadpath = '/tmp'
 jnlfilename = 'ACS_QIS_retro.' + ejlmod3.stampoftoday()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
-sample = {'10.1021/acs.jctc.7b00174' : {'all' : 32, 'core' : 29},
-          '10.1021/nl070949k' : {'all' : 29, 'core' : 21},
-          '10.1021/acs.nanolett.6b04544' : {'all' : 27, 'core' : 14},
-          '10.1021/acs.jctc.0c00421' : {'all' : 26, 'core' : 21},
-          '10.1021/ct301044e' : {'all' : 26, 'core' : 18},
-          '10.1021/cr2001417' : {'all' : 26, 'core' : 17},
-          '10.1021/acs.nanolett.7b05075' : {'all' : 26, 'core' : 11},
-          '10.1021/acscentsci.5b00338' : {'all' : 25, 'core' : 20},
-          '10.1021/acs.nanolett.9b03847' : {'all' : 25, 'core' : 17},
-          '10.1021/acs.nanolett.9b00900' : {'all' : 25, 'core' : 11},
-          '10.14569/IJACSA.2018.090354' : {'all' : 23, 'core' : 22},
-          '10.1021/acscentsci.8b00788' : {'all' : 23, 'core' : 21},
-          '10.1021/acs.nanolett.5b02561' : {'all' : 23, 'core' : 15},
-          '10.1021/acs.nanolett.9b01316' : {'all' : 23, 'core' : 13},
-          '10.1021/acs.jctc.9b00236' : {'all' : 22, 'core' : 20},
-          '10.1021/acs.jctc.6b00316' : {'all' : 22, 'core' : 16},
-          '10.1021/acs.jpcb.7b10371' : {'all' : 21, 'core' : 17},
-          '10.1021/acsphotonics.0c00833' : {'all' : 21, 'core' : 15},
-          '10.1021/acs.jctc.8b00536' : {'all' : 20, 'core' : 15},
-          '10.1021/acs.jctc.7b00049' : {'all' : 20, 'core' : 12},
-          '10.1021/acs.jctc.0c00170' : {'all' : 19, 'core' : 18},
-          '10.1021/acs.jpclett.9b01117' : {'all' : 19, 'core' : 16},
-          '10.1021/acs.jpclett.0c03410' : {'all' : 18, 'core' : 18},
-          '10.1021/acs.jctc.6b00156' : {'all' : 18, 'core' : 14},
-          '10.1021/acs.nanolett.0c04771' : {'all' : 18, 'core' : 11},
-          '10.1021/jacs.8b05934' : {'all' : 17, 'core' : 16},
-          '10.1021/acs.jpclett.0c02213' : {'all' : 17, 'core' : 16}}
-
+sample = {'10.1021/acs.nanolett.7b03103' : {'all' :  48, 'core' :      12},
+          '10.1021/cr2001417' : {'all' :  29, 'core' :      19},
+          '10.1021/acs.nanolett.7b05075' : {'all' :  27, 'core' :      11},
+          '10.1021/acs.nanolett.9b00900' : {'all' :  26, 'core' :      11},
+          '10.1021/acs.nanolett.9b01316' : {'all' :  24, 'core' :      14},
+          '10.1021/acs.nanolett.7b03220' : {'all' :  23, 'core' :      11},
+          '10.1021/acs.nanolett.5b01306' : {'all' :  19, 'core' :      10},
+          '10.1021/acs.nanolett.8b03217' : {'all' :  18, 'core' :      15},
+          '10.1021/acsnano.0c03167' : {'all' :  18, 'core' :      13},
+          '10.1021/acs.nanolett.0c04771' : {'all' :  18, 'core' :      11}}
+    
 
 host = os.uname()[1]
 options = uc.ChromeOptions()
