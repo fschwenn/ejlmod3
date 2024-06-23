@@ -26,26 +26,17 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 
 
-sample = {'10.21468/SciPostPhys.9.4.052' : {'all' : 29 , 'core' : 29},
-          '10.21468/SciPostPhysLectNotes.31' : {'all' : 14 , 'core' : 14},
-          '10.21468/SciPostPhys.10.2.040' : {'all' : 23 , 'core' : 23},
-          '10.21468/SciPostPhys.9.6.087' : {'all' : 23 , 'core' : 23},
-          '10.21468/SciPostPhysCore.2.2.006' : {'all' : 32 , 'core' : 32},
-          '10.21468/SciPostPhys.3.6.043' : {'all' : 45 , 'core' : 45},
-          '10.21468/SciPostPhys.5.5.045' : {'all' : 39 , 'core' : 39},
-          '10.21468/SciPostPhys.8.6.083' : {'all' : 39 , 'core' : 39},
-          '10.21468/SciPostPhys.6.1.015' : {'all' : 44 , 'core' : 44},
-          '10.21468/SciPostPhys.7.6.080' : {'all' : 37 , 'core' : 37},
-          '10.21468/SciPostPhys.6.1.007' : {'all' : 51 , 'core' : 51},
-          '10.21468/SciPostPhysLectNotes.7' : {'all' : 74 , 'core' : 74},
-          '10.21468/SciPostPhys.3.3.021' : {'all' : 65 , 'core' : 65},
-          '10.21468/SciPostPhys.6.3.029' : {'all' : 59 , 'core' : 59},
-          '10.21468/SciPostPhys.7.2.024' : {'all' : 135 , 'core' : 135},
-          '10.21468/SciPostPhysLectNotes.5' : {'all' : 163 , 'core' : 163},}
-sample = {'10.21468/SciPostPhysCore.2.2.006' : {'all' : 36, 'core' : 16},
-          '10.21468/SciPostPhys.10.6.147' : {'all' : 32, 'core' : 13},
-          '10.21468/SciPostPhys.10.2.040' : {'all' : 28, 'core' : 19},
-          '10.21468/SciPostPhysLectNotes.31' : {'all' : 25, 'core' : 21}}
+sample = {'10.21468/SciPostPhys.3.6.039' : {'all' : 77, 'core' : 16},
+          '10.21468/SciPostPhys.7.5.069' : {'all' : 53, 'core' : 11},
+          '10.21468/SciPostPhys.9.4.044' : {'all' : 49, 'core' : 10},
+          '10.21468/SciPostPhys.4.6.043' : {'all' : 44, 'core' : 14},
+          '10.21468/SciPostPhys.12.6.201' : {'all' : 43, 'core' : 10},
+          '10.21468/SciPostPhys.8.6.083' : {'all' : 41, 'core' : 24},
+          '10.21468/SciPostPhysCore.2.2.006' : {'all' : 36, 'core' : 16},
+          '10.21468/SciPostPhys.10.6.147' : {'all' : 34, 'core' : 13},
+          '10.21468/SciPostPhys.10.2.040' : {'all' : 29, 'core' : 19},
+          '10.21468/SciPostPhysLectNotes.31' : {'all' : 27, 'core' : 23},
+          '10.21468/SciPostPhys.3.5.033' : {'all' : 26, 'core' : 13}}
 
 
 
@@ -100,10 +91,10 @@ for doi in sample:
         if ul['class'] != ['list-inline', 'my-2']:
             continue
         rec['auts'] = []
-        for li in ul.find_all('li', attrs = {'class' : ['list-inline-item', 'mr-1']}):            
+        for li in ul.find_all('li', attrs = {'class' : ['list-inline-item', 'mr-1']}):
             sups = []
             for sup in li.find_all('sup'):
-                sups.append('=Aff' + sup.text.strip())                
+                sups.append('=Aff' + sup.text.strip())
                 sup.replace_with('')
             lit = li.text.strip()
             lit = re.sub(', *$', '', lit)
