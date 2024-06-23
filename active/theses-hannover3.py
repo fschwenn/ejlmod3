@@ -72,7 +72,7 @@ for rec in prerecs:
                     print('  skip DDC=%s' % (rec['ddc']))
                     wrongddc = True
         #keywords
-        elif meta['xml:lang'] == 'eng':
+        elif meta.has_attr('xml:lang') and meta['xml:lang'] == 'eng':
             for keyw in re.split(' *; *', meta['content']):
                 rec['keyw'].append(keyw)
     if wrongddc:
