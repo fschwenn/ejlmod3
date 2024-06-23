@@ -63,94 +63,11 @@ def fsunwrap(tag):
 
 publisher = 'Oxford University Press'
 
-sample = {'10.1093/pasj/psx061' : {'all' : 17 , 'core' : 17},
-          '10.1093/mnras/218.4.629' : {'all' : 118 , 'core' : 118},
-          '10.1143/PTPS.153.139' : {'all' : 121 , 'core' : 121},
-          '10.1093/mnras/215.4.575' : {'all' : 147 , 'core' : 147},
-          '10.1093/nsr/nwy088' : {'all' : 14 , 'core' : 14},
-          '10.1093/mnras/182.2.147' : {'all' : 417 , 'core' : 417},
-          '10.1093/mnras/191.3.483' : {'all' : 27 , 'core' : 27},
-          '10.1093/mnras/150.1.1' : {'all' : 287 , 'core' : 287},
-          '10.1093/mnras/224.1.131' : {'all' : 17 , 'core' : 17},
-          '10.1093/mnras/227.2.403' : {'all' : 36 , 'core' : 36},
-          '10.1093/mnras/273.3.583' : {'all' : 47 , 'core' : 47},
-          '10.1093/mnras/216.2.403' : {'all' : 62 , 'core' : 62},
-          '10.1143/ptp/3.4.440' : {'all' : 46 , 'core' : 46},
-          '10.1093/mnras/128.4.307' : {'all' : 190 , 'core' : 190},
-          '10.1093/mnras/stw1876' : {'all' : 52 , 'core' : 52},
-          '10.1093/mnras/270.3.480' : {'all' : 117 , 'core' : 117},
-          '10.1093/mnras/stv2162' : {'all' : 93 , 'core' : 93},
-          '10.1093/mnras/sty618' : {'all' : 349 , 'core' : 349},
-          '10.1093/mnras/stz1317' : {'all' : 65 , 'core' : 65},
-          '10.1093/mnras/stz514' : {'all' : 82 , 'core' : 82},
-          '10.1093/mnras/239.3.845' : {'all' : 37 , 'core' : 37},
-          '10.1093/mnras/sty982' : {'all' : 93 , 'core' : 93},
-          '10.1093/nsr/nwz227' : {'all' : 21 , 'core' : 21},
-          '10.1143/PTP.33.423' : {'all' : 44 , 'core' : 44},
-          '10.1093/mnras/116.6.662' : {'all' : 27 , 'core' : 27},
-          '10.1093/mnras/260.3.675' : {'all' : 66 , 'core' : 66},
-          '10.1093/mnras/237.2.355' : {'all' : 85 , 'core' : 85},
-          '10.1093/nsr/nwy153' : {'all' : 37 , 'core' : 37},
-          '10.1093/ptep/ptaa083' : {'all' : 34 , 'core' : 34},
-          '10.1093/mnras/255.1.119' : {'all' : 43 , 'core' : 43},
-          '10.1093/mnras/78.1.3' : {'all' : 44 , 'core' : 44},
-          '10.1093/mnras/194.2.439' : {'all' : 57 , 'core' : 57},
-          '10.1093/mnras/203.4.1049' : {'all' : 56 , 'core' : 56},
-          '10.1093/mnras/91.5.483' : {'all' : 63 , 'core' : 63},
-          '10.1093/mnras/258.1.41P' : {'all' : 121 , 'core' : 121},
-          '10.1093/mnras/stz623' : {'all' : 39 , 'core' : 39},
-          '10.1093/mnras/173.3.729' : {'all' : 170 , 'core' : 170},
-          '10.1093/mnras/195.3.467' : {'all' : 344 , 'core' : 344},
-          '10.1093/mnras/101.8.367' : {'all' : 63 , 'core' : 63},
-          '10.1093/mnras/278.2.525' : {'all' : 62 , 'core' : 62},
-          '10.1093/mnras/71.5.460' : {'all' : 165 , 'core' : 165},
-          '10.1093/comjnl/7.2.155' : {'all' : 60 , 'core' : 60},
-          '10.1093/mnras/264.1.201' : {'all' : 145 , 'core' : 145},
-          '10.1093/mnras/265.3.533' : {'all' : 163 , 'core' : 163},
-          '10.1111/j.1365-246X.2010.04804.x' : {'all' : 54 , 'core' : 54},
-          '10.1143/PTP.20.948' : {'all' : 92 , 'core' : 92},
-          '10.1143/PTPS.62.236' : {'all' : 43 , 'core' : 43},
-          '10.1143/PTP.65.1772' : {'all' : 35 , 'core' : 35},
-          '10.1093/mnras/167.1.31P' : {'all' : 292 , 'core' : 292},
-          '10.1093/mnras/221.4.1023' : {'all' : 58 , 'core' : 58},
-          '10.1093/mnras/262.3.627' : {'all' : 208 , 'core' : 208},
-          '10.1093/biomet/26.4.404' : {'all' : 46 , 'core' : 46},
-          '10.1143/ptp/5.4.570' : {'all' : 44 , 'core' : 44},
-          '10.1143/PTP.56.1454' : {'all' : 78 , 'core' : 78},
-          '10.1093/mnras/138.4.495' : {'all' : 95 , 'core' : 95},
-          '10.1093/imamat/6.1.76' : {'all' : 57 , 'core' : 57},
-          '10.1093/mnras/182.3.443' : {'all' : 107 , 'core' : 107},
-          '10.1143/ptp.37.831' : {'all' : 53 , 'core' : 53},
-          '10.1143/PTP.37.831' : {'all' : 53 , 'core' : 53},
-          '10.1093/mnras/104.5.273' : {'all' : 218 , 'core' : 218},
-          '10.1093/mnras/stv2422' : {'all' : 76 , 'core' : 76},
-          '10.1111/j.1365-246X.1968.tb00216.x' : {'all' : 48 , 'core' : 48},
-          '10.1155/S107379280320917X' : {'all' : 65 , 'core' : 65},
-          '10.1093/mnras/199.4.883' : {'all' : 457 , 'core' : 457},
-          '10.1093/comjnl/13.3.317' : {'all' : 71 , 'core' : 71},
-          '10.1143/PTP.85.1' : {'all' : 52 , 'core' : 52},
-#          '10.1143/PTPS.88.1' : {'all' : 94 , 'core' : 94},
-          '10.1143/PTPS.6.93' : {'all' : 88 , 'core' : 88},
-          '10.1093/mnras/stw2759' : {'all' : 192 , 'core' : 192},
-          '10.1111/j.1365-2966.2004.08097.x' : {'all' : 264 , 'core' : 264},
- #         '10.1093/oso/9780198739623.001.0001' : {'all' : 28 , 'core' : 28},
-          '10.1093/acprof:oso/9780198507628.001.0001' : {'all' : 23 , 'core' : 23},
-          '10.1093/acprof:oso/9780198758884.001.0001' : {'all' : 39 , 'core' : 39},
-#          '10.1093/acprof:oso/9780198528906.001.0001' : {'all' : 121 , 'core' : 121},
-          '10.1093/oso/9780198570899.001.0001' : {'all' : 49 , 'core' : 49},
-          '10.1093/acprof:oso/9780198525004.001.0001' : {'all' : 65 , 'core' : 65},
-          '10.1093/acprof:oso/9780199205677.001.0001' : {'all' : 60 , 'core' : 60},
-          '10.1093/acprof:oso/9780199227259.001.0001' : {'all' : 43 , 'core' : 43},
-          '10.1093/acprof:oso/9780198509141.001.0001' : {'all' : 53 , 'core' : 53},
-          '10.1093/acprof:oso/9780198509233.001.0001' : {'all' : 75 , 'core' : 75}}
-#          '10.1093/acprof:oso/9780198508717.001.0001' : {'all' : 88 , 'core' : 88}}
-sample = {'10.1093/acprof:oso/9780198525004.001.0001' : {'all' : 84, 'core' : 29},
-          '10.1155/S107379280320917X' : {'all' : 80, 'core' : 58},
-          '10.1093/acprof:oso/9780198509141.001.0001' : {'all' : 66, 'core' : 31},
-          '10.1093/acprof:oso/9780199227259.001.0001' : {'all' : 49, 'core' : 27},
-          '10.1093/nsr/nwz193' : {'all' : 49, 'core' : 12},
-          '10.1093/nsr/nwy088' : {'all' : 21, 'core' : 18},
-          '10.1093/jcde/qwac003' : {'all' : 17, 'core' : 16}}
+sample = {'10.1155/S107379280320917X' : {'all' : 83, 'core' :       60},
+          '10.1093/nsr/nwz193' : {'all' : 48, 'core' :       12},
+          '10.1093/nsr/nwaa196' : {'all' : 22, 'core' :       10},
+          '10.1093/jcde/qwac003' : {'all' : 17, 'core' :       16},
+          '10.1155/S107379280320917X' : {'all' : 83, 'core' :       60}}
 
 
     
@@ -411,14 +328,19 @@ for doi in sample:
                 jnl = 'ptp'
             elif meta['content'] in ['International Mathematics Research Notices']:
                 rec['jnl'] = 'Int.Math.Res.Not.'
+                jnl = 'imrn'
+            elif meta['content'] in ['Journal of Computational Design and Engineering']:
+                rec['jnl'] = 'Journal of Computational Design and Engineering'
+                jnl = 'jcde'
 #            elif meta['content'] in ['']:
 #                rec['jnl'] = ''
             else:
                 missingjournals.append(meta['content'])
+                print(meta['content'])
     if not 'jnl' in rec:
         continue
 
-        
+    ejlmod3.printrec(rec)    
     #not completely loaded?
     for meta in page.find_all('meta', attrs = {'name' : 'citation_doi'}):
         rec['doi'] = meta['content']
