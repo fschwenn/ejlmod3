@@ -146,6 +146,7 @@ for journal in crossref.body.find_all('journal'):
         if abspage:
             absfile = os.path.join(tmpdir, re.sub('\W', '', abspage))
             if not os.path.isfile(absfile):
+                print('  downloading "%s"' % (abspage))
                 os.system('wget -q -O %s "%s"' % (absfile, abspage))
             if not absdict:
                 inf = open(absfile, 'r')
@@ -163,7 +164,8 @@ for journal in crossref.body.find_all('journal'):
                             abstract = re.sub('.*Full Text PDF *(.*?) *DOI:10.12693.*', r'\1', text)
                             absdict[adoi] = abstract
                             if re.search('topics:', text):
-                                keywdict[adoi] = re.split(', ', re.sub('.*topics: *', '', text))                            
+                                keywdict[adoi] = re.split(', ', re.sub('.*topics: *', '', text))
+                            #print(adoi, abstract)
                 else:    
                     for div in abssoup.find_all('div', attrs = {'class' : 'art'}):
                         for p in div.find_all('p'):
@@ -176,7 +178,7 @@ for journal in crossref.body.find_all('journal'):
             if rec['doi'] in absdict:
                 rec['abs'] = absdict[rec['doi']]
             if keywdict and rec['doi'] in keywdict:
-                rec['abs'] = keywdict[rec['doi']]
+                rec['keyw'] = keywdict[rec['doi']]
         recs.append(rec)
         ejlmod3.printrecsummary(rec)
 
