@@ -20,7 +20,6 @@ pages = 100
 rpp = 50 
 skipalreadyharvested = True
 skiptooold = True
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 
 boring = ['Theses - Chemistry', 'Department of Chemistry', 'Theses - Earth Sciences', 'Theses - Geography',
