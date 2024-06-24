@@ -25,6 +25,7 @@ host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
+    options.binary_location='/usr/bin/google-chrome'
 ##    options.add_argument('--headless')
 #    options.add_argument('--no-sandbox')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
@@ -47,14 +48,8 @@ dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 alreadyharvested = []
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = 'ieee*doki'
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
-    filenametrunc = 'IEEE*doki'
-    print('%i records in backup' % (len(alreadyharvested)))
-    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*https\?/http/' | sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
-    alreadyharvested += ejlmod3.getalreadyharvested('ieee')
+    alreadyharvested = ejlmod3.getalreadyharvested('ieee')
     alreadyharvested += ejlmod3.getalreadyharvested('IEEE')
-    print('%i records in backup' % (len(alreadyharvested)))
 alreadyharvested += ['http://ieeexplore.ieee.org/document/10189126/', 'http://ieeexplore.ieee.org/document/10188200/',
                      'https://ieeexplore.ieee.org/document/10124765/', 'https://ieeexplore.ieee.org/document/10320394/',
                      'https://ieeexplore.ieee.org/document/9933640/', 'https://ieeexplore.ieee.org/document/9960719/',
