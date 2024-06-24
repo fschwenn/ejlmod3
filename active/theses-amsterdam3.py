@@ -26,6 +26,7 @@ boringinstitutes = ['InstituteforBiodiversityandEcosystemDynamicsIBED',
                     'KortewegdeVriesInstituteforMathematicsKdVI',
                     'SwammerdamInstituteforLifeSciencesSILSInstituteforBiodiversityandEcosystemDynamicsIBED',
                     'SwammerdamInstituteforLifeSciencesSILS',
+                    'AmsterdamNeuroscience',
                     'InstituteforBiodiversityandEcosystemDynamicsIBEDSwammerdamInstituteforLifeSciencesSILS',
                     'VanderWaalsZeemanInstituteWZI', 'AmsterdamNeuroscience'
                     'VantHoffInstituteforMolecularSciencesHIMSSwammerdamInstituteforLifeSciencesSILS',
@@ -115,6 +116,10 @@ for rec in prerecs:
                     if institute in boringinstitutes:
                         keepit = False
                         print('  skip "%s"' % (institute))
+                    elif institute in ['InformaticsInstituteIVI']:
+                        rec['fc'] = 'c'
+                    elif institute in ['AntonPannekoekInstituteforAstronomyAPI']:
+                        rec['fc'] = 'a'
                     else:
                         rec['note'].append(child.text.strip())
                 #Abstract
