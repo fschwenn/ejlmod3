@@ -134,6 +134,8 @@ for tag in tocpage.body.find_all():
                     elif len(sys.argv) > 4:
                         rec['licence'] = {'statement' : sys.argv[4]}
                         rec['FFT'] = '%s/doi/pdf/%s' % (urltrunc, rec['doi'])
+                    if len(sys.argv) > 4:
+                        rec['fc'] = sys.argv[4]
             rec['p1'] = re.sub('.*\.', '', rec['doi'])\
             #check abstract page
             #absfile = '/tmp/%s.abs' % (re.sub('\/', '_', rec['doi']))
