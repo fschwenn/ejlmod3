@@ -72,14 +72,11 @@ boring += ["American Studies", "Art history", "Artificial intelligence", "Atmosp
            "Geological engineering", "German", "Music Education", "Operations Research", "Public Affairs",
            "Religious Studies", "Sedimentary geology", "Social Work", "Spanish", "Urban planning"]
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
-    
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
+
 for page in range(pages):
     tocurl = 'https://rucore.libraries.rutgers.edu/search/results/?orderby=datedesc&ppage=' + str(rpp) + '&numresults=' + str(rpp) + '&key=ETD-RU&start=%i' % (rpp*page + 1)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
