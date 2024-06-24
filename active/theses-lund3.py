@@ -27,7 +27,6 @@ departments = [('Nuclear Physics', 'Lund U. (main)', 100062),
 	       ('Mathematics', 'Lund U. (main)', 1000665),	  
                ('Theoretical Particle Physics', 'Lund U., Dept. Theor. Phys.', 1000645)]
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
