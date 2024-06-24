@@ -26,8 +26,8 @@ host = os.uname()[1]
 if host == 'l00schwenn':
     options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
-    #options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
+#    options.add_argument('--headless')
+#    options.add_argument('--no-sandbox')
     chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
     driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
@@ -46,6 +46,7 @@ if skipalreadyharvested:
 tocurl = 'https://indjst.org/archives?volume=%s&issue=all#archives' % (vol)
 print(tocurl)
 driver.get(tocurl)
+time.sleep(60)
 complete = False
 prerecs = []
 artlinks = []
@@ -53,7 +54,7 @@ for i in range(100):
     tocpage = BeautifulSoup(driver.page_source, features="lxml")
     divs = tocpage.body.find_all('div', attrs = {'class' : 'Content-Sec'})
     if not divs:
-        time.sleep(2)
+        time.sleep(20)
         driver.get(tocurl)
         tocpage = BeautifulSoup(driver.page_source, features="lxml")
         divs = tocpage.body.find_all('div', attrs = {'class' : 'Content-Sec'})
