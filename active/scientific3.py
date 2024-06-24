@@ -105,7 +105,7 @@ def harvestvolume(journal, datei):
             jnlfilename = '%s%s' % (jc[journal][0], recs[-1]['vol'])
         else:
             jnlfilename = '%s.%s' % (jc[journal][0], cday)
-        ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+        ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
         os.system('mv %s/%s %s/done/%s' % (scientificdir, datei, scientificdir, datei))
         os.system('rm %s/*xml' % (scientificdir))
     else:
