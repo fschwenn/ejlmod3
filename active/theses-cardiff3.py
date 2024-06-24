@@ -88,6 +88,8 @@ for rec in recs:
     for td in artpage.body.find_all('td', attrs = {'valign' : 'top'}):
         if re.search('Supplemental Material', td.text):
             continue
+        if re.search('Restricted to Repository staff only', td.text):
+            continue
         for a in td.find_all('a'):
             if a.has_attr('href'):
                 if re.search('creativecommons.org', a['href']):
