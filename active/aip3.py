@@ -99,23 +99,10 @@ else:
     
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-    now = datetime.datetime.now()
-    filestosearch = '%s/*%s*doki ' % (dokidir, jnl)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnl)
     if jnl == 'apc':
-        filestosearch += '%s/*%s*doki ' % (dokidir, 'aipcp')
-        filestosearch += '%s/*%s*doki ' % (dokidir, 'aipconf')
-    for i in range(3):
-        filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, jnl)
-        filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, jnl)
-        if jnl == 'apc':
-            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, 'aipcp')
-            filestosearch += '%s/%i/*%s*doki ' % (dokidir, now.year-i, 'aipconf')
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep pubs.aip.org | sed 's/^I..//' | sed 's/..$//' " % (filestosearch))))
-    print('%i records in backup (%s)' % (len(alreadyharvested), jnl))
-    if len(alreadyharvested) > 2:
-        print('[%s, ..., %s]' % (alreadyharvested[0], alreadyharvested[-1]))
-
+        alreadyharvested += ejlmod3.getalreadyharvested('aipcp')
+        alreadyharvested += ejlmod3.getalreadyharvested('aipconf')
 
 boring = ['ADVANCED MATERIALS AND NANOTECHNOLOGY FOR SUSTAINABLE ENERGY AND ENVIRONMENTAL APPLICATIONS',
           'ADVANCED NUMERICAL SIMULATIONS IN GEOTECHNICAL ENGINEERING',
