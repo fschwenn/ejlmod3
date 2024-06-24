@@ -21,7 +21,9 @@ jnlfilename = 'dergipark_%s_%s.' % (jnl, ejlmod3.stampoftoday())
 ejlpath = '/afs/desy.de/user/l/library/dok/ejl/backup'
 reiss = re.compile('.*dergipark_%s_.*?\.(\d+)\..*' % (jnl))
 highestissunumber = 0
-for path in [ejlpath, os.path.join(ejlpath, str(ejlmod3.year(backwards=1)))]:
+for path in [ejlpath,
+             os.path.join(ejlpath, str(ejlmod3.year())),
+             os.path.join(ejlpath, str(ejlmod3.year(backwards=1)))]:
     for datei in os.listdir(path):
         if reiss.search(datei):
             issuenumber = int(reiss.sub(r'\1', datei))
