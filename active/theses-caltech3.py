@@ -18,13 +18,10 @@ jnlfilename = 'THESES-CALTECH-%s' % (ejlmod3.stampoftoday())
 
 tocurltrunc = 'https://thesis.library.caltech.edu/cgi/search/archive/advanced?screen=Search&dataset=archive&documents_merge=ALL&documents=&title_merge=ALL&title=&creators_name_merge=ALL&creators_name=&creators_id_merge=ALL&creators_id=&creators_orcid_merge=ALL&creators_orcid=&abstract_merge=ALL&abstract=&date=&thesis_type=phd&keywords_merge=ALL&keywords=&option_major=appliedmath&option_major=appmath&option_major=appliedphys&option_major=astronomy&option_major=astrophys&option_major=compscieng&option_major=compsci&option_major=cms&option_major=math&option_major=physics&option_major=plansci&option_major=space&option_major_merge=ANY&option_minor_merge=ANY&divisions_merge=ANY&thesis_advisor_name_merge=ALL&thesis_advisor_name=&thesis_committee_name_merge=ALL&thesis_committee_name=&funders_agency_merge=ALL&funders_agency=&funders_grant_number_merge=ALL&funders_grant_number=&local_group_merge=ALL&local_group=&projects_merge=ALL&projects=&thesis_awards_merge=ALL&thesis_awards=&other_numbering_system_name_merge=ALL&other_numbering_system_name=&other_numbering_system_id_merge=ALL&other_numbering_system_id=&satisfyall=ALL&order=-date%2Fcreators_name%2Ftitle&_action_search=Search'
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s  %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(backwards=2), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
