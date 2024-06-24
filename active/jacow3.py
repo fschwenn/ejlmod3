@@ -23,9 +23,10 @@ pdfpath = '/afs/desy.de/group/library/publisherdata/pdf/10.18429/'
 acronym = sys.argv[1]
 cnum = sys.argv[2]
 
-jnlfilename = 'jacow.%s' % (acronym)
+jnlfilename = 'jacow.%s_B' % (acronym)
 
 sourceurl = 'http://jacow.org/%s/json/inspire-%s.jsonl' % (acronym, acronym)
+sourceurl = 'https://www.desy.de/~schwenn/inspire-IPAC2023.jsonl'
 print(sourceurl)
 re_thisConf = re.compile(r'(?i)%s[^a-zA-Z]*%s' % (re.sub('\d.*','',acronym), acronym[-2:]))
 
@@ -167,7 +168,8 @@ def addDOI_thisConference(ref, base_doi, re_thisConf):
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = []
-os.system("wget -q -O /tmp/inspire-%s.jsonl %s" % (acronym, sourceurl))
+if not os.path.isfile('/tmp/inspire-%s.jsonl' % (acronym)):
+    os.system("wget -q -O /tmp/inspire-%s.jsonl %s" % (acronym, sourceurl))
 inf = open('/tmp/inspire-%s.jsonl' % (acronym))
 lines = inf.readlines()
 inf.close()
