@@ -311,7 +311,8 @@ def concert(rawrecs):
         if 'no metatdata for individual chapters!' in rec['note']:
             rec['note'].append(rec['date'])
         else:
-            recs.append(rec)                                   
+            recs.append(rec)
+            ejlmod3.printrecsummary(rec)
     return recs
 
 
