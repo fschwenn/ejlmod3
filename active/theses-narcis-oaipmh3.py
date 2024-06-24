@@ -193,6 +193,7 @@ def processrecs(prerecs, bunchcounter):
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=3)),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=2)),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1)),
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup']
 redoki = re.compile('THESES.NARCIS.*doki$')
 rehttp = re.compile('^I\-\-http.*ID\/(oai.*)\-\-$')
