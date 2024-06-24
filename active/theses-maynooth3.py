@@ -42,7 +42,7 @@ def get_sub_site(url, site_session, years, fc):
     for year in range(0,years+1):
         valid_years.append(str(int(current_year)-year))
     if rec['date'].split('-')[0] not in valid_years:
-        print('Theses is too old --> Skip')
+        print('Thesis is too old --> Skip')
         return
 
     # Get the abstract
