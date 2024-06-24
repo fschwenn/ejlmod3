@@ -148,10 +148,8 @@ reportnumber = re.compile('^tel\-\d+$')
 
 
 #check already harvested
-ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/onhold',
-           '/afs/desy.de/user/l/library/dok/ejl/zu_punkten',
-           '/afs/desy.de/user/l/library/dok/ejl/zu_punkten/enriched',
-           '/afs/desy.de/user/l/library/dok/ejl/backup',           
+ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',           
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1))]
 redoki = re.compile('THESES.DART.*doki$')
 renodoi = re.compile('^I\-\-NODOI:(.*)\-\-$')
