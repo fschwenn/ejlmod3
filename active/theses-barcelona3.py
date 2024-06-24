@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import ssl
 
 publisher = 'U. Barcelona (main)'
 jnlfilename = 'THESES-BARCELONA-%s' % (ejlmod3.stampoftoday())
@@ -21,6 +22,10 @@ departments = [('PHYS', 'Barcelona U.', ['35246', '41813', '103124', '106688', '
 	       ('MATH', 'U. Barcelona (main)', ['42083', '43181', '35131', '182780']),
                ('COMP', 'U. Barcelona (main)', ['99760'])]
 hdr = {'User-Agent' : 'Magic Browser'}
+#bad certificate
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
@@ -29,10 +34,10 @@ hdls = []
 recs = []
 for (subj, aff, deps) in departments:
     for dep in deps:
-        tocurl = 'http://diposit.ub.edu/dspace/handle/2445/' + dep + '/browse?type=title&sort_by=2&order=DESC&rpp=' + str(rpp) + '&etal=0&submit_browse=Update'
+        tocurl = 'https://diposit.ub.edu/dspace/handle/2445/' + dep + '/browse?type=title&sort_by=2&order=DESC&rpp=' + str(rpp) + '&etal=0&submit_browse=Update'
         ejlmod3.printprogress("=", [[subj], [dep], [tocurl]])
         req = urllib.request.Request(tocurl, headers=hdr)
-        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        tocpage = BeautifulSoup(urllib.request.urlopen(req, context=ctx), features="lxml")
         time.sleep(3)
         for tr in tocpage.body.find_all('tr'):
             keepit = True
@@ -51,7 +56,7 @@ for (subj, aff, deps) in departments:
                 rec['fc'] = 'c'
             for td in tr.find_all('td', attrs = {'headers' : 't2'}):
                 for a in td.find_all('a'):                
-                    rec['artlink'] = 'http://diposit.ub.edu' + a['href'] 
+                    rec['artlink'] = 'https://diposit.ub.edu' + a['href'] 
                     rec['hdl'] = re.sub('.*handle\/', '', a['href'])
                     if keepit:
                         if not rec['hdl'] in hdls:
