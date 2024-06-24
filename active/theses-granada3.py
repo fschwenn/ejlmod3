@@ -61,7 +61,7 @@ if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
 else:
     alreadyharvested = []
-alreadyharvested += ['10481/84690']
+alreadyharvested += ['10481/84690', '10481/90293']
 
 ###remove accents from a string
 def akzenteabstreifen(string):
