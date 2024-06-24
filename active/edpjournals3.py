@@ -98,10 +98,6 @@ except:
 def tfstrip(x): return x.strip()
 dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 if skipalreadyharvested:
-    filenametrunc = jnl + '*doki'
-    print("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*http/http/'| sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s| grep '^I.*http' | sed 's/.*http/http/'| sed 's/\-\-$//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(), filenametrunc))))
-    print('ok')
     alreadyharvested += ejlmod3.getalreadyharvested(jnlfilename)
     
 recs = []
