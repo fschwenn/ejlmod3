@@ -18,7 +18,6 @@ rpp = 50
 pages = 20
 skipalreadyharvested = True
 jnlfilename = 'THESES-GRONINGEN-%s' % (ejlmod3.stampoftoday())
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 boringdegrees = ['Master of Philosophy', 'Master of Science']
 boringinstitutes = ['Education in Culture', 'Analytical Biochemistry', 'Arctic and Antarctic studies',
@@ -109,14 +108,10 @@ def checkboringwords(title):
             return True
     return False
     
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))        
-    alreadyharvested += list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s %s/%i/*%s | grep URLDOC=10.33612 | sed 's/.*=//' | sed 's/;//' " % (dokidir, 'THESES-NARCIS*doki', dokidir, ejlmod3.year(backwards=1), 'THESES-NARCIS*doki', dokidir, ejlmod3.year(backwards=2), 'THESES-NARCIS*doki'))))
-    print('%i records in backup' % (len(alreadyharvested)))        
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename) + ejlmod3.getalreadyharvested('THESES-NARCIS')
+else:
+    alreadyharvested = []
 
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
