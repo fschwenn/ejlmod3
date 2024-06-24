@@ -17,7 +17,6 @@ skipalreadyharvested = True
 
 publisher = 'Cologne U.'
 jnlfilename = 'THESES-COLOGNE-%s' % (ejlmod3.stampoftoday())
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 
 divisionsdict = {'inst_50000' : 'Universitaet zu Koeln, Faculty of Mathematics and Natural Sciences, Germany',
                  'inst_50005' : 'Universitaet zu Koeln, I. Physikalisches Institut, Zuelpicher Strasse 77, 50937 Koeln, Germany',
@@ -94,12 +93,10 @@ boring += ['klips-14299', 'klips-14454', 'klips-14596', 'klips-15046', 'klips-15
            'klips-15115', 'klips-15120', 'klips-15121', 'klips-15122', 'klips-15123', 'klips-15130',
            'klips-15132', 'klips-15240', 'klips-15363', 'klips-15472', 'klips-15687', 'klips-15090']
 
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))        
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 tocurltrunc = 'https://kups.ub.uni-koeln.de/cgi/search/archive/advanced?cache=1750151&order=-date%2Fcreators_name%2Ftitle&_action_search=1&exp=0%7C1%7C-date%2Fcreators_name%2Ftitle%7Carchive%7C-%7Csubjects%3Asubjects%3AANY%3AEQ%3A510+530+no%7Ctype%3Atype%3AANY%3AEQ%3Athesis%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&screen=Search'
 #bad certificate
