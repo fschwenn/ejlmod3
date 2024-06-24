@@ -17,24 +17,9 @@ rpp = 20
 skipalreadyharvested = True
 
 #need to update the UDses-token/cookie each time
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=131032129%3A24586&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=141700795%3A491263&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=142468891%3A333120&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=143880875%3A178106&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=147297258%3A731463&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=150515577%3A877314&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=152220681%3A259347&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=155559552%3A589017&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=163225744%3A85842&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=164707417%3A85922&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=167411909%3A813839&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=169736026%3A209879&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=173742313%3A534051&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=179714210%3A459699&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=185059054%3A825846&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
-starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=193415727%3A901451&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=198150382%3A49448&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=208382284%3A802416&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
+starturl = 'https://repository.uantwerpen.be/submit.phtml?UDses=226825867%3A739454&UDstate=1&UDmode=&UDaccess=&UDrou=%25Start:bopwexe&UDopac=opacirua&UDextra='
 
 br = mechanize.Browser()
 br.set_handle_robots(False)   # ignore robots
