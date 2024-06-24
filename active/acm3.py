@@ -170,6 +170,7 @@ options = uc.ChromeOptions()
 options.binary_location='/usr/bin/google-chrome'
 options.binary_location='/usr/bin/chromium'
 #options.add_argument('--headless')
+options.add_argument('--user-data-dir=/tmp/ChromeProfileAcm')
 chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
 driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.implicitly_wait(300)
