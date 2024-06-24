@@ -13,6 +13,7 @@ import re
 
 publisher = 'Element d.o.o. publishing house'
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1)),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=2))]
 
