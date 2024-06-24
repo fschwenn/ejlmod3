@@ -18,6 +18,7 @@ import json
 publisher = 'whiterose.ac.uk'
 
 pages = 5
+skipalreadyharvested = True
 
 jnlfilename = 'THESES-LeedsSheffieldYork-%s' % (ejlmod3.stampoftoday())
 
@@ -107,13 +108,22 @@ boringaffs += ['The University of Sheffield, Faculty of Science (Sheffield), Ani
                'The University of Sheffield, Faculty of Science (Sheffield), Molecular Biology and Biotechnology (Sheffield), United Kindgom',
                'The University of Sheffield, Faculty of Science (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), Molecular Biology and Biotechnology (Sheffield), United Kindgom',
                'The University of Sheffield, Faculty of Science (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), Psychology (Sheffield), United Kindgom',
-               'The University of Sheffield, Faculty of Science (Sheffield), Chemistry (Sheffield), United Kindgom']
+               'The University of Sheffield, Faculty of Science (Sheffield), Chemistry (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Arts and Humanities (Sheffield), Archaeology (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), Archaeology (Sheffield)The University of Sheffield, Faculty of Arts and Humanities (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), Animal and Plant Sciences (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), School of Biosciences (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), Animal and Plant Sciences (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), Biomedical Science (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), Chemistry (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), School of Biosciences (Sheffield)The University of Sheffield, Faculty of Science (Sheffield), United Kindgom',
+               'The University of Sheffield, Faculty of Science (Sheffield), School of Biosciences (Sheffield), United Kindgom']
 
 
-
+if skipalreadyharvested:
+    dois = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    dois = []
 hdr = {'User-Agent' : 'Magic Browser'}
 prerecs = []
-dois = []
 for i in range(pages):
     tocurl = 'http://etheses.whiterose.ac.uk/cgi/search/archive/advanced?exp=0|1|-date%2Fcreators_name%2Ftitle|archive|-|iau%3Aiau%3AANY%3AEQ%3ALeeds.FA-MAPH+Leeds.RC-MATH+Leeds.SU-MTHA+Leeds.SU-MTHP+Leeds.RC-PHAS+Sheffield.FCP+Sheffield.PHY+Sheffield.SOM+York.YOR16+York.YOR21|-|eprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive|metadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow&_action_search=1&order=-date%2Fcreators_name%2Ftitle&screen=Search&search_offset=' + str(20*i)
     ejlmod3.printprogress('=', [[i, pages], [tocurl]])
