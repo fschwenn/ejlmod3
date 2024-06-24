@@ -21,13 +21,10 @@ prerecs = []
 
 baseurl = 'https://eprints.soton.ac.uk/cgi/search/archive/advanced?order=-date%2Fcontributors_name%2Ftitle&_action_search=Reorder&screen=Search&dataset=archive&exp=0%7C1%7Ccontributors_name%2F-date%2Ftitle%7Carchive%7C-%7Cdivisions%3Adivisions%3AANY%3AEQ%3A7dabceb3-00f4-4066-a715-6d2526f9a63a+a2476d18-5515-484c-b0b5-7be7b4f0cd2f+a8c9dd07-9533-48da-a2e5-0a51a7be7743+de044479-1530-4339-b27e-f79d8fe87772%7Ctype%3Atype%3AANY%3AEQ%3Athesis%7C-%7Ceprint_status%3Aeprint_status%3AANY%3AEQ%3Aarchive%7Cmetadata_visibility%3Ametadata_visibility%3AANY%3AEQ%3Ashow'
 
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
-alreadyharvested = []
-def tfstrip(x): return x.strip()
 if skipalreadyharvested:
-    filenametrunc = re.sub('\d.*', '*doki', jnlfilename)
-    alreadyharvested = list(map(tfstrip, os.popen("cat %s/*%s %s/%i/*%s  %s/%i/*%s | grep URLDOC | sed 's/.*=//' | sed 's/;//' " % (dokidir, filenametrunc, dokidir, ejlmod3.year(backwards=1), filenametrunc, dokidir, ejlmod3.year(backwards=2), filenametrunc))))
-    print('%i records in backup' % (len(alreadyharvested)))
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+else:
+    alreadyharvested = []
 
 for page in range(pages):
     tocurl = baseurl + '3&search_offset=' + str(100*page)
