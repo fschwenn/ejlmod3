@@ -120,7 +120,11 @@ for doi in sample:
                     rec['tc'] = 'C'
             for li in lis[2:]:
                 rec['note'].append(li.text.strip())
-            
+
+    #date
+    if not 'date' in rec:
+        for span in artpage.find_all('span', attrs = {'class' : 'CitationCoverDate'}):
+            rec['date'] = span.text.strip()
     #tile
     for h1 in artpage.find_all('h1', attrs = {'class' : 'citation__title'}):
         rec['tit'] = h1.text.strip()
