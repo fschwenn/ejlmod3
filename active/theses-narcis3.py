@@ -341,6 +341,7 @@ def processrecs(recs, bunchcounter):
                                             
 #check already harvested
 ejldirs = ['/afs/desy.de/user/l/library/dok/ejl/backup',
+           '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year()),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=1)),
            '/afs/desy.de/user/l/library/dok/ejl/backup/%i' % (ejlmod3.year(backwards=2))]
 redoki = re.compile('THESES.NARCIS.*doki$')
