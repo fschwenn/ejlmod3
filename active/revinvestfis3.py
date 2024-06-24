@@ -82,4 +82,4 @@ for rec in recs:
 
 jnlfilename = 'revinvestfis%s.%s_%s' % (rec['vol'], rec['issue'], issueid)
 
-ejlmod3.writenewXML(recs, publisher, jnlfilename, retfilename='retfiles_special')
+ejlmod3.writenewXML(recs, publisher, jnlfilename)#, retfilename='retfiles_special')
