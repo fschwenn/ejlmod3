@@ -16,7 +16,7 @@ publisher = 'RWTH Aachen U.'
 jnlfilename = 'THESES-AACHEN_%s' % (ejlmod3.stampoftoday())
 
 if skipalreadyharvested:
-    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
+    alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename, years=3)
 
 hdr = {'User-Agent' : 'Magic Browser'}
 recs = {}
