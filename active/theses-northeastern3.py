@@ -48,7 +48,10 @@ for (aff, depid) in departments:
             rec['tit'] = a.text.strip()
             if depid == '200':
                 rec['fc'] = 'm'
-            prerecs.append(rec)
+            if skipalreadyharvested and rec['artlink'] in alreadyharvested:
+                print('  %s already in backup' % (rec['artlink']))
+            else:                
+                prerecs.append(rec)
     print('  %4i records so far' % (len(prerecs)))
 
 j = 0
@@ -123,8 +126,10 @@ for rec in prerecs:
     if skipalreadyharvested:
         if 'hdl' in rec and rec['hdl'] in alreadyharvested:
             keepit = False
+            print('  %s already in backup' % (rec['hdl']))
         elif 'doi' in rec and rec['doi'] in alreadyharvested:            
             keepit = False
+            print('  %s already in backup' % (rec['doi']))
     if keepit:
         ejlmod3.printrecsummary(rec)
         recs.append(rec)
