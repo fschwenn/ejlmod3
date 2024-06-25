@@ -20,22 +20,22 @@ vol = sys.argv[1]
 issues = sys.argv[2]
 jnlfilename = 'procnas%s.%s' % (vol, re.sub(',', '_', issues))
 jnlname = 'Proc.Nat.Acad.Sci.'
+pdfpath = '/afs/desy.de/group/library/publisherdata/pdf'
+downloadpath = '/tmp'
 
 scraper = cloudscraper.create_scraper()
 host = os.uname()[1]
+options = uc.ChromeOptions()
 if host == 'l00schwenn':
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/chromium'
     #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
 else:
-    options = uc.ChromeOptions()
     options.binary_location='/usr/bin/google-chrome'
     options.add_argument('--headless')
-    chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
-    driver = uc.Chrome(version_main=chromeversion, options=options)
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+options.add_experimental_option("prefs", {"download.prompt_for_download": False, "plugins.always_open_pdf_externally": True, "download.default_directory": downloadpath})
+driver = uc.Chrome(version_main=chromeversion, options=options)
 driver.implicitly_wait(60)
 driver.set_page_load_timeout(30)
 
@@ -105,7 +105,7 @@ recs = []
 for rec in prerecs:
     if not rec['note1'] in ['Commentaries', 'This Week in PNAS', 'News Feature', 'Retrospective',
                             'Biological Sciences', 'Social Sciences', 'Science and Culture',
-                            'QnAs', 'Opinion']:
+                            'QnAs', 'Opinion', 'At the National Academies']:
         if not rec['note2'] in ['Biophysics and Computational Biology',
                                 'Chemistry']:
             rec['note'].append(rec['note2'])
@@ -210,6 +210,37 @@ for rec in recs:
         if re.search('Correction .*for .* et al', rec['tit']):
             rec['autaff'] = [[ re.sub('Correction .*for (.*) et al.*', r'\1', rec['tit'])]]
             print("    Erratum rec['autaff']=", rec['autaff'])
+    #PDF
+    if 'license' in rec:      
+        targetfilename = '%s/%s/%s.pdf' % (pdfpath, re.sub('\/.*', '', rec['doi']), re.sub('[\(\)\/]', '_', rec['doi']))
+        if os.path.isfile(targetfilename):
+            print('     %s already exists' % (targetfilename))
+            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+        else:
+            pdfurl = 'https://www.pnas.org/doi/pdf/' + rec['doi'] + '?download=true'
+            savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub(',.*', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub('[\(\)]', '.', re.sub(' .*', '', rec['tit'].lower())))))
+            print('     get PDF from %s' % (re.sub('epdf', 'pdf', pdfurl)))
+            time.sleep(20)
+            #driver.get(pdfurl)
+            driver.get(pdfurl)
+            print('        looking for %s\-.*\d\d\d\d\-%s.*.pdf\n' % (re.sub(',.*', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub(' .*', '', rec['tit'].lower()))))
+            time.sleep(120)
+            found = False
+            for j in range(18):
+                if not found:
+                    for datei in os.listdir(downloadpath):
+                        if savedfilereg.search(datei):
+                            savedfilename = '%s/%s' % (downloadpath, datei)
+                            print('     mv %s to %s' % (savedfilename, targetfilename))
+                            os.system('mv "%s" %s' % (savedfilename, targetfilename))
+                            rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
+                            found = True
+                if found:
+                    break
+                else:
+                    time.sleep(10)
+
+    
     ejlmod3.printrecsummary(rec)
     time.sleep(10)
 
