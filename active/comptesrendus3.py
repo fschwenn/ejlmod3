@@ -46,8 +46,10 @@ elif jnl == 'physique':
     year = str(1999 + int(vol))
     if iss:
         tocurl = 'https://comptes-rendus.academie-sciences.fr/physique/issues/CRPHYS_%s__%s_%s' % (year, vol, iss)
+        tocurl = 'https://comptes-rendus.academie-sciences.fr/physique/item/CRPHYS_%s__%s_%s' % (year, vol, iss)
     else:
         tocurl = 'https://comptes-rendus.academie-sciences.fr/physique/volume/CRPHYS_%s__%s' % (year, vol)
+        tocurl = 'https://comptes-rendus.academie-sciences.fr/physique/volume_general/CRPHYS_%s__%s' % (year, vol)
     jnlname = 'Comptes Rendus Physique'
 
 hdr = {'User-Agent' : 'Mozilla/5.0'}
