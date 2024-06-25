@@ -94,7 +94,7 @@ for dl in tocpage.body.find_all('dl'):
             if  re.search('Contribution to.*Proceedings', i.text):
                 rec['note'].append(i.text.strip())
                 rec['tc'] = 'C'
-        #refernces
+        #references
         for ol in artpage.body.find_all('ol'):
             rec['refs'] = []
             for li in ol.find_all('li'):
