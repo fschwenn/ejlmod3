@@ -286,9 +286,19 @@ urltrunk = "https://academic.oup.com/%s/issue/%s/%s" % (jnl, vol, issue)
 print("get table of content of %s%s.%s via %s ..." %(jnlname, vol, issue, urltrunk))
 
 hdr = {'User-Agent' : 'Magic Browser'}
-req = urllib.request.Request(urltrunk, headers=hdr)
-tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+try:
+    req = urllib.request.Request(urltrunk, headers=hdr)
+    tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+except:
+    if len(sys.argv) > 4 and sys.argv[4] == 'early':
+        print('   TOC page not (yet?) available')
+        sys.exit(0)
+    else:
+        time.sleep(10)
+        req = urllib.request.Request(urltrunk, headers=hdr)
+        tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
 
+    
 typecode = 'P'
 if jnl == 'astrogeo':
     typecode = ''
