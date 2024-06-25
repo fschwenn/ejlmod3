@@ -2321,6 +2321,8 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                             if re.search('^\d\d+ pages$', descr['value']):
                                 rec['pages'] = re.sub(' .*', '', descr['value'])
                             else:
+                                if re.search('\D\d\d+ pages\.', descr['value']):
+                                    rec['pages'] = re.sub('.*\D(\d\d+) pages.*', r'\1', descr['value'])
                                 rec['note'].append('%s=%s' % (key.upper(), rec['description']))
                         done.append(key)
                     #license
