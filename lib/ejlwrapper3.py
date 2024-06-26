@@ -581,6 +581,7 @@ jnls = [(1, ['aip3.py', 'rsi', pryear-1929, prmonth]),
         (1, ['theses-dartmouth3.py']),
         (2, ['theses-tallinn3.py']),
         (2, ['theses-unam3.py']),
+        (2, ['comptesrendus3.py', 'algcomb', pryear-2017, prsixth]),
         #
         (1, ['theses-tokyo3.py'])]
 
