@@ -218,7 +218,10 @@ for rec in recs:
             rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
         else:
             pdfurl = 'https://www.pnas.org/doi/pdf/' + rec['doi'] + '?download=true'
-            savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub(',.*', '', rec['autaff'][0][0].lower()), re.sub('\W*$', '', re.sub('[\(\)]', '.', re.sub(' .*', '', rec['tit'].lower())))))
+            if re.search('^Correction', rec['tit']):
+                savedfilereg = re.compile('\d\d\d\d\-correction.*%s.*.pdf$' % re.sub(',.*', '', re.sub('\. ', '-', rec['autaff'][0][0].lower())))
+            else:
+                savedfilereg = re.compile('%s\-.*\d\d\d\d\-%s.*.pdf$' % (re.sub(',.*', '', re.sub('\. ', '-', rec['autaff'][0][0].lower())), re.sub('\W*$', '', re.sub('[\(\)“]', '.', re.sub(' .*', '', rec['tit'].lower())))))
             print('     get PDF from %s' % (re.sub('epdf', 'pdf', pdfurl)))
             time.sleep(20)
             #driver.get(pdfurl)
