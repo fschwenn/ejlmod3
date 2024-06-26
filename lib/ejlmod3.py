@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 from iso639 import languages
 import urllib.parse
 import json
+import ejlconfig
 
 from collclean_lib3 import coll_cleanforthe
 from collclean_lib3 import coll_clean710
@@ -23,7 +24,7 @@ except:
     def normalize_date(datum):
         return datum
 
-bunchsize = 10
+ejlconfig.bunchsize = 10
 
 try:
     # needed to remove the print-commands from /usr/lib/python2.6/site-packages/refextract/references/engine.py
@@ -34,22 +35,11 @@ except:
 
 #QIS bibclassify
 host = os.uname()[1]
-if host == 'l00schwenn':
-    qisbibclassifycommand = "/usr/bin/python3 /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
-elif host in ['inspire4', 'inspire4.desy.de']:
-    qisbibclassifycommand = "python /afs/desy.de/user/l/library/proc/python3/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
-else:
-    qisbibclassifycommand = "/usr/bin/python /afs/desy.de/user/l/library/proc/bibclassify/bibclassify_cli.py  -k /afs/desy.de/user/l/library/akw/QIS_TEST.rdf -n 10"
-absdir = '/afs/desy.de/group/library/publisherdata/abs'
-tmpdir = '/afs/desy.de/user/l/library/tmp'
-
+qisbibclassifycommand = "/usr/bin/python3 " + ejlconfig.procdir + "/bibclassify/bibclassify_cli.py  -k " + ejlconfig.ontdir + "/QIS_TEST.rdf -n 10"
 
 #
-journalskb = '/opt/invenio/etc/docextract/journal-titles-inspire.kb'
-journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'
-journalskb = '/afs/desy.de/user/l/library/lists/journal-titles-inspire.py3.kb'
+journalskb = ejlconfig.listdir + '/journal-titles-inspire.py3.kb'
 
-retfiles_path = '/afs/desy.de/user/l/library/proc/retinspire'
 now = datetime.datetime.now()
 
 
@@ -97,7 +87,7 @@ reorcid = re.compile('^ORCID:\d{4}\-\d{4}\-\d{4}\-\d{3}[0-9X]$')
 #(can also handle mutiple FCs like 'ai' or so)
 #from inspirelibrarylabs import fcjournalliste
 fcjournalliste = [('b', ['IEEE Trans.Appl.Supercond.', 'Supercond.Sci.Technol.', 'JACoW', 'J.Plasma Phys.']),
-                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A', 'Jap.J.Math.', 'Algorithmica', 'Proc.Lond.Math.Soc.', 'Sbornik Math.', 'Mathematical Models and Methods in Applied Sciences', 'Sib.Mat.Zh.', 'Mediterranean J.Math.']),
+                  ('m', ['Abstr.Appl.Anal.', 'Acta Appl.Math.', 'Adv.Appl.Clifford Algebras', 'Adv.Math.', 'Adv.Math.Phys.', 'Afr.Math.', 'Alg.Anal.', 'Algebr.Geom.Topol.', 'Alg.Groups Geom.', 'Alg.Logika', 'Anal.Math.Phys.', 'Anal.Part.Diff.Eq.', 'Annals Probab.', 'Ann.Inst.H.Poincare Probab.Statist.', 'Ann.Math.Sci.Appl.', 'Ann.PDE', 'Arab.J.Math.', 'Asian J.Math.', 'Axioms', 'Bayesian Anal.', 'Braz.J.Probab.Statist.', 'Bull.Am.Math.Soc.', 'Bull.Austral.Math.Soc.', 'Cahiers Topo.Geom.Diff.', 'Calc.Var.Part.Differ.Equ', 'Can.J.Math.', 'Commun.Anal.Geom.', 'Commun.Math.Phys.', 'Commun.Math.Sci.', 'Commun.Pure Appl.Math.', 'Compos.Math.', 'Compt.Rend.Math.', 'Conform.Geom.Dyn.', 'Contemp.Math.', 'Duke Math.J.', 'Eur.J.Combinatorics', 'Exper.Math.', 'Forum Math.Pi', 'Forum Math.Sigma', 'Fractals', 'Geom.Topol.', 'Geom.Topol.Monographs', 'Glasgow Math.J.', 'Hokkaido Math.J.', 'Int.Math.Res.Not.', 'Invent.Math.', 'Inverse Prob.', 'Izv.Vuz.Mat.', 'J.Alg.Geom.', 'J.Am.Math.Soc.', 'J.Appl.Math.', 'J.Appl.Math.Mech.', 'J.Austral.Math.Soc.', 'J.Diff.Geom.', 'J.Geom.Anal.', 'J.Geom.Symmetry Phys.', 'J.Inst.Math.Jussieu', 'J.Integrab.Syst.', 'J.Korean Math.Soc.', 'J.Math.Phys.', 'J.Math.Res.', 'J.Math.Sci.', 'J.Math.Soc.Jap.', 'J.Part.Diff.Eq.', 'Lect.Notes Math.', 'Lett.Math.Phys.', 'Manuscr.Math.', 'Math.Comput.', 'Mathematics', 'Math.Methods Appl.Sci.', 'Math.Nachr.', 'Math.Notes', 'Math.Phys.Anal.Geom.', 'Math.Phys.Stud.', 'Math.Proc.Cambridge Phil.Soc.', 'Math.Res.Lett.', 'Mat.Sbornik', 'Mat.Zametki', 'Moscow Math.J.', 'Pacific J.Math.', 'p Adic Ultra.Anal.Appl.', 'Proc.Am.Math.Soc.', 'Proc.Am.Math.Soc.Ser.B', 'Proc.Geom.Int.Quant.', 'Prog.Math.Phys.', 'Rept.Math.Phys.', 'Russ.J.Math.Phys.', 'Russ.Math.Surveys', 'Springer Proc.Math.Stat.', 'Tokyo J.Math.', 'Trans.Am.Math.Soc.', 'Trans.Am.Math.Soc.Ser.B', 'Trans.Moscow Math.Soc.', 'Turk.J.Math.', 'Ukr.Math.J.', 'J.Reine Angew.Math.', 'Arch.Ration.Mech.Anal.', 'Acta Math.Vietnamica', 'Quart.J.Math.Oxford Ser.', 'Int.J.Math.', 'Integral Transform.Spec.Funct.', 'Commun.Contemp.Math.', 'Selecta Math.', 'J.Sympl.Geom.', 'Q.Appl.Math.', 'J.Universal Math.', 'Anal.Geom.Metr.Spaces', 'Rev.Roum.Math.Pures Appl.', 'GESJ Math.Mech.', 'Comp.Meth.Appl.Math.', 'Transform.Groups', 'Rev.Mate.Teor.Aplic.', 'Combin.Theor.', 'Forum Math.', 'Compl.Manif.', 'Commun.Math.', 'SIAM J.Math.Anal.', 'SIAM J.Appl.Math.', 'SIAM J.Appl.Math.', 'SIAM J.Matrix Anal.Appl.', 'SIAM J.Numer.Anal.', 'SIAM J.Discrete Math.', 'SIAM J.Appl.Alg.Geom.', 'Filomat', 'Math.Slovaca', 'Math.Ann.', 'Am.J.Math.', 'Algorithmica', 'Funct.Anal.Appl.', 'Numer.Math.', 'Probab.Theor.Related Fields', 'Combinatorica', 'Isr.J.Math.', 'Adv.Comput.Math.', 'Annals Global Anal.Geom.', 'Geom.Funct.Anal.', 'Annali Mat.Pura Appl.', 'Funkt.Anal.Pril.',  'Proc.Indian Acad.Sci.A', 'Jap.J.Math.', 'Algorithmica', 'Proc.Lond.Math.Soc.', 'Sbornik Math.', 'Mathematical Models and Methods in Applied Sciences', 'Sib.Mat.Zh.', 'Mediterranean J.Math.', 'Alg.Comb.']),
                   ('q', ['ACS Photonics', 'Atoms', 'J.Chem.Phys.', 'J.Chem.Theor.Comput.', 'J.Mod.Opt.', 'J.Molec.Struc.', 'J.Opt.', 'J.Opt.Soc.Am. A', 'J.Opt.Soc.Am. B', 'Mater.Chem.Phys.', 'Nano Lett.', 'Nanotechnol.', 'Nature Photon.']),
                   ('k', ['ACM Trans.Quant.Comput.', 'Quant.Inf.Proc.', 'Quantum Eng.', 'Quantum Rep.', 'Quantum Sci.Technol.', 'Quantum', 'AVS Quantum Sci.', 'Adv.Quantum Technol.', 'Mat.Quant.Tech.', 'APL Quantum', 'Quant.Inf.Comput.', 'IET Quant.Commun.']),
                   ('f', ['Adv.Cond.Mat.Phys.', 'Ann.Rev.Condensed Matter Phys.', 'Condens.Mat.', 'J.Noncryst.Solids', 'J.Phys.Chem.Solids', 'J.Phys.Condens.Matter', 'Solid State Commun.', 'Sov.Phys.Solid State', 'Condensed Matter Phys.', 'Phys.Status Solidi', 'Solid State Phenom.', ' Phys.Status Solidi B', 'Phys.Status Solidi A', 'Phys.Status Solidi RRL']),
@@ -117,7 +107,7 @@ fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
               'CLEO' : 'e',
               'BESIII' : 'e',
               'DELPHI' : 'e', 'ALEPH' : 'e', 'L3' : 'e', 'OPAL' : 'e',
-              'COMPASS' : 'e', 'MADMAX' : 'e', 'ALPS' : 'e',              
+              'COMPASS' : 'e', 'MADMAX' : 'e', 'ALPS' : 'e',
               'Belle' : 'e', 'Belle II' : 'e',
               'ZEUS' : 'e', 'H1' : 'e', 'HERMES' : 'e',
               'PHENIX' : 'ex', 'STAR' : 'ex',
@@ -135,7 +125,7 @@ fccolliste = {'CMS' : 'e', 'ATLAS' : 'e', 'LHCb' : 'e', 'ALICE' : 'ex',
               'LISA Pathfinder' : 'g', 'NANOGrav' : 'g',
               'UKQCD' : 'l', 'JLQCD' : 'l', 'MILC' : 'l', 'Fermilab Lattice' : 'l',
               'HAL QCD' : 'l'}
-              
+
 #rearrange the lists into a dictionary
 jnltofc = {}
 for (fc, jnllist) in fcjournalliste:
@@ -208,7 +198,7 @@ def findcollaborations(authorfield):
 #FS:
 #add experiment line for existing collaboration
 #and try to find experiment in title
-colexpdictfilename = '/afs/desy.de/user/l/library/lists/expcolFS'
+colexpdictfilename = ejlconfig.listdir + '/expcolFS'
 colexpdictfile = open(colexpdictfilename,'r')
 colexpdict = {}
 expexpdict = {}
@@ -241,7 +231,6 @@ def findexperiment(rec):
 #FS:
 #get abstract from arXiv (e.g. Intl. Press;)
 def getabsfromarxiv(rec):
-    absdir = '/afs/desy.de/group/library/publisherdata/abs/'
     bull = re.sub('.*\: ','',rec['arxiv'])
     print(" get abstract for %s from arXiv" % (bull))
     arxivpage = os.popen("lynx -source \"http://export.arxiv.org/abs/%s\"" % (bull)).read().replace('\n',' ')
@@ -1095,7 +1084,7 @@ def writeXML(recs,dokfile,publisher):
             if 'note' in rec:
                 rec['note'].append(rec['link'])
             else:
-                rec['note'] = rec['link']            
+                rec['note'] = rec['link']
         if 'note' in rec:
             if not 'fc' in rec:
                 for comment in rec['note']:
@@ -1213,7 +1202,7 @@ potentialuntitles = [re.compile('[pP]reface'), re.compile('[iI]n [mM]emoriam'), 
                      re.compile('^[tT]itle [pP]age [ivxIVX]+$'), re.compile('^Book [rR]eview:'),
                      re.compile('occasion of.* anniversary'), re.compile('^[A-Z][a-z]+ Calendar$'),
                      re.compile('AUTHOR INDEX'), re.compile('Author index'), re.compile('[Tt]able of [cC]ontent')]
-def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/library/inspire/ejl', retfilename='retfiles'):
+def writenewXML(recs, publisher, jnlfilename, xmldir=ejlconfig.xmldir, retfilename='retfiles'):
     global checkedmetatags
     uniqrecs = []
     doi1s = []
@@ -1240,11 +1229,12 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
             else:
                 rec['hidden'] = rec['pdf_url']
         #add doki file name
+        dokifilenote = 'DOKIFILE:' + re.sub('\-\-0\d\d\d$', '', jnlfilename)
         if 'note' in rec:
-            if not 'DOKIFILE:'+jnlfilename in rec['note']:
-                rec['note'].append('DOKIFILE:'+jnlfilename)
+            if not dokifilenote in rec['note']:
+                rec['note'].append(dokifilenote)
         else:
-            rec['note'] = ['DOKIFILE:'+jnlfilename]
+            rec['note'] = [dokifilenote]
         #QIS keywords
         doi1 = False
         if 'doi' in rec:
@@ -1281,8 +1271,8 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 if 'artlink' in rec and not 'link' in rec:
                     rec['link'] = rec['artlink']
         if doi1:
-            absfilename = os.path.join(absdir, doi1)
-            bibfilename = os.path.join(tmpdir, doi1+'.qis.bib')
+            absfilename = os.path.join(ejlconfig.absdir, doi1)
+            bibfilename = os.path.join(ejlconfig.afstmpdir, doi1+'.qis.bib')
             if not os.path.isfile(absfilename):
                 absfile = codecs.open(absfilename, mode='wb', encoding='utf8')
                 try:
@@ -1366,16 +1356,16 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 except:
                     print('--', doi1)
     if uniqrecs:
-        if len(uniqrecs) <= bunchsize:
-            xmlf = os.path.join(xmldir, '%s.xml' % (jnlfilename))
+        if len(uniqrecs) <= ejlconfig.bunchsize:
+            xmlf = os.path.join(ejlconfig.xmldir, '%s.xml' % (jnlfilename))
             xmlfile = codecs.open(xmlf, mode='wb', encoding='utf8')
             writeXML(uniqrecs, xmlfile, publisher)
             xmlfile.close()
         else:
-            numberofbunches = (len(uniqrecs)-1) // bunchsize + 1
+            numberofbunches = (len(uniqrecs)-1) // ejlconfig.bunchsize + 1
             for i in range(numberofbunches):
-                recs = uniqrecs[i*bunchsize:(i+1)*bunchsize]
-                xmlf = os.path.join(xmldir, '%s---%04i_of_%04i.xml' % (jnlfilename, i+1, numberofbunches))
+                recs = uniqrecs[i*ejlconfig.bunchsize:(i+1)*ejlconfig.bunchsize]
+                xmlf = os.path.join(ejlconfig.xmldir, '%s---%04i_of_%04i.xml' % (jnlfilename, i+1, numberofbunches))
                 xmlfile = codecs.open(xmlf, mode='wb', encoding='utf8')
                 writeXML(recs, xmlfile, publisher)
                 xmlfile.close()
@@ -1423,18 +1413,18 @@ def writenewXML(recs, publisher, jnlfilename, xmldir='/afs/desy.de/user/l/librar
                 datafieldsout.append(dfo)
         print('\033[93mFINISHED writenewXML(%s;%i;%s || %s)\033[0m' % (jnlfilename, len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
         #write retrival
-        retfiles_text = open(os.path.join(retfiles_path, retfilename), "r").read()
-        if len(uniqrecs) <= bunchsize:
+        retfiles_text = open(os.path.join(ejlconfig.retfiles_path, retfilename), "r").read()
+        if len(uniqrecs) <= ejlconfig.bunchsize:
             line = '%s.xml\n' % (jnlfilename)
             if not line in retfiles_text:
-                retfiles = open(os.path.join(retfiles_path, retfilename), "a")
+                retfiles = open(os.path.join(ejlconfig.retfiles_path, retfilename), "a")
                 retfiles.write(line)
                 retfiles.close()
         else:
             for i in range(numberofbunches):
                 line = '%s---%04i_of_%04i.xml\n' % (jnlfilename, i+1, numberofbunches)
                 if not line in retfiles_text:
-                    retfiles = open(os.path.join(retfiles_path, retfilename), "a")
+                    retfiles = open(os.path.join(ejlconfig.retfiles_path, retfilename), "a")
                     retfiles.write(line)
                     retfiles.close()
     return
@@ -1448,7 +1438,7 @@ def printprogress(character, information):
     elif character == '+':
         colorcode = '96'#cyan
     elif character == '~':
-        colorcode = '95'#magenta    
+        colorcode = '95'#magenta
     for subinfo in information:
         output += '{ %s }' % (' / '.join([str(fragment) for fragment in subinfo]))
         output += 3*character
@@ -1768,7 +1758,7 @@ def metatagcheck(rec, artpage, listoftags):
                                 print('        ? citation_%s ?' % (key))
                         if pbnjt and pbnv and pbnfp:
                             pbn = '%s %s, %s' % (pbnjt, pbnv, pbnfp)
-                            repbn = extract_references_from_string(pbn, override_kbs_files={'journals': '/afs/desy.de/user/l/library/lists/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
+                            repbn = extract_references_from_string(pbn, override_kbs_files={'journals': ejlconfig.listdir + '/journal-titles-inspire.kb'}, reference_format="{title},{volume},{page}")
                             if 'journal_reference' in list(repbn[0].keys()):
                                 if 'Physics' in repbn[0]['journal_title']:
                                     pbn = ''
@@ -1820,15 +1810,15 @@ def metatagcheck(rec, artpage, listoftags):
 
 #write entry in retfiles
 def writeretrival(jnlfilename, retfilename='retfiles'):
-    retfiles_text = open(os.path.join(retfiles_path, retfilename), "r").read()
+    retfiles_text = open(os.path.join(ejlconfig.retfiles_path, retfilename), "r").read()
     line = jnlfilename+'.xml'+ "\n"
     if not line in retfiles_text:
-        retfiles = open(os.path.join(retfiles_path, retfilename), "a")
+        retfiles = open(os.path.join(ejlconfig.retfiles_path, retfilename), "a")
         retfiles.write(line)
         retfiles.close()
 
 #uninteresting DOIs
-inf = open('/afs/desy.de/user/l/library/lists/uninteresting.dois', 'r')
+inf = open(ejlconfig.listdir + '/uninteresting.dois', 'r')
 uninterestingDOIS = []
 #newuninterestingDOIS = []
 for line in inf.readlines():
@@ -1840,14 +1830,14 @@ def checkinterestingDOI(doi):
     else:
         return True
 def adduninterestingDOI(doi):
-    ouf = open('/afs/desy.de/user/l/library/lists/uninteresting.dois', 'a')
+    ouf = open(ejlconfig.listdir + '/uninteresting.dois', 'a')
     ouf.write(doi + '\n')
     ouf.close()
     return
 
 
 #too old theses
-inf = open('/afs/desy.de/user/l/library/lists/tooold.dois', 'r')
+inf = open(ejlconfig.listdir + '/tooold.dois', 'r')
 toooldDOIS = []
 for line in inf.readlines():
     toooldDOIS.append(line.strip())
@@ -1858,7 +1848,7 @@ def checknewenoughDOI(doi):
     else:
         return True
 def addtoooldDOI(doi):
-    ouf = open('/afs/desy.de/user/l/library/lists/tooold.dois', 'a')
+    ouf = open(ejlconfig.listdir + '/tooold.dois', 'a')
     ouf.write(doi + '\n')
     ouf.close()
     return
@@ -1980,7 +1970,7 @@ def getbaseurl(url):
 #check for url truncs of servers for which we already have dedicated harvesters
 dedicated = {'smu.edu.sg' : '(Singapore Management University not interesting)',
              'auctr.edu' : '(Clark Atlanta University does not work))'}
-for ordner in ['/afs/desy.de/user/l/library/proc', '/afs/desy.de/user/l/library/proc/python3']:
+for ordner in [ejlconfig.procdir]:
     grepout = os.popen("grep 'http.*:\/\/' %s/th*y|sed 's/\.py.*http.*\/\//;;;/'" % (ordner)).read()
     for line in re.split('\n', grepout):
         if re.search(';;;', line):
@@ -2281,7 +2271,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 rec['pages'] = extent['value']
                             else:
                                 rec['note'].append('EXTENT='+extent['value'])
-                        done.append(key)                                                        
+                        done.append(key)
                     #language
                     elif key in ['dc.language', 'dc.language.iso']:
                         for lang in thesis['metadata'][key]:
@@ -2307,13 +2297,13 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                                 elif ddcnum[:3] == '510':
                                     rec['fc'] = 'm'
                                 elif ddcnum[:3] == '520':
-                                    rec['fc'] = 'a'                                                          
+                                    rec['fc'] = 'a'
                                 elif 'ddc' in rec:
                                     rec['ddc'].append(ddc)
                                 else:
                                     rec['ddc'] = [ ddc ]
                             else:
-                                rec['note'].append('DDC:::' + ddc)                                    
+                                rec['note'].append('DDC:::' + ddc)
                     #description
                     elif key in ['dc.description']:
                         for descr in thesis['metadata'][key]:
@@ -2345,7 +2335,7 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
                         for otit in thesis['metadata'][key]:
                             if 'otits' in rec:
                                 rec['otits'].append(otit['value'])
-                            else: 
+                            else:
                                 rec['otits'] = [otit['value']]
                     #degree
                     elif key in ['etdms.degree.discipline', 'dc.phd.title', 'dc.type',
@@ -2404,14 +2394,13 @@ def ngrx(tocpage, urltrunc, listofkeys, fakehdl=False, boring=[], alreadyharvest
 
 
 #get PIDs of already harvested records
-dokidir = '/afs/desy.de/user/l/library/dok/ejl/backup'
 def tfstrip(x): return x.strip()
 def getalreadyharvested(jnlfilename, years=3):
     filenametrunc = re.sub('\d.*', '', jnlfilename)
     filenametrunc += '*doki'
-    filestosearch = '%s/*%s ' % (dokidir, filenametrunc)
+    filestosearch = '%s/*%s ' % (ejlconfig.dokidir, filenametrunc)
     for i in range(years):
-        filestosearch += '%s/%i/*%s ' % (dokidir, now.year-i, filenametrunc)
+        filestosearch += '%s/%i/*%s ' % (ejlconfig.dokidir, now.year-i, filenametrunc)
     alreadyharvested = list(map(tfstrip, os.popen("cat %s | grep URLDOC | sed 's/.*URLDOC=//' | sed 's/;//' " % (filestosearch))))
     alreadyharvested += list(map(tfstrip, os.popen("cat %s | grep '^I..http'|sed 's/^...//'|sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), filenametrunc))
