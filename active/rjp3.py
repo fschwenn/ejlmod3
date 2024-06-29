@@ -45,6 +45,10 @@ for div in tocpage.body.find_all('div'):
         if 'tsection' in div['class']:
             tsection = div.text.strip()
         elif 'docsource' in div['class']:
+            divaidt = re.sub('[\n\r\t]', '', div.text.strip())
+            print(divaidt)
+            if re.search('Article no. \d+', divaidt):
+                rec['p1'] = re.sub('.*Article no. (\d+).*', r'\1', divaidt)
             for a in div.find_all('a'):
                 if re.search('Full text', a.text):
                     rec['pdf'] = 'http://www.nipne.ro/rjp/' + a['href']
@@ -67,6 +71,9 @@ for div in tocpage.body.find_all('div'):
             rec['p1'] = p1p2[0]
             if len(p1p2) > 1:
                 rec['p2'] = p1p2[1]
-        print(rec)
+        for a in div.find_all('a'):
+            if a.has_attr('href') and re.search('doi.org\/10.', a['href']):
+                rec['doi'] = re.sub('.*org\/', '', a['href'])        
+        ejlmod3.printrecsummary(rec)
 
 ejlmod3.writenewXML(recs, publisher, jnlfilename)
