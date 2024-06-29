@@ -216,7 +216,7 @@ for rec in recs:
         if os.path.isfile(targetfilename):
             print('     %s already exists' % (targetfilename))
             rec['FFT'] = '%s.pdf' % (re.sub('[\(\)\/]', '_', rec['doi']))
-        else:
+        elif rec['autaff'] and rec['autaff'][0]:
             pdfurl = 'https://www.pnas.org/doi/pdf/' + rec['doi'] + '?download=true'
             if re.search('^Correction', rec['tit']):
                 savedfilereg = re.compile('\d\d\d\d\-correction.*%s.*.pdf$' % re.sub(',.*', '', re.sub('\. ', '-', rec['autaff'][0][0].lower())))
