@@ -82,14 +82,21 @@ for artlink in artlinks:
     for meta in artpage.head.find_all('meta', attrs = {'name' : 'citation_title'}):
         if not 'tit' in rec:
             rec['tit'] = meta['content']            
+    if not 'tit' in rec:
+    for meta in artpage.head.find_all('meta', attrs = {'name' : 'DC.title'}):
+        if re.search('e', meta['content'] ):
+            rec['tit'] = meta['content']        
     #author
     for meta in artpage.head.find_all('meta', attrs = {'name' : 'citation_author'}):
         if rec['auts']:
             if not re.search('CHINESENAME', rec['auts'][-1]):
                 rec['auts'][-1] += ', CHINESENAME: ' + meta['content']
         else:
-            rec['auts'] = [meta['content']]
+            rec['auts'] = [meta['content']]            
         rec['aff'] = [publisher]
+    for meta in artpage.head.find_all('meta', attrs = {'name' : 'DC.creator'}):
+        if not rec['auts']:
+            rec['auts'] = [meta['content']]  
     #FFT
     for table in tocpage.body.find_all('table', attrs = {'class' : 'detailURL'}):
         for tr in table.find_all('tr'):
