@@ -233,6 +233,7 @@ for rec in prerecs:
                     dep = re.sub('^Departament%20d', '', dep)
                     dep = re.sub('^Programa%20d', '', dep)
                     if dep in departmentstoskip:
+                        print('   skip "%s"' % (dep))
                         keepit = False
                     else:
                         rec['note'].append('%s=%s' % (tdt, dep))
