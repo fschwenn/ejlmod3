@@ -96,7 +96,7 @@ repacs = re.compile('^\d\d\.\d\d...$')
 #uninteresting journals in feed
 jnlskip = {'2058-8585' : 'Flexible and Printed Electronics'}
 
-untypes = ['Foreword']
+untypes = ['Foreword', 'Editorial']
 
 #CNUMs for conferences in JINST
 confdict = {'12th Workshop on Resistive Plate Chambers and Related Detectors (RPC2014)': 'C14-02-23.2',
