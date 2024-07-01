@@ -12,8 +12,9 @@ import ejlmod3
 import time
 
 startyear = str(ejlmod3.year(backwards=1+1))
-pages = 2
+pages = 100
 rpp = 40
+years = 2
 skipalreadyharvested = True
 
 boring = ['Doctorado en Ciencias del Mar y Limnología',
@@ -33,6 +34,7 @@ if skipalreadyharvested:
 prerecs = []
 for page in range(pages):
     tocurl = 'https://ru.dgb.unam.mx/simple-search?query=&filter_field_1=department&filter_type_1=equals&filter_value_1=Facultad+de+Ciencias&filter_field_2=level&filter_type_2=equals&filter_value_2=Doctorado&sort_by=dc.date.issued_dt&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(rpp*page)
+    tocurl = 'https://ru.dgb.unam.mx/simple-search?query=&filter_field_1=department&filter_type_1=equals&filter_value_1=Facultad+de+Ciencias&filter_field_2=level&filter_type_2=equals&filter_value_2=Doctorado&filter_field_3=dateIssued&filter_type_3=equals&filter_value_3=%5B' + str((ejlmod3.year()//10)*10) + '+TO+' + str(ejlmod3.year()) + '%5D&sort_by=score&order=desc&rpp=' + str(rpp) + '&etal=0&start=' + str(rpp*page)
     ejlmod3.printprogress("=", [[page+1, pages], [tocurl]])
     req = urllib.request.Request(tocurl, headers=hdr)
     tocpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
@@ -47,7 +49,13 @@ for page in range(pages):
                 print('   %s already in backup' % (rec['hdl']))
             elif ejlmod3.checkinterestingDOI(rec['hdl']):
                 prerecs.append(rec)
-    print('  %4i records so far' % (len(prerecs)))
+    for div in tocpage.body.find_all('div', attrs = {'class' : 'alert alert-info'}):
+        divt = div.text.strip()
+        if re.search('Resultados.*\d', divt):
+            totalnumberoftheses = int(re.sub('.*de (\d+).*', r'\1', divt))
+    print('  %4i records so far (checked %i/%i)' % (len(prerecs), (page+1)*rpp, totalnumberoftheses))
+    if (page+1)*rpp >= totalnumberoftheses:
+        break
     time.sleep(5)
 
 i = 0
