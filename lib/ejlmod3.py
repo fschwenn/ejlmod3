@@ -14,6 +14,7 @@ from iso639 import languages
 import urllib.parse
 import json
 import ejlconfig
+import inspect
 
 from collclean_lib3 import coll_cleanforthe
 from collclean_lib3 import coll_clean710
@@ -1373,6 +1374,8 @@ def writenewXML(recs, publisher, jnlfilename, xmldir=ejlconfig.xmldir, retfilena
             print ('METATAGS: ' + ' | '.join(['%s %i/%i' % (k, checkedmetatags[k], len(recs)) for k in checkedmetatags]))
         #count datafields
         datafields = {}
+        datafields['ORCID'] = 0
+        datafields['rawaffs'] = 0
         for rec in uniqrecs:
             for rk in rec:
                 if rec[rk]:
@@ -1380,6 +1383,27 @@ def writenewXML(recs, publisher, jnlfilename, xmldir=ejlconfig.xmldir, retfilena
                         datafields[rk] += 1
                     else:
                         datafields[rk] = 1
+                    if rk == 'auts':
+                        for author in rec[rk]:
+                            if re.search('ORCID', author):
+                                datafields['ORCID'] += 1
+                                break
+                    elif rk == 'autaff':
+                        (orcidfound, afffound) = (False, False)
+                        for author in rec[rk]:
+                            for field in author[1:]:
+                                if re.search('ORCID', field):
+                                    orcidfound = True
+                                elif not re.search('MAIL', field):
+                                    afffound = True
+                        if orcidfound:
+                            datafields['ORCID'] += 1
+                        if afffound:
+                            datafields['rawaffs'] += 1
+        if not datafields['ORCID']:
+            del datafields['ORCID']
+        if not datafields['rawaffs']:
+            del datafields['rawaffs']
         datafieldsoutBIG = []
         datafieldsout = []
         if 'auts' in datafields:
@@ -1412,6 +1436,24 @@ def writenewXML(recs, publisher, jnlfilename, xmldir=ejlconfig.xmldir, retfilena
             else:
                 datafieldsout.append(dfo)
         print('\033[93mFINISHED writenewXML(%s;%i;%s || %s)\033[0m' % (jnlfilename, len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
+
+
+        ouf = open(ejlconfig.listdir + '/writenewXML.log', 'a')
+        frame = inspect.stack()[1]
+        module = inspect.getmodule(frame[0])
+        harvester = re.sub('.*\/', '', module.__file__)
+        if 'vol' in rec:
+            if 'issue' in rec:
+                ouf.write('%s:::%s:::%s___%s.%s:::%04i:::%s || %s\n' % (stampoftoday(), harvester, rec['jnl'], rec['vol'], rec['issue'], len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
+            else:
+                ouf.write('%s:::%s:::%s___%s:::%04i:::%s || %s\n' % (stampoftoday(), harvester, rec['jnl'], rec['vol'], len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
+        else:
+            ouf.write('%s:::%s:::%s:::%04i:::%s || %s\n' % (stampoftoday(), harvester, rec['jnl'], len(uniqrecs), '|'.join(datafieldsoutBIG), '|'.join(datafieldsout)))
+        ouf.close()
+
+
+
+        
         #write retrival
         retfiles_text = open(os.path.join(ejlconfig.retfiles_path, retfilename), "r").read()
         if len(uniqrecs) <= ejlconfig.bunchsize:
@@ -2405,3 +2447,5 @@ def getalreadyharvested(jnlfilename, years=3):
     alreadyharvested += list(map(tfstrip, os.popen("cat %s | grep '^I..http'|sed 's/^...//'|sed 's/..$//' " % (filestosearch))))
     print('%i records in backup (%s)' % (len(alreadyharvested), filenametrunc))
     return alreadyharvested
+
+
