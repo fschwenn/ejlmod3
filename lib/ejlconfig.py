@@ -10,13 +10,13 @@ bunchsize = 10
 #the home directory of the functional account 'library' (small but with backup)
 afl = '/afs/desy.de/user/l/library'
 #the group directory (large but without backup)
-afg = '/afs/desy.de/group'
+afg = '/afs/desy.de/group/library'
 
 ## subdirectories of those used for the harvesting
 #directory where the abstract (+title, +keywors) of each record is stored as text file
-absdir = afg + '/library/publisherdata/abs'
+absdir = afg + '/publisherdata/abs'
 #directory where the PDF of each record is stored
-pdfdir = afg + '/library/publisherdata/pdf'
+pdfdir = afg + '/publisherdata/pdf'
 #directory were knowledebases are stored
 listdir = afl + '/lists'
 #directory with all the python programs
@@ -33,6 +33,11 @@ afstmpdir = afl + '/tmp'
 localtmpdir = '/tmp'
 #path were the ontologies for bibclassify are stored
 ontdir = afl + '/akw'
+#path of the local mirror of Github repo
+gitdir = '/afs/desy.de/user/s/schwenn/git/desy-harvest-scripts'
+#directory for web pages with reporting
+htmldir = afg + '/www/html/akw'
+
 
 
 
@@ -40,4 +45,4 @@ ontdir = afl + '/akw'
 
 host = os.uname()[1]
 if host == 'l00schwenn':
-    pass
+    afstmpdir = '/home/schwenn/tmp'
