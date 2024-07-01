@@ -146,6 +146,9 @@ for rec in prerecs:
         ejlmod3.writenewXML(recs[((len(recs)-1) // bunchsize)*bunchsize:], publisher, jnlfilename + '--%04i' % (1 + (len(recs)-1) // bunchsize))#, retfilename='retfiles_special')
     else:
         ejlmod3.adduninterestingDOI(rec['hdl'])
+    if i % 20 == 0:
+        print('\n  --> wait 600s to avoid HTTP 429 <--\n')
+        time.sleep(600)
 
 
 
