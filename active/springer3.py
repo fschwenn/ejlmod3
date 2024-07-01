@@ -487,7 +487,7 @@ def convertarticle(journalnumber, filename, contlevel):
     elif contlevel == 'chapter':
         metas = article.find_all('book-part-meta')
     elif contlevel == 'book':
-        metas = article.find_all('book-meta')
+        metas = article.find_all('book-meta')        
     for meta in metas:
         #DOI
         if contlevel == 'article':
@@ -538,6 +538,8 @@ def convertarticle(journalnumber, filename, contlevel):
                         rec['fc'] = 'e'
                     elif subjt == 'ELEMENTARY PARTICLES AND FIELDS/Theory':
                         rec['fc'] = 'pt'
+                    elif subjt == 'Physics and Technique of Accelerators':
+                        rec['fc'] = 'b'
                 if subjt in ['Review', 'Review Article', 'Review Paper', 'Short Review', 'Systematic Review']:
                     if not 'R' in rec['tc']:
                         rec['tc'] += 'R'
@@ -998,33 +1000,54 @@ def convertbook(journalnumber, dirname):
     for chpdir in os.listdir(dirname):
         chpdirfullpath = os.path.join(dirname, chpdir)
         if re.search('^BFM', chpdir):
+            filefound = False
             for filename in os.listdir(chpdirfullpath):
                 if re.search('Meta$', filename):
                     front = os.path.join(chpdirfullpath, filename)
+                    filefound = True
+            if not filefound:
+                for filename in os.listdir(chpdirfullpath):
+                    if re.search('xml$', filename):
+                        front = os.path.join(chpdirfullpath, filename)
         #elif re.search('^BBM', chpdir):
         #    for filename in os.listdir(chpdirfullpath):
         #        if re.search('Meta$', filename):
         #            back = os.path.join(chpdirfullpath, filename)
         elif re.search('^CHP', chpdir):
+            filefound = False
             for filename in os.listdir(chpdirfullpath):
                 if re.search('Meta$', filename):
                     chapters.append(os.path.join(chpdirfullpath, filename))
+                    filefound = True
+            if not filefound:
+                for filename in os.listdir(chpdirfullpath):
+                    if re.search('xml$', filename):
+                        chapters.append(os.path.join(chpdirfullpath, filename))
         elif re.search('^PRT', chpdir):
             for chp2dir in os.listdir(chpdirfullpath):
                 if re.search('^CHP', chp2dir):
                     chp2dirfullpath = os.path.join(chpdirfullpath, chp2dir)
+                    filefound = False
                     for filename in os.listdir(chp2dirfullpath):
                         if re.search('Meta$', filename):
                             chapters.append(os.path.join(chp2dirfullpath, filename))
+                            filefound = True
+                    if not filefound:
+                        for filename in os.listdir(chp2dirfullpath):
+                            if re.search('xml$', filename):
+                                chapters.append(os.path.join(chp2dirfullpath, filename))
+
     #get Hauptaufnahme
     if front:
+        ejlmod3.printprogress('-', [[journalnumber], [re.sub('.*springer.', '', dirname)], [re.sub('.*springer.', '', front)]])
         ha = convertarticle(journalnumber, front, 'book')
         ha['p1'] = 'pp.'
         if not 'vol' in list(ha.keys()):
-            ha['vol'] = isbn
+            ha['vol'] = isbn            
     #get chapters
     crecs = []
     for chapter in chapters:
+        ejlmod3.printprogress('-', [[journalnumber], [re.sub('.*springer.', '', dirname)], [re.sub('.*springer.', '', chapter)]])
         rec = convertarticle(journalnumber, chapter, 'chapter')
         rec['motherisbn'] = isbn
         if not 'vol' in rec:
@@ -1038,7 +1061,7 @@ def convertbook(journalnumber, dirname):
             crecs.append(rec)
     #copy date to HA
     if front:
-        if not 'date' in list(ha.keys()) and 'date' in list(rec.keys()):
+        if not 'date' in list(ha.keys()) and crecs and 'date' in list(rec.keys()):
             ha['date'] = rec['date']
     #combine
     if front:
@@ -1079,6 +1102,7 @@ def convertissue(journalnumber, dirname):
             for filename in os.listdir(artdirfullpath):
                 if re.search('Meta$', filename):
                     fullfilename = os.path.join(artdirfullpath, filename)
+                    ejlmod3.printprogress('-', [[journalnumber], [re.sub('.*springer.', '', dirname)], [filename]])
                     rec = convertarticle(journalnumber, fullfilename, 'article')
                     if rec:
                         if skipalreadyharvested and 'doi' in rec and rec['doi'] in alreadyharvested:
@@ -1150,14 +1174,14 @@ for dirlev1 in os.listdir(sprdir):
         onlinefirstpath = os.path.join(dirlev1fullpath, cday)
         #Book
         if 'BOK' in dirlev2:
-            print('==={ %s/%s }==={ %s }===' % (dirlev1, dirlev2, jc[journalnumber][1]))
+            ejlmod3.printprogress('=', [[dirlev1, dirlev2], [jc[journalnumber][1]]])
             (jnlfilename, recs) = convertbook(journalnumber, dirlev2fullpath)
             #write xml
             ejlmod3.writenewXML(recs,  publisher, jnlfilename)#, retfilename='retfiles_special')
         #Journal: crawl through directories of issues
         else:
             for dirlev3 in os.listdir(dirlev2fullpath):
-                print('==={ %s/%s/%s }==={ %s%s }===' % (dirlev1, dirlev2, dirlev3, jc[journalnumber][1], jc[journalnumber][2]))
+                ejlmod3.printprogress('=', [[dirlev1, dirlev2, dirlev3], [jc[journalnumber][1] + jc[journalnumber][2]]])
                 dirlev3fullpath = os.path.join(dirlev2fullpath, dirlev3)
                 (jnlfilename, recs) = convertissue(journalnumber, dirlev3fullpath)
                 #skip online first at the moment
