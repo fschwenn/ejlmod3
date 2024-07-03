@@ -70,7 +70,7 @@ elif (jnl == 'sci'):
 elif (jnl == 'pto'): #authors messy
     jnlname = 'Phys.Today'
     typecode = ''
-elif (jnl == 'aplqquantum'):
+elif (jnl == 'apq'):
     jnlname = 'APL Quantum'
 elif (jnl == 'apr'):
     jnlname = 'Appl.Phys.Rev.'
@@ -100,7 +100,7 @@ else:
 def tfstrip(x): return x.strip()
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnl)
-    if jnl == 'apc':
+    if jnl == 'acp':
         alreadyharvested += ejlmod3.getalreadyharvested('aipcp')
         alreadyharvested += ejlmod3.getalreadyharvested('aipconf')
 
@@ -185,7 +185,7 @@ boring += ['FROM THE EDITOR', "READERS' FORUM", 'ISSUES AND EVENTS', 'BOOKS',
 urltrunk = 'http://aip.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
 if jnl in ['aqs']:
     urltrunk = 'https://avs.scitation.org/toc/%s/%s/%s?size=all' % (jnl,vol,iss)
-elif jnl in ['apr']:
+elif jnl in ['apr', 'apq']:
     urltrunk = 'https://pubs.aip.org/aip/%s/issue/%s/%s' % (jnl,vol,iss)
     
 print(urltrunk)
@@ -254,6 +254,13 @@ def getarticle(artlink, secs):
         rec['abs'] = section.text.strip()
     #license and fulltext
     ejlmod3.globallicensesearch(rec, artpage)
+    if not 'license' in rec:
+        for h1 in artpage.body.find_all('h1'):
+            for ioa in h1.find_all('i', attrs = {'title' : 'Open Access'}):
+                for div in artpage.body.find_all('div', attrs = {'class' : 'copyright-statement'}):
+                    divt = div.text.strip()
+                    if re.search('creativecommons.org', divt):
+                        rec['license'] = {'url' : re.sub('.*(http.*creativ.*?0).*', r'\1', divt)}
     if 'license' in rec:
         ejlmod3.metatagcheck(rec, artpage, ['citation_pdf_url'])
     else:
