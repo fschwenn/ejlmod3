@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-#program to harvest journals from Association for Computing Machinery'
+#program to harvest journals from Association for Computing Machinery
 # FS 2021-02-26
 #FS: 2022-09-05
 
@@ -10,7 +10,7 @@ import re
 import sys
 import unicodedata
 import string
-import codecs 
+import codecs
 import urllib.request, urllib.error, urllib.parse
 import time
 from bs4 import BeautifulSoup
@@ -126,38 +126,37 @@ if jnl == 'proceedings':
     tc = 'C'
     if len(sys.argv) > 3:
         cnum = sys.argv[3]
-        jnlfilename = "acm_%s%s_%s" % (jnl, procnumber, cnum)    
+        jnlfilename = "acm_%s%s_%s" % (jnl, procnumber, cnum)
     else:
         cnum = False
-        jnlfilename = "acm_%s%s" % (jnl, procnumber)    
+        jnlfilename = "acm_%s%s" % (jnl, procnumber)
     tocurl = 'https://dl.acm.org/doi/proceedings/10.1145/' + procnumber
 else:
     year = sys.argv[2]
     vol = sys.argv[3]
     issue = sys.argv[4]
     tc = 'P'
-    if (jnl == 'tqc'): 
+    if (jnl == 'tqc'):
         jnlname = 'ACM Trans.Quant.Comput.'
-    elif (jnl == 'toms'): 
+    elif (jnl == 'toms'):
         jnlname = 'ACM Trans.Math.Software'
-    elif (jnl == 'cacm'): 
+    elif (jnl == 'cacm'):
         jnlname = 'Commun.ACM'
-    elif (jnl == 'csur'): 
+    elif (jnl == 'csur'):
         jnlname = 'ACM Comput.Surveys'
     elif (jnl == 'sigsam-cca'):
         jnlname = 'ACM Commun.Comp.Alg.'
-
-    elif (jnl == 'tocs'): 
+    elif (jnl == 'tocs'):
         jnlname = 'ACM Trans.Comp.Syst.'
-    elif (jnl == 'tog'): 
+    elif (jnl == 'tog'):
         jnlname = 'ACM Trans.Graph.'
-    elif (jnl == 'tomacs'): 
+    elif (jnl == 'tomacs'):
         jnlname = 'ACM Trans.Model.Comput.Simul.'
-    elif (jnl == 'trets'): 
+    elif (jnl == 'trets'):
         jnlname = 'ACM Trans.Reconf.Tech.Syst.'
     elif (jnl == 'jacm'):
         jnlname = 'J.Assoc.Comput.Machinery'
-        
+
 
     jnlfilename = "acm_%s%s.%s" % (jnl, vol, re.sub('\/', '_', issue))
     tocurl = 'https://dl.acm.org/toc/%s/%s/%s/%s' % (jnl, year, vol, issue)
@@ -186,14 +185,14 @@ if jnl == 'proceedings':
     #year
     for div in tocpages[0].find_all('div', attrs = {'class' : 'coverDate'}):
         year = div.text.strip()
-    if not year:   
+    if not year:
         tocurl = 'https://dl.acm.org/doi/proceedings/10.5555/' + procnumber
         print("get table of content... from %s instead" % (tocurl))
         time.sleep(2)
         driver.get(tocurl)
         tocpages = [BeautifulSoup(driver.page_source, features="lxml")]
         for div in tocpages[0].find_all('div', attrs = {'class' : 'coverDate'}):
-            year = div.text.strip()        
+            year = div.text.strip()
     #Hauptaufnahme
     rec = {'jnl' : jnlname, 'tc' : 'K', 'auts' : [], 'year' : year, 'fc' : 'c', 'note' : []}
     rec['doi'] = '10.1145/' + procnumber
@@ -234,9 +233,9 @@ for i in range(totalnumber//rpp):
             driver.get(tocurl)
             tocpages.append(BeautifulSoup(driver.page_source, features="lxml"))
             incomplete = True
-        
+
 dois = []
-    
+
 for tocpage in tocpages:
     for div in tocpage.body.find_all('div', attrs = {'class' : 'issue-item__content'}):
         if jnl == 'proceedings':
@@ -257,7 +256,7 @@ for tocpage in tocpages:
             div2t = div2.text.strip()
             #p1
             if re.search('(Paper|Article) No\.: \d+', div2t):
-                rec['p1'] = re.sub('.*(Paper|Article) No\.: (\d+).*', r'\2', div2t)            
+                rec['p1'] = re.sub('.*(Paper|Article) No\.: (\d+).*', r'\2', div2t)
             #pages
             if re.search(' pp \d+\D\d+', ' '+div2t):
                 pages = re.split('\D', re.sub('.*pp (\d+\D\d+).*', r'\1', div2t))
@@ -266,7 +265,7 @@ for tocpage in tocpages:
                     rec['p2'] = pages[1]
                 else:
                     rec['pages'] = str(int(pages[1]) - int(pages[0]))
-                    
+
         if not rec['doi'] in dois:
             recs.append(rec)
             dois.append(rec['doi'])
@@ -281,7 +280,7 @@ for tocpage in tocpages:
         section = div.text.strip()
         inps = div.find_all('input', attrs = {'class' : 'section--dois'})
         ndois = 0
-        if not section in ['DEPARTMENT: Departments', 'DEPARTMENT: Career Paths in Computing',   
+        if not section in ['DEPARTMENT: Departments', 'DEPARTMENT: Career Paths in Computing',
                            'DEPARTMENT: Letters to the Editor', 'DEPARTMENT: BLOG@CACM',
                            'COLUMN: Last Byte', 'COLUMN: News', 'COLUMN: Legally Speaking',
                            'COLUMN: Privacy', 'COLUMN: Viewpoint', 'DEPARTMENT: Career paths in computing',
@@ -343,6 +342,24 @@ for rec in recs:
                 rec['autaff'].append([span.text.strip()])
             for span in li.find_all('span', attrs = {'class' : 'loa_author_inst'}):
                 rec['autaff'][-1].append(span.text.strip())
+    if not 'autaff' in rec:
+        rec['autaff'] = []
+        for div in artpage.find_all('div', attrs = {'typeof' : 'Person'}):
+            #authorname
+            authorname = ''
+            for span in div.find_all('span', attrs = {'property' : 'familyName'}):
+                authorname = span.text.strip()
+            for span in div.find_all('span', attrs = {'property' : 'givenName'}):
+                authorname += ', ' + span.text.strip()
+            rec['autaff'].append([authorname])
+            #ORCID
+            for div2 in div.find_all('div', attrs = {'class' : 'core-orcid-link'}):
+                for a in div2.find_all('a'):
+                    if a.has_attr('href'):
+                        rec['autaff'][-1].append(re.sub('.*\/', 'ORCID:', a['href']))
+            #affiliations
+            for div2 in div.find_all('div', attrs = {'property' : 'affiliation'}):
+                rec['autaff'][-1].append(div2.text.strip())
     #abstract
     for div in artpage.find_all('div', attrs = {'class' : 'abstractInFull'}):
         for sup in div.find_all('sup'):
@@ -391,20 +408,12 @@ for rec in recs:
     if not 'date' in rec:
         for span in artpage.find_all('span', attrs = {'class' : 'CitationCoverDate'}):
             rec['date'] = span.text.strip()
-    
-
-
-
-
-
-
-
-    if rec['doi'] in sample:        
+    if rec['doi'] in sample:
         rec['note'] += ['reharvest_based_on_refanalysis',
                         '%i citations from INSPIRE papers' % (sample[rec['doi']]['all']),
                         '%i citations from CORE INSPIRE papers' % (sample[rec['doi']]['core'])]
         print('   reharvest_based_on_refanalysis %i | %o' % (sample[rec['doi']]['all'], sample[rec['doi']]['core']))
-                
+
     ejlmod3.printrecsummary(rec)
     if 'refs' in rec:
         print('       %i references found' % (len(rec['refs'])))
