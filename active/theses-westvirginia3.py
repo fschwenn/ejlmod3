@@ -39,7 +39,7 @@ boring = ['Psychology', 'History', 'Accounting', 'Agricultural and Resource Econ
           'Health Policy, Management & Leadership', 'Neurology', 'Physical Education Teacher Education',
           'Recreation, Parks and Tourism Resources', 'Reed College of Media',
           'Social and Behavioral Sciences', 'Sport Management', 'Familiy Medicine',
-          'Horticulture', 'Radiology']
+          'Horticulture', 'Radiology', 'Occupational Therapy']
 boring += ['MS', 'DMA', 'DNP', 'EdD', 'MA', 'MFA', 'MLA', 'MM']
 
 jnlfilename = 'THESES-WESTVIRGINIA-%s' % (ejlmod3.stampoftoday())
