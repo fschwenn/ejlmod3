@@ -68,7 +68,10 @@ boringfacs += ['Faculty of Science School of Geography, Archaeology and Environm
                'School of Molecular and Cell Biology',
                'School of Pathology', 'Wits Business School and School of Governance',
                'Wits Business School', 'WITS Graduate School of Governance',
-               'Wits School of Governance', 'Witwatersrand Business School']
+               'Wits School of Governance', 'Witwatersrand Business School',
+               'Geography, Archaeology and Environmental Sciences',
+               'Animal, Plant and Environmental Sciences',
+               'Molecular and Cell Biology']
 reboring = [re.compile('[Rr]equirement.* [Dd]egree .*(Master|Bachelor|MSc|M.Sc.|M.Ed.)'),
             re.compile('[Pp]artial [Ff]ull?fill?ment.* [Dd]egree.*(Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
             re.compile('[sS]ubmitted.* [Ff]ull?fill?ment.*(Master|Bachelor|master|bachelor|MSc|M.Sc.|M.Ed.)'),
