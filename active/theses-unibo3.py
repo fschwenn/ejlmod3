@@ -53,6 +53,11 @@ boring += ['BIO/10 Biochimica', 'MED/18 Chirurgia generale', 'ING-IND/08 Macchin
            'CHIM/11 Chimica e biotecnologia delle fermentazioni',
            "CHIM/12 Chimica dell'ambiente e dei beni culturali",
            'ING-IND/16 Tecnologie e sistemi di lavorazione']
+boring += ['Il futuro della terra, cambiamenti climatici e sfide sociali',
+           'Beni culturali e ambientali', 'Psychology',
+           'Salute, sicurezza e sistemi del verde',
+           'Scienze e tecnologie della salute', 'BIO/07 Ecologia',
+           'Lingue, letterature e culture moderne: Diversita ed inclusione']
 
 if skipalreadyharvested:
     alreadyharvested = ejlmod3.getalreadyharvested(jnlfilename)
