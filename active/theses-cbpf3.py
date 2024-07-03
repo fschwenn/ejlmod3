@@ -71,34 +71,38 @@ for rec in recs:
     #title
     for td in artpage.body.find_all('td', attrs = {'class' : 'pubTitle'}):
         rec['tit'] = td.text.strip()
-    for td in artpage.body.find_all('td'):
-        parts = re.split(': *', td.text.strip())
-        if len(parts) == 2:
-            #date
-            if re.search('Publica', parts[0]):
-                if re.search('\d\d\/\d\d\/\d\d\d\d', parts[1]):
-                    rec['date'] = re.sub('.*(\d\d).(\d\d).(\d\d\d\d).*', r'\3-\2-\1', parts[1])
-                elif re.search('\d\d\d\d', parts[1]):
-                    rec['date'] = re.sub('.*(\d\d\d\d).*', r'\1', parts[1])
-            #author
-            elif re.search('Aluno', parts[0]):
-                rec['autaff'] = [[parts[1].strip(), publisher]]
-            #supervisor
-            elif re.search('Orientador', parts[0]):
-                rec['supervisor'].append([parts[1].strip()])
-            #department
-            #elif re.search('Institui', parts[0]):
-            #    rec['department'] = parts[1].strip()
-            #    rec['note'] = [rec['department']]
-            #abstract
-            elif re.search('Resum', parts[0]):
-                rec['abs'] = parts[1].strip()
-            #defense date
-            elif re.search('Data da defesa', parts[0]):
-                if re.search('\d\d\/\d\d\/\d\d\d\d', parts[1]):
-                    rec['MARC'] = [('500', [('a', re.sub('.*(\d\d).(\d\d).(\d\d\d\d).*', r'Presented on \3-\2-\1', parts[1]))])]
-                elif re.search('\d\d\d\d', parts[1]):
-                    rec['MARC'] = [('500', [('a', re.sub('.*(\d\d\d\d).*', r'Presented on \1', parts[1]))])]
+    for td in artpage.body.find_all('td'):        
+        bt = ''
+        bs = td.find_all('b')
+        if len(bs) == 1:
+            for b in bs:
+                bt = b.text.strip()
+                b.decompose()
+        #date
+        if re.search('Publica', bt):
+            if re.search('\d\d\/\d\d\/\d\d\d\d', td.text.strip()):
+                rec['date'] = re.sub('.*(\d\d).(\d\d).(\d\d\d\d).*', r'\3-\2-\1', td.text.strip())
+            elif re.search('\d\d\d\d', td.text.strip()):
+                rec['date'] = re.sub('.*(\d\d\d\d).*', r'\1', td.text.strip())
+        #author
+        elif re.search('Aluno', bt):
+            rec['autaff'] = [[td.text.strip().strip(), publisher]]
+        #supervisor
+        elif re.search('Orientador', bt):
+            rec['supervisor'].append([td.text.strip().strip()])
+        #department
+        #elif re.search('Institui', bt):
+        #    rec['department'] = td.text.strip().strip()
+        #    rec['note'] = [rec['department']]
+        #abstract
+        elif re.search('Resum', bt):
+            rec['abs'] = td.text.strip().strip()
+        #defense date
+        elif re.search('Data da defesa', bt):
+            if re.search('\d\d\/\d\d\/\d\d\d\d', td.text.strip()):
+                rec['MARC'] = [('500', [('a', re.sub('.*(\d\d).(\d\d).(\d\d\d\d).*', r'Presented on \3-\2-\1', td.text.strip()))])]
+            elif re.search('\d\d\d\d', td.text.strip()):
+                rec['MARC'] = [('500', [('a', re.sub('.*(\d\d\d\d).*', r'Presented on \1', td.text.strip()))])]
     #PDF
     for a in artpage.body.find_all('a'):
         for img in a.find_all('img'):
