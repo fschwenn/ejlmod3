@@ -45,7 +45,7 @@ boring = ['Criminology and Criminal Justice', 'Psychology', 'Higher and Postseco
           'Human and Social Dimensions of Science and Technology', 'Human Systems Engineering', 'Industrial engineering',
           'Industrial Engineering', 'Interdisciplinary Studies', 'International letters and cultures',
           'Journalism and mass communication', 'Journalism and Mass Communication', 'Justice studies', 'Justice Studies',
-          'Justice Studies,', 'Leadership and innovation', 'Leadership and Innovation',
+          'Justice Studies,', 'Leadership and innovation', 'Leadership and Innovation', 'Special Education',
           'Learning, literacies and technologies', 'Learning, Literacies and Technologies', 'Liberal studies',
           'Linguistics and applied linguistics', 'Linguistics and Applied Linguistics', 'Linguistics',
           'Materials science and engineering', 'Materials Science and Engineering', 'Mathematics Education',
