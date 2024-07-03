@@ -35,9 +35,16 @@ j = 0
 for rec in recs:
     j += 1
     ejlmod3.printprogress('-', [[j, len(recs)], [rec['link']]])
-    req = urllib.request.Request(rec['link'])
-    artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
-    time.sleep(5)
+    try:
+        req = urllib.request.Request(rec['link'])
+        artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        time.sleep(5)
+    except:
+        print('   try again in 60s')
+        time.sleep(60)
+        req = urllib.request.Request(rec['link'])
+        artpage = BeautifulSoup(urllib.request.urlopen(req), features="lxml")
+        time.sleep(10)
     ejlmod3.metatagcheck(rec, artpage, ['citation_date', 'citation_author', 'DC.rights',
                                         'citation_language', 'citation_pdf_url',
                                         'DC.identifier', "DCTERMS.abstract"])
