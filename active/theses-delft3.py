@@ -55,14 +55,17 @@ boring = ['Urban Studies', 'Transport and Logistics', 'Sanitary Engineering',
           'Aerospace Structures & Computational Mechanics', 'Applied Ergonomics and Design',
           'Structural Integrity & Composites', 'Intelligent Electrical Power Grids',
           'Policy Analysis', 'Flight Performance and Propulsion', 'BT/Industrial Microbiology',
-          'Organisation and Governance', 'Wind Energy',
+          'Organisation and Governance', 'Wind Energy', 'Heritage & Architecture'
           'DC systems, Energy conversion & Storage', 'Petroleum Engineering',
           'Geo-engineering', 'Applied Mechanics', 'Pattern Recognition and Bioinformatics',
           'Ship Hydromechanics and Structures', 'Environmental Fluid Mechanics',
           'Applied Geophysics and Petrophysics', 'Hydraulic Structures and Flood Risk',
           'Transport Engineering and Logistics', 'Energy & Industry', 'Aerodynamics',
           'Materials and Environment', 'BT/Environmental Biotechnology',
-          'Transport and Planning', 'Building Services']
+          'Transport and Planning', 'Building Services',
+          'ChemE/Materials for Energy Conversion and Storage',
+          'Architectural Technology', 'BT/Industriele Microbiologie',
+          'Energie and Industrie', 'Energy and Industry']
 
 publisher = 'Delft Tech. U.'
 jnlfilename = 'THESES-DELFT-%s' % (ejlmod3.stampoftoday())
