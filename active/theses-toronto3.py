@@ -38,7 +38,7 @@ boringdeps = ['Adult Education and Counselling Psychology', 'Aerospace Science a
               'Kinesiology and Physical Education', 'Laboratory Medicine and Pathobiology',
               'History and Philosophy of Science and Technology', 'History of Art', 'History',
               'Ecology and Evolutionary Biology', 'Economics', 'Electrical and Computer Engineering',
-              'Women and Gender Studies Institute',
+              'Women and Gender Studies Institute', 'Chemical Engineering Applied Chemistry',
               'Germanic Languages and Literatures',
               'Sociology and Equity Studies in Education', 'Speech-Language Pathology', 'Italian Studies',
               'Doctor of Medicine/Doctor of Philosophy', 'Slavic Languages and Literatures']
