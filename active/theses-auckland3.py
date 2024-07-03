@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import ejlmod3
 import time
+import undetected_chromedriver as uc
 
 rpp = 50
 pages = 8
@@ -87,18 +88,30 @@ boring = ['Mechanical Engineering', 'Politics', 'Biology', 'Chemistry', 'Urban P
           'Environment', 'Higher Education', 'Media and Screen Studies', 'music',
           'Entrepreneurial Mindset Education']
 
+options = uc.ChromeOptions()
+options.add_argument('--headless')
+options.binary_location='/usr/bin/google-chrome'
+chromeversion = int(re.sub('.*?(\d+).*', r'\1', os.popen('%s --version' % (options.binary_location)).read().strip()))
+driver = uc.Chrome(version_main=chromeversion, options=options)
+
 recs = []
 prerecs = []
 for page in range(pages):        
     tocurl = 'https://researchspace.auckland.ac.nz/handle/2292/2/discover?rpp=' + str(rpp) + '&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
+    #tocurl = 'https://researchspace.auckland.ac.nz/handle/2292/2/discover?rpp=' + str(rpp) + '&etal=0&scope=&group_by=none&page=' + str(page+1) + '&sort_by=dc.date.issued_dt&order=desc'
+    #tocurl = 'https://researchspace.auckland.ac.nz/handle/2292/2/recent-submissions?offset=' + str(rpp*page)
     ejlmod3.printprogress('=', [[page+1, pages], [tocurl]])
     try:
-        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        #tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
         time.sleep(4)
     except:
         print("retry %s in 180 seconds" % (tocurl))
         time.sleep(180)
-        tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
+        driver.get(tocurl)
+        tocpage = BeautifulSoup(driver.page_source, features="lxml")
+        #tocpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(tocurl), features="lxml")
     prerecs += ejlmod3.getdspacerecs(tocpage, 'https://researchspace.auckland.ac.nz')
 
 i = 0
@@ -107,12 +120,16 @@ for rec in prerecs:
     i += 1
     ejlmod3.printprogress('-', [[i, len(prerecs)], [len(recs)], [rec['link']]])
     try:
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
+        driver.get(rec['link']+'?show=full')
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
         time.sleep(4)
     except:
         print("retry %s in 180 seconds" % (rec['link']))
         time.sleep(180)
-        artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
+        driver.get(rec['link']+'?show=full')
+        artpage = BeautifulSoup(driver.page_source, features="lxml")
+        #artpage = BeautifulSoup(urllib.request.build_opener(urllib.request.HTTPCookieProcessor).open(rec['link']+'?show=full'), features="lxml")
     ejlmod3.metatagcheck(rec, artpage, ['citation_author', 'DCTERMS.issued', 'DCTERMS.abstract',
                                         'DC.subject', 'citation_pdf_url', 'DC.rights'])
     if not 'autaff' in rec or not rec['autaff']:
